@@ -1,0 +1,9 @@
+<library path="j100_hardware">
+    <class name="clearpath_base/J100Hardware"
+           type="clearpath_base::J100Hardware"
+           base_class_type="hardware_interface::SystemInterface">
+      <description>
+        The ros2_control J100Hardware using a system hardware interface-type.
+      </description>
+    </class>
+  </library>
