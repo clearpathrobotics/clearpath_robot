@@ -71,7 +71,7 @@ void J100HardwareInterface::feedback_callback(const clearpath_platform_msgs::msg
  * @param right_wheel Right wheel command
  * @param mode Command mode
  */
-void J100HardwareInterface::drive_command(float left_wheel, float right_wheel, int8_t mode)
+void J100HardwareInterface::drive_command(const float & left_wheel, const float & right_wheel, const int8_t & mode)
 {
   clearpath_platform_msgs::msg::Drive drive_msg;
   drive_msg.mode = mode;

@@ -50,7 +50,7 @@ class J100HardwareInterface
 {
   public:
   explicit J100HardwareInterface();
-  void drive_command(float left_wheel, float right_wheel, int8_t mode);
+  void drive_command(const float & left_wheel, const float & right_wheel, const int8_t & mode);
   clearpath_platform_msgs::msg::Feedback get_feedback();
 
   private:
