@@ -7,37 +7,44 @@ from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
-    robot_model = LaunchConfiguration('robot_model')
 
     # Launch Arguments
-    arg_robot_model = DeclareLaunchArgument(
-        'robot_model',
+    arg_platform_model = DeclareLaunchArgument(
+        'platform_model',
         choices=['a200', 'j100'],
         default_value='a200'
     )
-    robot_model = LaunchConfiguration('robot_model')
+    platform_model = LaunchConfiguration('platform_model')
  
-    log_platform_model = LogInfo(msg=["Launching Clearpath platform model: ", LaunchConfiguration('robot_model')])
+    log_platform_model = LogInfo(msg=["Launching Clearpath platform model: ", platform_model])
 
-    # Launch clearpath_control/control.launch.py which is just robot_localization.
-    launch_clearpath_control = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(PathJoinSubstitution(
-        [FindPackageShare("clearpath_control"), 'launch', 'control.launch.py'])))
+    group_platform_action = GroupAction(
+        actions=[
+            # Launch clearpath_control/control.launch.py which is just robot_localization.
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(PathJoinSubstitution(
+                [FindPackageShare("clearpath_control"), 'launch', 'control.launch.py']))
+            ),
 
-    # Launch clearpath_control/teleop_base.launch.py which is various ways to tele-op
-    # the robot but does not include the joystick. Also, has a twist mux.
-    launch_clearpath_teleop_base = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(PathJoinSubstitution(
-        [FindPackageShare("clearpath_control"), 'launch', 'teleop_base.launch.py'])))
+            # Launch clearpath_control/teleop_base.launch.py which is various ways to tele-op
+            # the robot but does not include the joystick. Also, has a twist mux.
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(PathJoinSubstitution(
+                [FindPackageShare("clearpath_control"), 'launch', 'teleop_base.launch.py']))
+            ),
 
-    # Launch clearpath_control/teleop_joy.launch.py which is tele-operation using a physical joystick.
-    launch_clearpath_teleop_joy = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(PathJoinSubstitution(
-        [FindPackageShare("clearpath_control"), 'launch', 'teleop_joy.launch.py'])))
+            # Launch clearpath_control/teleop_joy.launch.py which is tele-operation using a physical joystick.
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(PathJoinSubstitution(
+                [FindPackageShare("clearpath_control"), 'launch', 'teleop_joy.launch.py']))
+            )
+        ]
+    )
+
 
     # Group for actions needed for the Clearpath Jackal J100 platform.
     group_j100_action = GroupAction(
-        condition=LaunchConfigurationEquals('robot_model', 'j100'),
+        condition=LaunchConfigurationEquals('platform_model', 'j100'),
         actions=[
             # Wireless Watcher
             IncludeLaunchDescription(
@@ -71,10 +78,8 @@ def generate_launch_description():
     )
 
     ld = LaunchDescription()
-    ld.add_action(arg_robot_model)
+    ld.add_action(arg_platform_model)
     ld.add_action(log_platform_model)
-    ld.add_action(launch_clearpath_control)
-    ld.add_action(launch_clearpath_teleop_base)
-    ld.add_action(launch_clearpath_teleop_joy)
+    ld.add_action(group_platform_action)
     ld.add_action(group_j100_action)
     return ld
