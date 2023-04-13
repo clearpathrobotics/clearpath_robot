@@ -1,1 +1,0 @@
-# clearpath_robot
