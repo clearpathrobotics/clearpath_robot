@@ -45,29 +45,42 @@ class SensorLaunch():
     class BaseLaunch():
         CLEARPATH_SENSORS = 'clearpath_sensors'
 
+        TOPIC_NAMESPACE = 'platform/sensors/'
+
         # Launch arguments
         NAME = 'name'
         PARAMETERS = 'parameters'
+        TOPIC = 'topic'
 
         def __init__(self, sensor: BaseSensor, output_path: str = '/etc/clearpath/sensors/') -> None:
             self.sensor = sensor
 
             # Defaults
             self.default_sensor_package = Package(self.CLEARPATH_SENSORS)
-            self.default_sensor_launch_file = LaunchFile(self.get_model(), package=self.default_sensor_package)
-            self.default_sensor_parameters_file = ParameterFile(self.get_model(), package=self.default_sensor_package)
-            self.default_sensor_parameters = ClearpathConfigParser.read_yaml(self.default_sensor_parameters_file.get_full_path())
+            self.default_sensor_parameters_file = ParameterFile(
+                self.get_model(),
+                package=self.default_sensor_package)
+            self.default_sensor_parameters = ClearpathConfigParser.read_yaml(
+                self.default_sensor_parameters_file.get_full_path())
 
             # Generated
-            self.sensor_launch_file = LaunchFile(self.get_name(), path=os.path.join(output_path, 'launch'))
+            self.sensor_launch_file = LaunchFile(
+                self.get_name(),
+                path=os.path.join(output_path, 'launch'))
             self.sensor_parameters_file = ParameterFile(self.get_name(), path=os.path.join(output_path, 'config'))
             self.sensor_parameters = self.default_sensor_parameters
 
-            self.remappings = {}
             self.launch_args = {
                 self.NAME: self.get_name(),
                 self.PARAMETERS: self.sensor_parameters_file,
+                self.TOPIC: self.get_topic()
             }
+
+            # Set launch args for default launch file
+            self.default_sensor_launch_file = LaunchFile(
+                self.get_model(),
+                package=self.default_sensor_package,
+                args=self.launch_args)
 
             self.generate_config()
 
@@ -88,7 +101,7 @@ class SensorLaunch():
             #ClearpathConfigParser.write_yaml(self.launch_path + '/sensors/' + name + '.yaml', default_parameters)
 
         def get_launch_file(self) -> LaunchFile:
-            return self.launch_file
+            return self.sensor_launch_file
 
         def get_parameters(self) -> dict:
             return self.sensor_parameters
@@ -99,9 +112,6 @@ class SensorLaunch():
         def get_parameter_file(self) -> ParameterFile:
             return self.sensor_parameters_file
 
-        def get_launch_file(self) -> str:
-            return self.sensor_launch_file
-
         def get_name(self) -> str:
             return self.sensor.get_name()
 
@@ -111,15 +121,11 @@ class SensorLaunch():
         def get_default_sensor_package(self) -> str:
             return self.default_sensor_package
 
-        def get_path(self) -> str:
-            return self.path
-
         def get_launch_args(self) -> dict:
             return self.launch_args
 
-        def get_remappings(self) -> dict:
-            return self.remappings
-
+        def get_topic(self) -> str:
+            return self.TOPIC_NAMESPACE + self.sensor.get_topic()
 
     MODEL = {
         HokuyoUST10.SENSOR_MODEL: BaseLaunch,

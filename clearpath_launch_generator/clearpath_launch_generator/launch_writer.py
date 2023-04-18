@@ -11,21 +11,27 @@ class Package():
         self.declaration = 'pkg_' + name
 
     def find_package_share(self) -> str:
-        return 'FindPackageShare(\'{0}\')'.format(self.name)
+        return '{0} = FindPackageShare(\'{1}\')'.format(self.declaration, self.name)
+
 
 class LaunchFile():
-    def __init__(self, name: str, path: str = 'launch', package: Package = None) -> None:
+    def __init__(self, name: str,
+                 path: str = 'launch',
+                 package: Package = None,
+                 args: dict = None) -> None:
         self.package = package
         self.path = path
         self.name = 'launch_' + name
         self.declaration = 'launch_file_{0}'.format(name)
         self.file = '{0}.launch.py'.format(name)
+        self.args = args
 
     def get_full_path(self):
         if self.package:
             return os.path.join(get_package_share_directory(self.package.name), self.path, self.file)
         else:
             return os.path.join(self.path, self.file)
+
 
 class ParameterFile():
     def __init__(self, name: str, path: str = 'config', package: Package = None) -> None:
@@ -46,12 +52,12 @@ class LaunchWriter():
 
     def __init__(self, launch_file: LaunchFile):
         self.launch_file = launch_file
-        self.actions = []
-        self.included_packages = []
-        self.included_launch_files = []
-        self.declared_launch_args = []
+        self.actions: List[str] = []
+        self.included_packages: List[Package] = []
+        self.included_launch_files: List[LaunchFile] = []
+        self.declared_launch_args: List[str] = []
         self.file = open(self.launch_file.get_full_path(), 'w+')
-        self.initialize_file()
+        #self.initialize_file()
 
     def write(self, string, indent_level=1):
         self.file.write('{0}{1}\n'.format(self.tab * indent_level, string))
@@ -70,7 +76,6 @@ class LaunchWriter():
 
     def find_package(self, package: Package):
         if package not in self.included_packages:
-            self.write('pkg_{0} = FindPackageShare(\'{0}\')'.format(package.name))
             self.included_packages.append(package)
 
     def path_join_substitution(package, folder, file):
@@ -95,35 +100,9 @@ class LaunchWriter():
 
             self.declared_launch_args.append(arg)
 
-    def declare_launch_file(self, launch_file: LaunchFile):
+    def add_launch_file(self, launch_file: LaunchFile):
         if launch_file not in self.included_launch_files:
-            if launch_file.package is None:
-                self.write('{0} = \'{1}\''.format(launch_file.declaration, os.path.join(launch_file.path, launch_file.file)))
-            else:
-                self.write('{0} = PathJoinSubstitution(['.format(launch_file.declaration))
-                self.write('{0}, \'{1}\', \'{2}\'])'.format(
-                    launch_file.package.declaration,
-                    launch_file.path,
-                    launch_file.file), indent_level=2)
             self.included_launch_files.append(launch_file)
-
-    def include_launch_file(self, launch_file: LaunchFile, args: dict = None):
-        self.write('{0} = IncludeLaunchDescription('.format(launch_file.name))
-        self.write('PythonLaunchDescriptionSource([{0}]),'.format(launch_file.declaration), indent_level=2)
-        if args is not None:
-            self.write('launch_arguments=[', indent_level=2)
-            for key in args.keys():
-                value = args.get(key)
-                if isinstance(value, str):
-                    self.write('(\'{0}\', \'{1}\'),'.format(key, value), indent_level=3)
-                elif isinstance(value, dict):
-                    self.write('(\'{0}\', {1}),'.format(key, value), indent_level=3)
-                elif isinstance(value, ParameterFile):
-                    self.write('(\'{0}\', \'{1}\'),'.format(key, value.get_full_path()), indent_level=3)
-            self.write(']', indent_level=2)
-        self.write(')')
-        self.write_newline()
-        self.actions.append(launch_file.name)
 
     def initialize_file(self):
         self.write('from launch import LaunchDescription', 0)
@@ -137,5 +116,56 @@ class LaunchWriter():
         self.write_newline()
 
     def close_file(self):
-        self.write_actions()
         self.file.close()
+
+    def generate_file(self):
+        self.initialize_file()
+
+        if len(self.included_launch_files) > 0:
+            # Include packages
+            self.write_comment('Include Packages')
+            for launch_file in self.included_launch_files:
+                if launch_file.package:
+                    self.write(launch_file.package.find_package_share())
+            self.write_newline()
+            # Declare launch files
+            self.write_comment('Declare launch files')
+            for launch_file in self.included_launch_files:
+                if launch_file.package is None:
+                    self.write('{0} = \'{1}\''.format(launch_file.declaration, os.path.join(launch_file.path, launch_file.file)))
+                else:
+                    self.write('{0} = PathJoinSubstitution(['.format(launch_file.declaration))
+                    self.write('{0}, \'{1}\', \'{2}\'])'.format(
+                        launch_file.package.declaration,
+                        launch_file.path,
+                        launch_file.file), indent_level=2)
+            self.write_newline()
+
+            # Include launch files
+            self.write_comment('Include launch files')
+            for launch_file in self.included_launch_files:
+                self.write('{0} = IncludeLaunchDescription('.format(launch_file.name))
+                self.write('PythonLaunchDescriptionSource([{0}]),'.format(launch_file.declaration), indent_level=2)
+                if launch_file.args is not None:
+                    self.write('launch_arguments=[', indent_level=2)
+                    for key in launch_file.args.keys():
+                        value = launch_file.args.get(key)
+                        print(key, value)
+                        if isinstance(value, str):
+                            self.write('(\'{0}\', \'{1}\'),'.format(key, value), indent_level=3)
+                        elif isinstance(value, dict):
+                            self.write('(\'{0}\', {1}),'.format(key, value), indent_level=3)
+                        elif isinstance(value, ParameterFile):
+                            self.write('(\'{0}\', \'{1}\'),'.format(key, value.get_full_path()), indent_level=3)
+                    self.write(']', indent_level=2)
+                self.write(')')
+                self.write_newline()
+
+        # Create LaunchDescription
+        self.write_comment('Create LaunchDescription')
+        self.write('ld = LaunchDescription()')
+        for launch_file in self.included_launch_files:
+            self.write('ld.add_action({0})'.format(launch_file.name))
+        self.write('return ld')
+
+        self.close_file()
