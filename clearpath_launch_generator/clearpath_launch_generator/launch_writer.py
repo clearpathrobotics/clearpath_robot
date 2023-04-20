@@ -57,7 +57,6 @@ class LaunchWriter():
         self.included_launch_files: List[LaunchFile] = []
         self.declared_launch_args: List[str] = []
         self.file = open(self.launch_file.get_full_path(), 'w+')
-        #self.initialize_file()
 
     def write(self, string, indent_level=1):
         self.file.write('{0}{1}\n'.format(self.tab * indent_level, string))

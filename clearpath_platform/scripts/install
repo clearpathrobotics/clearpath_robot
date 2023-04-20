@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+
+import os
+
+import robot_upstart
+
+
+platform = robot_upstart.Job(name='clearpath-platform',
+                             rmw='rmw_fastrtps_cpp',
+                             workspace_setup='/etc/clearpath/setup.bash',
+                             ros_domain_id=0)
+
+platform.symlink = True
+platform.add(filename='/etc/clearpath/platform/launch/platform-service.launch.py')
+platform.install()
+
+sensors = robot_upstart.Job(name='clearpath-sensors',
+                            rmw='rmw_fastrtps_cpp',
+                            workspace_setup='/etc/clearpath/setup.bash',
+                            ros_domain_id=0)
+
+sensors.symlink = True
+sensors.add(filename='/etc/clearpath/sensors/launch/sensors-service.launch.py')
+sensors.install()

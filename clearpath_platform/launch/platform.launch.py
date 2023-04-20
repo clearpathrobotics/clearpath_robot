@@ -8,6 +8,10 @@ from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
 
+    # Packages
+    pkg_clearpath_control = FindPackageShare('clearpath_control')
+    pkg_clearpath_platform_description = FindPackageShare('clearpath_platform_description')
+
     # Launch Arguments
     arg_platform_model = DeclareLaunchArgument(
         'platform_model',
@@ -15,7 +19,7 @@ def generate_launch_description():
         default_value='a200'
     )
     platform_model = LaunchConfiguration('platform_model')
- 
+
     log_platform_model = LogInfo(msg=["Launching Clearpath platform model: ", platform_model])
 
     group_platform_action = GroupAction(
@@ -23,20 +27,20 @@ def generate_launch_description():
             # Launch clearpath_control/control.launch.py which is just robot_localization.
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource(PathJoinSubstitution(
-                [FindPackageShare("clearpath_control"), 'launch', 'control.launch.py']))
+                [pkg_clearpath_control, 'launch', 'control.launch.py']))
             ),
 
             # Launch clearpath_control/teleop_base.launch.py which is various ways to tele-op
             # the robot but does not include the joystick. Also, has a twist mux.
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource(PathJoinSubstitution(
-                [FindPackageShare("clearpath_control"), 'launch', 'teleop_base.launch.py']))
+                [pkg_clearpath_control, 'launch', 'teleop_base.launch.py']))
             ),
 
             # Launch clearpath_control/teleop_joy.launch.py which is tele-operation using a physical joystick.
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource(PathJoinSubstitution(
-                [FindPackageShare("clearpath_control"), 'launch', 'teleop_joy.launch.py']))
+                [pkg_clearpath_control, 'launch', 'teleop_joy.launch.py']))
             )
         ]
     )
@@ -77,9 +81,16 @@ def generate_launch_description():
         ]
     )
 
+    launch_description = IncludeLaunchDescription(
+            PathJoinSubstitution([
+                pkg_clearpath_platform_description,
+                'launch',
+                'description.launch.py']))
+
     ld = LaunchDescription()
     ld.add_action(arg_platform_model)
     ld.add_action(log_platform_model)
+    ld.add_action(launch_description)
     ld.add_action(group_platform_action)
     ld.add_action(group_j100_action)
     return ld
