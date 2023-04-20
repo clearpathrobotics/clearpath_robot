@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-import os
+from clearpath_launch_generator.launch_generator import main
 
 import robot_upstart
 
+main()
 
 platform = robot_upstart.Job(name='clearpath-platform',
                              rmw='rmw_fastrtps_cpp',

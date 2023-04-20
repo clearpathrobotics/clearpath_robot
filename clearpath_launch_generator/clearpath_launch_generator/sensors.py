@@ -91,13 +91,12 @@ class SensorLaunch():
 
             parameters = {name: {'ros__parameters': ''}}
             parameters[name]['ros__parameters'] = default_parameters[model]['ros__parameters']
-            for p in parameters:
-                if p in parameters[name]['ros__parameters']:
-                    parameters[name]['ros__parameters'][p] = parameters[p]
-            self.sensor_parameters = parameters
+            for p in self.sensor_parameters:
+                if p in default_parameters[model]['ros__parameters']:
+                    parameters[name]['ros__parameters'][p] = self.sensor_parameters[p]
 
             with open(self.sensor_parameters_file.get_full_path(), 'w+') as f:
-                yaml.dump(self.sensor_parameters, f, yaml.SafeDumper)
+                yaml.dump(parameters, f, yaml.SafeDumper)
             #ClearpathConfigParser.write_yaml(self.launch_path + '/sensors/' + name + '.yaml', default_parameters)
 
         def get_launch_file(self) -> LaunchFile:
@@ -127,8 +126,14 @@ class SensorLaunch():
         def get_topic(self) -> str:
             return self.TOPIC_NAMESPACE + self.sensor.get_topic()
 
+    class HokuyoUST10Launch(BaseLaunch):
+        def __init__(self, sensor: BaseSensor, output_path: str = '/etc/clearpath/sensors/') -> None:
+            super().__init__(sensor, output_path)
+            self.sensor_parameters[self.get_model()]['ros__parameters']['laser_frame_id'] = self.get_name() + '_laser'
+            self.generate_config()
+
     MODEL = {
-        HokuyoUST10.SENSOR_MODEL: BaseLaunch,
+        HokuyoUST10.SENSOR_MODEL: HokuyoUST10Launch,
         SickLMS1XX.SENSOR_MODEL: BaseLaunch
     }
 
