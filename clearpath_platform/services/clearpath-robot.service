@@ -1,0 +1,12 @@
+[Unit]
+Description=Application
+
+[Service]
+Type=simple
+ExecStartPre=/usr/sbin/clearpath-robot-generate
+ExecStart=/usr/sbin/clearpath-robot-check
+RemainAfterExit=yes
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

@@ -10,12 +10,12 @@ find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_python REQUIRED)
 
 install(PROGRAMS
-  ${PROJECT_NAME}/launch_generator.py
+  ${PROJECT_NAME}/launch_generator
   DESTINATION lib/${PROJECT_NAME}
 )
 
 ament_python_install_package(${PROJECT_NAME})
-ament_python_install_module(${PROJECT_NAME}/launch_generator.py)
+ament_python_install_module(${PROJECT_NAME}/launch_generator)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

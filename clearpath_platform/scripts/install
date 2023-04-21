@@ -1,11 +1,30 @@
 #!/usr/bin/env python3
 
-from clearpath_launch_generator.launch_generator import main
-
 import robot_upstart
 
-main()
+from ament_index_python.packages import get_package_share_directory
 
+import os
+
+
+class PlatformProvider(robot_upstart.providers.Generic):
+    def post_install(self):
+        pass
+
+    def generate_install(self):
+        platform_service_path = os.path.join(
+            get_package_share_directory('clearpath_platform'),
+            'services/clearpath-platform.service')
+        with open(platform_service_path) as f:
+            platform_service_contents = f.read()
+        return {
+            "/lib/systemd/system/clearpath-platform.service": {
+                "content": platform_service_contents,
+                "mode": 0o644
+            }}
+
+
+# Platform
 platform = robot_upstart.Job(name='clearpath-platform',
                              rmw='rmw_fastrtps_cpp',
                              workspace_setup='/etc/clearpath/setup.bash',
@@ -15,6 +34,28 @@ platform.symlink = True
 platform.add(filename='/etc/clearpath/platform/launch/platform-service.launch.py')
 platform.install()
 
+platform_extras = robot_upstart.Job(workspace_setup='/etc/clearpath/setup.bash')
+platform_extras.install(Provider=PlatformProvider)
+
+
+class SensorsProvider(robot_upstart.providers.Generic):
+    def post_install(self):
+        pass
+
+    def generate_install(self):
+        sensors_service_path = os.path.join(
+            get_package_share_directory('clearpath_platform'),
+            'services/clearpath-sensors.service')
+        with open(sensors_service_path) as f:
+            sensors_service_contents = f.read()
+        return {
+            "/lib/systemd/system/clearpath-sensors.service": {
+                "content": sensors_service_contents,
+                "mode": 0o644
+            }}
+
+
+# Sensors
 sensors = robot_upstart.Job(name='clearpath-sensors',
                             rmw='rmw_fastrtps_cpp',
                             workspace_setup='/etc/clearpath/setup.bash',
@@ -23,3 +64,47 @@ sensors = robot_upstart.Job(name='clearpath-sensors',
 sensors.symlink = True
 sensors.add(filename='/etc/clearpath/sensors/launch/sensors-service.launch.py')
 sensors.install()
+
+sensors_extras = robot_upstart.Job(workspace_setup='/etc/clearpath/setup.bash')
+sensors_extras.install(Provider=SensorsProvider)
+
+
+class RobotProvider(robot_upstart.providers.Generic):
+    def post_install(self):
+        pass
+
+    def generate_install(self):
+        robot_service_path = os.path.join(
+            get_package_share_directory('clearpath_platform'),
+            'services/clearpath-robot.service')
+        robot_service_execpre_contents_path = os.path.join(
+            get_package_share_directory('clearpath_platform'),
+            'scripts/generate.sh')
+        robot_service_exec_contents_path = os.path.join(
+            get_package_share_directory('clearpath_platform'),
+            'scripts/check.sh')
+
+        with open(robot_service_path) as f:
+            robot_service_contents = f.read()
+        with open(robot_service_execpre_contents_path) as f:
+            robot_service_execpre_contents = f.read()
+        with open(robot_service_exec_contents_path) as f:
+            robot_service_exec_contents = f.read()
+        return {
+            "/lib/systemd/system/clearpath-robot.service": {
+                "content": robot_service_contents,
+                "mode": 0o644
+            },
+            "/usr/sbin/clearpath-robot-generate": {
+                "content": robot_service_execpre_contents,
+                "mode": 0o755
+            },
+            "/usr/sbin/clearpath-robot-check": {
+                "content": robot_service_exec_contents,
+                "mode": 0o755
+            },
+          }
+
+
+robot = robot_upstart.Job(workspace_setup='/etc/clearpath/setup.bash')
+robot.install(Provider=RobotProvider)

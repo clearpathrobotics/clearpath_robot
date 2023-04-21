@@ -101,7 +101,7 @@ install(
   DESTINATION include
 )
 
-install(DIRECTORY launch
+install(DIRECTORY launch services scripts
   DESTINATION share/${PROJECT_NAME}
 )
 
@@ -109,7 +109,6 @@ install(
   PROGRAMS scripts/install
   DESTINATION lib/${PROJECT_NAME}
 )
-
 
 ## EXPORTS
 ament_export_include_directories(
