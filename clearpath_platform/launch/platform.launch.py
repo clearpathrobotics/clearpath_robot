@@ -55,7 +55,7 @@ def generate_launch_description():
                 PythonLaunchDescriptionSource(PathJoinSubstitution(
                     [FindPackageShare('wireless_watcher'), 'launch', 'watcher.launch.py']
                 )),
-                launch_arguments=[('connected_topic', 'wifi_connected')]
+                launch_arguments=[('connected_topic', 'platform/wifi_connected')]
             ),
 
             # MicroROS Agent
@@ -70,7 +70,7 @@ def generate_launch_description():
                 cmd=[
                     ['export ROS_DOMAIN_ID=0;'],
                     [FindExecutable(name='ros2'),
-                    ' service call /set_domain_id ',
+                    ' service call platform/mcu/set_domain_id ',
                     ' clearpath_platform_msgs/srv/SetDomainId ',
                     '"domain_id: ',
                     EnvironmentVariable('ROS_DOMAIN_ID', default_value='0'),

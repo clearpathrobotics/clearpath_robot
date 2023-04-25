@@ -32,6 +32,7 @@
 
 from clearpath_config.sensors.base import BaseSensor
 from clearpath_config.sensors.lidars_2d import HokuyoUST10, SickLMS1XX
+from clearpath_config.sensors.cameras import IntelRealsense
 from clearpath_config.parser import ClearpathConfigParser
 
 from clearpath_launch_generator.launch_writer import LaunchFile, Package, ParameterFile
@@ -134,7 +135,8 @@ class SensorLaunch():
 
     MODEL = {
         HokuyoUST10.SENSOR_MODEL: HokuyoUST10Launch,
-        SickLMS1XX.SENSOR_MODEL: BaseLaunch
+        SickLMS1XX.SENSOR_MODEL: BaseLaunch,
+        IntelRealsense.SENSOR_MODEL: BaseLaunch
     }
 
     def __new__(cls, sensor: BaseSensor, output_path: str = '/etc/clearpath/sensors/') -> BaseLaunch:

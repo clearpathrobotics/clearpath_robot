@@ -44,12 +44,12 @@ J100HardwareInterface::J100HardwareInterface()
 : Node("j100_hardware")
 {
   feedback_sub_ = create_subscription<clearpath_platform_msgs::msg::Feedback>(
-    "feedback",
+    "platform/motors/feedback",
     rclcpp::SensorDataQoS(),
     std::bind(&J100HardwareInterface::feedback_callback, this, std::placeholders::_1));
 
   drive_pub_ = create_publisher<clearpath_platform_msgs::msg::Drive>(
-    "cmd_drive",
+    "platform/motors/cmd_drive",
     rclcpp::SensorDataQoS());
 }
 
