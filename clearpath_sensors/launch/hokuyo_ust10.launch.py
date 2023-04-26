@@ -7,15 +7,12 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
-
-    name = LaunchConfiguration('name')
     parameters = LaunchConfiguration('parameters')
     namespace = LaunchConfiguration('namespace')
-    topic = LaunchConfiguration('topic')
 
-    arg_name = DeclareLaunchArgument(
-        'name',
-        default_value='hokuyo_ust10')
+    arg_namespace = DeclareLaunchArgument(
+        'namespace',
+        default_value='platform/sensors/lidar2d_0')
 
     arg_parameters = DeclareLaunchArgument(
         'parameters',
@@ -25,24 +22,16 @@ def generate_launch_description():
           'hokuyo_ust10.yaml'
         ]))
 
-    arg_topic = DeclareLaunchArgument(
-        'topic',
-        default_value=[namespace, '/scan'])
-
     urg_node = Node(
         package='urg_node',
-        name=name,
+        namespace=namespace,
         executable='urg_node_driver',
-        remappings=[
-          ('scan', topic),
-        ],
         parameters=[parameters],
         output='screen',
     )
 
     ld = LaunchDescription()
-    ld.add_action(arg_name)
+    ld.add_action(arg_namespace)
     ld.add_action(arg_parameters)
-    ld.add_action(arg_topic)
     ld.add_action(urg_node)
     return ld

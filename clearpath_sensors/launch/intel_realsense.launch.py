@@ -7,14 +7,8 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
-
-    name = LaunchConfiguration('name')
     parameters = LaunchConfiguration('parameters')
-    topic = LaunchConfiguration('topic')
-
-    arg_name = DeclareLaunchArgument(
-        'name',
-        default_value='intel_realsense')
+    namespace = LaunchConfiguration('namespace')
 
     arg_parameters = DeclareLaunchArgument(
         'parameters',
@@ -24,21 +18,20 @@ def generate_launch_description():
           'intel_realsense.yaml'
         ]))
 
-    arg_topic = DeclareLaunchArgument(
-        'topic',
-        default_value='scan')
+    arg_namespace = DeclareLaunchArgument(
+        'namespace',
+        default_value='platform/sensors/camera_0')
 
     realsense2_camera_node = Node(
         package='realsense2_camera',
-        name=name,
+        namespace=namespace,
         executable='realsense2_camera_node',
         parameters=[parameters],
         output='screen',
     )
 
     ld = LaunchDescription()
-    ld.add_action(arg_name)
     ld.add_action(arg_parameters)
-    ld.add_action(arg_topic)
+    ld.add_action(arg_namespace)
     ld.add_action(realsense2_camera_node)
     return ld

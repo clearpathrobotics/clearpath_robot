@@ -6,14 +6,13 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
 
-    name = LaunchConfiguration('name')
+    namespace = LaunchConfiguration('namespace')
     parameters = LaunchConfiguration('parameters')
-    topic = LaunchConfiguration('topic')
 
     velodyne_driver_node = Node(
         package='velodyne_driver',
         executable='velodyne_driver_node',
-        name=[name, '_driver'],
+        namespace=namespace,
         parameters=[parameters],
         output='screen'
     )
@@ -21,7 +20,7 @@ def generate_launch_description():
     velodyne_pointcloud_node = Node(
         package='velodyne_pointcloud',
         executable='velodyne_convert_node',
-        name=[name, '_pointcloud'],
+        namespace=namespace,
         output='screen',
         parameters=[parameters]
     )
@@ -29,7 +28,7 @@ def generate_launch_description():
     velodyne_laserscan_node = Node(
         package='velodyne_laserscan',
         executable='velodyne_laserscan_node',
-        name=[name, '_laserscan'],
+        namespace=namespace,
         output='screen',
         parameters=[parameters]
     )

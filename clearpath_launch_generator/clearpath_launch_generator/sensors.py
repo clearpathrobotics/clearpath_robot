@@ -49,7 +49,6 @@ class SensorLaunch():
         TOPIC_NAMESPACE = 'platform/sensors/'
 
         # Launch arguments
-        NAME = 'name'
         PARAMETERS = 'parameters'
         NAMESPACE = 'namespace'
 
@@ -72,7 +71,6 @@ class SensorLaunch():
             self.sensor_parameters = sensor.get_ros_parameters()
 
             self.launch_args = {
-                self.NAME: self.get_name(),
                 self.PARAMETERS: self.sensor_parameters_file,
                 self.NAMESPACE: self.get_namespace()
             }
@@ -92,13 +90,15 @@ class SensorLaunch():
             return modified_params
 
         def generate_config(self):
-            name = self.get_name()
-            model = self.get_model()
-            default_parameters = self.default_sensor_parameters[model]['ros__parameters']
+            namespace = self.get_namespace()
+            node_key = list(self.default_sensor_parameters.keys())[0]
+            default_parameters = self.default_sensor_parameters[node_key]['ros__parameters']
 
             parameters = {
-              name: {
-                'ros__parameters': self.copy_parameters(default_parameters, self.sensor_parameters)
+              namespace: {
+                node_key: {
+                  'ros__parameters': self.copy_parameters(default_parameters, self.sensor_parameters)
+                }
               }
             }
 
@@ -155,22 +155,26 @@ class SensorLaunch():
             self.generate_config()
 
         def generate_config(self):
-            name = self.get_name()
-            model = self.get_model()
-            default_driver_parameters = self.default_sensor_parameters[model + '_driver']['ros__parameters']
-            default_pointcloud_parameters = self.default_sensor_parameters[model + '_pointcloud']['ros__parameters']
-            default_laserscan_parameters = self.default_sensor_parameters[model + '_laserscan']['ros__parameters']
+            namespace = self.get_namespace()
+            driver_key = 'velodyne_driver_node'
+            pointcloud_key = 'velodyne_convert_node'
+            laserscan_key = 'velodyne_laserscan_node'
+            default_driver_parameters = self.default_sensor_parameters[driver_key]['ros__parameters']
+            default_pointcloud_parameters = self.default_sensor_parameters[pointcloud_key]['ros__parameters']
+            default_laserscan_parameters = self.default_sensor_parameters[laserscan_key]['ros__parameters']
 
             parameters = {
-              name + '_driver': {
-                'ros__parameters': self.copy_parameters(default_driver_parameters, self.sensor_parameters)
-              },
-              name + '_pointcloud': {
-                'ros__parameters': self.copy_parameters(default_pointcloud_parameters, self.sensor_parameters)
-              },
-              name + '_laserscan': {
-                'ros__parameters': self.copy_parameters(default_laserscan_parameters, self.sensor_parameters)
-              },
+                namespace: {
+                  driver_key: {
+                    'ros__parameters': self.copy_parameters(default_driver_parameters, self.sensor_parameters)
+                  },
+                  pointcloud_key: {
+                    'ros__parameters': self.copy_parameters(default_pointcloud_parameters, self.sensor_parameters)
+                  },
+                  laserscan_key: {
+                    'ros__parameters': self.copy_parameters(default_laserscan_parameters, self.sensor_parameters)
+                  },
+                }
             }
 
             with open(self.sensor_parameters_file.get_full_path(), 'w+') as f:

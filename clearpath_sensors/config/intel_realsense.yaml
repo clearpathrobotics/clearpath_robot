@@ -1,4 +1,4 @@
-intel_realsense:
+camera:
   ros__parameters:
     camera_name: camera
     serial_no: ''

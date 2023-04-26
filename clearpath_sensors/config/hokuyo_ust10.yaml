@@ -1,4 +1,4 @@
-hokuyo_ust10:
+urg_node:
   ros__parameters:
     angle_max: 3.14
     angle_min: -3.14
