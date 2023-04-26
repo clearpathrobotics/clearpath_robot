@@ -4,7 +4,7 @@ filename="/etc/clearpath/robot.yaml"
 m1=$(md5sum "$filename")
 
 while true; do
-  sleep 10
+  sleep 1
 
   m2=$(md5sum "$filename")
 

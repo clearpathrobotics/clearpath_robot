@@ -39,12 +39,15 @@ from clearpath_launch_generator.launch_writer import LaunchWriter, LaunchFile, P
 from clearpath_launch_generator.sensors import SensorLaunch
 
 import getopt
+import glob
 import os
 import sys
+import shutil
 
 
 class LaunchGenerator():
-    def __init__(self, config: File = None,
+    def __init__(self,
+                 config: File = None,
                  output_path: str = '/etc/clearpath/') -> None:
         if config:
             self.config_path = config.get_path()
@@ -52,7 +55,29 @@ class LaunchGenerator():
             self.config_path = '/etc/clearpath/robot.yaml'
 
         self.launch_path = output_path
-        # Make directories
+
+        # Remove existing directories
+        try:
+            shutil.rmtree(self.launch_path + '/sensors/launch/')
+        except FileNotFoundError:
+            pass
+
+        try:
+            shutil.rmtree(self.launch_path + '/sensors/config/')
+        except FileNotFoundError:
+            pass
+
+        try:
+            shutil.rmtree(self.launch_path + '/platform/launch/')
+        except FileNotFoundError:
+            pass
+
+        try:
+            shutil.rmtree(self.launch_path + '/platform/config/')
+        except FileNotFoundError:
+            pass
+
+        # Make new directories
         os.makedirs(os.path.dirname(self.launch_path + '/sensors/launch/'), exist_ok=True)
         os.makedirs(os.path.dirname(self.launch_path + '/sensors/config/'), exist_ok=True)
         os.makedirs(os.path.dirname(self.launch_path + '/platform/launch/'), exist_ok=True)

@@ -10,6 +10,7 @@ def generate_launch_description():
 
     name = LaunchConfiguration('name')
     parameters = LaunchConfiguration('parameters')
+    namespace = LaunchConfiguration('namespace')
     topic = LaunchConfiguration('topic')
 
     arg_name = DeclareLaunchArgument(
@@ -26,7 +27,7 @@ def generate_launch_description():
 
     arg_topic = DeclareLaunchArgument(
         'topic',
-        default_value='scan')
+        default_value=[namespace, '/scan'])
 
     urg_node = Node(
         package='urg_node',

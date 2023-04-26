@@ -51,12 +51,12 @@ def generate_launch_description():
         condition=LaunchConfigurationEquals('platform_model', 'j100'),
         actions=[
             # Wireless Watcher
-            IncludeLaunchDescription(
-                PythonLaunchDescriptionSource(PathJoinSubstitution(
-                    [FindPackageShare('wireless_watcher'), 'launch', 'watcher.launch.py']
-                )),
-                launch_arguments=[('connected_topic', 'platform/wifi_connected')]
-            ),
+            # IncludeLaunchDescription(
+            #     PythonLaunchDescriptionSource(PathJoinSubstitution(
+            #         [FindPackageShare('wireless_watcher'), 'launch', 'watcher.launch.py']
+            #     )),
+            #     launch_arguments=[('connected_topic', 'platform/wifi_connected')]
+            # ),
 
             # MicroROS Agent
             Node(

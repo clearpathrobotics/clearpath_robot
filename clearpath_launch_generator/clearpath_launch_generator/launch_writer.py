@@ -149,7 +149,6 @@ class LaunchWriter():
                     self.write('launch_arguments=[', indent_level=2)
                     for key in launch_file.args.keys():
                         value = launch_file.args.get(key)
-                        print(key, value)
                         if isinstance(value, str):
                             self.write('(\'{0}\', \'{1}\'),'.format(key, value), indent_level=3)
                         elif isinstance(value, dict):
@@ -168,3 +167,4 @@ class LaunchWriter():
         self.write('return ld')
 
         self.close_file()
+        print('Generated file: {0}'.format(self.launch_file.get_full_path()))

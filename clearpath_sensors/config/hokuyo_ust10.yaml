@@ -2,11 +2,11 @@ hokuyo_ust10:
   ros__parameters:
     angle_max: 3.14
     angle_min: -3.14
-    ip_address: "192.168.0.10"
+    ip_address: "192.168.131.20"
     ip_port: 10940
     serial_port: "/dev/ttyACM0"
     serial_baud: 115200
-    laser_frame_id: "laser"
+    laser_frame_id: "lidar2d_0_laser"
     calibrate_time: false
     default_user_latency: 0.0
     diagnostics_tolerance: 0.05

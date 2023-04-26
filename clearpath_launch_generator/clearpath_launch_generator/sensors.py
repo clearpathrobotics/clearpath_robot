@@ -51,7 +51,7 @@ class SensorLaunch():
         # Launch arguments
         NAME = 'name'
         PARAMETERS = 'parameters'
-        TOPIC = 'topic'
+        NAMESPACE = 'namespace'
 
         def __init__(self, sensor: BaseSensor, output_path: str = '/etc/clearpath/sensors/') -> None:
             self.sensor = sensor
@@ -69,12 +69,12 @@ class SensorLaunch():
                 self.get_name(),
                 path=os.path.join(output_path, 'launch'))
             self.sensor_parameters_file = ParameterFile(self.get_name(), path=os.path.join(output_path, 'config'))
-            self.sensor_parameters = self.default_sensor_parameters
+            self.sensor_parameters = sensor.get_ros_parameters()
 
             self.launch_args = {
                 self.NAME: self.get_name(),
                 self.PARAMETERS: self.sensor_parameters_file,
-                self.TOPIC: self.get_topic()
+                self.NAMESPACE: self.get_namespace()
             }
 
             # Set launch args for default launch file
@@ -83,22 +83,29 @@ class SensorLaunch():
                 package=self.default_sensor_package,
                 args=self.launch_args)
 
-            self.generate_config()
+        @staticmethod
+        def copy_parameters(default_params: dict, params: dict) -> dict:
+            modified_params = default_params
+            for p in params:
+                if p in default_params:
+                    modified_params[p] = params[p]
+            return modified_params
 
         def generate_config(self):
             name = self.get_name()
             model = self.get_model()
-            default_parameters = self.default_sensor_parameters
+            default_parameters = self.default_sensor_parameters[model]['ros__parameters']
 
-            parameters = {name: {'ros__parameters': ''}}
-            parameters[name]['ros__parameters'] = default_parameters[model]['ros__parameters']
-            for p in self.sensor_parameters:
-                if p in default_parameters[model]['ros__parameters']:
-                    parameters[name]['ros__parameters'][p] = self.sensor_parameters[p]
+            parameters = {
+              name: {
+                'ros__parameters': self.copy_parameters(default_parameters, self.sensor_parameters)
+              }
+            }
 
             with open(self.sensor_parameters_file.get_full_path(), 'w+') as f:
                 yaml.dump(parameters, f, yaml.SafeDumper)
-            #ClearpathConfigParser.write_yaml(self.launch_path + '/sensors/' + name + '.yaml', default_parameters)
+
+            print('Generated config: {0}'.format(self.sensor_parameters_file.get_full_path()))
 
         def get_launch_file(self) -> LaunchFile:
             return self.sensor_launch_file
@@ -124,19 +131,57 @@ class SensorLaunch():
         def get_launch_args(self) -> dict:
             return self.launch_args
 
-        def get_topic(self) -> str:
-            return self.TOPIC_NAMESPACE + self.sensor.get_topic()
+        def get_namespace(self) -> str:
+            return self.TOPIC_NAMESPACE + self.sensor.get_name()
 
     class HokuyoUST10Launch(BaseLaunch):
+        def __init__(self, sensor: HokuyoUST10, output_path: str = '/etc/clearpath/sensors/') -> None:
+            super().__init__(sensor, output_path)
+            self.generate_config()
+
+    class SickLMS1XXLaunch(BaseLaunch):
+        def __init__(self, sensor: SickLMS1XX, output_path: str = '/etc/clearpath/sensors/') -> None:
+            super().__init__(sensor, output_path)
+            self.generate_config()
+
+    class IntelRealsenseLaunch(BaseLaunch):
+        def __init__(self, sensor: IntelRealsense, output_path: str = '/etc/clearpath/sensors/') -> None:
+            super().__init__(sensor, output_path)
+            self.generate_config()
+
+    class VelodyneLidarLaunch(BaseLaunch):
         def __init__(self, sensor: BaseSensor, output_path: str = '/etc/clearpath/sensors/') -> None:
             super().__init__(sensor, output_path)
-            self.sensor_parameters[self.get_model()]['ros__parameters']['laser_frame_id'] = self.get_name() + '_laser'
             self.generate_config()
+
+        def generate_config(self):
+            name = self.get_name()
+            model = self.get_model()
+            default_driver_parameters = self.default_sensor_parameters[model + '_driver']['ros__parameters']
+            default_pointcloud_parameters = self.default_sensor_parameters[model + '_pointcloud']['ros__parameters']
+            default_laserscan_parameters = self.default_sensor_parameters[model + '_laserscan']['ros__parameters']
+
+            parameters = {
+              name + '_driver': {
+                'ros__parameters': self.copy_parameters(default_driver_parameters, self.sensor_parameters)
+              },
+              name + '_pointcloud': {
+                'ros__parameters': self.copy_parameters(default_pointcloud_parameters, self.sensor_parameters)
+              },
+              name + '_laserscan': {
+                'ros__parameters': self.copy_parameters(default_laserscan_parameters, self.sensor_parameters)
+              },
+            }
+
+            with open(self.sensor_parameters_file.get_full_path(), 'w+') as f:
+                yaml.dump(parameters, f, yaml.SafeDumper)
+
+            print('Generated config: {0}'.format(self.sensor_parameters_file.get_full_path()))
 
     MODEL = {
         HokuyoUST10.SENSOR_MODEL: HokuyoUST10Launch,
-        SickLMS1XX.SENSOR_MODEL: BaseLaunch,
-        IntelRealsense.SENSOR_MODEL: BaseLaunch
+        SickLMS1XX.SENSOR_MODEL: SickLMS1XXLaunch,
+        IntelRealsense.SENSOR_MODEL: IntelRealsenseLaunch
     }
 
     def __new__(cls, sensor: BaseSensor, output_path: str = '/etc/clearpath/sensors/') -> BaseLaunch:
