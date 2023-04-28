@@ -32,8 +32,10 @@
 
 from clearpath_config.sensors.base import BaseSensor
 from clearpath_config.sensors.lidars_2d import HokuyoUST10, SickLMS1XX
+from clearpath_config.sensors.lidars_3d import VelodyneLidar
 from clearpath_config.sensors.cameras import IntelRealsense
 from clearpath_config.sensors.imu import Microstrain
+from clearpath_config.sensors.gps import SwiftNavDuro
 from clearpath_config.parser import ClearpathConfigParser
 
 from clearpath_launch_generator.launch_writer import LaunchFile, Package, ParameterFile
@@ -81,6 +83,8 @@ class SensorLaunch():
                 self.get_model(),
                 package=self.default_sensor_package,
                 args=self.launch_args)
+
+            self.generate_config()
 
         @staticmethod
         def copy_parameters(default_params: dict, params: dict) -> dict:
@@ -135,28 +139,8 @@ class SensorLaunch():
         def get_namespace(self) -> str:
             return self.TOPIC_NAMESPACE + self.sensor.get_name()
 
-    class HokuyoUST10Launch(BaseLaunch):
-        def __init__(self, sensor: HokuyoUST10, output_path: str = '/etc/clearpath/sensors/') -> None:
-            super().__init__(sensor, output_path)
-            self.generate_config()
-
-    class SickLMS1XXLaunch(BaseLaunch):
-        def __init__(self, sensor: SickLMS1XX, output_path: str = '/etc/clearpath/sensors/') -> None:
-            super().__init__(sensor, output_path)
-            self.generate_config()
-
-    class IntelRealsenseLaunch(BaseLaunch):
-        def __init__(self, sensor: IntelRealsense, output_path: str = '/etc/clearpath/sensors/') -> None:
-            super().__init__(sensor, output_path)
-            self.generate_config()
-
-    class MicrostrainIMULaunch(BaseLaunch):
-        def __init__(self, sensor: Microstrain, output_path: str = '/etc/clearpath/sensors/') -> None:
-            super().__init__(sensor, output_path)
-            self.generate_config()
-
     class VelodyneLidarLaunch(BaseLaunch):
-        def __init__(self, sensor: BaseSensor, output_path: str = '/etc/clearpath/sensors/') -> None:
+        def __init__(self, sensor: VelodyneLidar, output_path: str = '/etc/clearpath/sensors/') -> None:
             super().__init__(sensor, output_path)
             self.generate_config()
 
@@ -189,10 +173,12 @@ class SensorLaunch():
             print('Generated config: {0}'.format(self.sensor_parameters_file.get_full_path()))
 
     MODEL = {
-        HokuyoUST10.SENSOR_MODEL: HokuyoUST10Launch,
-        SickLMS1XX.SENSOR_MODEL: SickLMS1XXLaunch,
-        IntelRealsense.SENSOR_MODEL: IntelRealsenseLaunch,
-        Microstrain.SENSOR_MODEL: MicrostrainIMULaunch
+        HokuyoUST10.SENSOR_MODEL: BaseLaunch,
+        SickLMS1XX.SENSOR_MODEL: BaseLaunch,
+        IntelRealsense.SENSOR_MODEL: BaseLaunch,
+        Microstrain.SENSOR_MODEL: BaseLaunch,
+        VelodyneLidar.SENSOR_MODEL: VelodyneLidarLaunch,
+        SwiftNavDuro.SENSOR_MODEL: BaseLaunch
     }
 
     def __new__(cls, sensor: BaseSensor, output_path: str = '/etc/clearpath/sensors/') -> BaseLaunch:
