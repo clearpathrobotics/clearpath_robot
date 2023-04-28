@@ -59,7 +59,9 @@ def generate_launch_description():
         PythonLaunchDescriptionSource([launch_microstrain_imu]),
         launch_arguments=[
           ('namespace', namespace),
-          ('params_file', parameters)
+          ('params_file', parameters),
+          ('configure', 'true'),
+          ('activate', 'true')
         ]
     )
 
