@@ -1,0 +1,11 @@
+duro_node:
+  ros__parameters:
+    ip_address: "192.168.1.10"
+    port: 55555
+    gps_receiver_frame_id: "duro"
+    imu_frame_id: "duro"
+    utm_frame_id: "map"
+    orientation_source: "gps"
+    z_coord_ref_switch: "zero"
+    z_coord_exact_height: 0.2
+    euler_based_orientation: true
