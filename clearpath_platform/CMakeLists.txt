@@ -101,7 +101,7 @@ install(
   DESTINATION include
 )
 
-install(DIRECTORY launch services scripts
+install(DIRECTORY config launch services scripts
   DESTINATION share/${PROJECT_NAME}
 )
 
