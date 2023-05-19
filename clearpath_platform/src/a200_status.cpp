@@ -56,11 +56,11 @@ a200_status::A200Status::A200Status()
     rclcpp::SensorDataQoS());
 
   pub_motor_left_temp_ = create_publisher<std_msgs::msg::Float32>(
-    "platform/motor/left/temperature",
+    "platform/motors/left/temperature",
     rclcpp::SensorDataQoS());
 
   pub_motor_right_temp_ = create_publisher<std_msgs::msg::Float32>(
-    "platform/motor/right/temperature",
+    "platform/motors/right/temperature",
     rclcpp::SensorDataQoS());
 }
 
