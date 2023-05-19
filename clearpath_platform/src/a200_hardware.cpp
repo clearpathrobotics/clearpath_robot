@@ -45,6 +45,29 @@ namespace
   const uint8_t LEFT = 0, RIGHT = 1;
 }
 
+namespace
+{
+  const int UNDERVOLT_ERROR = 18;
+  const int UNDERVOLT_WARN = 19;
+  const int OVERVOLT_ERROR = 30;
+  const int OVERVOLT_WARN = 29;
+  const int DRIVER_OVERTEMP_ERROR = 50;
+  const int DRIVER_OVERTEMP_WARN = 30;
+  const int MOTOR_OVERTEMP_ERROR = 80;
+  const int MOTOR_OVERTEMP_WARN = 70;
+  const double LOWPOWER_ERROR = 0.2;
+  const double LOWPOWER_WARN = 0.3;
+  const int CONTROLFREQ_WARN = 90;
+  const unsigned int SAFETY_TIMEOUT = 0x1;
+  const unsigned int SAFETY_LOCKOUT = 0x2;
+  const unsigned int SAFETY_ESTOP = 0x8;
+  const unsigned int SAFETY_CCI = 0x10;
+  const unsigned int SAFETY_PSU = 0x20;
+  const unsigned int SAFETY_CURRENT = 0x40;
+  const unsigned int SAFETY_WARN = (SAFETY_TIMEOUT | SAFETY_CCI | SAFETY_PSU);
+  const unsigned int SAFETY_ERROR = (SAFETY_LOCKOUT | SAFETY_ESTOP | SAFETY_CURRENT);
+}  // namespace
+
 namespace clearpath_platform
 {
   static const std::string HW_NAME = "A200Hardware";
@@ -179,6 +202,70 @@ namespace clearpath_platform
   }
 
   /**
+  * Pull latest status date from MCU.
+  */
+  void A200Hardware::readStatusFromHardware()
+  {
+
+    auto safety_status =
+      horizon_legacy::Channel<clearpath::DataSafetySystemStatus>::requestData(polling_timeout_);
+    if (safety_status)
+    {
+      uint16_t flags = safety_status->getFlags();
+      
+      // status_msg_.timeout = (flags & SAFETY_TIMEOUT) > 0;
+      // status_msg_.lockout = (flags & SAFETY_LOCKOUT) > 0;
+      // status_msg_.ros_pause = (flags & SAFETY_CCI) > 0;
+      // status_msg_.no_battery = (flags & SAFETY_PSU) > 0;
+      // status_msg_.current_limit = (flags & SAFETY_CURRENT) > 0;
+      stop_msg_.data = (flags & SAFETY_ESTOP) > 0;
+      power_msg_.battery_connected = static_cast<int8_t>(!((flags & SAFETY_PSU) > 0));
+    }
+    else
+    {
+      RCLCPP_ERROR(
+        rclcpp::get_logger(HW_NAME), "Could not get safety_status");
+    }
+
+
+    auto system_status =
+      horizon_legacy::Channel<clearpath::DataSystemStatus>::requestData(polling_timeout_);
+    if (system_status)
+    {
+      // status_msg_.mcu_uptime = system_status->getUptime();
+
+      power_msg_.shore_power_connected = clearpath_platform_msgs::msg::Power::NOT_APPLICABLE;
+      power_msg_.power_12v_user_nominal = clearpath_platform_msgs::msg::Power::NOT_APPLICABLE;
+      power_msg_.charging_complete  = clearpath_platform_msgs::msg::Power::NOT_APPLICABLE;
+
+      power_msg_.measured_voltages[clearpath_platform_msgs::msg::Power::A200_BATTERY_VOLTAGE] = system_status->getVoltage(0);
+      power_msg_.measured_voltages[clearpath_platform_msgs::msg::Power::A200_LEFT_DRIVER_VOLTAGE] = system_status->getVoltage(1);
+      power_msg_.measured_voltages[clearpath_platform_msgs::msg::Power::A200_RIGHT_DRIVER_VOLTAGE] = system_status->getVoltage(2);
+
+      power_msg_.measured_currents[clearpath_platform_msgs::msg::Power::A200_MCU_AND_USER_PORT_CURRENT] = system_status->getCurrent(0);
+      power_msg_.measured_currents[clearpath_platform_msgs::msg::Power::A200_LEFT_DRIVER_CURRENT] = system_status->getCurrent(1);
+      power_msg_.measured_currents[clearpath_platform_msgs::msg::Power::A200_RIGHT_DRIVER_CURRENT] = system_status->getCurrent(2);
+
+      driver_left_temp_msg_.data = system_status->getTemperature(0);
+      driver_right_temp_msg_.data = system_status->getTemperature(1);
+      motor_left_temp_msg_.data = system_status->getTemperature(2);
+      motor_right_temp_msg_.data = system_status->getTemperature(3);
+    }
+    else
+    {
+      RCLCPP_ERROR(
+        rclcpp::get_logger(HW_NAME), "Could not get system_status");
+    }
+
+    status_node_->publish_status(status_msg_);
+    status_node_->publish_power(power_msg_);
+    status_node_->publish_stop_state(stop_msg_);
+    status_node_->publish_temps(driver_left_temp_msg_, driver_right_temp_msg_, motor_left_temp_msg_, motor_right_temp_msg_);
+  }
+
+
+
+  /**
   * Determines if the joint is left or right based on the joint name
   */
   uint8_t A200Hardware::isLeft(const std::string &str)
@@ -213,6 +300,11 @@ hardware_interface::CallbackReturn A200Hardware::on_init(const hardware_interfac
   polling_timeout_ = std::stod(info_.hardware_parameters["polling_timeout"]);
 
   serial_port_ = info_.hardware_parameters["serial_port"];
+
+  status_node_ = std::make_shared<a200_status::A200Status>();
+  // Resize the message to fix the platform model A200
+  power_msg_.measured_voltages.resize(clearpath_platform_msgs::msg::Power::A200_VOLTAGES_SIZE);
+  power_msg_.measured_currents.resize(clearpath_platform_msgs::msg::Power::A200_CURRENTS_SIZE);
 
   RCLCPP_INFO(rclcpp::get_logger(HW_NAME), "Port: %s", serial_port_.c_str());
   horizon_legacy::connect(serial_port_);
@@ -347,6 +439,18 @@ hardware_interface::return_type A200Hardware::read(const rclcpp::Time & /*time*/
   updateJointsFromHardware();
 
   RCLCPP_DEBUG(rclcpp::get_logger(HW_NAME), "Joints successfully read!");
+
+  // This will run at 10Hz but status data is only needed at 1Hz.
+  static int i = 0;
+  if (i <= 10)
+  {
+    i++;
+  }
+  else
+  {
+    readStatusFromHardware();
+    i = 0;
+  }
 
   return hardware_interface::return_type::OK;
 }

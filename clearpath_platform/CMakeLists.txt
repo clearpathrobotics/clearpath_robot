@@ -36,6 +36,7 @@ add_library(
   a200_hardware
   SHARED
   src/a200_hardware.cpp
+  src/a200_status.cpp
   src/horizon_legacy/horizon_legacy_wrapper.cpp
   src/horizon_legacy/crc.cpp
   src/horizon_legacy/Logger.cpp
