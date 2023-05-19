@@ -39,6 +39,7 @@ def generate_launch_description():
 
     # Packages
     pkg_clearpath_control = FindPackageShare('clearpath_control')
+    pkg_clearpath_platform = FindPackageShare('clearpath_platform')
     pkg_clearpath_platform_description = FindPackageShare('clearpath_platform_description')
 
     # Launch Arguments
@@ -47,7 +48,22 @@ def generate_launch_description():
         choices=['a200', 'j100'],
         default_value='a200'
     )
+
+    arg_imu_filter_config = DeclareLaunchArgument(
+        'imu_filter_config',
+        default_value=PathJoinSubstitution([
+          pkg_clearpath_platform, 'config', 'imu_filter.yaml'])
+    )
+
+    arg_joy_type = DeclareLaunchArgument(
+        'joy_type',
+        choices=['logitech', 'ps4'],
+        default_value='ps4'
+    )
+
     platform_model = LaunchConfiguration('platform_model')
+    config_imu_filter = LaunchConfiguration('imu_filter_config')
+    joy_type = LaunchConfiguration('joy_type')
 
     log_platform_model = LogInfo(msg=["Launching Clearpath platform model: ", platform_model])
 
@@ -56,20 +72,21 @@ def generate_launch_description():
             # Launch clearpath_control/control.launch.py which is just robot_localization.
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource(PathJoinSubstitution(
-                [pkg_clearpath_control, 'launch', 'control.launch.py']))
+                  [pkg_clearpath_control, 'launch', 'control.launch.py']))
             ),
 
             # Launch clearpath_control/teleop_base.launch.py which is various ways to tele-op
             # the robot but does not include the joystick. Also, has a twist mux.
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource(PathJoinSubstitution(
-                [pkg_clearpath_control, 'launch', 'teleop_base.launch.py']))
+                  [pkg_clearpath_control, 'launch', 'teleop_base.launch.py'])),
             ),
 
             # Launch clearpath_control/teleop_joy.launch.py which is tele-operation using a physical joystick.
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource(PathJoinSubstitution(
-                [pkg_clearpath_control, 'launch', 'teleop_joy.launch.py']))
+                  [pkg_clearpath_control, 'launch', 'teleop_joy.launch.py'])),
+                launch_arguments=[('joy_type', joy_type)]
             )
         ]
     )
@@ -86,6 +103,21 @@ def generate_launch_description():
             #     )),
             #     launch_arguments=[('connected_topic', 'platform/wifi_connected')]
             # ),
+
+            # Madgwick Filter
+            Node(
+                package='imu_filter_madgwick',
+                executable='imu_filter_madgwick_node',
+                name='imu_filter_node',
+                output='screen',
+                parameters=[config_imu_filter],
+                remappings=[
+                  ('imu/data_raw', 'platform/sensors/imu_0/data_raw'),
+                  ('imu/mag', 'platform/sensors/imu_0/magnetic_field'),
+                  ('imu/data', 'platform/sensors/imu_0/data')
+                ],
+                condition=LaunchConfigurationEquals('platform_model', 'j100')
+            ),
 
             # MicroROS Agent
             Node(
@@ -118,6 +150,8 @@ def generate_launch_description():
 
     ld = LaunchDescription()
     ld.add_action(arg_platform_model)
+    ld.add_action(arg_imu_filter_config)
+    ld.add_action(arg_joy_type)
     ld.add_action(log_platform_model)
     ld.add_action(launch_description)
     ld.add_action(group_platform_action)

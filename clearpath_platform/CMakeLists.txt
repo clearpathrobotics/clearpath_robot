@@ -101,13 +101,8 @@ install(
   DESTINATION include
 )
 
-install(DIRECTORY launch services scripts
+install(DIRECTORY config launch
   DESTINATION share/${PROJECT_NAME}
-)
-
-install(
-  PROGRAMS scripts/install
-  DESTINATION lib/${PROJECT_NAME}
 )
 
 ## EXPORTS
