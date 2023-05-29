@@ -34,7 +34,7 @@ from launch.actions import (
     IncludeLaunchDescription,
     LogInfo
 )
-from launch.conditions import LaunchConfigurationEquals, IfCondition, UnlessCondition
+from launch.conditions import LaunchConfigurationEquals, UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import (
     EnvironmentVariable,
