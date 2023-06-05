@@ -1,0 +1,162 @@
+#!/usr/bin/env python3
+# Software License Agreement (BSD)
+#
+# @author    Roni Kreinin <rkreinin@clearpathrobotics.com>
+# @copyright (c) 2023, Clearpath Robotics, Inc., All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+# * Redistributions of source code must retain the above copyright notice,
+#   this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+# * Neither the name of Clearpath Robotics nor the names of its contributors
+#   may be used to endorse or promote products derived from this software
+#   without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+import robot_upstart
+
+from clearpath_config.parser import ClearpathConfigParser
+from clearpath_generator_common.common import BaseGenerator
+
+from ament_index_python.packages import get_package_share_directory
+
+import os
+
+
+class PlatformProvider(robot_upstart.providers.Generic):
+    def post_install(self):
+        pass
+
+    def generate_install(self):
+        platform_service_path = os.path.join(
+            get_package_share_directory('clearpath_robot'),
+            'services/clearpath-platform.service')
+        with open(platform_service_path) as f:
+            platform_service_contents = f.read()
+        return {
+            "/lib/systemd/system/clearpath-platform.service": {
+                "content": platform_service_contents,
+                "mode": 0o644
+            }}
+
+
+class SensorsProvider(robot_upstart.providers.Generic):
+    def post_install(self):
+        pass
+
+    def generate_install(self):
+        sensors_service_path = os.path.join(
+            get_package_share_directory('clearpath_robot'),
+            'services/clearpath-sensors.service')
+        with open(sensors_service_path) as f:
+            sensors_service_contents = f.read()
+        return {
+            "/lib/systemd/system/clearpath-sensors.service": {
+                "content": sensors_service_contents,
+                "mode": 0o644
+            }}
+
+
+class RobotProvider(robot_upstart.providers.Generic):
+    def post_install(self):
+        pass
+
+    def generate_install(self):
+        robot_service_path = os.path.join(
+            get_package_share_directory('clearpath_robot'),
+            'services/clearpath-robot.service')
+        robot_service_execpre_contents_path = os.path.join(
+            get_package_share_directory('clearpath_robot'),
+            'scripts/generate')
+        robot_service_exec_contents_path = os.path.join(
+            get_package_share_directory('clearpath_robot'),
+            'scripts/check')
+
+        with open(robot_service_path) as f:
+            robot_service_contents: str = ''
+            robot_service_lines = f.readlines()
+            for line in robot_service_lines:
+                # Replace User with username from config
+                if 'User=' in line:
+                    line = 'User={0}\n'.format(clearpath_config.system.get_username())
+                robot_service_contents += line
+        with open(robot_service_execpre_contents_path) as f:
+            robot_service_execpre_contents = f.read()
+        with open(robot_service_exec_contents_path) as f:
+            robot_service_exec_contents = f.read()
+        return {
+            "/lib/systemd/system/clearpath-robot.service": {
+                "content": robot_service_contents,
+                "mode": 0o644
+            },
+            "/usr/sbin/clearpath-robot-generate": {
+                "content": robot_service_execpre_contents,
+                "mode": 0o755
+            },
+            "/usr/sbin/clearpath-robot-check": {
+                "content": robot_service_exec_contents,
+                "mode": 0o755
+            },
+          }
+
+
+setup_path = BaseGenerator.get_args()
+workspace_setup = os.path.join(setup_path, 'setup.bash')
+config_path = os.path.join(setup_path, 'robot.yaml')
+platform_service_launch = os.path.join(setup_path, 'platform/launch/platform-service.launch.py')
+sensors_service_launch = os.path.join(setup_path, 'sensors/launch/platform-service.launch.py')
+
+# Read YAML
+config = ClearpathConfigParser.read_yaml(config_path)
+# Parse YAML into config
+clearpath_config = ClearpathConfigParser(config)
+
+rmw = clearpath_config.system.get_rmw_implementation()
+domain_id = clearpath_config.system.get_domain_id()
+
+# Platform
+platform = robot_upstart.Job(name='clearpath-platform',
+                             rmw=rmw,
+                             workspace_setup=workspace_setup,
+                             ros_domain_id=domain_id)
+
+platform.symlink = True
+platform.add(filename=platform_service_launch)
+platform.install()
+
+platform_extras = robot_upstart.Job(workspace_setup=workspace_setup)
+platform_extras.install(Provider=PlatformProvider)
+
+# Sensors
+sensors = robot_upstart.Job(name='clearpath-sensors',
+                            rmw=rmw,
+                            workspace_setup=workspace_setup,
+                            ros_domain_id=domain_id)
+
+sensors.symlink = True
+sensors.add(filename=sensors_service_launch)
+sensors.install()
+
+sensors_extras = robot_upstart.Job(workspace_setup=workspace_setup)
+sensors_extras.install(Provider=SensorsProvider)
+
+# Robot
+robot = robot_upstart.Job(workspace_setup=workspace_setup)
+robot.install(Provider=RobotProvider)
+
+print('** To complete installation please run the following command:')
+print('  sudo systemctl daemon-reload && sudo systemctl start clearpath-robot')
