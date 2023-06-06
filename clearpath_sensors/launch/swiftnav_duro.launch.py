@@ -55,6 +55,10 @@ def generate_launch_description():
         executable='duro_node',
         parameters=[parameters],
         output='screen',
+        remappings=[
+            ('/tf', 'tf'),
+            ('/tf_static', 'tf_static'),
+        ]
     )
 
     ld = LaunchDescription()

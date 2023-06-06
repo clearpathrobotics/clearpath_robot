@@ -51,6 +51,7 @@ class RobotLaunchGenerator(LaunchGenerator):
             if sensor.get_launch_enabled():
                 sensor_launch = SensorLaunch(
                         sensor,
+                        self.namespace,
                         self.sensors_launch_path,
                         self.sensors_params_path)
                 sensor_writer = LaunchWriter(sensor_launch.get_launch_file())
@@ -73,6 +74,7 @@ class RobotLaunchGenerator(LaunchGenerator):
                 name='micro_ros_agent',
                 package='micro_ros_agent',
                 executable='micro_ros_agent',
+                namespace=self.namespace,
                 arguments=[
                     'serial', '--dev', '/dev/clearpath/j100'
                 ])
@@ -103,23 +105,66 @@ class RobotLaunchGenerator(LaunchGenerator):
                 package='imu_filter_madgwick',
                 executable='imu_filter_madgwick_node',
                 name='imu_filter_node',
+                namespace=self.namespace,
                 parameters=['imu_filter'],
                 remappings=[
                   ('\'imu/data_raw\'', '\'platform/sensors/imu_0/data_raw\''),
                   ('\'imu/mag\'', '\'platform/sensors/imu_0/magnetic_field\''),
-                  ('\'imu/data\'', '\'platform/sensors/imu_0/data\'')
+                  ('\'imu/data\'', '\'platform/sensors/imu_0/data\''),
+                  ('\'/tf\'', '\'tf\''),
                 ],
             )
             platform_service_launch_writer.add_node(imu_filter_node)
 
             # Wireless watcher
-            wireless_watcher_launch = LaunchFile(
-                name='watcher',
-                package=Package('wireless_watcher'),
-                args={
-                    'connected_topic': 'platform/wifi_connected'
-                }
+            wireless_watcher_node = LaunchFile.Node(
+                package='wireless_watcher',
+                executable='wireless_watcher',
+                name='wireless_watcher',
+                namespace=self.namespace,
+                parameters=[{
+                  'hz': 1,
+                  'dev': '',
+                  'connected_topic': 'platform/wifi_connected',
+                  'connection_topic': 'platform/wifi_status'
+                }],
             )
-            platform_service_launch_writer.add_launch_file(wireless_watcher_launch)
+
+            platform_service_launch_writer.add_node(wireless_watcher_node)
+
+        # Static transform from <namespace>/odom to odom
+        # See https://github.com/ros-controls/ros2_controllers/pull/533
+        tf_namespaced_odom_publisher = LaunchFile.Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            name='tf_namespaced_odom_publisher',
+            namespace=self.namespace,
+            arguments=['0', '0', '0',
+                       '0', '0', '0',
+                       'odom', self.namespace + '/odom'],
+            remappings=[
+                ('\'/tf\'', '\'tf\''),
+                ('\'/tf_static\'', '\'tf_static\''),
+            ],
+        )
+
+        # Static transform from <namespace>/base_link to base_link
+        tf_namespaced_base_link_publisher = LaunchFile.Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            name='tf_namespaced_base_link_publisher',
+            namespace=self.namespace,
+            arguments=['0', '0', '0',
+                       '0', '0', '0',
+                       self.namespace + '/base_link', 'base_link'],
+            remappings=[
+                ('\'/tf\'', '\'tf\''),
+                ('\'/tf_static\'', '\'tf_static\''),
+            ],
+        )
+
+        if self.namespace:
+            platform_service_launch_writer.add_node(tf_namespaced_odom_publisher)
+            platform_service_launch_writer.add_node(tf_namespaced_base_link_publisher)
 
         platform_service_launch_writer.generate_file()

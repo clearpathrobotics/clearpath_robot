@@ -45,10 +45,11 @@ class SensorParam():
     class BaseParam():
         CLEARPATH_SENSORS = 'clearpath_sensors'
 
-        TOPIC_NAMESPACE = 'platform/sensors/'
+        TOPIC_NAMESPACE = '/platform/sensors/'
 
         def __init__(self,
                      sensor: BaseSensor,
+                     namespace: str,
                      param_path: str) -> None:
             self.sensor = sensor
             self.param_path = param_path
@@ -65,7 +66,7 @@ class SensorParam():
             # Parameter file to generate
             self.param_file = ParamFile(
                 name=self.sensor.get_name(),
-                namespace=self.TOPIC_NAMESPACE + self.sensor.get_name(),
+                namespace=namespace + self.TOPIC_NAMESPACE + self.sensor.get_name(),
                 path=self.param_path)
 
             self.update_parameters()
@@ -96,5 +97,6 @@ class SensorParam():
 
     def __new__(cls,
                 sensor: BaseSensor,
+                namespace: str,
                 param_path: str) -> BaseParam:
-        return SensorParam.MODEL[sensor.SENSOR_MODEL](sensor, param_path)
+        return SensorParam.MODEL[sensor.SENSOR_MODEL](sensor, namespace, param_path)
