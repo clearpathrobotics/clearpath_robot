@@ -64,10 +64,10 @@ class SensorLaunch():
                 self.get_name(),
                 path=launch_path)
 
-            self.launch_args = {
-                self.PARAMETERS: self.parameters.get_full_path(),
-                self.NAMESPACE: self.get_namespace()
-            }
+            self.launch_args = [
+                (self.PARAMETERS, self.parameters.get_full_path()),
+                (self.NAMESPACE, self.get_namespace())
+            ]
 
             # Set launch args for default launch file
             self.default_sensor_launch_file = LaunchFile(
@@ -90,7 +90,7 @@ class SensorLaunch():
         def get_default_sensor_package(self) -> str:
             return self.default_sensor_package
 
-        def get_launch_args(self) -> dict:
+        def get_launch_args(self) -> list:
             return self.launch_args
 
         def get_namespace(self) -> str:
