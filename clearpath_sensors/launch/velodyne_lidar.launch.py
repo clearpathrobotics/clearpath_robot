@@ -41,6 +41,9 @@ def generate_launch_description():
         executable='velodyne_driver_node',
         namespace=namespace,
         parameters=[parameters],
+        remappings=[
+          ('/diagnostics', 'diagnostics')
+        ],
         output='screen'
     )
 
@@ -49,7 +52,10 @@ def generate_launch_description():
         executable='velodyne_convert_node',
         namespace=namespace,
         output='screen',
-        parameters=[parameters]
+        parameters=[parameters],
+        remappings=[
+          ('/diagnostics', 'diagnostics')
+        ],
     )
 
     velodyne_laserscan_node = Node(

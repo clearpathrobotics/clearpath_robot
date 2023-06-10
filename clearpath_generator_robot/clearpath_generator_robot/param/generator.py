@@ -41,5 +41,5 @@ class RobotParamGenerator(ParamGenerator):
         sensors = self.clearpath_config.sensors.get_all_sensors()
         for sensor in sensors:
             if sensor.get_launch_enabled():
-                sensor_param = SensorParam(sensor, self.sensors_params_path)
+                sensor_param = SensorParam(sensor, self.namespace, self.sensors_params_path)
                 sensor_param.generate_config()

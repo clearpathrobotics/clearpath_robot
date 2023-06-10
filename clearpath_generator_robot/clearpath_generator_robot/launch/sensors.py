@@ -43,16 +43,18 @@ from clearpath_generator_common.common import LaunchFile, Package, ParamFile
 class SensorLaunch():
     class BaseLaunch():
         CLEARPATH_SENSORS = 'clearpath_sensors'
-        TOPIC_NAMESPACE = 'platform/sensors/'
+        TOPIC_NAMESPACE = '/platform/sensors/'
 
         # Launch arguments
         PARAMETERS = 'parameters'
         NAMESPACE = 'namespace'
 
         def __init__(self, sensor: BaseSensor,
+                     namespace: str,
                      launch_path: str,
                      param_path: str) -> None:
             self.sensor = sensor
+            self.namespace = namespace
             self.parameters = ParamFile(self.get_name(), path=param_path)
             # Defaults
             self.default_sensor_package = Package(self.CLEARPATH_SENSORS)
@@ -62,10 +64,10 @@ class SensorLaunch():
                 self.get_name(),
                 path=launch_path)
 
-            self.launch_args = {
-                self.PARAMETERS: self.parameters.get_full_path(),
-                self.NAMESPACE: self.get_namespace()
-            }
+            self.launch_args = [
+                (self.PARAMETERS, self.parameters.get_full_path()),
+                (self.NAMESPACE, self.get_namespace())
+            ]
 
             # Set launch args for default launch file
             self.default_sensor_launch_file = LaunchFile(
@@ -88,11 +90,11 @@ class SensorLaunch():
         def get_default_sensor_package(self) -> str:
             return self.default_sensor_package
 
-        def get_launch_args(self) -> dict:
+        def get_launch_args(self) -> list:
             return self.launch_args
 
         def get_namespace(self) -> str:
-            return self.TOPIC_NAMESPACE + self.sensor.get_name()
+            return self.namespace + self.TOPIC_NAMESPACE + self.sensor.get_name()
 
     MODEL = {
         HokuyoUST10.SENSOR_MODEL: BaseLaunch,
@@ -103,5 +105,5 @@ class SensorLaunch():
         SwiftNavDuro.SENSOR_MODEL: BaseLaunch
     }
 
-    def __new__(cls, sensor: BaseSensor, launch_path: str, param_path: str) -> BaseLaunch:
-        return SensorLaunch.MODEL[sensor.SENSOR_MODEL](sensor, launch_path, param_path)
+    def __new__(cls, sensor: BaseSensor, namespace: str, launch_path: str, param_path: str) -> BaseLaunch:
+        return SensorLaunch.MODEL[sensor.SENSOR_MODEL](sensor, namespace, launch_path, param_path)
