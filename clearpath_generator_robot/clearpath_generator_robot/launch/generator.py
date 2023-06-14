@@ -80,19 +80,18 @@ class RobotLaunchGenerator(LaunchGenerator):
                 ])
             platform_service_launch_writer.add_node(uros_node)
 
-            # Set domain ID on MCU
-            set_domain_id = LaunchFile.Process(
-                name='set_domain_id',
+            # Set domain id and namespace on MCU
+            configure_mcu = LaunchFile.Process(
+                name='configure_mcu',
                 cmd=[
                     ['export ROS_DOMAIN_ID=0;'],
-                    [ LaunchFile.Variable('FindExecutable(name=\'ros2\')'),
-                     ' service call platform/mcu/set_domain_id',
-                     ' clearpath_platform_msgs/srv/SetDomainId',
-                     '"domain_id: ',
-                     LaunchFile.Variable('EnvironmentVariable(\'ROS_DOMAIN_ID\', default_value=\'0\')'),
-                     '"']
+                    [LaunchFile.Variable('FindExecutable(name=\'ros2\')'),
+                     ' service call platform/mcu/configure',
+                     ' clearpath_platform_msgs/srv/ConfigureMcu',
+                     ' \"{{domain_id: {0},'.format(self.clearpath_config.system.get_domain_id()),
+                     ' robot_namespace: \\\'{0}\\\'}}\"'.format(self.namespace)]
                 ])
-            platform_service_launch_writer.add_process(set_domain_id)
+            platform_service_launch_writer.add_process(configure_mcu)
 
             # IMU filter
             imu_filter_config = LaunchFile.LaunchArg(
