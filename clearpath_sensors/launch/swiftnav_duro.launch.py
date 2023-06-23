@@ -56,6 +56,7 @@ def generate_launch_description():
         parameters=[parameters],
         output='screen',
         remappings=[
+            ('navsatfix', 'fix'),
             ('/tf', 'tf'),
             ('/tf_static', 'tf_static'),
         ]

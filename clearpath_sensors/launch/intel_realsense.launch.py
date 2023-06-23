@@ -54,6 +54,11 @@ def generate_launch_description():
         namespace=namespace,
         executable='realsense2_camera_node',
         parameters=[parameters],
+        remappings=[
+            ('color/image_raw', 'color/image'),
+            ('depth/image_rect_raw', 'depth/image'),
+            ('depth/color/points', 'points'),
+        ],
         output='screen',
     )
 
