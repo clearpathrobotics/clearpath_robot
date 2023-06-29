@@ -139,7 +139,7 @@ class RobotLaunchGenerator(LaunchGenerator):
             namespace=self.namespace,
             parent_link='odom',
             child_link=self.namespace + '/odom',
-            use_sim_time=True
+            use_sim_time=False
         )
 
         # Static transform from <namespace>/base_link to base_link
@@ -149,7 +149,7 @@ class RobotLaunchGenerator(LaunchGenerator):
             namespace=self.namespace,
             parent_link=self.namespace + '/base_link',
             child_link='base_link',
-            use_sim_time=True
+            use_sim_time=False
         )
 
         if self.namespace not in ('', '/'):
