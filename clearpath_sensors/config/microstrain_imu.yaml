@@ -46,7 +46,7 @@ microstrain_inertial_driver:
     # Controls if the driver outputs data with-respect-to ENU frame
     #      false - position, velocity, and orientation are WRT the NED frame (native device frame)
     #      true  - position, velocity, and orientation are WRT the ENU frame
-    use_enu_frame: False
+    use_enu_frame: True
 
     # Controls if the driver-defined setup is sent to the device
     #      false - The driver will ignore the settings below and use the device's current settings

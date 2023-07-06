@@ -50,10 +50,11 @@ def generate_launch_description():
         ]))
 
     sick_scan_node = Node(
-        package='sick_scan',
+        package='lms1xx',
+        name='lms1xx',
         namespace=namespace,
-        executable='sick_generic_caller',
-        arguments=[parameters],
+        executable='lms1xx',
+        parameters=[parameters],
         output='screen',
     )
 
