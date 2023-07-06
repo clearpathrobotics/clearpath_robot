@@ -88,7 +88,7 @@ class RobotLaunchGenerator(LaunchGenerator):
                     [LaunchFile.Variable('FindExecutable(name=\'ros2\')'),
                      ' service call platform/mcu/configure',
                      ' clearpath_platform_msgs/srv/ConfigureMcu',
-                     ' \"{{domain_id: {0},'.format(self.clearpath_config.system.get_domain_id()),
+                     ' \"{{domain_id: {0},'.format(self.clearpath_config.system.domain_id),
                      ' robot_namespace: \\\'{0}\\\'}}\"'.format(self.namespace)]
                 ])
             platform_service_launch_writer.add_process(configure_mcu)
@@ -114,6 +114,22 @@ class RobotLaunchGenerator(LaunchGenerator):
                 ],
             )
             platform_service_launch_writer.add_node(imu_filter_node)
+
+            # NMEA navsat driver
+            nmea_driver_node = LaunchFile.Node(
+                package='nmea_navsat_driver',
+                executable='nmea_topic_driver',
+                name='nmea_topic_driver',
+                namespace=self.namespace,
+                remappings=[
+                    ('nmea_sentence', 'platform/sensors/gps_0/nmea_sentence'),
+                    ('fix', 'platform/sensors/gps_0/fix'),
+                    ('heading', 'platform/sensors/gps_0/heading'),
+                    ('time_reference', 'platform/sensors/gps_0/time_reference'),
+                    ('vel', 'platform/sensors/gps_0/vel'),
+                ]
+            )
+            platform_service_launch_writer.add_node(nmea_driver_node)
 
             # Wireless watcher
             wireless_watcher_node = LaunchFile.Node(
