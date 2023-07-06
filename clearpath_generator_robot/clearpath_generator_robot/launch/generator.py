@@ -37,7 +37,7 @@ from clearpath_generator_common.launch.writer import LaunchWriter
 from clearpath_generator_common.launch.generator import LaunchGenerator
 from clearpath_generator_robot.launch.sensors import SensorLaunch
 
-from clearpath_config.platform.platform import Platform
+from clearpath_config.common.types.platform import Platform
 
 import os
 
