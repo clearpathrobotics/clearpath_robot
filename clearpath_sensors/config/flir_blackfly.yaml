@@ -1,0 +1,14 @@
+camera:
+  ros__parameters:
+    camera_name: camera
+    log_level: info
+    enable_pose: true
+    pose_fps: 200
+    clip_distance: -2.
+    linear_accel_cov: 0.01
+    initial_reset: false
+    tf_publish_rate: 0.0
+    diagnostics_period: 0.0
+    rosbag_filename: ''
+    wait_for_device_timeout: -1.
+    reconnect_timeout: 6.

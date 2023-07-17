@@ -33,7 +33,7 @@
 from clearpath_config.sensors.base import BaseSensor
 from clearpath_config.sensors.lidars_2d import BaseLidar2D, HokuyoUST10, SickLMS1XX
 from clearpath_config.sensors.lidars_3d import BaseLidar3D, VelodyneLidar
-from clearpath_config.sensors.cameras import BaseCamera, IntelRealsense
+from clearpath_config.sensors.cameras import BaseCamera, IntelRealsense, FlirBlackfly
 from clearpath_config.sensors.imu import BaseIMU, Microstrain
 from clearpath_config.sensors.gps import BaseGPS, SwiftNavDuro
 
@@ -102,7 +102,8 @@ class SensorLaunch():
         IntelRealsense.SENSOR_MODEL: BaseLaunch,
         Microstrain.SENSOR_MODEL: BaseLaunch,
         VelodyneLidar.SENSOR_MODEL: BaseLaunch,
-        SwiftNavDuro.SENSOR_MODEL: BaseLaunch
+        SwiftNavDuro.SENSOR_MODEL: BaseLaunch,
+        FlirBlackfly.SENSOR_MODEL: BaseLaunch
     }
 
     def __new__(cls, sensor: BaseSensor, namespace: str, launch_path: str, param_path: str) -> BaseLaunch:

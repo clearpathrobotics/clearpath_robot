@@ -37,29 +37,28 @@ def generate_launch_description():
     parameters = LaunchConfiguration('parameters')
     namespace = LaunchConfiguration('namespace')
 
-    arg_namespace = DeclareLaunchArgument(
-        'namespace',
-        default_value='platform/sensors/lidar2d_0')
-
     arg_parameters = DeclareLaunchArgument(
         'parameters',
         default_value=PathJoinSubstitution([
           FindPackageShare('clearpath_sensors'),
           'config',
-          'sick_lms1xx.yaml'
+          'flir_blackfly.yaml'
         ]))
 
-    sick_scan_node = Node(
-        package='lms1xx',
-        name='lms1xx',
+    arg_namespace = DeclareLaunchArgument(
+        'namespace',
+        default_value='platform/sensors/camera_0')
+
+    blackfly_camera_node = Node(
+        package='flir_spinnaker_ros2',
         namespace=namespace,
-        executable='lms1xx',
+        executable='blackfly_camera_node',
         parameters=[parameters],
         output='screen',
     )
 
     ld = LaunchDescription()
-    ld.add_action(arg_namespace)
     ld.add_action(arg_parameters)
-    ld.add_action(sick_scan_node)
+    ld.add_action(arg_namespace)
+    ld.add_action(blackfly_camera_node)
     return ld
