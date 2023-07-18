@@ -152,7 +152,9 @@ class RobotLaunchGenerator(LaunchGenerator):
                 self.nmea_driver_node,
                 self.wireless_watcher_node,
             ],
-            Platform.A200: [self.wireless_watcher_node],
+            Platform.A200: [
+                self.wireless_watcher_node
+            ],
         }
 
     def generate_sensors(self) -> None:
