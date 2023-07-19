@@ -15,6 +15,7 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <exec_depend>microstrain_inertial_driver</exec_depend>
+  <exec_depend>nmea_navsat_driver</exec_depend>
   <exec_depend>realsense2_camera</exec_depend>
   <exec_depend>urg_node</exec_depend>
   <exec_depend>velodyne_driver</exec_depend>

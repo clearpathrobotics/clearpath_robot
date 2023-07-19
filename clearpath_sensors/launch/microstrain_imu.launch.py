@@ -45,7 +45,7 @@ def generate_launch_description():
 
     arg_namespace = DeclareLaunchArgument(
         'namespace',
-        default_value='platform/sensors/imu_0')
+        default_value='')
 
     arg_parameters = DeclareLaunchArgument(
         'parameters',
