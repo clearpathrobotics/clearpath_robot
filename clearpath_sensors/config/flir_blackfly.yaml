@@ -1,4 +1,4 @@
-camera:
+flir_blackfly:
   ros__parameters:
     camera_name: camera
     log_level: info
