@@ -47,7 +47,7 @@ def generate_launch_description():
 
     arg_namespace = DeclareLaunchArgument(
         'namespace',
-        default_value='platform/sensors/camera_0')
+        default_value='')
 
     realsense2_camera_node = Node(
         package='realsense2_camera',

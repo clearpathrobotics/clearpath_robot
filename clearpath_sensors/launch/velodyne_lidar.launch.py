@@ -26,15 +26,29 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 from launch import LaunchDescription
-from launch.substitutions import LaunchConfiguration
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 
 from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
 
     namespace = LaunchConfiguration('namespace')
     parameters = LaunchConfiguration('parameters')
+
+    arg_namespace = DeclareLaunchArgument(
+        'namespace',
+        default_value='')
+
+    arg_parameters = DeclareLaunchArgument(
+        'parameters',
+        default_value=PathJoinSubstitution([
+          FindPackageShare('clearpath_sensors'),
+          'config',
+          'velodyne_lidar.yaml'
+        ]))
 
     velodyne_driver_node = Node(
         package='velodyne_driver',
@@ -67,6 +81,8 @@ def generate_launch_description():
     )
 
     ld = LaunchDescription()
+    ld.add_action(arg_namespace)
+    ld.add_action(arg_parameters)
     ld.add_action(velodyne_driver_node)
     ld.add_action(velodyne_pointcloud_node)
     ld.add_action(velodyne_laserscan_node)

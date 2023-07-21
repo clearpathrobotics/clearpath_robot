@@ -30,71 +30,76 @@
 # modification, is not permitted without the express permission
 # of Clearpath Robotics.
 
-from clearpath_config.sensors.base import BaseSensor
-from clearpath_config.sensors.lidars_2d import BaseLidar2D, HokuyoUST10, SickLMS1XX
-from clearpath_config.sensors.lidars_3d import BaseLidar3D, VelodyneLidar
-from clearpath_config.sensors.cameras import BaseCamera, IntelRealsense
-from clearpath_config.sensors.imu import BaseIMU, Microstrain
-from clearpath_config.sensors.gps import BaseGPS, SwiftNavDuro
+from clearpath_config.sensors.types.sensor import BaseSensor
+from clearpath_config.sensors.types.lidars_2d import HokuyoUST10, SickLMS1XX
+from clearpath_config.sensors.types.lidars_3d import VelodyneLidar
+from clearpath_config.sensors.types.cameras import IntelRealsense
+from clearpath_config.sensors.types.imu import Microstrain
+from clearpath_config.sensors.types.gps import SwiftNavDuro
 
 from clearpath_generator_common.common import LaunchFile, Package, ParamFile
+from clearpath_generator_common.launch.writer import LaunchWriter
 
 
 class SensorLaunch():
     class BaseLaunch():
         CLEARPATH_SENSORS = 'clearpath_sensors'
-        TOPIC_NAMESPACE = '/platform/sensors/'
+        TOPIC_NAMESPACE = 'sensors/'
+        CLEARPATH_SENSORS_PACKAGE = Package(CLEARPATH_SENSORS)
 
         # Launch arguments
         PARAMETERS = 'parameters'
         NAMESPACE = 'namespace'
 
-        def __init__(self, sensor: BaseSensor,
-                     namespace: str,
+        def __init__(self,
+                     sensor: BaseSensor,
+                     robot_namespace: str,
                      launch_path: str,
                      param_path: str) -> None:
             self.sensor = sensor
-            self.namespace = namespace
-            self.parameters = ParamFile(self.get_name(), path=param_path)
-            # Defaults
-            self.default_sensor_package = Package(self.CLEARPATH_SENSORS)
+            self._robot_namespace = robot_namespace
+            self.parameters = ParamFile(self.name, path=param_path)
 
-            # Generated
-            self.sensor_launch_file = LaunchFile(
-                self.get_name(),
+            # Generated launch file
+            self.launch_file = LaunchFile(
+                self.name,
                 path=launch_path)
 
+            # Set launch args for default launch file
             self.launch_args = [
-                (self.PARAMETERS, self.parameters.get_full_path()),
-                (self.NAMESPACE, self.get_namespace())
+                (self.PARAMETERS, self.parameters.full_path),
+                (self.NAMESPACE, self.namespace)
             ]
 
-            # Set launch args for default launch file
             self.default_sensor_launch_file = LaunchFile(
-                self.get_model(),
-                package=self.default_sensor_package,
+                self.model,
+                package=self.CLEARPATH_SENSORS_PACKAGE,
                 args=self.launch_args)
 
-        def get_launch_file(self) -> LaunchFile:
-            return self.sensor_launch_file
+        def generate(self):
+            sensor_writer = LaunchWriter(self.launch_file)
+            # Add default sensor launch file
+            sensor_writer.add(self.default_sensor_launch_file)
+            # Generate sensor launch file
+            sensor_writer.generate_file()
 
-        def get_default_launch_file(self) -> LaunchFile:
-            return self.default_sensor_launch_file
+        @property
+        def namespace(self) -> str:
+            """Return sensor namespace"""
+            if self._robot_namespace in ('', '/'):
+                return f'{self.TOPIC_NAMESPACE}{self.sensor.name}'
+            else:
+                return f'{self._robot_namespace}/{self.TOPIC_NAMESPACE}{self.sensor.name}'
 
-        def get_name(self) -> str:
-            return self.sensor.get_name()
+        @property
+        def name(self) -> str:
+            """Return sensor name"""
+            return self.sensor.name
 
-        def get_model(self) -> str:
+        @property
+        def model(self) -> str:
+            """Return sensor model"""
             return self.sensor.SENSOR_MODEL
-
-        def get_default_sensor_package(self) -> str:
-            return self.default_sensor_package
-
-        def get_launch_args(self) -> list:
-            return self.launch_args
-
-        def get_namespace(self) -> str:
-            return self.namespace + self.TOPIC_NAMESPACE + self.sensor.get_name()
 
     MODEL = {
         HokuyoUST10.SENSOR_MODEL: BaseLaunch,
@@ -105,5 +110,13 @@ class SensorLaunch():
         SwiftNavDuro.SENSOR_MODEL: BaseLaunch
     }
 
-    def __new__(cls, sensor: BaseSensor, namespace: str, launch_path: str, param_path: str) -> BaseLaunch:
-        return SensorLaunch.MODEL[sensor.SENSOR_MODEL](sensor, namespace, launch_path, param_path)
+    def __new__(cls,
+                sensor: BaseSensor,
+                robot_namespace: str,
+                launch_path: str,
+                param_path: str) -> BaseLaunch:
+        return SensorLaunch.MODEL[sensor.SENSOR_MODEL](
+            sensor,
+            robot_namespace,
+            launch_path,
+            param_path)

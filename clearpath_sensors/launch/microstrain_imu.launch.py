@@ -26,10 +26,11 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, GroupAction, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 
+from launch_ros.actions import SetRemap
 from launch_ros.substitutions import FindPackageShare
 
 
@@ -44,7 +45,7 @@ def generate_launch_description():
 
     arg_namespace = DeclareLaunchArgument(
         'namespace',
-        default_value='platform/sensors/imu_0')
+        default_value='')
 
     arg_parameters = DeclareLaunchArgument(
         'parameters',
@@ -54,15 +55,21 @@ def generate_launch_description():
           'microstrain_imu.yaml'
         ]))
 
-    launch_microstrain_imu = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([launch_microstrain_imu]),
-        launch_arguments=[
-          ('namespace', namespace),
-          ('params_file', parameters),
-          ('configure', 'true'),
-          ('activate', 'true')
-        ]
-    )
+    launch_microstrain_imu = GroupAction([
+        SetRemap('imu/data', 'data'),
+        SetRemap('/moving_ang', 'moving_ang'),
+        SetRemap('/tf', 'tf'),
+
+        IncludeLaunchDescription(
+          PythonLaunchDescriptionSource([launch_microstrain_imu]),
+          launch_arguments=[
+            ('namespace', namespace),
+            ('params_file', parameters),
+            ('configure', 'true'),
+            ('activate', 'true')
+          ]
+        )
+    ])
 
     ld = LaunchDescription()
     ld.add_action(arg_namespace)

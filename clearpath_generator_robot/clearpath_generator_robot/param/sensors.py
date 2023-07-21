@@ -30,22 +30,23 @@
 # modification, is not permitted without the express permission
 # of Clearpath Robotics.
 
-from clearpath_config.sensors.base import BaseSensor
-from clearpath_config.sensors.lidars_2d import HokuyoUST10, SickLMS1XX
-from clearpath_config.sensors.lidars_3d import VelodyneLidar
-from clearpath_config.sensors.cameras import IntelRealsense
-from clearpath_config.sensors.imu import Microstrain
-from clearpath_config.sensors.gps import SwiftNavDuro
+from clearpath_config.sensors.types.sensor import BaseSensor
+from clearpath_config.sensors.types.lidars_2d import HokuyoUST10, SickLMS1XX
+from clearpath_config.sensors.types.lidars_3d import VelodyneLidar
+from clearpath_config.sensors.types.cameras import IntelRealsense
+from clearpath_config.sensors.types.imu import Microstrain
+from clearpath_config.sensors.types.gps import SwiftNavDuro
 
 from clearpath_generator_common.common import ParamFile, Package
 from clearpath_generator_common.param.writer import ParamWriter
+from clearpath_generator_common.param.platform import PlatformParam
 
 
 class SensorParam():
     class BaseParam():
         CLEARPATH_SENSORS = 'clearpath_sensors'
 
-        TOPIC_NAMESPACE = '/platform/sensors/'
+        TOPIC_NAMESPACE = 'sensors'
 
         def __init__(self,
                      sensor: BaseSensor,
@@ -53,6 +54,10 @@ class SensorParam():
                      param_path: str) -> None:
             self.sensor = sensor
             self.param_path = param_path
+            if namespace in ('', '/'):
+                self.namespace = f'{self.TOPIC_NAMESPACE}/{self.sensor.name}'
+            else:
+                self.namespace = f'{namespace}/{self.TOPIC_NAMESPACE}/{self.sensor.name}'
 
             # Clearpath Sensors Package
             self.clearpath_sensors_package = Package(self.CLEARPATH_SENSORS)
@@ -60,31 +65,23 @@ class SensorParam():
             # Default parameter file for the sensor
             self.default_param_file = ParamFile(
                 name=self.sensor.get_sensor_model(),
-                package=self.clearpath_sensors_package)
+                package=self.clearpath_sensors_package,
+                parameters={})
             self.default_param_file.read()
 
             # Parameter file to generate
             self.param_file = ParamFile(
-                name=self.sensor.get_name(),
-                namespace=namespace + self.TOPIC_NAMESPACE + self.sensor.get_name(),
-                path=self.param_path)
+                name=self.sensor.name,
+                namespace=self.namespace,
+                path=self.param_path,
+                parameters=self.default_param_file.parameters)
 
-            self.update_parameters()
-
-        def update_parameters(self) -> None:
-            node: ParamFile.Node
-            for node in self.default_param_file.nodes:
-                sensor_parameters = self.sensor.get_ros_parameters()
-                updated_parameters = node.get_parameters()
-                for p in sensor_parameters:
-                    if p in updated_parameters:
-                        updated_parameters[p] = sensor_parameters[p]
-                self.param_file.add_node(node.get_name(), updated_parameters)
+            self.param_file.update(self.sensor.get_ros_parameters())
 
         def generate_config(self):
             sensor_writer = ParamWriter(self.param_file)
             sensor_writer.write_file()
-            print('Generated config: {0}'.format(self.param_file.get_full_path()))
+            print('Generated config: {0}'.format(self.param_file.full_path))
 
     MODEL = {
         HokuyoUST10.SENSOR_MODEL: BaseParam,

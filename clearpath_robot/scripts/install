@@ -29,7 +29,8 @@
 
 import robot_upstart
 
-from clearpath_config.parser import ClearpathConfigParser
+from clearpath_config.common.utils.yaml import read_yaml
+from clearpath_config.clearpath_config import ClearpathConfig
 from clearpath_generator_common.common import BaseGenerator
 
 from ament_index_python.packages import get_package_share_directory
@@ -92,7 +93,7 @@ class RobotProvider(robot_upstart.providers.Generic):
             for line in robot_service_lines:
                 # Replace User with username from config
                 if 'User=' in line:
-                    line = 'User={0}\n'.format(clearpath_config.system.get_username())
+                    line = 'User={0}\n'.format(clearpath_config.system.username)
                 robot_service_contents += line
         with open(robot_service_execpre_contents_path) as f:
             robot_service_execpre_contents = f.read()
@@ -121,12 +122,12 @@ platform_service_launch = os.path.join(setup_path, 'platform/launch/platform-ser
 sensors_service_launch = os.path.join(setup_path, 'sensors/launch/platform-service.launch.py')
 
 # Read YAML
-config = ClearpathConfigParser.read_yaml(config_path)
+config = read_yaml(config_path)
 # Parse YAML into config
-clearpath_config = ClearpathConfigParser(config)
+clearpath_config = ClearpathConfig(config)
 
-rmw = clearpath_config.system.get_rmw_implementation()
-domain_id = clearpath_config.system.get_domain_id()
+rmw = clearpath_config.system.rmw_implementation
+domain_id = clearpath_config.system.domain_id
 
 # Platform
 platform = robot_upstart.Job(name='clearpath-platform',
