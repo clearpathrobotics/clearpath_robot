@@ -2,8 +2,8 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.2 (2023-07-25)
+------------------
 * Sensor namespace
 * Microstrain namespacing
   LMS1xx parameters
