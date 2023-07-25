@@ -2,6 +2,13 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Sensor namespace
+* Microstrain namespacing
+  LMS1xx parameters
+* Contributors: Roni Kreinin
+
 0.0.1 (2023-07-20)
 ------------------
 * Namespacing support

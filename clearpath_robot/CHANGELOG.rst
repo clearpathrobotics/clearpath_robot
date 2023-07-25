@@ -2,6 +2,11 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Config update
+* Contributors: Roni Kreinin
+
 0.0.1 (2023-07-20)
 ------------------
 * [clearpath_platform] Added J100 MCU, FTDI and Logitech joy udev rules.

@@ -2,6 +2,15 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Sensor namespace
+* Param generator
+* Launch generator cleanup
+* NMEA navsat driver
+* Import paths
+* Contributors: Roni Kreinin
+
 0.0.1 (2023-07-20)
 ------------------
 * Set use_sim_time to false
