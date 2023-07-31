@@ -35,11 +35,15 @@ from clearpath_config.sensors.types.lidars_2d import HokuyoUST10, SickLMS1XX
 from clearpath_config.sensors.types.lidars_3d import VelodyneLidar
 from clearpath_config.sensors.types.cameras import IntelRealsense
 from clearpath_config.sensors.types.imu import Microstrain
-from clearpath_config.sensors.types.gps import SwiftNavDuro
+from clearpath_config.sensors.types.gps import (
+    Garmin18x,
+    NovatelSmart6,
+    NovatelSmart7,
+    SwiftNavDuro
+)
 
 from clearpath_generator_common.common import ParamFile, Package
 from clearpath_generator_common.param.writer import ParamWriter
-from clearpath_generator_common.param.platform import PlatformParam
 
 
 class SensorParam():
@@ -89,7 +93,10 @@ class SensorParam():
         IntelRealsense.SENSOR_MODEL: BaseParam,
         Microstrain.SENSOR_MODEL: BaseParam,
         VelodyneLidar.SENSOR_MODEL: BaseParam,
-        SwiftNavDuro.SENSOR_MODEL: BaseParam
+        SwiftNavDuro.SENSOR_MODEL: BaseParam,
+        Garmin18x.SENSOR_MODEL: BaseParam,
+        NovatelSmart6.SENSOR_MODEL: BaseParam,
+        NovatelSmart7.SENSOR_MODEL: BaseParam
     }
 
     def __new__(cls,
