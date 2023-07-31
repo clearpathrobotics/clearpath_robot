@@ -1,6 +1,6 @@
 um6_driver:
   ros__parameters:
-    port: /dev/ttyUSB0
+    port: /dev/clearpath/imu
     baud: 115200
     update_rate: 20
     mag_updates: true
