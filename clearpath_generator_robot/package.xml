@@ -6,6 +6,8 @@
   <description>Clearpath Robot Generator</description>
   <maintainer email="rkreinin@clearpathrobotics.com">rkreinin</maintainer>
   <license>BSD</license>
+  <author email="rkreinin@clearpathrobotics.com">Roni Kreinin</author>
+
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
