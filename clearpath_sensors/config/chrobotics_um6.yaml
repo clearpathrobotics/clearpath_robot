@@ -1,0 +1,16 @@
+um6_driver:
+  ros__parameters:
+    port: /dev/clearpath/imu
+    baud: 115200
+    update_rate: 20
+    mag_updates: true
+    accel_updates: true
+    zero_gyros: true
+    frame_id: imu_0_link
+    linear_acceleration_stdev: 0.0392266
+    angular_velocity_stdev: 0.001047
+    orientation_x_stdev: 0.052360
+    orientation_y_stdev: 0.052360
+    orientation_z_stdev: 0.052360
+    tf_ned_to_enu: true
+    orientation_in_robot_frame: false
