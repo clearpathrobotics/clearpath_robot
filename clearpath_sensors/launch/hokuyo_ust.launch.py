@@ -46,7 +46,7 @@ def generate_launch_description():
         default_value=PathJoinSubstitution([
           FindPackageShare('clearpath_sensors'),
           'config',
-          'hokuyo_ust10.yaml'
+          'hokuyo_ust.yaml'
         ]))
 
     urg_node = Node(
