@@ -31,20 +31,6 @@
 # of Clearpath Robotics.
 
 from clearpath_config.sensors.types.sensor import BaseSensor
-from clearpath_config.sensors.types.lidars_2d import HokuyoUST10, SickLMS1XX
-from clearpath_config.sensors.types.lidars_3d import VelodyneLidar
-from clearpath_config.sensors.types.cameras import IntelRealsense
-from clearpath_config.sensors.types.imu import (
-    CHRoboticsUM6,
-    Microstrain,
-    RedshiftUM7
-)
-from clearpath_config.sensors.types.gps import (
-    Garmin18x,
-    NovatelSmart6,
-    NovatelSmart7,
-    SwiftNavDuro
-)
 
 from clearpath_generator_common.common import LaunchFile, Package, ParamFile
 from clearpath_generator_common.launch.writer import LaunchWriter
@@ -110,26 +96,12 @@ class SensorLaunch():
             """Return sensor model"""
             return self.sensor.SENSOR_MODEL
 
-    MODEL = {
-        HokuyoUST10.SENSOR_MODEL: BaseLaunch,
-        SickLMS1XX.SENSOR_MODEL: BaseLaunch,
-        IntelRealsense.SENSOR_MODEL: BaseLaunch,
-        Microstrain.SENSOR_MODEL: BaseLaunch,
-        VelodyneLidar.SENSOR_MODEL: BaseLaunch,
-        SwiftNavDuro.SENSOR_MODEL: BaseLaunch,
-        Garmin18x.SENSOR_MODEL: BaseLaunch,
-        NovatelSmart6.SENSOR_MODEL: BaseLaunch,
-        NovatelSmart7.SENSOR_MODEL: BaseLaunch,
-        CHRoboticsUM6.SENSOR_MODEL: BaseLaunch,
-        RedshiftUM7.SENSOR_MODEL: BaseLaunch
-    }
-
     def __new__(cls,
                 sensor: BaseSensor,
                 robot_namespace: str,
                 launch_path: str,
                 param_path: str) -> BaseLaunch:
-        return SensorLaunch.MODEL[sensor.SENSOR_MODEL](
+        return SensorLaunch.BaseLaunch(
             sensor,
             robot_namespace,
             launch_path,
