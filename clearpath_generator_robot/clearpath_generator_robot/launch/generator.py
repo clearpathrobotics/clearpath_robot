@@ -151,6 +151,13 @@ class RobotLaunchGenerator(LaunchGenerator):
             Platform.A200: [
                 self.wireless_watcher_node
             ],
+            Platform.W200: [
+                self.imu_0_filter_node,
+                self.imu_0_filter_config,
+                self.wireless_watcher_node,
+                self.configure_mcu,
+                self.uros_node,
+            ]
         }
 
     def generate_sensors(self) -> None:
