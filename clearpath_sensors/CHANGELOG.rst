@@ -2,8 +2,8 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.3 (2023-08-15)
+------------------
 * Renamed UST10 to UST
   Cleaned up generators
 * Fixed umx ports

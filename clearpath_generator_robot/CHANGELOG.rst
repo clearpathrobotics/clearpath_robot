@@ -2,8 +2,8 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.3 (2023-08-15)
+------------------
 * Removed micros-ros-agent as dep.
 * Renamed UST10 to UST
   Cleaned up generators
