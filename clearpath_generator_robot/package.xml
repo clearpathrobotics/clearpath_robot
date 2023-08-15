@@ -15,7 +15,8 @@
   <exec_depend>clearpath_generator_common</exec_depend>
   <exec_depend>clearpath_sensors</exec_depend>
   <exec_depend>imu_filter_madgwick</exec_depend>
-  <exec_depend>micro_ros_agent</exec_depend>
+  <!-- Removing this dep till there is a Debian release. -->
+  <!-- <exec_depend>micro_ros_agent</exec_depend> -->
   <exec_depend>wireless_watcher</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
