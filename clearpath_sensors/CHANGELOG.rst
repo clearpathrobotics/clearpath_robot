@@ -2,6 +2,17 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Renamed UST10 to UST
+  Cleaned up generators
+* Fixed umx ports
+* Move author in all package.xml to pass xml linter.
+* Added UM6/7
+* Updated default port for generic gps
+* Added Garmin 18x, Smart6 and Smart7
+* Contributors: Roni Kreinin, Tony Baltovski
+
 0.0.2 (2023-07-25)
 ------------------
 * Sensor namespace

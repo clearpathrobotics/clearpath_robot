@@ -2,6 +2,17 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Removed micros-ros-agent as dep.
+* Renamed UST10 to UST
+  Cleaned up generators
+* Move author in all package.xml to pass xml linter.
+* [clearpath_generator_robot] Added author to package.xml.
+* Added UM6/7
+* Added Garmin 18x, Smart6 and Smart7
+* Contributors: Roni Kreinin, Tony Baltovski
+
 0.0.2 (2023-07-25)
 ------------------
 * Sensor namespace

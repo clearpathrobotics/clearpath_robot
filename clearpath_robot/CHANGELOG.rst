@@ -2,6 +2,12 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Linter
+* Move author in all package.xml to pass xml linter.
+* Contributors: Roni Kreinin, Tony Baltovski
+
 0.0.2 (2023-07-25)
 ------------------
 * Config update
