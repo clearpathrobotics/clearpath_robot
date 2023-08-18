@@ -119,7 +119,15 @@ setup_path = BaseGenerator.get_args()
 workspace_setup = os.path.join(setup_path, 'setup.bash')
 config_path = os.path.join(setup_path, 'robot.yaml')
 platform_service_launch = os.path.join(setup_path, 'platform/launch/platform-service.launch.py')
-sensors_service_launch = os.path.join(setup_path, 'sensors/launch/platform-service.launch.py')
+sensors_service_launch = os.path.join(setup_path, 'sensors/launch/sensors-service.launch.py')
+
+# Create Dummy Launch
+if not os.path.isfile(platform_service_launch):
+    os.makedirs(os.path.dirname(platform_service_launch), exist_ok=True)
+    open(platform_service_launch, 'w+').close()
+if not os.path.isfile(sensors_service_launch):
+    os.makedirs(os.path.dirname(sensors_service_launch), exist_ok=True)
+    open(sensors_service_launch, 'w+').close()
 
 # Read YAML
 config = read_yaml(config_path)
