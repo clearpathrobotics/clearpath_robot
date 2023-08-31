@@ -2,8 +2,8 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.0 (2023-08-31)
+------------------
 * Create dummy launch files if they do not exist
 * Fixed sensors launch file name
 * Contributors: Luis Camero, Roni Kreinin
