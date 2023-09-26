@@ -1,4 +1,4 @@
-velodyne_convert_node:
+velodyne_transform_node:
   ros__parameters:
     calibration: /opt/ros/humble/share/velodyne_pointcloud/params/VLP16db.yaml
     max_range: 130.0
@@ -15,7 +15,7 @@ velodyne_driver_node:
     frame_id: velodyne
     gps_time: false
     model: VLP16
-    port: 2368 
+    port: 2368
     read_fast: false
     read_once: false
     repeat_delay: 0.0
