@@ -1,5 +1,6 @@
 flir_blackfly:
   ros__parameters:
+    serial_number: ''
     debug: false
     compute_brightness: false
     adjust_timestamp: true
