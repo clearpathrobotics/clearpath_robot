@@ -4,6 +4,7 @@ PartOf=clearpath-robot.service
 After=clearpath-robot.service
 
 [Service]
+User=administrator
 Type=simple
 ExecStart=/usr/sbin/clearpath-platform-start
 
