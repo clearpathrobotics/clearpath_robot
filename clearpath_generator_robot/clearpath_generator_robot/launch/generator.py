@@ -79,8 +79,17 @@ class RobotLaunchGenerator(LaunchGenerator):
             ]
         )
 
-        # J100 Add micro ros agent
-        self.uros_node = LaunchFile.Node(
+        # W200 MicroROS Agent
+        self.w200_uros_node = LaunchFile.Node(
+            name='micro_ros_agent',
+            package='micro_ros_agent',
+            executable='micro_ros_agent',
+            namespace=self.namespace,
+            arguments=['udp4', '--port', '11411'],
+        )
+
+        # J100 MicroROS Agent
+        self.j100_uros_node = LaunchFile.Node(
             name='micro_ros_agent',
             package='micro_ros_agent',
             executable='micro_ros_agent',
@@ -144,13 +153,18 @@ class RobotLaunchGenerator(LaunchGenerator):
                 self.imu_0_filter_node,
                 self.imu_0_filter_config,
                 self.configure_mcu,
-                self.uros_node,
+                self.j100_uros_node,
                 self.nmea_driver_node,
                 self.wireless_watcher_node,
             ],
             Platform.A200: [
                 self.wireless_watcher_node
             ],
+            Platform.W200: [
+                self.w200_uros_node,
+                self.configure_mcu,
+                self.wireless_watcher_node,
+            ]
         }
 
     def generate_sensors(self) -> None:
