@@ -2,6 +2,11 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Renamed convert to transform
+* Contributors: Luis Camero
+
 0.1.1 (2023-09-11)
 ------------------
 
