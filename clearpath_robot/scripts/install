@@ -47,7 +47,13 @@ class PlatformProvider(robot_upstart.providers.Generic):
             get_package_share_directory('clearpath_robot'),
             'services/clearpath-platform.service')
         with open(platform_service_path) as f:
-            platform_service_contents = f.read()
+            platform_service_contents: str = ''
+            platform_service_lines = f.readlines()
+            for line in platform_service_lines:
+                # Replace User with username from config
+                if 'User=' in line:
+                    line = 'User={0}\n'.format(clearpath_config.system.username)
+                platform_service_contents += line
         return {
             "/lib/systemd/system/clearpath-platform.service": {
                 "content": platform_service_contents,
@@ -64,7 +70,13 @@ class SensorsProvider(robot_upstart.providers.Generic):
             get_package_share_directory('clearpath_robot'),
             'services/clearpath-sensors.service')
         with open(sensors_service_path) as f:
-            sensors_service_contents = f.read()
+            sensors_service_contents: str = ''
+            sensors_service_lines = f.readlines()
+            for line in sensors_service_lines:
+                # Replace User with username from config
+                if 'User=' in line:
+                    line = 'User={0}\n'.format(clearpath_config.system.username)
+                sensors_service_contents += line
         return {
             "/lib/systemd/system/clearpath-sensors.service": {
                 "content": sensors_service_contents,
