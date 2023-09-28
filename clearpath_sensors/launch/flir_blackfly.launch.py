@@ -66,10 +66,18 @@ def generate_launch_description():
         output='screen',
     )
     
+    debayer_node = Node(
+        package='image_proc',
+        namespace=namespace,
+        name='debayer_node',
+        plugin='image_proc::DebayerNode',
+        output='screen',
+    )
 
     ld = LaunchDescription()
     ld.add_action(arg_parameters)
     ld.add_action(arg_param_mapping_file)
     ld.add_action(arg_namespace)
     ld.add_action(blackfly_camera_node)
+    ld.add_action(debayer_node)
     return ld
