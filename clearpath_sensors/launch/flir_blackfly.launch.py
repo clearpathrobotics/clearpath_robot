@@ -45,7 +45,7 @@ def generate_launch_description():
           'config',
           'flir_blackfly.yaml'
         ]))
-    
+
     arg_param_mapping_file = DeclareLaunchArgument(
         'param_mapping_file',
         default_value=PathJoinSubstitution([
@@ -64,14 +64,24 @@ def generate_launch_description():
         executable='camera_driver_node',
         parameters=[parameters, {'parameter_file': param_mapping_file,}],
         output='screen',
+        remappings=[
+            ('flir_blackfly/camera_info', 'color/camera_info'),
+            ('flir_blackfly/control', 'control'),
+            ('flir_blackfly/image_raw', 'image_raw'),
+            ('flir_blackfly/meta', 'meta'),
+        ]
     )
-    
+
     debayer_node = Node(
         package='image_proc',
         namespace=namespace,
         name='debayer_node',
-        plugin='image_proc::DebayerNode',
+        executable='image_proc',
         output='screen',
+        remappings=[
+            ('image_color', 'color/image')
+            ('image_mono', 'mono/image')
+        ]
     )
 
     ld = LaunchDescription()
