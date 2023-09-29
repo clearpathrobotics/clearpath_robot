@@ -79,8 +79,8 @@ def generate_launch_description():
         executable='image_proc',
         output='screen',
         remappings=[
-            ('image_color', 'color/image')
-            ('image_mono', 'mono/image')
+            ('image_color', 'color/image'),
+            ('image_mono', 'mono/image'),
         ]
     )
 
