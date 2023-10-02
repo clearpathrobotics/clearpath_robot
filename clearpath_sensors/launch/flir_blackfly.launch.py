@@ -27,9 +27,10 @@
 # POSSIBILITY OF SUCH DAMAGE.
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
+from launch.conditions import LaunchConfigurationNotEquals
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
-
-from launch_ros.actions import Node
+from launch_ros.actions import Node, ComposableNodeContainer, LoadComposableNodes
+from launch_ros.descriptions import ComposableNode
 from launch_ros.substitutions import FindPackageShare
 
 
@@ -37,6 +38,7 @@ def generate_launch_description():
     parameters = LaunchConfiguration('parameters')
     namespace = LaunchConfiguration('namespace')
     param_mapping_file = LaunchConfiguration('param_mapping_file')
+    rectify = LaunchConfiguration('rectify')
 
     arg_parameters = DeclareLaunchArgument(
         'parameters',
@@ -49,13 +51,19 @@ def generate_launch_description():
     arg_param_mapping_file = DeclareLaunchArgument(
         'param_mapping_file',
         default_value=PathJoinSubstitution([
-            FindPackageShare('spinnaker_camera_driver'), 'config',
-             'blackfly_s.yaml'
+            FindPackageShare('spinnaker_camera_driver'),
+            'config',
+            'blackfly_s.yaml'
         ]))
 
     arg_namespace = DeclareLaunchArgument(
         'namespace',
         default_value='platform/sensors/camera_0')
+
+    arg_rectify = DeclareLaunchArgument(
+        'rectify',
+        default_value=''
+    )
 
     blackfly_camera_node = Node(
         package='spinnaker_camera_driver',
@@ -65,29 +73,65 @@ def generate_launch_description():
         parameters=[parameters, {'parameter_file': param_mapping_file,}],
         output='screen',
         remappings=[
-            ('flir_blackfly/camera_info', 'color/camera_info'),
+            ('flir_blackfly/camera_info', 'camera_info'),
             ('flir_blackfly/control', 'control'),
-            ('flir_blackfly/image_raw', 'image_raw'),
+            ('flir_blackfly/image_raw', 'raw/image'),
             ('flir_blackfly/meta', 'meta'),
         ]
     )
 
-    debayer_node = Node(
-        package='image_proc',
+    composable_nodes = [
+        ComposableNode(
+            package='image_proc',
+            plugin='image_proc::DebayerNode',
+            name='debayer_node',
+            namespace=namespace,
+            remappings=[
+                ('image_raw', 'raw/image'),
+                ('image_color', 'color/image'),
+                ('image_mono', 'mono/image'),
+            ]
+        ),
+        ComposableNode(
+            condition=LaunchConfigurationNotEquals('rectify', ''),
+            package='image_proc',
+            plugin='image_proc::RectifyNode',
+            name='rectify_mono_node',
+            namespace=namespace,
+            # Remap subscribers and publishers
+            remappings=[
+                ('image', 'mono/image'),
+                ('image_rect', 'mono/image_rect')
+            ],
+        ),
+        ComposableNode(
+            condition=LaunchConfigurationNotEquals('rectify', ''),
+            package='image_proc',
+            plugin='image_proc::RectifyNode',
+            name='rectify_color_node',
+            namespace=namespace,
+            # Remap subscribers and publishers
+            remappings=[
+                ('image', 'color/image'),
+                ('image_rect', 'color/image_rect')
+            ],
+        )
+    ]
+
+    image_processing_container = ComposableNodeContainer(
+        name='image_processing_node',
         namespace=namespace,
-        name='debayer_node',
-        executable='image_proc',
-        output='screen',
-        remappings=[
-            ('image_color', 'color/image'),
-            ('image_mono', 'mono/image'),
-        ]
+        package='rclcpp_components',
+        executable='component_container',
+        composable_node_descriptions=composable_nodes,
+        output='screen'
     )
 
     ld = LaunchDescription()
     ld.add_action(arg_parameters)
     ld.add_action(arg_param_mapping_file)
     ld.add_action(arg_namespace)
+    ld.add_action(arg_rectify)
     ld.add_action(blackfly_camera_node)
-    ld.add_action(debayer_node)
+    ld.add_action(image_processing_container)
     return ld
