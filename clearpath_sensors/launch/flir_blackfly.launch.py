@@ -58,7 +58,7 @@ def generate_launch_description():
 
     arg_namespace = DeclareLaunchArgument(
         'namespace',
-        default_value='platform/sensors/camera_0')
+        default_value='sensors/camera_0')
 
     arg_rectify = DeclareLaunchArgument(
         'rectify',
