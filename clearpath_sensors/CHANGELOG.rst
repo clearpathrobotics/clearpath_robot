@@ -2,8 +2,8 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.3 (2023-10-04)
+------------------
 * Removed 'platform' from default namespace
 * Added image proc as container
 * Missing comma
