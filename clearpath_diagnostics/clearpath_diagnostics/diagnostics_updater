@@ -42,18 +42,21 @@ import rclpy
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
 
-from sensor_msgs.msg import BatteryState, Image, Imu, LaserScan, PointCloud2
+from sensor_msgs.msg import BatteryState, Image, Imu, LaserScan, MagneticField, NavSatFix, PointCloud2
 
 from clearpath_generator_common.common import BaseGenerator
 from clearpath_config.common.utils.yaml import read_yaml
 from clearpath_config.clearpath_config import ClearpathConfig
 from clearpath_config.sensors.types.sensor import BaseSensor
-from clearpath_config.sensors.types.cameras import BaseCamera
-from clearpath_config.sensors.types.lidars_2d import BaseLidar2D
-from clearpath_config.sensors.types.lidars_3d import BaseLidar3D
+from clearpath_config.sensors.types.cameras import BaseCamera, IntelRealsense, FlirBlackfly
+from clearpath_config.sensors.types.imu import BaseIMU, CHRoboticsUM6, Microstrain, RedshiftUM7
+from clearpath_config.sensors.types.lidars_2d import BaseLidar2D, HokuyoUST, SickLMS1XX
+from clearpath_config.sensors.types.lidars_3d import BaseLidar3D, VelodyneLidar
+from clearpath_config.sensors.types.gps import BaseGPS, SwiftNavDuro, NMEA
 
 from clearpath_platform_msgs.msg import Status
 
+from typing import List
 
 class ClearpathDiagnosticUpdater(Node):
 
@@ -65,10 +68,10 @@ class ClearpathDiagnosticUpdater(Node):
         self.config_path = os.path.join(setup_path, 'robot.yaml')
         assert os.path.exists(self.config_path)
 
-        # Read YAML
-        self.config = read_yaml(self.config_path)
+        # # Read YAML
+        # self.config = read_yaml()
         # Parse YAML into config
-        self.clearpath_config = ClearpathConfig(self.config)
+        self.clearpath_config = ClearpathConfig(self.config_path)
 
         self.serial_number = self.clearpath_config.serial_number
         self.platform_model = self.clearpath_config.platform.get_platform_model()
@@ -116,37 +119,103 @@ class ClearpathDiagnosticUpdater(Node):
             stat.summary(DiagnosticStatus.WARN, f'New firmware available. (v{self.firmware_version}) -> (v{self.newest_firmware_version})')
         return stat
 
+    def get_headerless_topic_diagnostic(self,
+                                        sensor: BaseSensor,
+                                        topic: str) -> HeaderlessTopicDiagnostic:
+        sensor_topic = sensor.get_topic(topic)
+        rate = sensor.get_topic_rate(topic)
+        freq_bounds = FrequencyStatusParam({'min': rate, 'max': rate})
+        return HeaderlessTopicDiagnostic(sensor_topic, self.updater, freq_bounds)
+
     def add_sensor_diagnostic(self, sensor: BaseSensor):
-        if self.namespace in ('', '/'):
-            topic = f'sensors/{sensor.name}'
-        else:
-            topic = f'{self.namespace}/sensors/{sensor.name}'
+        diagnostics: List[tuple] = []
 
-        freq_bounds = {}
-        message_type = None
-        sensor_type = sensor.get_sensor_type()
+        if not sensor.launch_enabled:
+            return
 
-        if sensor_type == BaseCamera.SENSOR_TYPE:
-            freq_bounds = self.camera_freq_bounds
-            message_type = Image
-        elif sensor_type == BaseLidar2D.SENSOR_TYPE:
-            freq_bounds = self.lidar2d_freq_bounds
-            message_type = LaserScan
-        elif sensor_type == BaseLidar3D.SENSOR_TYPE:
-            freq_bounds = self.lidar3d_freq_bounds
-            message_type = PointCloud2
+        match sensor:
+            case IntelRealsense():
+                if sensor.color_enabled:
+                    diagnostics.append((
+                        Image,
+                        sensor.get_topic(IntelRealsense.TOPICS.COLOR_IMAGE),
+                        self.get_headerless_topic_diagnostic(
+                            sensor, IntelRealsense.TOPICS.COLOR_IMAGE)
+                    ))
+                if sensor.depth_enabled:
+                    diagnostics.append((
+                        Image,
+                        sensor.get_topic(IntelRealsense.TOPICS.DEPTH_IMAGE),
+                        self.get_headerless_topic_diagnostic(
+                            sensor, IntelRealsense.TOPICS.DEPTH_IMAGE)
+                    ))
+                if sensor.pointcloud_enabled:
+                    diagnostics.append((
+                        PointCloud2,
+                        sensor.get_topic(IntelRealsense.TOPICS.POINTCLOUD),
+                        self.get_headerless_topic_diagnostic(
+                            sensor, IntelRealsense.TOPICS.POINTCLOUD)
+                    ))
 
-        diagnostic = HeaderlessTopicDiagnostic(
-                      topic,
-                      self.updater,
-                      FrequencyStatusParam(freq_bounds, 0.1, 10))
+            case BaseCamera():
+                diagnostics.append((
+                    Image,
+                    sensor.get_topic(BaseCamera.TOPICS.COLOR_IMAGE),
+                    self.get_headerless_topic_diagnostic(
+                        sensor, BaseCamera.TOPICS.COLOR_IMAGE)
+                ))
 
-        self.create_subscription(
-            message_type,
-            topic,
-            lambda msg: diagnostic.tick(),
-            qos_profile_sensor_data
-        )
+            case BaseLidar2D():
+                diagnostics.append((
+                  LaserScan,
+                  sensor.get_topic(BaseLidar2D.TOPICS.SCAN),
+                  self.get_headerless_topic_diagnostic(
+                      sensor, BaseLidar2D.TOPICS.SCAN)
+                ))
+
+            case BaseLidar3D():
+                diagnostics.append((
+                  LaserScan,
+                  sensor.get_topic(BaseLidar3D.TOPICS.SCAN),
+                  self.get_headerless_topic_diagnostic(
+                      sensor, BaseLidar3D.TOPICS.SCAN)
+                ))
+                diagnostics.append((
+                    PointCloud2,
+                    sensor.get_topic(BaseLidar3D.TOPICS.POINTS),
+                    self.get_headerless_topic_diagnostic(
+                        sensor, BaseLidar3D.TOPICS.POINTS)
+                ))
+
+            case BaseIMU():
+                diagnostics.append((
+                  Imu,
+                  sensor.get_topic(BaseIMU.TOPICS.DATA),
+                  self.get_headerless_topic_diagnostic(
+                      sensor, BaseIMU.TOPICS.DATA)
+                ))
+                diagnostics.append((
+                  MagneticField,
+                  sensor.get_topic(BaseIMU.TOPICS.MAG),
+                  self.get_headerless_topic_diagnostic(
+                      sensor, BaseIMU.TOPICS.MAG)
+                ))
+
+            case BaseGPS():
+                diagnostics.append((
+                  NavSatFix,
+                  sensor.get_topic(BaseGPS.TOPICS.FIX),
+                  self.get_headerless_topic_diagnostic(
+                      sensor, BaseGPS.TOPICS.FIX)
+                ))
+
+        for d in diagnostics:
+            self.create_subscription(
+                d[0],
+                d[1],
+                lambda msg: d[2].tick(),
+                qos_profile_sensor_data
+            )
 
 
 def main():

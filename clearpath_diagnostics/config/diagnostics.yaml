@@ -29,3 +29,7 @@ analyzers:
           type: diagnostic_aggregator/GenericAnalyzer
           path: IMU
           contains: [ 'imu' ]
+        gps:
+          type: diagnostic_aggregator/GenericAnalyzer
+          path: GPS
+          contains: [ 'gps' ]
