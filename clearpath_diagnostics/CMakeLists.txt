@@ -13,6 +13,7 @@ ament_python_install_package(${PROJECT_NAME})
 
 install(
   PROGRAMS ${PROJECT_NAME}/diagnostics_updater
+           ${PROJECT_NAME}/battery_state_publisher/battery_state_publisher 
   DESTINATION lib/${PROJECT_NAME}
 )
 
