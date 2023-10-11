@@ -34,52 +34,77 @@
 
 from ament_index_python.packages import get_package_share_directory
 
-import launch
+from clearpath_config.common.utils.yaml import read_yaml
+from clearpath_config.clearpath_config import ClearpathConfig
+
+from launch import LaunchDescription
+from launch.actions import (
+    DeclareLaunchArgument,
+    GroupAction,
+    OpaqueFunction,
+)
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 
-from launch_ros.actions import Node
+from launch_ros.actions import Node, PushRosNamespace
 
-from nav2_common.launch import RewrittenYaml
+
+ARGUMENTS = [
+    DeclareLaunchArgument(
+        "setup_path",
+        default_value="/etc/clearpath/",
+        description="Clearpath setup path",
+    )
+]
+
+
+def launch_setup(context, *args, **kwargs):
+    pkg_clearpath_diagnostics = get_package_share_directory("clearpath_diagnostics")
+
+    setup_path = LaunchConfiguration("setup_path")
+
+    analyzer_params_filepath = PathJoinSubstitution(
+        [pkg_clearpath_diagnostics, "config", "diagnostics.yaml"]
+    )
+
+    # Read robot YAML
+    config = read_yaml(setup_path.perform(context) + "robot.yaml")
+    # Parse robot YAML into config
+    clearpath_config = ClearpathConfig(config)
+
+    namespace = clearpath_config.system.namespace
+    diagnostics = GroupAction(
+        [
+            PushRosNamespace(namespace),
+            # Aggregator
+            Node(
+                package="diagnostic_aggregator",
+                executable="aggregator_node",
+                output="screen",
+                parameters=[analyzer_params_filepath],
+                remappings=[
+                    ("/diagnostics", "diagnostics"),
+                    ("/diagnostics_agg", "diagnostics_agg"),
+                    ("/diagnostics_toplevel_state", "diagnostics_toplevel_state"),
+                ],
+            ),
+            # Updater
+            Node(
+                package="clearpath_diagnostics",
+                executable="diagnostics_updater",
+                output="screen",
+                remappings=[
+                    ("/diagnostics", "diagnostics"),
+                    ("/diagnostics_agg", "diagnostics_agg"),
+                    ("/diagnostics_toplevel_state", "diagnostics_toplevel_state"),
+                ],
+            ),
+        ]
+    )
+
+    return [diagnostics]
 
 
 def generate_launch_description():
-
-    pkg_clearpath_diagnostics = get_package_share_directory('clearpath_diagnostics')
-
-    analyzer_params_filepath = PathJoinSubstitution(
-        [pkg_clearpath_diagnostics, 'config', 'diagnostics.yaml'])
-
-    namespaced_param_file = RewrittenYaml(
-        source_file=analyzer_params_filepath,
-        root_key=LaunchConfiguration('namespace'),
-        param_rewrites={},
-        convert_types=True)
-
-    aggregator = Node(
-        package='diagnostic_aggregator',
-        executable='aggregator_node',
-        output='screen',
-        parameters=[namespaced_param_file],
-        remappings=[
-            ('/diagnostics', 'diagnostics'),
-            ('/diagnostics_agg', 'diagnostics_agg'),
-            ('/diagnostics_toplevel_state', 'diagnostics_toplevel_state')
-        ])
-    diag_publisher = Node(
-         package='clearpath_diagnostics',
-         executable='diagnostics_updater',
-         output='screen',
-         remappings=[
-            ('/diagnostics', 'diagnostics'),
-            ('/diagnostics_agg', 'diagnostics_agg'),
-            ('/diagnostics_toplevel_state', 'diagnostics_toplevel_state')]
-        )
-    return launch.LaunchDescription([
-        aggregator,
-        diag_publisher,
-        launch.actions.RegisterEventHandler(
-            event_handler=launch.event_handlers.OnProcessExit(
-                target_action=aggregator,
-                on_exit=[launch.actions.EmitEvent(event=launch.events.Shutdown())],
-            )),
-    ])
+    ld = LaunchDescription(ARGUMENTS)
+    ld.add_action(OpaqueFunction(function=launch_setup))
+    return ld
