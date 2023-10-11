@@ -97,6 +97,7 @@ def launch_setup(context, *args, **kwargs):
                     ("/diagnostics_agg", "diagnostics_agg"),
                     ("/diagnostics_toplevel_state", "diagnostics_toplevel_state"),
                 ],
+                arguments=['-s', setup_path]
             ),
         ]
     )

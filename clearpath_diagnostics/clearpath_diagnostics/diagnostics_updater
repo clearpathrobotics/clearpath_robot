@@ -61,7 +61,6 @@ from apt import Cache, Version
 
 
 class ClearpathDiagnosticUpdater(Node):
-
     def __init__(self, setup_path: str = '/etc/clearpath/'):
         super().__init__('clearpath_diagnostics_updater')
         self.setup_path = setup_path
