@@ -57,6 +57,8 @@ from clearpath_config.sensors.types.gps import BaseGPS, SwiftNavDuro, NMEA
 from clearpath_platform_msgs.msg import Status
 
 from typing import List
+from apt import Cache, Version
+
 
 class ClearpathDiagnosticUpdater(Node):
 
@@ -96,9 +98,18 @@ class ClearpathDiagnosticUpdater(Node):
         for sensor in self.clearpath_config.sensors.get_all_sensors():
             self.add_sensor_diagnostic(sensor)
 
-        # Initial values
+        # Check current firmware version
+        cache = Cache()
+        try:
+            pkg = cache['ros-humble-clearpath-firmware']
+            versions = pkg.versions
+            newest: Version = versions[0]
+            self.newest_firmware_version = newest.version.split('-')[0]
+        except KeyError:
+            self.get_logger().warn('ros-humble-clearpath-firmware package not found')
+            self.newest_firmware_version = 'Not found'
+
         self.firmware_version = '0.0.0'
-        self.newest_firmware_version = '0.0.1'
         self.battery_percentage = 0.0
         self.battery_voltage = 0.0
 
@@ -113,10 +124,14 @@ class ClearpathDiagnosticUpdater(Node):
         self.pcb_temperature = msg.pcb_temperature
 
     def check_firmware_version(self, stat: DiagnosticStatusWrapper):
-        if self.firmware_version == '0.0.1':
+        if self.newest_firmware_version == 'Not found':
+            stat.summary(DiagnosticStatus.ERROR, 'ros-humble-clearpath-firmware package not found')
+        elif self.firmware_version == self.newest_firmware_version:
             stat.summary(DiagnosticStatus.OK, f'Firmware is up to date (v{self.firmware_version})')
-        else:
+        elif self.firmware_version < self.newest_firmware_version:
             stat.summary(DiagnosticStatus.WARN, f'New firmware available. (v{self.firmware_version}) -> (v{self.newest_firmware_version})')
+        else:
+            stat.summary(DiagnosticStatus.WARN, 'ros-humble-clearpath-firmware package is outdated.')
         return stat
 
     def get_headerless_topic_diagnostic(self,
