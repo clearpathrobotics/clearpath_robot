@@ -32,7 +32,7 @@
 # modification, is not permitted without the express permission
 # of Clearpath Robotics.
 
-from clearpath_generator_common.common import LaunchFile
+from clearpath_generator_common.common import LaunchFile, Package
 from clearpath_generator_common.launch.writer import LaunchWriter
 from clearpath_generator_common.launch.generator import LaunchGenerator
 from clearpath_generator_robot.launch.sensors import SensorLaunch
@@ -128,6 +128,10 @@ class RobotLaunchGenerator(LaunchGenerator):
             ],
         )
 
+        # Diagnostics
+        clearpath_diagnostics_package = Package('clearpath_diagnostics')
+        self.diagnostics_launch = LaunchFile('diagnostics', package=clearpath_diagnostics_package)
+
         # Static transform from <namespace>/odom to odom
         # See https://github.com/ros-controls/ros2_controllers/pull/533
         self.tf_namespaced_odom_publisher = LaunchFile.get_static_tf_node(
@@ -156,14 +160,17 @@ class RobotLaunchGenerator(LaunchGenerator):
                 self.j100_uros_node,
                 self.nmea_driver_node,
                 self.wireless_watcher_node,
+                self.diagnostics_launch
             ],
             Platform.A200: [
-                self.wireless_watcher_node
+                self.wireless_watcher_node,
+                self.diagnostics_launch
             ],
             Platform.W200: [
                 self.w200_uros_node,
                 self.configure_mcu,
                 self.wireless_watcher_node,
+                self.diagnostics_launch
             ]
         }
 
