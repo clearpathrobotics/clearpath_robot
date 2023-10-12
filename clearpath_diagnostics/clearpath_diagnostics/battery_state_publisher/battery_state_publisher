@@ -45,7 +45,7 @@ from clearpath_config.clearpath_config import ClearpathConfig
 from clearpath_config.common.types.platform import Platform
 from clearpath_generator_common.common import BaseGenerator
 
-from clearpath_diagnostics.battery_state_publisher.battery import Battery
+from clearpath_diagnostics.battery_state_publisher.battery import HE2613
 
 
 class BatteryStatePublisher(Node):
@@ -75,30 +75,14 @@ class BatteryStatePublisher(Node):
 
         match self.platform:
             case Platform.J100:
-                self.battery = Battery(Battery.Type.HE2613)
+                self.battery = HE2613()
             case Platform.A200:
-                self.battery = Battery(Battery.Type.HE2613)
+                self.battery = HE2613()
             case Platform.W200:
-                self.battery = Battery(Battery.Type.HE2613)
+                self.battery = HE2613()
 
     def power_status_callback(self, msg: Power):
-        match self.platform:
-            case Platform.J100:
-                voltage = msg.measured_voltages[Power.JACKAL_MEASURED_BATTERY]
-                current = msg.measured_currents[Power.JACKAL_TOTAL_CURRENT]
-                self.battery.update(voltage, current)
-            case Platform.A200:
-                voltage = msg.measured_voltages[Power.A200_BATTERY_VOLTAGE]
-                current = msg.measured_currents[Power.A200_LEFT_DRIVER_CURRENT] + \
-                          msg.measured_currents[Power.A200_RIGHT_DRIVER_CURRENT] + \
-                          msg.measured_currents[Power.A200_MCU_AND_USER_PORT_CURRENT]
-                self.battery.update(voltage, current)
-            case Platform.W200:
-                voltage = msg.measured_voltages[Power.WARTHOG_MEASURED_BATTERY]
-                current = msg.measured_currents[Power.WARTHOG_TOTAL_CURRENT]
-                self.battery.update(voltage, current)
-
-        self.battery.stamp(self.get_clock().now().to_msg())
+        self.battery.update(msg)
         self.battery_state_pub.publish(self.battery.msg)
 
 
