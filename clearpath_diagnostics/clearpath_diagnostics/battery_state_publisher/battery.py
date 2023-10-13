@@ -35,14 +35,78 @@
 from clearpath_platform_msgs.msg import Power
 from sensor_msgs.msg import BatteryState
 
+from clearpath_config.common.types.platform import Platform
+
+from enum import Enum
+
+
+# Base Battery
 
 class Battery:
-    def __init__(self, rolling_average_period=30) -> None:
+    """ Base Battery class. """
+
+    class Configuration():
+        """Battery configuration. Represents number of battery cells."""
+
+        S1P1 = 'S1P1'
+        S2P1 = 'S2P1'
+        S1P3 = 'S1P3'
+        S1P4 = 'S1P4'
+        S4P1 = 'S4P1'
+        S4P3 = 'S4P3'
+
+        CELL_COUNT = {
+            S1P1: 1,
+            S2P1: 2,
+            S1P3: 3,
+            S1P4: 4,
+            S4P1: 4,
+            S4P3: 12,
+        }
+
+    # To be defined in child class
+    VALID_CONFIGURATIONS = []
+    SYSTEM_CAPACITY = {}
+
+    def __init__(
+        self,
+        platform: Platform,
+        configuration: Configuration,
+        rolling_average_period=30,
+    ) -> None:
         self._msg = BatteryState()
-        self._msg.header.frame_id = "battery_link"
         self._msg.power_supply_technology = BatteryState.POWER_SUPPLY_TECHNOLOGY_UNKNOWN
         self._readings: list[Power] = []
         self.rolling_average_period = rolling_average_period
+        self.platform = platform
+        self.configuration = configuration
+        assert self.configuration in self.VALID_CONFIGURATIONS, (
+          'Invalid Configuration\n' +
+          f'Configuration {self.configuration}\n' +
+          f'Battery: {self.__class__.__name__}\n' +
+          f'Platform : {self.platform}'
+        )
+
+        # Which power message indices to use
+        self.power_msg_voltage_index: int = 0
+        self.power_msg_current_index: int | list[int] = 0
+        match self.platform:
+            case Platform.J100:
+                self.power_msg_voltage_index = Power.JACKAL_MEASURED_BATTERY
+                self.power_msg_current_index = Power.JACKAL_TOTAL_CURRENT
+            case Platform.A200:
+                self.power_msg_voltage_index = Power.A200_BATTERY_VOLTAGE
+                self.power_msg_current_index = [
+                    Power.A200_MCU_AND_USER_PORT_CURRENT,
+                    Power.A200_LEFT_DRIVER_CURRENT,
+                    Power.A200_RIGHT_DRIVER_CURRENT,
+                ]
+            case Platform.J100:
+                self.power_msg_voltage_index = Power.WARTHOG_MEASURED_BATTERY
+                self.power_msg_current_index = Power.WARTHOG_TOTAL_CURRENT
+
+        # System capacity
+        self._msg.capacity = self._msg.design_capacity = self.SYSTEM_CAPACITY[self.configuration]
 
     @property
     def msg(self) -> BatteryState:
@@ -56,6 +120,19 @@ class Battery:
         if len(self._readings) > self.rolling_average_period:
             self._readings.pop(0)
 
+        # Set battery voltage
+        self._msg.voltage = power_msg.measured_voltages[self.power_msg_voltage_index]
+
+        # Set battery current
+        if isinstance(self.power_msg_current_index, int):
+            self._msg.current = power_msg.measured_currents[
+                self.power_msg_current_index
+            ]
+        elif isinstance(self.power_msg_current_index, list):
+            self._msg.current = 0.0
+            for i in self.power_msg_current_index:
+                self._msg.current += power_msg.measured_currents[i]
+
     def linear_interpolation(self, lut: list[list], v: float) -> float:
         # Check if voltage is below minimum value
         if v <= lut[0][0]:
@@ -64,13 +141,72 @@ class Battery:
         for i in range(0, len(lut)):
             if v < lut[i][0]:
                 return (v - lut[i - 1][0]) * (lut[i][1] - lut[i - 1][1]) / (
-                    lut[i][0] - lut[i - 1][0]) + lut[i - 1][1]
+                    lut[i][0] - lut[i - 1][0]
+                ) + lut[i - 1][1]
 
         # Return maximum value
         return lut[len(lut) - 1][1]
 
 
-class HE2613(Battery):
+# Battery Types
+
+class LiION(Battery):
+    """Base Lithium ION battery."""
+    LUT = []
+
+    def __init__(
+        self,
+        platform: Platform,
+        configuration: Battery.Configuration,
+        rolling_average_period=30,
+    ) -> None:
+        super().__init__(platform, configuration, rolling_average_period)
+        self._msg.power_supply_technology = BatteryState.POWER_SUPPLY_TECHNOLOGY_LION
+
+    def update(self, power_msg: Power):
+        super().update(power_msg)
+
+        # Calculate state of charge
+        avg_voltage = 0
+        for reading in self._readings:
+            avg_voltage += reading.measured_voltages[self.power_msg_voltage_index]
+        avg_voltage /= len(self._readings)
+        self._msg.percentage = self.linear_interpolation(self.LUT, avg_voltage)
+        self._msg.charge = self._msg.capacity * self._msg.percentage
+        self._msg.cell_voltage = [self._msg.voltage] * Battery.Configuration.CELL_COUNT[
+            self.configuration]
+
+        # Power supply status
+        if self._msg.percentage == 1.0:
+            self._msg.power_supply_status = BatteryState.POWER_SUPPLY_STATUS_FULL
+
+
+class SLA(Battery):
+    """Base Lead Acid battery."""
+    def update(self, power_msg: Power):
+        super().update(power_msg)
+        # Calculate SLA SoC
+        pass
+
+
+class LiFEPO4(Battery):
+    """Base LiFEPO4 battery."""
+    def __init__(self,
+                 platform: Platform,
+                 configuration: Battery.Configuration,
+                 rolling_average_period=30) -> None:
+        super().__init__(platform, configuration, rolling_average_period)
+        self._msg.power_supply_technology = BatteryState.POWER_SUPPLY_TECHNOLOGY_LIFE
+
+    def update(self, power_msg: Power):
+        super().update(power_msg)
+        # Get BMS data
+        pass
+
+
+# Batteries
+
+class HE2613(LiION):
     LUT = [
         [21.00, 0.0],
         [21.84, 0.1],
@@ -85,17 +221,64 @@ class HE2613(Battery):
         [29.40, 1.0],
     ]
 
-    def __init__(self) -> None:
-        super().__init__()
-        self._msg.power_supply_technology = BatteryState.POWER_SUPPLY_TECHNOLOGY_LION
+    VALID_CONFIGURATIONS = [
+        Battery.Configuration.S1P1,
+        Battery.Configuration.S1P3,
+        Battery.Configuration.S1P4,
+    ]
 
-    def update(self, power_msg: Power):
-        super().update(power_msg)
-        self._msg.voltage = power_msg.measured_voltages[Power.JACKAL_MEASURED_BATTERY]
-        self._msg.current = power_msg.measured_currents[Power.JACKAL_TOTAL_CURRENT]
+    SYSTEM_CAPACITY = {
+        Battery.Configuration.S1P1: 12.8,
+        Battery.Configuration.S1P3: 38.4,
+        Battery.Configuration.S1P4: 51.2,
+    }
 
-        avg_voltage = 0
-        for reading in self._readings:
-            avg_voltage += reading.measured_voltages[Power.JACKAL_MEASURED_BATTERY]
-        avg_voltage /= len(self._readings)
-        self._msg.percentage = self.linear_interpolation(self.LUT, avg_voltage)
+
+class ES20_12C(SLA):
+    VALID_CONFIGURATIONS = [
+        Battery.Configuration.S2P1
+    ]
+
+    SYSTEM_CAPACITY = {
+        Battery.Configuration.S2P1: 20.0,
+    }
+
+
+class U1_35(SLA):
+    VALID_CONFIGURATIONS = [
+        Battery.Configuration.S4P3
+    ]
+
+    SYSTEM_CAPACITY = {
+        Battery.Configuration.S4P3: 105,
+    }
+
+
+class NEC_ALM12V35(LiFEPO4):
+    VALID_CONFIGURATIONS = [
+        Battery.Configuration.S4P3
+    ]
+
+    SYSTEM_CAPACITY = {
+        Battery.Configuration.S4P3: 105,
+    }
+
+
+class VALENCE_U24_12XP(LiFEPO4):
+    VALID_CONFIGURATIONS = [
+        Battery.Configuration.S4P1
+    ]
+
+    SYSTEM_CAPACITY = {
+        Battery.Configuration.S4P1: 118,
+    }
+
+
+class VALENCE_U27_12XP(LiFEPO4):
+    VALID_CONFIGURATIONS = [
+        Battery.Configuration.S4P1
+    ]
+
+    SYSTEM_CAPACITY = {
+        Battery.Configuration.S4P1: 144,
+    }
