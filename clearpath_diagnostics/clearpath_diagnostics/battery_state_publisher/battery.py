@@ -37,7 +37,7 @@ from sensor_msgs.msg import BatteryState
 
 from clearpath_config.common.types.platform import Platform
 
-from enum import Enum
+from math import nan
 
 
 # Base Battery
@@ -46,7 +46,7 @@ class Battery:
     """ Base Battery class. """
 
     class Configuration():
-        """Battery configuration. Represents number of battery cells."""
+        """Battery configuration. Represents number of battery cells in series and parallel."""
 
         S1P1 = 'S1P1'
         S2P1 = 'S2P1'
@@ -67,6 +67,7 @@ class Battery:
     # To be defined in child class
     VALID_CONFIGURATIONS = []
     SYSTEM_CAPACITY = {}
+    LUT = []
 
     def __init__(
         self,
@@ -76,6 +77,8 @@ class Battery:
     ) -> None:
         self._msg = BatteryState()
         self._msg.power_supply_technology = BatteryState.POWER_SUPPLY_TECHNOLOGY_UNKNOWN
+        self._msg.present = True
+        self._msg.temperature = nan
         self._readings: list[Power] = []
         self.rolling_average_period = rolling_average_period
         self.platform = platform
@@ -132,6 +135,8 @@ class Battery:
             self._msg.current = 0.0
             for i in self.power_msg_current_index:
                 self._msg.current += power_msg.measured_currents[i]
+        # Cells
+        self.update_cells()
 
     def linear_interpolation(self, lut: list[list], v: float) -> float:
         # Check if voltage is below minimum value
@@ -146,6 +151,25 @@ class Battery:
 
         # Return maximum value
         return lut[len(lut) - 1][1]
+
+    def update_from_lut(self):
+        # Calculate state of charge
+        avg_voltage = 0
+        for reading in self._readings:
+            avg_voltage += reading.measured_voltages[self.power_msg_voltage_index]
+        avg_voltage /= len(self._readings)
+        self._msg.percentage = self.linear_interpolation(self.LUT, avg_voltage)
+        self._msg.charge = self._msg.capacity * self._msg.percentage
+
+        # Power supply status
+        if self._msg.percentage == 1.0:
+            self._msg.power_supply_status = BatteryState.POWER_SUPPLY_STATUS_FULL
+
+    def update_cells(self):
+        self._msg.cell_voltage = [nan] * Battery.Configuration.CELL_COUNT[
+            self.configuration]
+        self._msg.cell_temperature = [nan] * Battery.Configuration.CELL_COUNT[
+            self.configuration]
 
 
 # Battery Types
@@ -165,28 +189,33 @@ class LiION(Battery):
 
     def update(self, power_msg: Power):
         super().update(power_msg)
-
-        # Calculate state of charge
-        avg_voltage = 0
-        for reading in self._readings:
-            avg_voltage += reading.measured_voltages[self.power_msg_voltage_index]
-        avg_voltage /= len(self._readings)
-        self._msg.percentage = self.linear_interpolation(self.LUT, avg_voltage)
-        self._msg.charge = self._msg.capacity * self._msg.percentage
-        self._msg.cell_voltage = [self._msg.voltage] * Battery.Configuration.CELL_COUNT[
-            self.configuration]
-
-        # Power supply status
-        if self._msg.percentage == 1.0:
-            self._msg.power_supply_status = BatteryState.POWER_SUPPLY_STATUS_FULL
+        self.update_from_lut()
 
 
 class SLA(Battery):
     """Base Lead Acid battery."""
+
+    # Rough estimate of 12V Lead-Acid SoC from voltage,
+    # scaled such that 11.6V is considered discharged.
+    # From https://iopscience.iop.org/article/10.1088/1742-6596/1367/1/012077/pdf
+    LUT = [
+        [11.6,  0.0],
+        [11.7,  0.1],
+        [11.9,  0.2],
+        [12.0,  0.3],
+        [12.2,  0.4],
+        [12.3,  0.5],
+        [12.4,  0.6],
+        [12.5,  0.7],
+        [12.55, 0.8],
+        [12.6,  0.90],
+        [12.65, 0.95],
+        [12.7,  1.00],
+    ]
+
     def update(self, power_msg: Power):
         super().update(power_msg)
-        # Calculate SLA SoC
-        pass
+        self.update_from_lut()
 
 
 class LiFEPO4(Battery):
