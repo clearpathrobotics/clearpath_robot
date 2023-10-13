@@ -45,23 +45,17 @@ from clearpath_config.clearpath_config import ClearpathConfig
 from clearpath_config.common.types.platform import Platform
 from clearpath_generator_common.common import BaseGenerator
 
-from clearpath_diagnostics.battery_state_publisher.battery import (
+from clearpath_diagnostics.battery_state.battery import (
   Battery,
-  LiION,
-  SLA,
-  LiFEPO4,
   HE2613,
   ES20_12C,
-  U1_35,
-  NEC_ALM12V35,
-  VALENCE_U24_12XP,
-  VALENCE_U27_12XP
+  U1_35
 )
 
 
-class BatteryStatePublisher(Node):
+class BatteryStateEstimator(Node):
     def __init__(self, setup_path='/etc/clearpath'):
-        super().__init__('battery_state_publisher')
+        super().__init__('battery_state_estimator')
         self.setup_path = setup_path
 
         # Define paths
@@ -77,24 +71,17 @@ class BatteryStatePublisher(Node):
         #self.battery = HE2613(Platform.A200, Battery.Configuration.S1P4)
         #self.battery = HE2613(Platform.J100, Battery.Configuration.S1P1)
         #self.battery = U1_35(Platform.W200, Battery.Configuration.S4P3)
-        #self.battery = NEC_ALM12V35(Platform.W200, Battery.Configuration.S4P3)
-        #self.battery = VALENCE_U24_12XP(Platform.W200, Battery.Configuration.S4P1)
-        #self.battery = VALENCE_U27_12XP(Platform.W200, Battery.Configuration.S4P1)
 
-        match self.battery:
-            case LiION() | SLA():
-                self.battery_state_pub = self.create_publisher(
-                    BatteryState,
-                    'platform/bms/state',
-                    qos_profile_sensor_data)
+        self.battery_state_pub = self.create_publisher(
+            BatteryState,
+            'platform/bms/state',
+            qos_profile_sensor_data)
 
-                self.power_status_sub = self.create_subscription(
-                    Power,
-                    'platform/mcu/status/power',
-                    self.power_status_callback,
-                    qos_profile_sensor_data)
-            case LiFEPO4():
-                pass
+        self.power_status_sub = self.create_subscription(
+            Power,
+            'platform/mcu/status/power',
+            self.power_status_callback,
+            qos_profile_sensor_data)
 
     def power_status_callback(self, msg: Power):
         self.battery.update(msg)
@@ -105,7 +92,7 @@ def main():
     setup_path = BaseGenerator.get_args()
     rclpy.init()
 
-    bsp = BatteryStatePublisher(setup_path)
+    bsp = BatteryStateEstimator(setup_path)
 
     rclpy.spin(bsp)
 

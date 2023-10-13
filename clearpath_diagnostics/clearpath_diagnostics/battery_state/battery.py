@@ -196,6 +196,8 @@ class LiION(Battery):
     ) -> None:
         super().__init__(platform, configuration, rolling_average_period)
         self._msg.power_supply_technology = BatteryState.POWER_SUPPLY_TECHNOLOGY_LION
+        # Multiply LUT voltage by number of batteries in series
+        self.LUT = [(i * self.series, j) for (i, j) in self.LUT]
 
     def update(self, power_msg: Power):
         super().update(power_msg)
@@ -234,21 +236,6 @@ class SLA(Battery):
     def update(self, power_msg: Power):
         super().update(power_msg)
         self.update_from_lut()
-
-
-class LiFEPO4(Battery):
-    """Base LiFEPO4 battery."""
-    def __init__(self,
-                 platform: Platform,
-                 configuration: Battery.Configuration,
-                 rolling_average_period=30) -> None:
-        super().__init__(platform, configuration, rolling_average_period)
-        self._msg.power_supply_technology = BatteryState.POWER_SUPPLY_TECHNOLOGY_LIFE
-
-    def update(self, power_msg: Power):
-        super().update(power_msg)
-        # Get BMS data
-        pass
 
 
 # Batteries
@@ -290,28 +277,4 @@ class U1_35(SLA):
     VOLTAGE = 12.0
     VALID_CONFIGURATIONS = [
         Battery.Configuration.S4P3
-    ]
-
-
-class NEC_ALM12V35(LiFEPO4):
-    CAPACITY = 35.0
-    VOLTAGE = 13.2
-    VALID_CONFIGURATIONS = [
-        Battery.Configuration.S4P3
-    ]
-
-
-class VALENCE_U24_12XP(LiFEPO4):
-    CAPACITY = 118.0
-    VOLTAGE = 12.8
-    VALID_CONFIGURATIONS = [
-        Battery.Configuration.S4P1
-    ]
-
-
-class VALENCE_U27_12XP(LiFEPO4):
-    CAPACITY = 144.0
-    VOLTAGE = 12.8
-    VALID_CONFIGURATIONS = [
-        Battery.Configuration.S4P1
     ]
