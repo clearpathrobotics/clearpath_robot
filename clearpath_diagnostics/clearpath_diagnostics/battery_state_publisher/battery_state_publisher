@@ -45,7 +45,18 @@ from clearpath_config.clearpath_config import ClearpathConfig
 from clearpath_config.common.types.platform import Platform
 from clearpath_generator_common.common import BaseGenerator
 
-from clearpath_diagnostics.battery_state_publisher.battery import Battery, HE2613, ES20_12C
+from clearpath_diagnostics.battery_state_publisher.battery import (
+  Battery,
+  LiION,
+  SLA,
+  LiFEPO4,
+  HE2613,
+  ES20_12C,
+  U1_35,
+  NEC_ALM12V35,
+  VALENCE_U24_12XP,
+  VALENCE_U27_12XP
+)
 
 
 class BatteryStatePublisher(Node):
@@ -61,22 +72,29 @@ class BatteryStatePublisher(Node):
         self.clearpath_config = ClearpathConfig(self.config_path)
         self.platform = self.clearpath_config.platform.get_platform_model()
 
-        self.battery_state_pub = self.create_publisher(
-            BatteryState,
-            'platform/battery_status',
-            qos_profile_sensor_data)
-
-        self.power_status_sub = self.create_subscription(
-            Power,
-            'platform/mcu/status/power',
-            self.power_status_callback,
-            qos_profile_sensor_data
-        )
-
-        #self.battery = HE2613(Platform.A200, Battery.Configuration.S1P4)
-        # self.battery = HE2613(Platform.A200, Battery.Configuration.S1P3)
-        # self.battery = HE2613(Platform.J100, Battery.Configuration.S1P1)
         self.battery = ES20_12C(Platform.A200, Battery.Configuration.S2P1)
+        #self.battery = HE2613(Platform.A200, Battery.Configuration.S1P3)
+        #self.battery = HE2613(Platform.A200, Battery.Configuration.S1P4)
+        #self.battery = HE2613(Platform.J100, Battery.Configuration.S1P1)
+        #self.battery = U1_35(Platform.W200, Battery.Configuration.S4P3)
+        #self.battery = NEC_ALM12V35(Platform.W200, Battery.Configuration.S4P3)
+        #self.battery = VALENCE_U24_12XP(Platform.W200, Battery.Configuration.S4P1)
+        #self.battery = VALENCE_U27_12XP(Platform.W200, Battery.Configuration.S4P1)
+
+        match self.battery:
+            case LiION() | SLA():
+                self.battery_state_pub = self.create_publisher(
+                    BatteryState,
+                    'platform/bms/state',
+                    qos_profile_sensor_data)
+
+                self.power_status_sub = self.create_subscription(
+                    Power,
+                    'platform/mcu/status/power',
+                    self.power_status_callback,
+                    qos_profile_sensor_data)
+            case LiFEPO4():
+                pass
 
     def power_status_callback(self, msg: Power):
         self.battery.update(msg)

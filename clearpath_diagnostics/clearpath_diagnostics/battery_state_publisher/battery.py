@@ -48,25 +48,17 @@ class Battery:
     class Configuration():
         """Battery configuration. Represents number of battery cells in series and parallel."""
 
-        S1P1 = 'S1P1'
-        S2P1 = 'S2P1'
-        S1P3 = 'S1P3'
-        S1P4 = 'S1P4'
-        S4P1 = 'S4P1'
-        S4P3 = 'S4P3'
-
-        CELL_COUNT = {
-            S1P1: 1,
-            S2P1: 2,
-            S1P3: 3,
-            S1P4: 4,
-            S4P1: 4,
-            S4P3: 12,
-        }
+        S1P1 = (1, 1)
+        S2P1 = (2, 1)
+        S1P3 = (1, 3)
+        S1P4 = (1, 4)
+        S4P1 = (4, 1)
+        S4P3 = (4, 3)
 
     # To be defined in child class
+    CAPACITY = 0.0
+    VOLTAGE = 0.0
     VALID_CONFIGURATIONS = []
-    SYSTEM_CAPACITY = {}
     LUT = []
 
     def __init__(
@@ -75,25 +67,25 @@ class Battery:
         configuration: Configuration,
         rolling_average_period=30,
     ) -> None:
+        self._rolling_average_period = rolling_average_period
+        self._platform = platform
+        self._configuration = configuration
         self._msg = BatteryState()
         self._msg.power_supply_technology = BatteryState.POWER_SUPPLY_TECHNOLOGY_UNKNOWN
         self._msg.present = True
         self._msg.temperature = nan
         self._readings: list[Power] = []
-        self.rolling_average_period = rolling_average_period
-        self.platform = platform
-        self.configuration = configuration
-        assert self.configuration in self.VALID_CONFIGURATIONS, (
+        assert self._configuration in self.VALID_CONFIGURATIONS, (
           'Invalid Configuration\n' +
-          f'Configuration {self.configuration}\n' +
+          f'Configuration {self._configuration}\n' +
           f'Battery: {self.__class__.__name__}\n' +
-          f'Platform : {self.platform}'
+          f'Platform : {self._platform}'
         )
 
         # Which power message indices to use
         self.power_msg_voltage_index: int = 0
         self.power_msg_current_index: int | list[int] = 0
-        match self.platform:
+        match self._platform:
             case Platform.J100:
                 self.power_msg_voltage_index = Power.JACKAL_MEASURED_BATTERY
                 self.power_msg_current_index = Power.JACKAL_TOTAL_CURRENT
@@ -109,18 +101,38 @@ class Battery:
                 self.power_msg_current_index = Power.WARTHOG_TOTAL_CURRENT
 
         # System capacity
-        self._msg.capacity = self._msg.design_capacity = self.SYSTEM_CAPACITY[self.configuration]
+        self._msg.capacity = self._msg.design_capacity = self.system_capacity
 
     @property
     def msg(self) -> BatteryState:
         return self._msg
+
+    @property
+    def series(self) -> int:
+        return self._configuration[0]
+
+    @property
+    def parallel(self) -> int:
+        return self._configuration[1]
+
+    @property
+    def cell_count(self) -> int:
+        return self.series * self.parallel
+
+    @property
+    def system_capacity(self) -> float:
+        return self.CAPACITY * self.parallel
+
+    @property
+    def system_voltage(self) -> float:
+        return self.VOLTAGE * self.series
 
     def update(self, power_msg: Power):
         # Add new reading to rolling average
         self._readings.append(power_msg)
         self._msg.header = power_msg.header
         # Remove oldest reading
-        if len(self._readings) > self.rolling_average_period:
+        if len(self._readings) > self._rolling_average_period:
             self._readings.pop(0)
 
         # Set battery voltage
@@ -166,10 +178,8 @@ class Battery:
             self._msg.power_supply_status = BatteryState.POWER_SUPPLY_STATUS_FULL
 
     def update_cells(self):
-        self._msg.cell_voltage = [nan] * Battery.Configuration.CELL_COUNT[
-            self.configuration]
-        self._msg.cell_temperature = [nan] * Battery.Configuration.CELL_COUNT[
-            self.configuration]
+        self._msg.cell_voltage = [self._msg.voltage / self.series] * self.cell_count
+        self._msg.cell_temperature = [nan] * self.cell_count
 
 
 # Battery Types
@@ -213,6 +223,14 @@ class SLA(Battery):
         [12.7,  1.00],
     ]
 
+    def __init__(self,
+                 platform: Platform,
+                 configuration: Battery.Configuration,
+                 rolling_average_period=30) -> None:
+        super().__init__(platform, configuration, rolling_average_period)
+        # Multiply LUT voltage by number of batteries in series
+        self.LUT = [(i * self.series, j) for (i, j) in self.LUT]
+
     def update(self, power_msg: Power):
         super().update(power_msg)
         self.update_from_lut()
@@ -236,6 +254,8 @@ class LiFEPO4(Battery):
 # Batteries
 
 class HE2613(LiION):
+    CAPACITY = 12.8
+    VOLTAGE = 25.9
     LUT = [
         [21.00, 0.0],
         [21.84, 0.1],
@@ -256,58 +276,42 @@ class HE2613(LiION):
         Battery.Configuration.S1P4,
     ]
 
-    SYSTEM_CAPACITY = {
-        Battery.Configuration.S1P1: 12.8,
-        Battery.Configuration.S1P3: 38.4,
-        Battery.Configuration.S1P4: 51.2,
-    }
-
 
 class ES20_12C(SLA):
+    CAPACITY = 20.0
+    VOLTAGE = 12.0
     VALID_CONFIGURATIONS = [
         Battery.Configuration.S2P1
     ]
 
-    SYSTEM_CAPACITY = {
-        Battery.Configuration.S2P1: 20.0,
-    }
-
 
 class U1_35(SLA):
+    CAPACITY = 35.0
+    VOLTAGE = 12.0
     VALID_CONFIGURATIONS = [
         Battery.Configuration.S4P3
     ]
-
-    SYSTEM_CAPACITY = {
-        Battery.Configuration.S4P3: 105,
-    }
 
 
 class NEC_ALM12V35(LiFEPO4):
+    CAPACITY = 35.0
+    VOLTAGE = 13.2
     VALID_CONFIGURATIONS = [
         Battery.Configuration.S4P3
     ]
 
-    SYSTEM_CAPACITY = {
-        Battery.Configuration.S4P3: 105,
-    }
-
 
 class VALENCE_U24_12XP(LiFEPO4):
+    CAPACITY = 118.0
+    VOLTAGE = 12.8
     VALID_CONFIGURATIONS = [
         Battery.Configuration.S4P1
     ]
-
-    SYSTEM_CAPACITY = {
-        Battery.Configuration.S4P1: 118,
-    }
 
 
 class VALENCE_U27_12XP(LiFEPO4):
+    CAPACITY = 144.0
+    VOLTAGE = 12.8
     VALID_CONFIGURATIONS = [
         Battery.Configuration.S4P1
     ]
-
-    SYSTEM_CAPACITY = {
-        Battery.Configuration.S4P1: 144,
-    }
