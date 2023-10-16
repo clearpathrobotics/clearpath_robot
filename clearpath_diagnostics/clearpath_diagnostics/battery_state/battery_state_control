@@ -38,24 +38,17 @@ import rclpy
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
 
-from clearpath_platform_msgs.msg import Power
+from clearpath_platform_msgs.msg import HMI
 from sensor_msgs.msg import BatteryState
 
 from clearpath_config.clearpath_config import ClearpathConfig
 from clearpath_config.common.types.platform import Platform
 from clearpath_generator_common.common import BaseGenerator
 
-from clearpath_diagnostics.battery_state.battery import (
-  Battery,
-  HE2613,
-  ES20_12C,
-  U1_35
-)
 
-
-class BatteryStateEstimator(Node):
+class BatteryStateControl(Node):
     def __init__(self, setup_path='/etc/clearpath'):
-        super().__init__('battery_state_estimator')
+        super().__init__('battery_state_control')
         self.setup_path = setup_path
 
         # Define paths
@@ -65,37 +58,51 @@ class BatteryStateEstimator(Node):
         self.clearpath_config = ClearpathConfig(self.config_path)
         self.platform = self.clearpath_config.platform.get_platform_model()
 
-        self.battery = ES20_12C(Platform.A200, Battery.Configuration.S2P1)
-        #self.battery = HE2613(Platform.A200, Battery.Configuration.S1P3)
-        #self.battery = HE2613(Platform.A200, Battery.Configuration.S1P4)
-        #self.battery = HE2613(Platform.J100, Battery.Configuration.S1P1)
-        #self.battery = U1_35(Platform.W200, Battery.Configuration.S4P3)
-
-        self.battery_state_pub = self.create_publisher(
+        self.battery_state_sub = self.create_subscription(
             BatteryState,
             'platform/bms/state',
+            self.battery_state_callback,
             qos_profile_sensor_data)
 
-        self.power_status_sub = self.create_subscription(
-            Power,
-            'platform/mcu/status/power',
-            self.power_status_callback,
-            qos_profile_sensor_data)
+        match self.platform:
+            case Platform.J100:
+                self.hmi_battery_pub = self.create_publisher(
+                    HMI,
+                    'platform/mcu/_hmi',
+                    qos_profile_sensor_data)
 
-    def power_status_callback(self, msg: Power):
-        self.battery.update(msg)
-        self.battery_state_pub.publish(self.battery.msg)
+                self.hmi_msg = HMI()
+
+    def hmi_control(self, percentage: float):
+        if percentage >= 0.5:
+            self.hmi_msg.battery_color = HMI.GREEN
+            self.hmi_msg.battery_pattern = HMI.ON
+        elif percentage >= 0.2:
+            self.hmi_msg.battery_color = HMI.YELLOW
+            self.hmi_msg.battery_pattern = HMI.ON
+        elif percentage >= 0.1:
+            self.hmi_msg.battery_color = HMI.RED
+            self.hmi_msg.battery_pattern = HMI.ON
+        else:
+            self.hmi_msg.battery_color = HMI.RED
+            self.hmi_msg.battery_pattern = HMI.BLINK
+        self.hmi_battery_pub.publish(self.hmi_msg)
+
+    def battery_state_callback(self, msg: BatteryState):
+        match self.platform:
+            case Platform.J100:
+                self.hmi_control(msg.percentage)
 
 
 def main():
     setup_path = BaseGenerator.get_args()
     rclpy.init()
 
-    bsp = BatteryStateEstimator(setup_path)
+    bsc = BatteryStateControl(setup_path)
 
-    rclpy.spin(bsp)
+    rclpy.spin(bsc)
 
-    bsp.destroy_node()
+    bsc.destroy_node()
     rclpy.shutdown()
 
 
