@@ -14,6 +14,7 @@ ament_python_install_package(${PROJECT_NAME})
 install(
   PROGRAMS ${PROJECT_NAME}/diagnostics_updater
            ${PROJECT_NAME}/battery_state/battery_state_estimator
+           ${PROJECT_NAME}/battery_state/battery_state_control
   DESTINATION lib/${PROJECT_NAME}
 )
 
