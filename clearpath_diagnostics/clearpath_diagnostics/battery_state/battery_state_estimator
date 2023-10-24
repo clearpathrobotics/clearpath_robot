@@ -45,12 +45,7 @@ from clearpath_config.clearpath_config import ClearpathConfig
 from clearpath_config.common.types.platform import Platform
 from clearpath_generator_common.common import BaseGenerator
 
-from clearpath_diagnostics.battery_state.battery import (
-  Battery,
-  HE2613,
-  ES20_12C,
-  U1_35
-)
+from clearpath_diagnostics.battery_state.battery import Battery
 
 
 class BatteryStateEstimator(Node):
@@ -64,12 +59,13 @@ class BatteryStateEstimator(Node):
         # Parse YAML into config
         self.clearpath_config = ClearpathConfig(self.config_path)
         self.platform = self.clearpath_config.platform.get_platform_model()
+        self.battery_model = self.clearpath_config.platform.battery.model
+        self.battery_configuration = self.clearpath_config.platform.battery.configuration
 
-        self.battery = ES20_12C(Platform.A200, Battery.Configuration.S2P1)
-        #self.battery = HE2613(Platform.A200, Battery.Configuration.S1P3)
-        #self.battery = HE2613(Platform.A200, Battery.Configuration.S1P4)
-        #self.battery = HE2613(Platform.J100, Battery.Configuration.S1P1)
-        #self.battery = U1_35(Platform.W200, Battery.Configuration.S4P3)
+        self.battery = Battery(
+            battery=self.battery_model,
+            configuration=self.battery_configuration,
+            platform=self.platform)
 
         self.battery_state_pub = self.create_publisher(
             BatteryState,

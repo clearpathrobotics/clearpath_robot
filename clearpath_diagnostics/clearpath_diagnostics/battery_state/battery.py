@@ -36,6 +36,7 @@ from clearpath_platform_msgs.msg import Power
 from sensor_msgs.msg import BatteryState
 
 from clearpath_config.common.types.platform import Platform
+from clearpath_config.platform.battery import BatteryConfig
 
 from math import nan
 
@@ -43,238 +44,233 @@ from math import nan
 # Base Battery
 
 class Battery:
-    """ Base Battery class. """
+    class BaseBattery:
+        """ Base Battery class. """
 
-    class Configuration():
         """Battery configuration. Represents number of battery cells in series and parallel."""
+        CONFIGURATIONS = {
+            BatteryConfig.S1P1: (1, 1),
+            BatteryConfig.S2P1: (2, 1),
+            BatteryConfig.S1P3: (1, 3),
+            BatteryConfig.S1P4: (1, 4),
+            BatteryConfig.S4P1: (4, 1),
+            BatteryConfig.S4P3: (4, 3),
+        }
 
-        S1P1 = (1, 1)
-        S2P1 = (2, 1)
-        S1P3 = (1, 3)
-        S1P4 = (1, 4)
-        S4P1 = (4, 1)
-        S4P3 = (4, 3)
+        # To be defined in child class
+        CAPACITY = 0.0
+        VOLTAGE = 0.0
+        LUT = []
 
-    # To be defined in child class
-    CAPACITY = 0.0
-    VOLTAGE = 0.0
-    VALID_CONFIGURATIONS = []
-    LUT = []
+        def __init__(
+            self,
+            platform: Platform,
+            configuration: str,
+            rolling_average_period=30,
+        ) -> None:
+            self._rolling_average_period = rolling_average_period
+            self._platform = platform
+            self._configuration = self.CONFIGURATIONS[configuration]
+            self._msg = BatteryState()
+            self._msg.power_supply_technology = BatteryState.POWER_SUPPLY_TECHNOLOGY_UNKNOWN
+            self._msg.present = True
+            self._msg.temperature = nan
+            self._readings: list[Power] = []
 
-    def __init__(
-        self,
-        platform: Platform,
-        configuration: Configuration,
-        rolling_average_period=30,
-    ) -> None:
-        self._rolling_average_period = rolling_average_period
-        self._platform = platform
-        self._configuration = configuration
-        self._msg = BatteryState()
-        self._msg.power_supply_technology = BatteryState.POWER_SUPPLY_TECHNOLOGY_UNKNOWN
-        self._msg.present = True
-        self._msg.temperature = nan
-        self._readings: list[Power] = []
-        assert self._configuration in self.VALID_CONFIGURATIONS, (
-          'Invalid Configuration\n' +
-          f'Configuration {self._configuration}\n' +
-          f'Battery: {self.__class__.__name__}\n' +
-          f'Platform : {self._platform}'
-        )
+            # Which power message indices to use
+            self.power_msg_voltage_index: int = 0
+            self.power_msg_current_index: int | list[int] = 0
+            match self._platform:
+                case Platform.J100:
+                    self.power_msg_voltage_index = Power.J100_MEASURED_BATTERY
+                    self.power_msg_current_index = Power.J100_TOTAL_CURRENT
+                case Platform.A200:
+                    self.power_msg_voltage_index = Power.A200_BATTERY_VOLTAGE
+                    self.power_msg_current_index = [
+                        Power.A200_MCU_AND_USER_PORT_CURRENT,
+                        Power.A200_LEFT_DRIVER_CURRENT,
+                        Power.A200_RIGHT_DRIVER_CURRENT,
+                    ]
+                case Platform.J100:
+                    self.power_msg_voltage_index = Power.W200_MEASURED_BATTERY
+                    self.power_msg_current_index = Power.W200_TOTAL_CURRENT
 
-        # Which power message indices to use
-        self.power_msg_voltage_index: int = 0
-        self.power_msg_current_index: int | list[int] = 0
-        match self._platform:
-            case Platform.J100:
-                self.power_msg_voltage_index = Power.JACKAL_MEASURED_BATTERY
-                self.power_msg_current_index = Power.JACKAL_TOTAL_CURRENT
-            case Platform.A200:
-                self.power_msg_voltage_index = Power.A200_BATTERY_VOLTAGE
-                self.power_msg_current_index = [
-                    Power.A200_MCU_AND_USER_PORT_CURRENT,
-                    Power.A200_LEFT_DRIVER_CURRENT,
-                    Power.A200_RIGHT_DRIVER_CURRENT,
+            # System capacity
+            self._msg.capacity = self._msg.design_capacity = self.system_capacity
+
+        @property
+        def msg(self) -> BatteryState:
+            return self._msg
+
+        @property
+        def series(self) -> int:
+            return self._configuration[0]
+
+        @property
+        def parallel(self) -> int:
+            return self._configuration[1]
+
+        @property
+        def cell_count(self) -> int:
+            return self.series * self.parallel
+
+        @property
+        def system_capacity(self) -> float:
+            return self.CAPACITY * self.parallel
+
+        @property
+        def system_voltage(self) -> float:
+            return self.VOLTAGE * self.series
+
+        def update(self, power_msg: Power):
+            # Add new reading to rolling average
+            self._readings.append(power_msg)
+            self._msg.header = power_msg.header
+            # Remove oldest reading
+            if len(self._readings) > self._rolling_average_period:
+                self._readings.pop(0)
+
+            # Set battery voltage
+            self._msg.voltage = power_msg.measured_voltages[self.power_msg_voltage_index]
+
+            # Set battery current
+            if isinstance(self.power_msg_current_index, int):
+                self._msg.current = power_msg.measured_currents[
+                    self.power_msg_current_index
                 ]
-            case Platform.J100:
-                self.power_msg_voltage_index = Power.WARTHOG_MEASURED_BATTERY
-                self.power_msg_current_index = Power.WARTHOG_TOTAL_CURRENT
+            elif isinstance(self.power_msg_current_index, list):
+                self._msg.current = 0.0
+                for i in self.power_msg_current_index:
+                    self._msg.current += power_msg.measured_currents[i]
+            # Cells
+            self.update_cells()
 
-        # System capacity
-        self._msg.capacity = self._msg.design_capacity = self.system_capacity
+        def linear_interpolation(self, lut: list[list], v: float) -> float:
+            # Check if voltage is below minimum value
+            if v <= lut[0][0]:
+                return lut[0][1]
 
-    @property
-    def msg(self) -> BatteryState:
-        return self._msg
+            for i in range(0, len(lut)):
+                if v < lut[i][0]:
+                    return (v - lut[i - 1][0]) * (lut[i][1] - lut[i - 1][1]) / (
+                        lut[i][0] - lut[i - 1][0]
+                    ) + lut[i - 1][1]
 
-    @property
-    def series(self) -> int:
-        return self._configuration[0]
+            # Return maximum value
+            return lut[len(lut) - 1][1]
 
-    @property
-    def parallel(self) -> int:
-        return self._configuration[1]
+        def update_from_lut(self):
+            # Calculate state of charge
+            avg_voltage = 0
+            for reading in self._readings:
+                avg_voltage += reading.measured_voltages[self.power_msg_voltage_index]
+            avg_voltage /= len(self._readings)
+            self._msg.percentage = self.linear_interpolation(self.LUT, avg_voltage)
+            self._msg.charge = self._msg.capacity * self._msg.percentage
 
-    @property
-    def cell_count(self) -> int:
-        return self.series * self.parallel
+            # Power supply status
+            if self._msg.percentage == 1.0:
+                self._msg.power_supply_status = BatteryState.POWER_SUPPLY_STATUS_FULL
 
-    @property
-    def system_capacity(self) -> float:
-        return self.CAPACITY * self.parallel
+        def update_cells(self):
+            self._msg.cell_voltage = [self._msg.voltage / self.series] * self.cell_count
+            self._msg.cell_temperature = [nan] * self.cell_count
 
-    @property
-    def system_voltage(self) -> float:
-        return self.VOLTAGE * self.series
+    # Battery Types
 
-    def update(self, power_msg: Power):
-        # Add new reading to rolling average
-        self._readings.append(power_msg)
-        self._msg.header = power_msg.header
-        # Remove oldest reading
-        if len(self._readings) > self._rolling_average_period:
-            self._readings.pop(0)
+    class LiION(BaseBattery):
+        """Base Lithium ION battery."""
+        LUT = []
 
-        # Set battery voltage
-        self._msg.voltage = power_msg.measured_voltages[self.power_msg_voltage_index]
+        def __init__(
+            self,
+            platform: Platform,
+            configuration: str,
+            rolling_average_period=30,
+        ) -> None:
+            super().__init__(platform, configuration, rolling_average_period)
+            self._msg.power_supply_technology = BatteryState.POWER_SUPPLY_TECHNOLOGY_LION
+            # Multiply LUT voltage by number of batteries in series
+            self.LUT = [(i * self.series, j) for (i, j) in self.LUT]
 
-        # Set battery current
-        if isinstance(self.power_msg_current_index, int):
-            self._msg.current = power_msg.measured_currents[
-                self.power_msg_current_index
-            ]
-        elif isinstance(self.power_msg_current_index, list):
-            self._msg.current = 0.0
-            for i in self.power_msg_current_index:
-                self._msg.current += power_msg.measured_currents[i]
-        # Cells
-        self.update_cells()
+        def update(self, power_msg: Power):
+            super().update(power_msg)
+            self.update_from_lut()
 
-    def linear_interpolation(self, lut: list[list], v: float) -> float:
-        # Check if voltage is below minimum value
-        if v <= lut[0][0]:
-            return lut[0][1]
+    class SLA(BaseBattery):
+        """Base Lead Acid battery."""
 
-        for i in range(0, len(lut)):
-            if v < lut[i][0]:
-                return (v - lut[i - 1][0]) * (lut[i][1] - lut[i - 1][1]) / (
-                    lut[i][0] - lut[i - 1][0]
-                ) + lut[i - 1][1]
+        # Rough estimate of 12V Lead-Acid SoC from voltage,
+        # scaled such that 11.6V is considered discharged.
+        # From https://iopscience.iop.org/article/10.1088/1742-6596/1367/1/012077/pdf
+        LUT = [
+            [11.6,  0.0],
+            [11.7,  0.1],
+            [11.9,  0.2],
+            [12.0,  0.3],
+            [12.2,  0.4],
+            [12.3,  0.5],
+            [12.4,  0.6],
+            [12.5,  0.7],
+            [12.55, 0.8],
+            [12.6,  0.90],
+            [12.65, 0.95],
+            [12.7,  1.00],
+        ]
 
-        # Return maximum value
-        return lut[len(lut) - 1][1]
+        def __init__(self,
+                     platform: Platform,
+                     configuration: str,
+                     rolling_average_period=30) -> None:
+            super().__init__(platform, configuration, rolling_average_period)
+            # Multiply LUT voltage by number of batteries in series
+            self.LUT = [(i * self.series, j) for (i, j) in self.LUT]
 
-    def update_from_lut(self):
-        # Calculate state of charge
-        avg_voltage = 0
-        for reading in self._readings:
-            avg_voltage += reading.measured_voltages[self.power_msg_voltage_index]
-        avg_voltage /= len(self._readings)
-        self._msg.percentage = self.linear_interpolation(self.LUT, avg_voltage)
-        self._msg.charge = self._msg.capacity * self._msg.percentage
+        def update(self, power_msg: Power):
+            super().update(power_msg)
+            self.update_from_lut()
 
-        # Power supply status
-        if self._msg.percentage == 1.0:
-            self._msg.power_supply_status = BatteryState.POWER_SUPPLY_STATUS_FULL
+    # Batteries
 
-    def update_cells(self):
-        self._msg.cell_voltage = [self._msg.voltage / self.series] * self.cell_count
-        self._msg.cell_temperature = [nan] * self.cell_count
+    class HE2613(LiION):
+        CAPACITY = 12.8
+        VOLTAGE = 25.9
+        LUT = [
+            [21.00, 0.0],
+            [21.84, 0.1],
+            [22.68, 0.2],
+            [23.52, 0.3],
+            [24.36, 0.4],
+            [25.20, 0.5],
+            [26.04, 0.6],
+            [26.88, 0.7],
+            [27.72, 0.8],
+            [28.56, 0.9],
+            [29.40, 1.0],
+        ]
 
+    class ES20_12C(SLA):
+        CAPACITY = 20.0
+        VOLTAGE = 12.0
 
-# Battery Types
+    class U1_35(SLA):
+        CAPACITY = 35.0
+        VOLTAGE = 12.0
 
-class LiION(Battery):
-    """Base Lithium ION battery."""
-    LUT = []
+    # Match battery name to class
+    BATTERIES = {
+        BatteryConfig.HE2613: HE2613,
+        BatteryConfig.ES20_12C: ES20_12C,
+        BatteryConfig.U1_35: U1_35
+    }
 
-    def __init__(
-        self,
-        platform: Platform,
-        configuration: Battery.Configuration,
-        rolling_average_period=30,
-    ) -> None:
-        super().__init__(platform, configuration, rolling_average_period)
-        self._msg.power_supply_technology = BatteryState.POWER_SUPPLY_TECHNOLOGY_LION
-        # Multiply LUT voltage by number of batteries in series
-        self.LUT = [(i * self.series, j) for (i, j) in self.LUT]
-
-    def update(self, power_msg: Power):
-        super().update(power_msg)
-        self.update_from_lut()
-
-
-class SLA(Battery):
-    """Base Lead Acid battery."""
-
-    # Rough estimate of 12V Lead-Acid SoC from voltage,
-    # scaled such that 11.6V is considered discharged.
-    # From https://iopscience.iop.org/article/10.1088/1742-6596/1367/1/012077/pdf
-    LUT = [
-        [11.6,  0.0],
-        [11.7,  0.1],
-        [11.9,  0.2],
-        [12.0,  0.3],
-        [12.2,  0.4],
-        [12.3,  0.5],
-        [12.4,  0.6],
-        [12.5,  0.7],
-        [12.55, 0.8],
-        [12.6,  0.90],
-        [12.65, 0.95],
-        [12.7,  1.00],
-    ]
-
-    def __init__(self,
-                 platform: Platform,
-                 configuration: Battery.Configuration,
-                 rolling_average_period=30) -> None:
-        super().__init__(platform, configuration, rolling_average_period)
-        # Multiply LUT voltage by number of batteries in series
-        self.LUT = [(i * self.series, j) for (i, j) in self.LUT]
-
-    def update(self, power_msg: Power):
-        super().update(power_msg)
-        self.update_from_lut()
-
-
-# Batteries
-
-class HE2613(LiION):
-    CAPACITY = 12.8
-    VOLTAGE = 25.9
-    LUT = [
-        [21.00, 0.0],
-        [21.84, 0.1],
-        [22.68, 0.2],
-        [23.52, 0.3],
-        [24.36, 0.4],
-        [25.20, 0.5],
-        [26.04, 0.6],
-        [26.88, 0.7],
-        [27.72, 0.8],
-        [28.56, 0.9],
-        [29.40, 1.0],
-    ]
-
-    VALID_CONFIGURATIONS = [
-        Battery.Configuration.S1P1,
-        Battery.Configuration.S1P3,
-        Battery.Configuration.S1P4,
-    ]
-
-
-class ES20_12C(SLA):
-    CAPACITY = 20.0
-    VOLTAGE = 12.0
-    VALID_CONFIGURATIONS = [
-        Battery.Configuration.S2P1
-    ]
-
-
-class U1_35(SLA):
-    CAPACITY = 35.0
-    VOLTAGE = 12.0
-    VALID_CONFIGURATIONS = [
-        Battery.Configuration.S4P3
-    ]
+    def __new__(cls,
+                battery: str,
+                platform: Platform,
+                configuration: str,
+                rolling_average_period=30) -> BaseBattery:
+        print(battery)
+        print(platform)
+        print(configuration)
+        return Battery.BATTERIES.setdefault(battery, Battery.BaseBattery)(
+            platform, configuration, rolling_average_period)
