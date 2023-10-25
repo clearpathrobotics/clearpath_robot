@@ -89,7 +89,7 @@ class Battery:
                         Power.A200_LEFT_DRIVER_CURRENT,
                         Power.A200_RIGHT_DRIVER_CURRENT,
                     ]
-                case Platform.J100:
+                case Platform.W200:
                     self.power_msg_voltage_index = Power.W200_MEASURED_BATTERY
                     self.power_msg_current_index = Power.W200_TOTAL_CURRENT
 
