@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # Software License Agreement (BSD)
 #
 # @author    Roni Kreinin <rkreinin@clearpathrobotics.com>
