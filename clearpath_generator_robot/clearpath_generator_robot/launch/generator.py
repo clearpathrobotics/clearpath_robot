@@ -132,6 +132,15 @@ class RobotLaunchGenerator(LaunchGenerator):
         clearpath_diagnostics_package = Package('clearpath_diagnostics')
         self.diagnostics_launch = LaunchFile('diagnostics', package=clearpath_diagnostics_package)
 
+        # Battery state
+        self.battery_state_estimator = LaunchFile.Node(
+            package='clearpath_diagnostics',
+            executable='battery_state_estimator',
+            name='battery_state_estimator',
+            namespace=self.namespace,
+            arguments=['-s', setup_path]
+        )
+
         # Static transform from <namespace>/odom to odom
         # See https://github.com/ros-controls/ros2_controllers/pull/533
         self.tf_namespaced_odom_publisher = LaunchFile.get_static_tf_node(
@@ -152,25 +161,24 @@ class RobotLaunchGenerator(LaunchGenerator):
         )
 
         # Components required for each platform
+        common_platform_components = [
+            self.wireless_watcher_node,
+            self.diagnostics_launch,
+            self.battery_state_estimator
+        ]
+
         self.platform_components = {
-            Platform.J100: [
+            Platform.J100: common_platform_components + [
                 self.imu_0_filter_node,
                 self.imu_0_filter_config,
                 self.configure_mcu,
                 self.j100_uros_node,
-                self.nmea_driver_node,
-                self.wireless_watcher_node,
-                self.diagnostics_launch
+                self.nmea_driver_node
             ],
-            Platform.A200: [
-                self.wireless_watcher_node,
-                self.diagnostics_launch
-            ],
-            Platform.W200: [
+            Platform.A200: common_platform_components,
+            Platform.W200: common_platform_components + [
                 self.w200_uros_node,
-                self.configure_mcu,
-                self.wireless_watcher_node,
-                self.diagnostics_launch
+                self.configure_mcu
             ]
         }
 
