@@ -141,6 +141,14 @@ class RobotLaunchGenerator(LaunchGenerator):
             arguments=['-s', setup_path]
         )
 
+        self.battery_state_control = LaunchFile.Node(
+            package='clearpath_diagnostics',
+            executable='battery_state_control',
+            name='battery_state_control',
+            namespace=self.namespace,
+            arguments=['-s', setup_path]
+        )
+
         # Static transform from <namespace>/odom to odom
         # See https://github.com/ros-controls/ros2_controllers/pull/533
         self.tf_namespaced_odom_publisher = LaunchFile.get_static_tf_node(
@@ -164,7 +172,8 @@ class RobotLaunchGenerator(LaunchGenerator):
         common_platform_components = [
             self.wireless_watcher_node,
             self.diagnostics_launch,
-            self.battery_state_estimator
+            self.battery_state_estimator,
+            self.battery_state_control
         ]
 
         self.platform_components = {
