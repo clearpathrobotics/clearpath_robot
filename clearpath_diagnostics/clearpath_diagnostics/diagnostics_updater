@@ -118,7 +118,7 @@ class ClearpathDiagnosticUpdater(Node):
         self.updater.force_update()
 
     def status_callback(self, msg: Status):
-        self.firmware_version = msg.firmware_commit
+        self.firmware_version = msg.firmware_version
         self.mcu_temperature = msg.mcu_temperature
         self.pcb_temperature = msg.pcb_temperature
 
