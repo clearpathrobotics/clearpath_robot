@@ -149,6 +149,15 @@ class RobotLaunchGenerator(LaunchGenerator):
             arguments=['-s', setup_path]
         )
 
+        # Lighting
+        self.lighting_node = LaunchFile.Node(
+          package='clearpath_platform',
+          executable='lighting_node',
+          name='lighting_node',
+          namespace=self.namespace,
+          parameters=[{'platform': self.platform_model}]
+        )
+
         # Static transform from <namespace>/odom to odom
         # See https://github.com/ros-controls/ros2_controllers/pull/533
         self.tf_namespaced_odom_publisher = LaunchFile.get_static_tf_node(
@@ -187,7 +196,8 @@ class RobotLaunchGenerator(LaunchGenerator):
             Platform.A200: common_platform_components,
             Platform.W200: common_platform_components + [
                 self.w200_uros_node,
-                self.configure_mcu
+                self.configure_mcu,
+                self.lighting_node
             ]
         }
 
