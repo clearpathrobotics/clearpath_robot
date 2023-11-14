@@ -71,6 +71,8 @@ class Battery:
             self._configuration = self.CONFIGURATIONS[configuration]
             self._msg = BatteryState()
             self._msg.power_supply_technology = BatteryState.POWER_SUPPLY_TECHNOLOGY_UNKNOWN
+            self._msg.power_supply_health = BatteryState.POWER_SUPPLY_HEALTH_GOOD
+            self._msg.power_supply_status = BatteryState.POWER_SUPPLY_STATUS_DISCHARGING
             self._msg.present = True
             self._msg.temperature = nan
             self._readings: list[Power] = []
@@ -267,8 +269,5 @@ class Battery:
                 platform: Platform,
                 configuration: str,
                 rolling_average_period=30) -> BaseBattery:
-        print(battery)
-        print(platform)
-        print(configuration)
         return Battery.BATTERIES.setdefault(battery, Battery.BaseBattery)(
             platform, configuration, rolling_average_period)
