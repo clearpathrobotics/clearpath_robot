@@ -158,6 +158,14 @@ class RobotLaunchGenerator(LaunchGenerator):
           parameters=[{'platform': self.platform_model}]
         )
 
+        # Sevcon
+        self.sevcon_node = LaunchFile.Node(
+          package='sevcon_traction',
+          executable='sevcon_traction_node',
+          name='sevcon_traction_node',
+          namespace=self.namespace,
+        )
+
         # Static transform from <namespace>/odom to odom
         # See https://github.com/ros-controls/ros2_controllers/pull/533
         self.tf_namespaced_odom_publisher = LaunchFile.get_static_tf_node(
@@ -197,7 +205,8 @@ class RobotLaunchGenerator(LaunchGenerator):
             Platform.W200: common_platform_components + [
                 self.w200_uros_node,
                 self.configure_mcu,
-                self.lighting_node
+                self.lighting_node,
+                self.sevcon_node
             ]
         }
 
