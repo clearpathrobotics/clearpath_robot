@@ -14,3 +14,7 @@ SUBSYSTEM=="tty", KERNEL=="ttyUSB[0-9]*", ATTRS{idProduct}=="6001", ATTRS{idVend
 KERNEL=="js*", ATTRS{idVendor}=="046d", ATTRS{idProduct}=="c21f", SYMLINK+="input/f710"
 KERNEL=="js*", ATTRS{idVendor}=="046d", ATTRS{idProduct}=="c219", SYMLINK+="input/f710"
 KERNEL=="js*", ATTRS{idVendor}=="046d", ATTRS{idProduct}=="c21d", SYMLINK+="input/f310"
+
+# CAN rule for PCI CANBUS card
+SUBSYSTEM=="net", KERNEL == "can0", RUN+="/bin/sh -c 'ip link set can0 type can bitrate 1000000; ip link set can0 up'"
+SUBSYSTEM=="net", KERNEL == "can1", RUN+="/bin/sh -c 'ip link set can1 type can bitrate 500000;  ip link set can1 up'"
