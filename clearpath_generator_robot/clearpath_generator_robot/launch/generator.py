@@ -203,6 +203,8 @@ class RobotLaunchGenerator(LaunchGenerator):
             ],
             Platform.A200: common_platform_components,
             Platform.W200: common_platform_components + [
+                self.imu_0_filter_node,
+                self.imu_0_filter_config,
                 self.w200_uros_node,
                 self.configure_mcu,
                 self.lighting_node,
