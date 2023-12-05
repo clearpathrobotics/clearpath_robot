@@ -48,9 +48,10 @@ class Battery:
         """Battery configuration. Represents number of battery cells in series and parallel."""
         CONFIGURATIONS = {
             BatteryConfig.S1P1: (1, 1),
-            BatteryConfig.S2P1: (2, 1),
+            BatteryConfig.S1P2: (1, 2),
             BatteryConfig.S1P3: (1, 3),
             BatteryConfig.S1P4: (1, 4),
+            BatteryConfig.S2P1: (2, 1),
             BatteryConfig.S4P1: (4, 1),
             BatteryConfig.S4P3: (4, 3),
         }
