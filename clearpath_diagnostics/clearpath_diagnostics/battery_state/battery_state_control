@@ -78,7 +78,7 @@ class BatteryStateControl(Node):
             qos_profile_sensor_data)
 
         match self.platform:
-            case Platform.J100:
+            case Platform.J100 | Platform.DD100 | Platform.DO100 | Platform.DD150 | Platform.DO150:
                 self.hmi_battery_pub = self.create_publisher(
                     UInt8,
                     'platform/mcu/_hmi',
@@ -114,7 +114,7 @@ class BatteryStateControl(Node):
 
     def battery_state_callback(self, msg: BatteryState):
         match self.platform:
-            case Platform.J100:
+            case Platform.J100 | Platform.DD100 | Platform.DO100 | Platform.DD150 | Platform.DO150:
                 self.hmi_control(msg.percentage)
 
 
