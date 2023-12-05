@@ -94,6 +94,13 @@ class Battery:
                 case Platform.W200:
                     self.power_msg_voltage_index = Power.W200_MEASURED_BATTERY
                     self.power_msg_current_index = Power.W200_TOTAL_CURRENT
+                case Platform.DD100 | Platform.DO100:
+                    self.power_msg_voltage_index = Power.D100_MEASURED_BATTERY
+                    self.power_msg_current_index = Power.D100_TOTAL_CURRENT
+                case Platform.DD150 | Platform.DO150:
+                    self.power_msg_voltage_index = Power.D150_MEASURED_BATTERY
+                    self.power_msg_current_index = Power.D150_TOTAL_CURRENT
+
 
             # System capacity
             self._msg.capacity = self._msg.design_capacity = self.system_capacity
@@ -257,11 +264,35 @@ class Battery:
         CAPACITY = 35.0
         VOLTAGE = 12.0
 
+    class TLV1222(SLA):
+        CAPACITY = 22.0
+        VOLTAGE = 12.0
+
+    class RB20(LiION):
+        CAPACITY = 20.0
+        VOLTAGE = 12.8
+        LUT = [
+            [10.5, 0.0],
+            [12.0, 0.05],
+            [13.0, 0.1],
+            [13.25, 0.2],
+            [13.3, 0.3],
+            [13.4, 0.4],
+            [13.45, 0.5],
+            [13.5, 0.6],
+            [13.6, 0.7],
+            [13.7, 0.8],
+            [13.8, 0.9],
+            [14.5, 1.0],
+        ]
+
     # Match battery name to class
     BATTERIES = {
         BatteryConfig.HE2613: HE2613,
         BatteryConfig.ES20_12C: ES20_12C,
-        BatteryConfig.U1_35: U1_35
+        BatteryConfig.U1_35: U1_35,
+        BatteryConfig.TLV1222: TLV1222,
+        BatteryConfig.RB20: RB20
     }
 
     def __new__(cls,

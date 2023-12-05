@@ -79,8 +79,8 @@ class RobotLaunchGenerator(LaunchGenerator):
             ]
         )
 
-        # W200 MicroROS Agent
-        self.w200_uros_node = LaunchFile.Node(
+        # Ethernet MicroROS Agent
+        self.eth_uros_node = LaunchFile.Node(
             name='micro_ros_agent',
             package='micro_ros_agent',
             executable='micro_ros_agent',
@@ -205,11 +205,39 @@ class RobotLaunchGenerator(LaunchGenerator):
             Platform.W200: common_platform_components + [
                 self.imu_0_filter_node,
                 self.imu_0_filter_config,
-                self.w200_uros_node,
+                self.eth_uros_node,
                 self.configure_mcu,
                 self.lighting_node,
                 self.sevcon_node
-            ]
+            ],
+            Platform.DD100: common_platform_components + [
+                self.imu_0_filter_node,
+                self.imu_0_filter_config,
+                self.eth_uros_node,
+                self.configure_mcu,
+                self.lighting_node,
+            ],
+            Platform.DO100: common_platform_components + [
+                self.imu_0_filter_node,
+                self.imu_0_filter_config,
+                self.eth_uros_node,
+                self.configure_mcu,
+                self.lighting_node,
+            ],
+            Platform.DD150: common_platform_components + [
+                self.imu_0_filter_node,
+                self.imu_0_filter_config,
+                self.eth_uros_node,
+                self.configure_mcu,
+                self.lighting_node,
+            ],
+            Platform.DO150: common_platform_components + [
+                self.imu_0_filter_node,
+                self.imu_0_filter_config,
+                self.eth_uros_node,
+                self.configure_mcu,
+                self.lighting_node,
+            ],
         }
 
     def generate_sensors(self) -> None:
