@@ -149,6 +149,11 @@ class Battery:
                 self._msg.current = 0.0
                 for i in self.power_msg_current_index:
                     self._msg.current += power_msg.measured_currents[i]
+            # Set charging status
+            if power_msg.charger_connected == 1:
+                self._msg.power_supply_status = BatteryState.POWER_SUPPLY_STATUS_CHARGING
+            else:
+                self._msg.power_supply_status = BatteryState.POWER_SUPPLY_STATUS_DISCHARGING
             # Cells
             self.update_cells()
 
@@ -174,10 +179,6 @@ class Battery:
             avg_voltage /= len(self._readings)
             self._msg.percentage = self.linear_interpolation(self.LUT, avg_voltage)
             self._msg.charge = self._msg.capacity * self._msg.percentage
-
-            # Power supply status
-            if self._msg.percentage == 1.0:
-                self._msg.power_supply_status = BatteryState.POWER_SUPPLY_STATUS_FULL
 
         def update_cells(self):
             self._msg.cell_voltage = [self._msg.voltage / self.series] * self.cell_count
