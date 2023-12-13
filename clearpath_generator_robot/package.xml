@@ -16,7 +16,8 @@
   <exec_depend>clearpath_sensors</exec_depend>
   <exec_depend>imu_filter_madgwick</exec_depend>
   <exec_depend>micro_ros_agent</exec_depend>
-  <exec_depend>sevcon_traction</exec_depend>
+  <!-- Disabled for now.-->
+  <!-- <exec_depend>sevcon_traction</exec_depend> -->
   <exec_depend>wireless_watcher</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
