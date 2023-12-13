@@ -2,6 +2,13 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Run platform and sensor services as user
+* [clearpath_robot] Added udev rule to automatically bring-up CANBUS PCIe card for W200.
+* [clearpath_robot] Added can-utils as dep.
+* Contributors: Roni Kreinin, Tony Baltovski
+
 0.1.3 (2023-10-04)
 ------------------
 * Run platform and sensor services as user

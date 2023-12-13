@@ -2,6 +2,22 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* [clearpath_generator_robot] Disabled depend for now.
+* Added D100 and D150 to generator and battery node
+* IMU 0 filter for W200
+* sevcon_traction dependency
+* Generate sevcon traction node
+* Generate lighting node
+* Launch battery state control
+* Renamed to battery_state_estimator
+  Added to robot generator
+* Get namespace from robot.yaml for diagnostics launch
+  Added diagnostics launch to generator
+* W200 uROS node
+* Contributors: Roni Kreinin, Tony Baltovski
+
 0.1.3 (2023-10-04)
 ------------------
 

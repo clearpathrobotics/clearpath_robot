@@ -2,6 +2,18 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Removed 'platform' from default namespace
+* Added image proc as container
+* Missing comma
+* Correct debayer node and add remapping
+* Added debayer node
+* Removed errant bracket
+* add serial number to yaml
+* Initial Blackfly addition
+* Contributors: Hilary Luo, Luis Camero, Tony Baltovski
+
 0.1.3 (2023-10-04)
 ------------------
 * Removed 'platform' from default namespace
