@@ -1,0 +1,134 @@
+#!/usr/bin/env python3
+
+# Software License Agreement (BSD)
+#
+# @author    Roni Kreinin <rkreinin@clearpathrobotics.com>
+# @copyright (c) 2023, Clearpath Robotics, Inc., All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+# * Redistributions of source code must retain the above copyright notice,
+#   this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+# * Neither the name of Clearpath Robotics nor the names of its contributors
+#   may be used to endorse or promote products derived from this software
+#   without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+# Redistribution and use in source and binary forms, with or without
+# modification, is not permitted without the express permission
+# of Clearpath Robotics.
+
+import os
+
+import rclpy
+from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
+
+from std_msgs.msg import UInt8
+
+from sensor_msgs.msg import BatteryState
+
+from clearpath_config.clearpath_config import ClearpathConfig
+from clearpath_config.common.types.platform import Platform
+from clearpath_generator_common.common import BaseGenerator
+
+from enum import Enum
+
+
+class BatteryStateControl(Node):
+    class HmiColour(Enum):
+        GREEN = 0
+        YELLOW = 1
+        RED = 2
+
+    class HmiPattern(Enum):
+        OFF = 0
+        ON = 1
+        BLINK = 2
+
+    def __init__(self, setup_path='/etc/clearpath'):
+        super().__init__('battery_state_control')
+        self.setup_path = setup_path
+
+        # Define paths
+        self.config_path = os.path.join(self.setup_path, 'robot.yaml')
+
+        # Parse YAML into config
+        self.clearpath_config = ClearpathConfig(self.config_path)
+        self.platform = self.clearpath_config.platform.get_platform_model()
+
+        self.battery_state_sub = self.create_subscription(
+            BatteryState,
+            'platform/bms/state',
+            self.battery_state_callback,
+            qos_profile_sensor_data)
+
+        match self.platform:
+            case Platform.J100 | Platform.DD100 | Platform.DO100 | Platform.DD150 | Platform.DO150:
+                self.hmi_battery_pub = self.create_publisher(
+                    UInt8,
+                    'platform/mcu/_hmi',
+                    qos_profile_sensor_data)
+
+                self.hmi_msg = UInt8()
+
+    # UInt8 represents HMI state
+    # Bits 7-4: Unused
+    # Bits 3-2: Battery LED pattern
+    # Bits 1-0: Battery LED colour
+    def encode_hmi_msg(self, colour: HmiColour, pattern: HmiPattern) -> UInt8:
+        self.hmi_msg.data = (pattern.value << 2) | (colour.value)
+
+    def hmi_control(self, percentage: float):
+        if percentage >= 0.5:
+            self.encode_hmi_msg(
+                BatteryStateControl.HmiColour.GREEN,
+                BatteryStateControl.HmiPattern.ON)
+        elif percentage >= 0.2:
+            self.encode_hmi_msg(
+                BatteryStateControl.HmiColour.YELLOW,
+                BatteryStateControl.HmiPattern.ON)
+        elif percentage >= 0.1:
+            self.encode_hmi_msg(
+                BatteryStateControl.HmiColour.RED,
+                BatteryStateControl.HmiPattern.ON)
+        else:
+            self.encode_hmi_msg(
+                BatteryStateControl.HmiColour.RED,
+                BatteryStateControl.HmiPattern.BLINK)
+        self.hmi_battery_pub.publish(self.hmi_msg)
+
+    def battery_state_callback(self, msg: BatteryState):
+        match self.platform:
+            case Platform.J100 | Platform.DD100 | Platform.DO100 | Platform.DD150 | Platform.DO150:
+                self.hmi_control(msg.percentage)
+
+
+def main():
+    setup_path = BaseGenerator.get_args()
+    rclpy.init()
+
+    bsc = BatteryStateControl(setup_path)
+
+    rclpy.spin(bsc)
+
+    bsc.destroy_node()
+    rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()

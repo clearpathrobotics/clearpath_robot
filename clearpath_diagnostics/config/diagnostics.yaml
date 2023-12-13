@@ -1,0 +1,36 @@
+/**:
+  analyzers:
+    ros__parameters:
+      path: Clearpath Diagnostics
+      platform:
+        type: diagnostic_aggregator/AnalyzerGroup
+        path: Platform
+        analyzers:
+          firmware:
+            type: diagnostic_aggregator/GenericAnalyzer
+            path: Firmware
+            contains: [ 'Firmware' ]
+      sensors:
+        type: diagnostic_aggregator/AnalyzerGroup
+        path: Sensors
+        analyzers:
+          cameras:
+            type: diagnostic_aggregator/GenericAnalyzer
+            path: Cameras
+            contains: [ 'camera' ]
+          lidar2d:
+            type: diagnostic_aggregator/GenericAnalyzer
+            path: Lidar2D
+            contains: [ 'lidar2d' ]
+          lidar3d:
+            type: diagnostic_aggregator/GenericAnalyzer
+            path: Lidar3D
+            contains: [ 'lidar3d' ]
+          imu:
+            type: diagnostic_aggregator/GenericAnalyzer
+            path: IMU
+            contains: [ 'imu' ]
+          gps:
+            type: diagnostic_aggregator/GenericAnalyzer
+            path: GPS
+            contains: [ 'gps' ]

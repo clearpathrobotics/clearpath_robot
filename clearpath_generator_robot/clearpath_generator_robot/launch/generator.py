@@ -32,7 +32,7 @@
 # modification, is not permitted without the express permission
 # of Clearpath Robotics.
 
-from clearpath_generator_common.common import LaunchFile
+from clearpath_generator_common.common import LaunchFile, Package
 from clearpath_generator_common.launch.writer import LaunchWriter
 from clearpath_generator_common.launch.generator import LaunchGenerator
 from clearpath_generator_robot.launch.sensors import SensorLaunch
@@ -79,8 +79,17 @@ class RobotLaunchGenerator(LaunchGenerator):
             ]
         )
 
-        # J100 Add micro ros agent
-        self.uros_node = LaunchFile.Node(
+        # Ethernet MicroROS Agent
+        self.eth_uros_node = LaunchFile.Node(
+            name='micro_ros_agent',
+            package='micro_ros_agent',
+            executable='micro_ros_agent',
+            namespace=self.namespace,
+            arguments=['udp4', '--port', '11411'],
+        )
+
+        # J100 MicroROS Agent
+        self.j100_uros_node = LaunchFile.Node(
             name='micro_ros_agent',
             package='micro_ros_agent',
             executable='micro_ros_agent',
@@ -119,6 +128,44 @@ class RobotLaunchGenerator(LaunchGenerator):
             ],
         )
 
+        # Diagnostics
+        clearpath_diagnostics_package = Package('clearpath_diagnostics')
+        self.diagnostics_launch = LaunchFile('diagnostics', package=clearpath_diagnostics_package)
+
+        # Battery state
+        self.battery_state_estimator = LaunchFile.Node(
+            package='clearpath_diagnostics',
+            executable='battery_state_estimator',
+            name='battery_state_estimator',
+            namespace=self.namespace,
+            arguments=['-s', setup_path]
+        )
+
+        self.battery_state_control = LaunchFile.Node(
+            package='clearpath_diagnostics',
+            executable='battery_state_control',
+            name='battery_state_control',
+            namespace=self.namespace,
+            arguments=['-s', setup_path]
+        )
+
+        # Lighting
+        self.lighting_node = LaunchFile.Node(
+          package='clearpath_platform',
+          executable='lighting_node',
+          name='lighting_node',
+          namespace=self.namespace,
+          parameters=[{'platform': self.platform_model}]
+        )
+
+        # Sevcon
+        self.sevcon_node = LaunchFile.Node(
+          package='sevcon_traction',
+          executable='sevcon_traction_node',
+          name='sevcon_traction_node',
+          namespace=self.namespace,
+        )
+
         # Static transform from <namespace>/odom to odom
         # See https://github.com/ros-controls/ros2_controllers/pull/533
         self.tf_namespaced_odom_publisher = LaunchFile.get_static_tf_node(
@@ -139,17 +186,57 @@ class RobotLaunchGenerator(LaunchGenerator):
         )
 
         # Components required for each platform
+        common_platform_components = [
+            self.wireless_watcher_node,
+            self.diagnostics_launch,
+            self.battery_state_estimator,
+            self.battery_state_control
+        ]
+
         self.platform_components = {
-            Platform.J100: [
+            Platform.J100: common_platform_components + [
                 self.imu_0_filter_node,
                 self.imu_0_filter_config,
                 self.configure_mcu,
-                self.uros_node,
-                self.nmea_driver_node,
-                self.wireless_watcher_node,
+                self.j100_uros_node,
+                self.nmea_driver_node
             ],
-            Platform.A200: [
-                self.wireless_watcher_node
+            Platform.A200: common_platform_components,
+            Platform.W200: common_platform_components + [
+                self.imu_0_filter_node,
+                self.imu_0_filter_config,
+                self.eth_uros_node,
+                self.configure_mcu,
+                self.lighting_node,
+                self.sevcon_node
+            ],
+            Platform.DD100: common_platform_components + [
+                self.imu_0_filter_node,
+                self.imu_0_filter_config,
+                self.eth_uros_node,
+                self.configure_mcu,
+                self.lighting_node,
+            ],
+            Platform.DO100: common_platform_components + [
+                self.imu_0_filter_node,
+                self.imu_0_filter_config,
+                self.eth_uros_node,
+                self.configure_mcu,
+                self.lighting_node,
+            ],
+            Platform.DD150: common_platform_components + [
+                self.imu_0_filter_node,
+                self.imu_0_filter_config,
+                self.eth_uros_node,
+                self.configure_mcu,
+                self.lighting_node,
+            ],
+            Platform.DO150: common_platform_components + [
+                self.imu_0_filter_node,
+                self.imu_0_filter_config,
+                self.eth_uros_node,
+                self.configure_mcu,
+                self.lighting_node,
             ],
         }
 

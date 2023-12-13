@@ -1,24 +1,22 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>clearpath_generator_robot</name>
-  <version>0.1.3</version>
-  <description>Clearpath Robot Generator</description>
+  <name>clearpath_diagnostics</name>
+  <version>0.0.0</version>
+  <description>Clearpath Robot Diagnostics scripts</description>
   <maintainer email="rkreinin@clearpathrobotics.com">rkreinin</maintainer>
   <license>BSD</license>
-  <author email="rkreinin@clearpathrobotics.com">Roni Kreinin</author>
-
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <exec_depend>clearpath_config</exec_depend>
   <exec_depend>clearpath_generator_common</exec_depend>
-  <exec_depend>clearpath_sensors</exec_depend>
-  <exec_depend>imu_filter_madgwick</exec_depend>
-  <exec_depend>micro_ros_agent</exec_depend>
-  <!-- Disabled for now.-->
-  <!-- <exec_depend>sevcon_traction</exec_depend> -->
-  <exec_depend>wireless_watcher</exec_depend>
+  <exec_depend>clearpath_platform_msgs</exec_depend>
+  <exec_depend>diagnostic_updater</exec_depend>
+  <exec_depend>diagnostic_aggregator</exec_depend>
+  <exec_depend>diagnostic_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>rclpy</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
