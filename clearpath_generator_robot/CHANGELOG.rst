@@ -2,8 +2,8 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.0 (2023-12-13)
+------------------
 * [clearpath_generator_robot] Disabled depend for now.
 * Added D100 and D150 to generator and battery node
 * IMU 0 filter for W200

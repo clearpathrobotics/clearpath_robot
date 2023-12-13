@@ -2,8 +2,8 @@
 Changelog for package clearpath_diagnostics
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.0 (2023-12-13)
+------------------
 * Added S1P2 battery configuration
 * Set battery charging status
 * Added dingo to battery state control
