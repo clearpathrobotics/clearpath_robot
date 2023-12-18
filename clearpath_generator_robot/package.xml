@@ -12,6 +12,7 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <exec_depend>clearpath_config</exec_depend>
+  <exec_depend>clearpath_diagnostics</exec_depend>
   <exec_depend>clearpath_generator_common</exec_depend>
   <exec_depend>clearpath_sensors</exec_depend>
   <exec_depend>imu_filter_madgwick</exec_depend>
