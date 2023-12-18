@@ -2,6 +2,9 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.2.0 (2023-12-13)
 ------------------
 * Removed 'platform' from default namespace

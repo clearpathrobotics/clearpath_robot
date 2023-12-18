@@ -2,6 +2,11 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Added missing dependency
+* Contributors: Hilary Luo
+
 0.2.0 (2023-12-13)
 ------------------
 * [clearpath_generator_robot] Disabled depend for now.
