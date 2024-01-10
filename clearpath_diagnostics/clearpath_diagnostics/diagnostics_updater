@@ -136,7 +136,7 @@ class ClearpathDiagnosticUpdater(Node):
     def get_headerless_topic_diagnostic(self,
                                         sensor: BaseSensor,
                                         topic: str) -> HeaderlessTopicDiagnostic:
-        sensor_topic = sensor.get_topic(topic)
+        sensor_topic = sensor.get_topic(topic, local=True)
         rate = sensor.get_topic_rate(topic)
         freq_bounds = FrequencyStatusParam({'min': rate, 'max': rate})
         return HeaderlessTopicDiagnostic(sensor_topic, self.updater, freq_bounds)
@@ -152,21 +152,21 @@ class ClearpathDiagnosticUpdater(Node):
                 if sensor.color_enabled:
                     diagnostics.append((
                         Image,
-                        sensor.get_topic(IntelRealsense.TOPICS.COLOR_IMAGE),
+                        sensor.get_topic(IntelRealsense.TOPICS.COLOR_IMAGE, local=True),
                         self.get_headerless_topic_diagnostic(
                             sensor, IntelRealsense.TOPICS.COLOR_IMAGE)
                     ))
                 if sensor.depth_enabled:
                     diagnostics.append((
                         Image,
-                        sensor.get_topic(IntelRealsense.TOPICS.DEPTH_IMAGE),
+                        sensor.get_topic(IntelRealsense.TOPICS.DEPTH_IMAGE, local=True),
                         self.get_headerless_topic_diagnostic(
                             sensor, IntelRealsense.TOPICS.DEPTH_IMAGE)
                     ))
                 if sensor.pointcloud_enabled:
                     diagnostics.append((
                         PointCloud2,
-                        sensor.get_topic(IntelRealsense.TOPICS.POINTCLOUD),
+                        sensor.get_topic(IntelRealsense.TOPICS.POINTCLOUD, local=True),
                         self.get_headerless_topic_diagnostic(
                             sensor, IntelRealsense.TOPICS.POINTCLOUD)
                     ))
@@ -174,7 +174,7 @@ class ClearpathDiagnosticUpdater(Node):
             case BaseCamera():
                 diagnostics.append((
                     Image,
-                    sensor.get_topic(BaseCamera.TOPICS.COLOR_IMAGE),
+                    sensor.get_topic(BaseCamera.TOPICS.COLOR_IMAGE, local=True),
                     self.get_headerless_topic_diagnostic(
                         sensor, BaseCamera.TOPICS.COLOR_IMAGE)
                 ))
@@ -182,7 +182,7 @@ class ClearpathDiagnosticUpdater(Node):
             case BaseLidar2D():
                 diagnostics.append((
                   LaserScan,
-                  sensor.get_topic(BaseLidar2D.TOPICS.SCAN),
+                  sensor.get_topic(BaseLidar2D.TOPICS.SCAN, local=True),
                   self.get_headerless_topic_diagnostic(
                       sensor, BaseLidar2D.TOPICS.SCAN)
                 ))
@@ -190,13 +190,13 @@ class ClearpathDiagnosticUpdater(Node):
             case BaseLidar3D():
                 diagnostics.append((
                   LaserScan,
-                  sensor.get_topic(BaseLidar3D.TOPICS.SCAN),
+                  sensor.get_topic(BaseLidar3D.TOPICS.SCAN, local=True),
                   self.get_headerless_topic_diagnostic(
                       sensor, BaseLidar3D.TOPICS.SCAN)
                 ))
                 diagnostics.append((
                     PointCloud2,
-                    sensor.get_topic(BaseLidar3D.TOPICS.POINTS),
+                    sensor.get_topic(BaseLidar3D.TOPICS.POINTS, local=True),
                     self.get_headerless_topic_diagnostic(
                         sensor, BaseLidar3D.TOPICS.POINTS)
                 ))
@@ -204,13 +204,13 @@ class ClearpathDiagnosticUpdater(Node):
             case BaseIMU():
                 diagnostics.append((
                   Imu,
-                  sensor.get_topic(BaseIMU.TOPICS.DATA),
+                  sensor.get_topic(BaseIMU.TOPICS.DATA, local=True),
                   self.get_headerless_topic_diagnostic(
                       sensor, BaseIMU.TOPICS.DATA)
                 ))
                 diagnostics.append((
                   MagneticField,
-                  sensor.get_topic(BaseIMU.TOPICS.MAG),
+                  sensor.get_topic(BaseIMU.TOPICS.MAG, local=True),
                   self.get_headerless_topic_diagnostic(
                       sensor, BaseIMU.TOPICS.MAG)
                 ))
@@ -218,7 +218,7 @@ class ClearpathDiagnosticUpdater(Node):
             case BaseGPS():
                 diagnostics.append((
                   NavSatFix,
-                  sensor.get_topic(BaseGPS.TOPICS.FIX),
+                  sensor.get_topic(BaseGPS.TOPICS.FIX, local=True),
                   self.get_headerless_topic_diagnostic(
                       sensor, BaseGPS.TOPICS.FIX)
                 ))
