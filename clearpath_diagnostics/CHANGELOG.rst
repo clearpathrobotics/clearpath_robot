@@ -2,6 +2,11 @@
 Changelog for package clearpath_diagnostics
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Get topic without namespace to address duplicate namespacing
+* Contributors: Hilary Luo
+
 0.2.1 (2023-12-18)
 ------------------
 

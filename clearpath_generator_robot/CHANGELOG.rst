@@ -2,6 +2,11 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* [clearpath_generator_robot] Re-added sevcon_traction as dependency.
+* Contributors: Tony Baltovski
+
 0.2.1 (2023-12-18)
 ------------------
 * Added missing dependency
