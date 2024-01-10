@@ -4,10 +4,9 @@
   <name>clearpath_generator_robot</name>
   <version>0.2.1</version>
   <description>Clearpath Robot Generator</description>
-  <maintainer email="rkreinin@clearpathrobotics.com">rkreinin</maintainer>
+  <maintainer email="rkreinin@clearpathrobotics.com">Roni Kreinin</maintainer>
   <license>BSD</license>
   <author email="rkreinin@clearpathrobotics.com">Roni Kreinin</author>
-
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
@@ -17,8 +16,7 @@
   <exec_depend>clearpath_sensors</exec_depend>
   <exec_depend>imu_filter_madgwick</exec_depend>
   <exec_depend>micro_ros_agent</exec_depend>
-  <!-- Disabled for now.-->
-  <!-- <exec_depend>sevcon_traction</exec_depend> -->
+  <exec_depend>sevcon_traction</exec_depend>
   <exec_depend>wireless_watcher</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
