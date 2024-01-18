@@ -2,8 +2,8 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.3 (2024-01-18)
+------------------
 * Removed namespaced tf_static
 * Contributors: Luis Camero
 
