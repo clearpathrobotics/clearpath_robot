@@ -2,6 +2,11 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Removed namespaced tf_static
+* Contributors: Luis Camero
+
 0.2.2 (2024-01-10)
 ------------------
 * [clearpath_generator_robot] Re-added sevcon_traction as dependency.
