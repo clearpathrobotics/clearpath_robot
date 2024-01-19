@@ -2,6 +2,11 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* [clearpath_robot] Added udev rule for STM32 ROM bootloader.
+* Contributors: Tony Baltovski
+
 0.2.3 (2024-01-18)
 ------------------
 
