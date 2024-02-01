@@ -27,8 +27,9 @@
 # POSSIBILITY OF SUCH DAMAGE.
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
-from launch_ros.actions import Node, ComposableNodeContainer
+from launch.conditions import LaunchConfigurationEquals, LaunchConfigurationNotEquals
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
+from launch_ros.actions import ComposableNodeContainer, LoadComposableNodes
 from launch_ros.descriptions import ComposableNode
 from launch_ros.substitutions import FindPackageShare
 
@@ -36,68 +37,59 @@ from launch_ros.substitutions import FindPackageShare
 def generate_launch_description():
     parameters = LaunchConfiguration('parameters')
     namespace = LaunchConfiguration('namespace')
-    param_mapping_file = LaunchConfiguration('param_mapping_file')
+    input_ns = LaunchConfiguration('input_ns')
+    output_ns = LaunchConfiguration('output_ns')
+    container = LaunchConfiguration('container')
 
     arg_parameters = DeclareLaunchArgument(
         'parameters',
         default_value=PathJoinSubstitution([
           FindPackageShare('clearpath_sensors'),
           'config',
-          'flir_blackfly.yaml'
-        ]))
-
-    arg_param_mapping_file = DeclareLaunchArgument(
-        'param_mapping_file',
-        default_value=PathJoinSubstitution([
-            FindPackageShare('spinnaker_camera_driver'),
-            'config',
-            'blackfly_s.yaml'
+          'image_resize.yaml'
         ]))
 
     arg_namespace = DeclareLaunchArgument(
         'namespace',
         default_value='sensors/camera_0')
 
-    name = "flir_blackfly"
-    blackfly_camera_node = Node(
-        package='spinnaker_camera_driver',
-        namespace=namespace,
-        name=name,
-        executable='camera_driver_node',
-        parameters=[parameters, {'parameter_file': param_mapping_file}],
-        output='screen',
-        remappings=[
-            (name + '/camera_info', 'camera_info'),
-            (name + '/control', 'control'),
-            (name + '/meta', 'meta'),
-            (name + '/image_raw', 'raw/image'),
-            (name + '/image_raw/compressed', 'raw/compressed'),
-            (name + '/image_raw/compressedDepth', 'raw/compressedDepth'),
-            (name + '/image_raw/theora', 'raw/theora'),
-        ]
+    arg_input_ns = DeclareLaunchArgument(
+        'input_ns',
+        default_value='color'
     )
 
+    arg_output_ns = DeclareLaunchArgument(
+        'output_ns',
+        default_value='resize'
+    )
+
+    arg_container = DeclareLaunchArgument(
+        'container',
+        default_value='image_processing_container'
+    )
+
+    # Resize composable node
     composable_nodes = [
         ComposableNode(
             package='image_proc',
-            plugin='image_proc::DebayerNode',
-            name='image_debayer',
+            plugin='image_proc::ResizeNode',
+            name=PythonExpression(["'image_resize_", input_ns, "'"]),
             namespace=namespace,
+            # Remap subscribers and publishers
             remappings=[
-                ('image_raw', 'raw/image'),
-                ('image_color', 'color/image'),
-                ('image_color/compressed', 'color/compressed'),
-                ('image_color/compressedDepth', 'color/compressedDepth'),
-                ('image_color/theora', 'color/theora'),
-                ('image_mono', 'mono/image'),
-                ('image_mono/compressed', 'mono/compressed'),
-                ('image_mono/compressedDepth', 'mono/compressedDepth'),
-                ('image_mono/theora', 'mono/theora'),
-            ]
-        )
+                ('image',  PathJoinSubstitution([input_ns, 'image'])),
+                ('resize', PathJoinSubstitution([output_ns, 'image'])),
+                ('resize/compressed', PathJoinSubstitution([output_ns, 'compressed'])),
+                ('resize/compressedDepth', PathJoinSubstitution([output_ns, 'compressedDepth'])),
+                ('resize/theora', PathJoinSubstitution([output_ns, 'theora'])),
+            ],
+            parameters=[parameters],
+        ),
     ]
 
+    # Create container if none provided, by default look for `image_processing_node`
     image_processing_container = ComposableNodeContainer(
+        condition=LaunchConfigurationEquals('container', ''),
         name='image_processing_container',
         namespace=namespace,
         package='rclcpp_components',
@@ -106,10 +98,19 @@ def generate_launch_description():
         output='screen'
     )
 
+    # Use default container that should have been launched by the camera launch file
+    load_composable_nodes = LoadComposableNodes(
+        condition=LaunchConfigurationNotEquals('container', ''),
+        composable_node_descriptions=composable_nodes,
+        target_container=PythonExpression(["'", namespace, "/", container, "'"])
+    )
+
     ld = LaunchDescription()
     ld.add_action(arg_parameters)
-    ld.add_action(arg_param_mapping_file)
     ld.add_action(arg_namespace)
-    ld.add_action(blackfly_camera_node)
+    ld.add_action(arg_input_ns)
+    ld.add_action(arg_output_ns)
+    ld.add_action(arg_container)
     ld.add_action(image_processing_container)
+    ld.add_action(load_composable_nodes)
     return ld

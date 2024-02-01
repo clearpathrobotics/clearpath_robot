@@ -1,0 +1,9 @@
+image_resize:
+  ros__parameters:
+    image_transport: raw
+    interpolation: 1
+    use_scale: True
+    scale_height: 1.0
+    scale_width: 1.0
+    height: -1
+    width: -1

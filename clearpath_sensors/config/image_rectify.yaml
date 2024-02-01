@@ -1,0 +1,5 @@
+image_rectify:
+  ros__parameters:
+    image_transport: raw
+    interpolation: 1
+    queue_size: 5
