@@ -31,6 +31,7 @@
 # of Clearpath Robotics.
 
 from clearpath_config.sensors.types.sensor import BaseSensor
+from clearpath_config.sensors.types.cameras import BaseCamera
 
 from clearpath_generator_common.common import LaunchFile, Package, ParamFile
 from clearpath_generator_common.launch.writer import LaunchWriter
@@ -45,6 +46,10 @@ class SensorLaunch():
         # Launch arguments
         PARAMETERS = 'parameters'
         NAMESPACE = 'namespace'
+        # Republish arguments
+        INPUT = 'input_ns'
+        OUTPUT = 'output_ns'
+        CONTAINER = 'container'
 
         def __init__(self,
                      sensor: BaseSensor,
@@ -75,6 +80,20 @@ class SensorLaunch():
             sensor_writer = LaunchWriter(self.launch_file)
             # Add default sensor launch file
             sensor_writer.add(self.default_sensor_launch_file)
+            # Cameras republishers
+            if self.sensor.get_sensor_type() == BaseCamera.get_sensor_type():
+                for republihser in self.sensor._republishers:
+                    sensor_writer.add(LaunchFile(
+                        "image_%s" % republihser.TYPE,
+                        package=self.CLEARPATH_SENSORS_PACKAGE,
+                        args=[
+                            (self.NAMESPACE, self.namespace),
+                            (self.PARAMETERS, self.parameters.full_path),
+                            (self.INPUT, republihser.input),
+                            (self.OUTPUT, republihser.output),
+                            (self.CONTAINER, 'image_processing_container')
+                        ]
+                    ))
             # Generate sensor launch file
             sensor_writer.generate_file()
 
