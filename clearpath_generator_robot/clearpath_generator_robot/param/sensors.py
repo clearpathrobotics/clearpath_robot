@@ -70,11 +70,14 @@ class SensorParam():
             # Camera republishers
             if self.sensor.get_sensor_type() == BaseCamera.get_sensor_type():
                 for republisher in self.sensor._republishers:
+                    name = "image_%s" % republisher.TYPE
+                    rename = "image_%s_%s" % (republisher.TYPE, republisher.input)
                     republisher_file = ParamFile(
-                        name="image_%s" % republisher.TYPE,
+                        name=name,
                         package=self.clearpath_sensors_package,
                         parameters={})
                     republisher_file.read()
+                    republisher_file.parameters[rename] = republisher_file.parameters.pop(name)
                     default_parameters = merge_dict(default_parameters,
                                                     republisher_file.parameters)
 
