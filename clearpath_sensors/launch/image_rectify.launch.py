@@ -46,7 +46,7 @@ def generate_launch_description():
         default_value=PathJoinSubstitution([
           FindPackageShare('clearpath_sensors'),
           'config',
-          'flir_blackfly.yaml'
+          'image_rectify.yaml'
         ]))
 
     arg_namespace = DeclareLaunchArgument(
@@ -60,9 +60,15 @@ def generate_launch_description():
 
     arg_output_ns = DeclareLaunchArgument(
         'output_ns',
-        default_value='resize'
+        default_value='`rectif`y'
     )
 
+    arg_container = DeclareLaunchArgument(
+        'container',
+        default_value='image_processing_container'
+    )
+
+    # Rectify composable node
     composable_nodes = [
         ComposableNode(
             package='image_proc',
@@ -71,11 +77,14 @@ def generate_launch_description():
             namespace=namespace,
             # Remap subscribers and publishers
             remappings=[
-                ('image', 'mono/image'),
-                ('image_rect', 'mono/image_rect')
+                ('image',  PathJoinSubstitution([input_ns, 'image'])),
+                ('rectify', PathJoinSubstitution([output_ns, 'image'])),
+                ('rectify/compressed', PathJoinSubstitution([output_ns, 'compressed'])),
+                ('rectify/compressedDepth', PathJoinSubstitution([output_ns, 'compressedDepth'])),
+                ('rectify/theora', PathJoinSubstitution([output_ns, 'theora'])),
             ],
-            parameters=[parameters]
-        )
+            parameters=[parameters],
+        ),
     ]
 
     # Create container if none provided, by default look for `image_processing_node`
@@ -101,6 +110,7 @@ def generate_launch_description():
     ld.add_action(arg_namespace)
     ld.add_action(arg_input_ns)
     ld.add_action(arg_output_ns)
+    ld.add_action(arg_container)
     ld.add_action(image_processing_container)
     ld.add_action(load_composable_nodes)
     return ld
