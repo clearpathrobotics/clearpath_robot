@@ -120,7 +120,7 @@ class RobotLaunchGenerator(LaunchGenerator):
             namespace=self.namespace,
             parameters=[
                 {
-                    'hz': 1,
+                    'hz': 1.0,
                     'dev': '',
                     'connected_topic': 'platform/wifi_connected',
                     'connection_topic': 'platform/wifi_status',
