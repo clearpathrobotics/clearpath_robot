@@ -18,6 +18,7 @@
   <exec_depend>flir_camera_description</exec_depend>
   <exec_depend>flir_camera_msgs</exec_depend>
   <exec_depend>image_proc</exec_depend>
+  <exec_depend>image_transport_plugins</exec_depend>
   <exec_depend>microstrain_inertial_driver</exec_depend>
   <exec_depend>nmea_navsat_driver</exec_depend>
   <exec_depend>realsense2_camera</exec_depend>

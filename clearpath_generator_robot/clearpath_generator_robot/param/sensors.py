@@ -31,6 +31,8 @@
 # of Clearpath Robotics.
 
 from clearpath_config.sensors.types.sensor import BaseSensor
+from clearpath_config.sensors.types.cameras import BaseCamera
+from clearpath_config.common.utils.dictionary import merge_dict
 
 from clearpath_generator_common.common import ParamFile, Package
 from clearpath_generator_common.param.writer import ParamWriter
@@ -63,12 +65,28 @@ class SensorParam():
                 parameters={})
             self.default_param_file.read()
 
+            default_parameters = self.default_param_file.parameters
+
+            # Camera republishers
+            if self.sensor.get_sensor_type() == BaseCamera.get_sensor_type():
+                for republisher in self.sensor._republishers:
+                    name = "image_%s" % republisher.TYPE
+                    rename = "image_%s_%s" % (republisher.TYPE, republisher.input)
+                    republisher_file = ParamFile(
+                        name=name,
+                        package=self.clearpath_sensors_package,
+                        parameters={})
+                    republisher_file.read()
+                    republisher_file.parameters[rename] = republisher_file.parameters.pop(name)
+                    default_parameters = merge_dict(default_parameters,
+                                                    republisher_file.parameters)
+
             # Parameter file to generate
             self.param_file = ParamFile(
                 name=self.sensor.name,
                 namespace=self.namespace,
                 path=self.param_path,
-                parameters=self.default_param_file.parameters)
+                parameters=default_parameters)
 
             self.param_file.update(self.sensor.get_ros_parameters())
 
