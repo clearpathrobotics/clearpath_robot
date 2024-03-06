@@ -1,5 +1,5 @@
 [Unit]
-Description="bringup clearpath-platform"
+Description="Clearpath robot sub-service, launch all platform nodes"
 PartOf=clearpath-robot.service
 After=clearpath-robot.service
 
