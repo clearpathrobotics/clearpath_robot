@@ -2,6 +2,17 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Added image_transport_plugins to package.xml
+* Added binning parameters
+* Recitfy node matches resize
+* Added compressed encode and decode launch files
+* Fixed theora encoding node
+* Add theora encode and decode launch
+* Added rectify and resize
+* Contributors: Luis Camero
+
 0.2.4 (2024-01-19)
 ------------------
 
