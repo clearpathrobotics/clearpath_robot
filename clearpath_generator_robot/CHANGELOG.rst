@@ -2,8 +2,8 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.5 (2024-03-07)
+------------------
 * Add valence dependency
 * Launch Valence BMS when relevant
 * Rename node based on input

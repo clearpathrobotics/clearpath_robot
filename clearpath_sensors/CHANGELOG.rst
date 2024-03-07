@@ -2,8 +2,8 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.5 (2024-03-07)
+------------------
 * Added image_transport_plugins to package.xml
 * Added binning parameters
 * Recitfy node matches resize
