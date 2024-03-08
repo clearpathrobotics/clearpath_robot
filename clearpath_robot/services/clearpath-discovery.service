@@ -1,12 +1,14 @@
 [Unit]
-Description="Clearpath robot sub-service, launch all platform nodes"
+Description="Clearpath FastDDS discovery server"
 PartOf=clearpath-robot.service
 After=clearpath-robot.service
 
 [Service]
 User=administrator
 Type=simple
-ExecStart=/usr/sbin/clearpath-platform-start
+Restart=on-failure
+RestartSec=1
+ExecStart=/bin/bash -e /etc/clearpath/discovery-server-start
 
 [Install]
 WantedBy=clearpath-robot.service

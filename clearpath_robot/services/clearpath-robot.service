@@ -1,5 +1,5 @@
 [Unit]
-Description=Application
+Description="Clearpath robot main generation and bringup service"
 
 [Service]
 User=administrator

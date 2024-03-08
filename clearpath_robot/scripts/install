@@ -58,7 +58,11 @@ class PlatformProvider(robot_upstart.providers.Generic):
             "/lib/systemd/system/clearpath-platform.service": {
                 "content": platform_service_contents,
                 "mode": 0o644
-            }}
+            },
+            "/etc/systemd/system/clearpath-robot.service.wants/clearpath-platform.service": {
+                "symlink": "/lib/systemd/system/clearpath-platform.service"
+            }
+        }
 
 
 class SensorsProvider(robot_upstart.providers.Generic):
@@ -81,7 +85,39 @@ class SensorsProvider(robot_upstart.providers.Generic):
             "/lib/systemd/system/clearpath-sensors.service": {
                 "content": sensors_service_contents,
                 "mode": 0o644
-            }}
+            },
+            "/etc/systemd/system/clearpath-robot.service.wants/clearpath-sensors.service": {
+                "symlink": "/lib/systemd/system/clearpath-sensors.service"
+            }
+        }
+
+
+class DiscoveryServerProvider(robot_upstart.providers.Generic):
+    def post_install(self):
+        pass
+
+    def generate_install(self):
+        discovery_service_path = os.path.join(
+            get_package_share_directory('clearpath_robot'),
+            'services/clearpath-discovery.service')
+        with open(discovery_service_path) as f:
+            discovery_service_contents: str = ''
+            discovery_service_lines = f.readlines()
+            for line in discovery_service_lines:
+                # Replace User with username from config
+                if 'User=' in line:
+                    line = 'User={0}\n'.format(clearpath_config.system.username)
+                discovery_service_contents += line
+
+        return {
+            "/lib/systemd/system/clearpath-discovery.service": {
+                "content": discovery_service_contents,
+                "mode": 0o644
+            },
+            "/etc/systemd/system/clearpath-robot.service.wants/clearpath-discovery.service": {
+                "symlink": "/lib/systemd/system/clearpath-discovery.service"
+            }
+        }
 
 
 class RobotProvider(robot_upstart.providers.Generic):
@@ -123,8 +159,8 @@ class RobotProvider(robot_upstart.providers.Generic):
             "/usr/sbin/clearpath-robot-check": {
                 "content": robot_service_exec_contents,
                 "mode": 0o755
-            },
-          }
+            }
+        }
 
 
 setup_path = BaseGenerator.get_args()
@@ -146,7 +182,7 @@ config = read_yaml(config_path)
 # Parse YAML into config
 clearpath_config = ClearpathConfig(config)
 
-rmw = clearpath_config.system.rmw_implementation
+rmw = clearpath_config.system.middleware.rmw_implementation
 domain_id = clearpath_config.system.domain_id
 
 # Platform
@@ -174,6 +210,10 @@ sensors.install()
 
 sensors_extras = robot_upstart.Job(workspace_setup=workspace_setup)
 sensors_extras.install(Provider=SensorsProvider)
+
+# Discovery Server
+discovery_server = robot_upstart.Job(workspace_setup=workspace_setup)
+discovery_server.install(Provider=DiscoveryServerProvider)
 
 # Robot
 robot = robot_upstart.Job(workspace_setup=workspace_setup)

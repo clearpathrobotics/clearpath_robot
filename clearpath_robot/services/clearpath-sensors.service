@@ -1,5 +1,5 @@
 [Unit]
-Description="bringup clearpath-sensors"
+Description="Clearpath robot sub-service, launch all sensor nodes"
 PartOf=clearpath-robot.service
 After=clearpath-robot.service
 
