@@ -3,7 +3,7 @@ source /opt/ros/humble/setup.bash
 
 # Generate and source setup.bash
 ros2 run clearpath_generator_common generate_bash
-source /etc/clearpath/setup.bash no-super-client
+source /etc/clearpath/setup.bash
 
 # Generate discovery server start file
 ros2 run clearpath_generator_common generate_discovery_server
