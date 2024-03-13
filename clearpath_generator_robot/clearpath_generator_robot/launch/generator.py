@@ -152,7 +152,7 @@ class RobotLaunchGenerator(LaunchGenerator):
 
         # Valence BMS
         self.bms_launch_file = None
-        if (self.clearpath_config.platform.battery.model in 
+        if (self.clearpath_config.platform.battery.model in
             [BatteryConfig.VALENCE_U24_12XP, BatteryConfig.VALENCE_U27_12XP]):
 
             can_dev = 'can1'
@@ -161,9 +161,9 @@ class RobotLaunchGenerator(LaunchGenerator):
             launch_args = self.clearpath_config.platform.battery.launch_args
 
             if launch_args:
-               if 'can_device' in launch_args: 
+               if 'can_device' in launch_args:
                    can_dev = launch_args['can_device']
-               if 'bms_id' in launch_args: 
+               if 'bms_id' in launch_args:
                    bms_id = launch_args['bms_id']
 
             bms_launch_args = [
@@ -266,6 +266,16 @@ class RobotLaunchGenerator(LaunchGenerator):
                 sensor_launch.generate()
                 # Include sensor launch in top level sensors launch file
                 sensors_service_launch_writer.add(sensor_launch.launch_file)
+
+        if self.clearpath_config.platform.launch:
+            extra_launch = LaunchFile(
+                name=(os.path.basename(
+                    self.clearpath_config.platform.extras.launch['path']
+                )).split('.')[0],
+                path=os.path.dirname(self.clearpath_config.platform.extras.launch['path']),
+                package=Package(self.clearpath_config.platform.extras.launch['package']),
+            )
+            sensors_service_launch_writer.add(extra_launch)
 
         sensors_service_launch_writer.generate_file()
 
