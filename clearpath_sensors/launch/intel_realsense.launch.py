@@ -50,7 +50,7 @@ def generate_launch_description():
         default_value='')
 
     name = "intel_realsense"
-    name = "camera"
+    #name = "camera"
     realsense2_camera_node = Node(
         package='realsense2_camera',
         namespace=namespace,
