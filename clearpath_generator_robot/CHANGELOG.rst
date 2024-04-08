@@ -2,6 +2,11 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add extra launch file to sensor service
+* Contributors: Luis Camero
+
 0.2.5 (2024-03-07)
 ------------------
 * Add valence dependency

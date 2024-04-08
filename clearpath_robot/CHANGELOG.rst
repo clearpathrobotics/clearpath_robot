@@ -2,6 +2,13 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Removed the argument to source
+* Added platform and sensor service to robot service wants
+* Added discovery server service
+* Contributors: Hilary Luo, Luis Camero
+
 0.2.5 (2024-03-07)
 ------------------
 
