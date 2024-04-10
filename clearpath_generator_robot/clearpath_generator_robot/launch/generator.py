@@ -267,7 +267,7 @@ class RobotLaunchGenerator(LaunchGenerator):
                 # Include sensor launch in top level sensors launch file
                 sensors_service_launch_writer.add(sensor_launch.launch_file)
 
-        if self.clearpath_config.platform.launch:
+        if self.clearpath_config.platform.extras.launch:
             extra_launch = LaunchFile(
                 name=(os.path.basename(
                     self.clearpath_config.platform.extras.launch['path']
