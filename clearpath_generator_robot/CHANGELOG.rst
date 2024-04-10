@@ -2,6 +2,11 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Check the correct launch file
+* Contributors: Luis Camero
+
 0.2.6 (2024-04-08)
 ------------------
 * Add extra launch file to sensor service
