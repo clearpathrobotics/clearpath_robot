@@ -20,5 +20,9 @@ jobs:
         with:
           target-ros2-distro: humble
 
-          package-name: clearpath_robot
+          package-name: |
+            clearpath_diagnostics
+            clearpath_generator_robot
+            clearpath_robot
+            clearpath_sensors
           vcs-repo-file-url: dependencies.repos
