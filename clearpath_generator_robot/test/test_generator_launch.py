@@ -25,11 +25,12 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-from clearpath_generator_robot.launch.generator import RobotLaunchGenerator
 import os
 import shutil
 
-SAMPLE_DIR = "/opt/ros/humble/share/clearpath_config/sample/"
+from clearpath_generator_robot.launch.generator import RobotLaunchGenerator
+
+SAMPLE_DIR = '/opt/ros/humble/share/clearpath_config/sample/'
 
 
 class TestRobotLaunchGenerator:
@@ -39,7 +40,7 @@ class TestRobotLaunchGenerator:
         for sample in os.listdir(SAMPLE_DIR):
             # Create Clearpath Directory
             src = os.path.join(SAMPLE_DIR, sample)
-            dst = os.path.join(os.environ["HOME"], ".clearpath", "robot.yaml")
+            dst = os.path.join(os.environ['HOME'], '.clearpath', 'robot.yaml')
             shutil.rmtree(os.path.dirname(dst))
             os.makedirs(os.path.dirname(dst), exist_ok=True)
             shutil.copy(src, dst)
@@ -52,4 +53,4 @@ class TestRobotLaunchGenerator:
                     sample,
                     e.args[0],
                 ))
-        assert not errors, "Errors: %s" % "\n".join(errors)
+        assert not errors, 'Errors: %s' % '\n'.join(errors)

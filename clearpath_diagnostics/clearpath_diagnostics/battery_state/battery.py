@@ -43,7 +43,7 @@ from math import nan
 
 class Battery:
     class BaseBattery:
-        """ Base Battery class. """
+        """Base Battery class."""
 
         """Battery configuration. Represents number of battery cells in series and parallel."""
         CONFIGURATIONS = {
@@ -189,6 +189,7 @@ class Battery:
 
     class LiION(BaseBattery):
         """Base Lithium ION battery."""
+
         LUT = []
 
         def __init__(

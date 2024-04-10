@@ -102,7 +102,7 @@ def generate_launch_description():
     load_composable_nodes = LoadComposableNodes(
         condition=LaunchConfigurationNotEquals('container', ''),
         composable_node_descriptions=composable_nodes,
-        target_container=PythonExpression(["'", namespace, "/", container, "'"])
+        target_container=PythonExpression(["'", namespace, '/', container, "'"])
     )
 
     ld = LaunchDescription()

@@ -29,9 +29,8 @@
 # Redistribution and use in source and binary forms, with or without
 # modification, is not permitted without the express permission
 # of Clearpath Robotics.
-
-from clearpath_config.sensors.types.sensor import BaseSensor
 from clearpath_config.sensors.types.cameras import BaseCamera
+from clearpath_config.sensors.types.sensor import BaseSensor
 
 from clearpath_generator_common.common import LaunchFile, Package, ParamFile
 from clearpath_generator_common.launch.writer import LaunchWriter
@@ -84,7 +83,7 @@ class SensorLaunch():
             if self.sensor.get_sensor_type() == BaseCamera.get_sensor_type():
                 for republihser in self.sensor._republishers:
                     sensor_writer.add(LaunchFile(
-                        "image_%s" % republihser.TYPE,
+                        'image_%s' % republihser.TYPE,
                         package=self.CLEARPATH_SENSORS_PACKAGE,
                         args=[
                             (self.NAMESPACE, self.namespace),
