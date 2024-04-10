@@ -99,7 +99,7 @@ class SensorLaunch():
 
         @property
         def namespace(self) -> str:
-            """Return sensor namespace"""
+            """Return sensor namespace."""
             if self._robot_namespace in ('', '/'):
                 return f'{self.SENSOR_NAMESPACE}/{self.sensor.name}'
             else:
@@ -107,12 +107,12 @@ class SensorLaunch():
 
         @property
         def name(self) -> str:
-            """Return sensor name"""
+            """Return sensor name."""
             return self.sensor.name
 
         @property
         def model(self) -> str:
-            """Return sensor model"""
+            """Return sensor model."""
             return self.sensor.SENSOR_MODEL
 
     def __new__(cls,

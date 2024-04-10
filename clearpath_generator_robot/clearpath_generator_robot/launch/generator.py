@@ -153,7 +153,7 @@ class RobotLaunchGenerator(LaunchGenerator):
         # Valence BMS
         self.bms_launch_file = None
         if (self.clearpath_config.platform.battery.model in
-            [BatteryConfig.VALENCE_U24_12XP, BatteryConfig.VALENCE_U27_12XP]):
+                [BatteryConfig.VALENCE_U24_12XP, BatteryConfig.VALENCE_U27_12XP]):
 
             can_dev = 'can1'
             bms_id = '0'
@@ -161,10 +161,10 @@ class RobotLaunchGenerator(LaunchGenerator):
             launch_args = self.clearpath_config.platform.battery.launch_args
 
             if launch_args:
-               if 'can_device' in launch_args:
-                   can_dev = launch_args['can_device']
-               if 'bms_id' in launch_args:
-                   bms_id = launch_args['bms_id']
+                if 'can_device' in launch_args:
+                    can_dev = launch_args['can_device']
+                if 'bms_id' in launch_args:
+                    bms_id = launch_args['bms_id']
 
             bms_launch_args = [
                 ('namespace', self.namespace),
