@@ -37,6 +37,7 @@ from clearpath_generator_robot.param.sensors import SensorParam
 
 
 class RobotParamGenerator(ParamGenerator):
+
     def generate_sensors(self) -> None:
         sensors = self.clearpath_config.sensors.get_all_sensors()
         for sensor in sensors:

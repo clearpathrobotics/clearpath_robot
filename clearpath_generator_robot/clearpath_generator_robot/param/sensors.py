@@ -30,73 +30,69 @@
 # modification, is not permitted without the express permission
 # of Clearpath Robotics.
 
-from clearpath_config.sensors.types.sensor import BaseSensor
-from clearpath_config.sensors.types.cameras import BaseCamera
 from clearpath_config.common.utils.dictionary import merge_dict
+from clearpath_config.sensors.types.cameras import BaseCamera
+from clearpath_config.sensors.types.sensor import BaseSensor
 
-from clearpath_generator_common.common import ParamFile, Package
+from clearpath_generator_common.common import Package, ParamFile
 from clearpath_generator_common.param.writer import ParamWriter
 
 
 class SensorParam():
-    class BaseParam():
-        CLEARPATH_SENSORS = 'clearpath_sensors'
 
-        TOPIC_NAMESPACE = 'sensors'
+    CLEARPATH_SENSORS = 'clearpath_sensors'
 
-        def __init__(self,
-                     sensor: BaseSensor,
-                     namespace: str,
-                     param_path: str) -> None:
-            self.sensor = sensor
-            self.param_path = param_path
-            if namespace in ('', '/'):
-                self.namespace = f'{self.TOPIC_NAMESPACE}/{self.sensor.name}'
-            else:
-                self.namespace = f'{namespace}/{self.TOPIC_NAMESPACE}/{self.sensor.name}'
+    TOPIC_NAMESPACE = 'sensors'
 
-            # Clearpath Sensors Package
-            self.clearpath_sensors_package = Package(self.CLEARPATH_SENSORS)
+    def __init__(
+            self,
+            sensor: BaseSensor,
+            namespace: str,
+            param_path: str
+            ) -> None:
+        self.sensor = sensor
+        self.param_path = param_path
+        if namespace in ('', '/'):
+            self.namespace = f'{self.TOPIC_NAMESPACE}/{self.sensor.name}'
+        else:
+            self.namespace = f'{namespace}/{self.TOPIC_NAMESPACE}/{self.sensor.name}'
 
-            # Default parameter file for the sensor
-            self.default_param_file = ParamFile(
-                name=self.sensor.get_sensor_model(),
-                package=self.clearpath_sensors_package,
-                parameters={})
-            self.default_param_file.read()
+        # Clearpath Sensors Package
+        self.clearpath_sensors_package = Package(self.CLEARPATH_SENSORS)
 
-            default_parameters = self.default_param_file.parameters
+        # Default parameter file for the sensor
+        self.default_param_file = ParamFile(
+            name=self.sensor.get_sensor_model(),
+            package=self.clearpath_sensors_package,
+            parameters={})
+        self.default_param_file.read()
 
-            # Camera republishers
-            if self.sensor.get_sensor_type() == BaseCamera.get_sensor_type():
-                for republisher in self.sensor._republishers:
-                    name = "image_%s" % republisher.TYPE
-                    rename = "image_%s_%s" % (republisher.TYPE, republisher.input)
-                    republisher_file = ParamFile(
-                        name=name,
-                        package=self.clearpath_sensors_package,
-                        parameters={})
-                    republisher_file.read()
-                    republisher_file.parameters[rename] = republisher_file.parameters.pop(name)
-                    default_parameters = merge_dict(default_parameters,
-                                                    republisher_file.parameters)
+        default_parameters = self.default_param_file.parameters
 
-            # Parameter file to generate
-            self.param_file = ParamFile(
-                name=self.sensor.name,
-                namespace=self.namespace,
-                path=self.param_path,
-                parameters=default_parameters)
+        # Camera republishers
+        if self.sensor.get_sensor_type() == BaseCamera.get_sensor_type():
+            for republisher in self.sensor._republishers:
+                name = 'image_%s' % republisher.TYPE
+                rename = 'image_%s_%s' % (republisher.TYPE, republisher.input)
+                republisher_file = ParamFile(
+                    name=name,
+                    package=self.clearpath_sensors_package,
+                    parameters={})
+                republisher_file.read()
+                republisher_file.parameters[rename] = republisher_file.parameters.pop(name)
+                default_parameters = merge_dict(default_parameters,
+                                                republisher_file.parameters)
 
-            self.param_file.update(self.sensor.get_ros_parameters())
+        # Parameter file to generate
+        self.param_file = ParamFile(
+            name=self.sensor.name,
+            namespace=self.namespace,
+            path=self.param_path,
+            parameters=default_parameters)
 
-        def generate_config(self):
-            sensor_writer = ParamWriter(self.param_file)
-            sensor_writer.write_file()
-            print('Generated config: {0}'.format(self.param_file.full_path))
+        self.param_file.update(self.sensor.get_ros_parameters())
 
-    def __new__(cls,
-                sensor: BaseSensor,
-                namespace: str,
-                param_path: str) -> BaseParam:
-        return SensorParam.BaseParam(sensor, namespace, param_path)
+    def generate_config(self):
+        sensor_writer = ParamWriter(self.param_file)
+        sensor_writer.write_file()
+        print('Generated config: {0}'.format(self.param_file.full_path))

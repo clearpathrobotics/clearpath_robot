@@ -31,19 +31,18 @@
 # Redistribution and use in source and binary forms, with or without
 # modification, is not permitted without the express permission
 # of Clearpath Robotics.
+import os
 
+from clearpath_config.common.types.platform import Platform
 from clearpath_config.platform.battery import BatteryConfig
 from clearpath_generator_common.common import LaunchFile, Package
 from clearpath_generator_common.launch.generator import LaunchGenerator
 from clearpath_generator_common.launch.writer import LaunchWriter
 from clearpath_generator_robot.launch.sensors import SensorLaunch
 
-from clearpath_config.common.types.platform import Platform
-
-import os
-
 
 class RobotLaunchGenerator(LaunchGenerator):
+
     def __init__(self, setup_path: str = '/etc/clearpath/') -> None:
         super().__init__(setup_path)
 
@@ -72,7 +71,7 @@ class RobotLaunchGenerator(LaunchGenerator):
             name='configure_mcu',
             cmd=[
                 ['export ROS_DOMAIN_ID=0;'],
-                [LaunchFile.Variable('FindExecutable(name=\'ros2\')'),
+                [LaunchFile.Variable("FindExecutable(name='ros2')"),
                  ' service call platform/mcu/configure',
                  ' clearpath_platform_msgs/srv/ConfigureMcu',
                  ' \"{{domain_id: {0},'.format(self.clearpath_config.system.domain_id),

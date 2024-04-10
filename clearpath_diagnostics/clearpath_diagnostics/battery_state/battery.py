@@ -102,7 +102,6 @@ class Battery:
                     self.power_msg_voltage_index = Power.D150_MEASURED_BATTERY
                     self.power_msg_current_index = Power.D150_TOTAL_CURRENT
 
-
             # System capacity
             self._msg.capacity = self._msg.design_capacity = self.system_capacity
 
