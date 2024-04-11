@@ -15,11 +15,17 @@ jobs:
       - uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: humble
+      - name: clearpath-package-server
+        run: |
+          cat /home/runner/work/clearpath_robot/clearpath_robot/ros.key
+          sudo apt install wget
+          wget https://packages.clearpathrobotics.com/public.key -O - | sudo apt-key add -
+          sudo sh -c 'echo "deb https://packages.clearpathrobotics.com/stable/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/clearpath-latest.list'
+          sudo apt-get update
       - uses: ros-tooling/action-ros-ci@v0.3
         id: action_ros_ci_step
         with:
           target-ros2-distro: humble
-
           package-name: |
             clearpath_diagnostics
             clearpath_generator_robot
