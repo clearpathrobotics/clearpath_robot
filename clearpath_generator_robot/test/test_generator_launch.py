@@ -41,7 +41,7 @@ class TestRobotLaunchGenerator:
             # Create Clearpath Directory
             src = os.path.join(SAMPLE_DIR, sample)
             dst = os.path.join(os.environ['HOME'], '.clearpath', 'robot.yaml')
-            shutil.rmtree(os.path.dirname(dst))
+            shutil.rmtree(os.path.dirname(dst), ignore_errors=True)
             os.makedirs(os.path.dirname(dst), exist_ok=True)
             shutil.copy(src, dst)
             # Generate
