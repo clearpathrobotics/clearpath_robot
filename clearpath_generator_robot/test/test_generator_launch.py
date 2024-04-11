@@ -28,18 +28,19 @@
 import os
 import shutil
 
+from ament_index_python.packages import get_package_share_directory
 from clearpath_generator_robot.launch.generator import RobotLaunchGenerator
-
-SAMPLE_DIR = '/opt/ros/humble/share/clearpath_config/sample/'
 
 
 class TestRobotLaunchGenerator:
 
     def test_samples(self):
         errors = []
-        for sample in os.listdir(SAMPLE_DIR):
+        share_dir = get_package_share_directory("clearpath_config")
+        sample_dir = os.path.join(share_dir, "sample")
+        for sample in os.listdir(sample_dir):
             # Create Clearpath Directory
-            src = os.path.join(SAMPLE_DIR, sample)
+            src = os.path.join(sample_dir, sample)
             dst = os.path.join(os.environ['HOME'], '.clearpath', 'robot.yaml')
             shutil.rmtree(os.path.dirname(dst), ignore_errors=True)
             os.makedirs(os.path.dirname(dst), exist_ok=True)
