@@ -38,8 +38,8 @@ class TestRobotLaunchGenerator:
 
     def test_samples(self):
         errors = []
-        share_dir = get_package_share_directory("clearpath_config")
-        sample_dir = os.path.join(share_dir, "sample")
+        share_dir = get_package_share_directory('clearpath_config')
+        sample_dir = os.path.join(share_dir, 'sample')
         for sample in os.listdir(sample_dir):
             # Create Clearpath Directory
             src = os.path.join(sample_dir, sample)
