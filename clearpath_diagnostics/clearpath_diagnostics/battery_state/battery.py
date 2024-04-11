@@ -29,18 +29,15 @@
 # Redistribution and use in source and binary forms, with or without
 # modification, is not permitted without the express permission
 # of Clearpath Robotics.
-
-from clearpath_platform_msgs.msg import Power
-from sensor_msgs.msg import BatteryState
+from math import nan
 
 from clearpath_config.common.types.platform import Platform
 from clearpath_config.platform.battery import BatteryConfig
-
-from math import nan
+from clearpath_platform_msgs.msg import Power
+from sensor_msgs.msg import BatteryState
 
 
 # Base Battery
-
 class Battery:
     class BaseBattery:
         """Base Battery class."""

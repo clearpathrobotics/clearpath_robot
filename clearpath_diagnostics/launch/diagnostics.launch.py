@@ -34,8 +34,8 @@
 
 from ament_index_python.packages import get_package_share_directory
 
-from clearpath_config.common.utils.yaml import read_yaml
 from clearpath_config.clearpath_config import ClearpathConfig
+from clearpath_config.common.utils.yaml import read_yaml
 
 from launch import LaunchDescription
 from launch.actions import (
@@ -50,24 +50,24 @@ from launch_ros.actions import Node, PushRosNamespace
 
 ARGUMENTS = [
     DeclareLaunchArgument(
-        "setup_path",
-        default_value="/etc/clearpath/",
-        description="Clearpath setup path",
+        'setup_path',
+        default_value='/etc/clearpath/',
+        description='Clearpath setup path',
     )
 ]
 
 
 def launch_setup(context, *args, **kwargs):
-    pkg_clearpath_diagnostics = get_package_share_directory("clearpath_diagnostics")
+    pkg_clearpath_diagnostics = get_package_share_directory('clearpath_diagnostics')
 
-    setup_path = LaunchConfiguration("setup_path")
+    setup_path = LaunchConfiguration('setup_path')
 
     analyzer_params_filepath = PathJoinSubstitution(
-        [pkg_clearpath_diagnostics, "config", "diagnostics.yaml"]
+        [pkg_clearpath_diagnostics, 'config', 'diagnostics.yaml']
     )
 
     # Read robot YAML
-    config = read_yaml(setup_path.perform(context) + "robot.yaml")
+    config = read_yaml(setup_path.perform(context) + 'robot.yaml')
     # Parse robot YAML into config
     clearpath_config = ClearpathConfig(config)
 
@@ -77,25 +77,25 @@ def launch_setup(context, *args, **kwargs):
             PushRosNamespace(namespace),
             # Aggregator
             Node(
-                package="diagnostic_aggregator",
-                executable="aggregator_node",
-                output="screen",
+                package='diagnostic_aggregator',
+                executable='aggregator_node',
+                output='screen',
                 parameters=[analyzer_params_filepath],
                 remappings=[
-                    ("/diagnostics", "diagnostics"),
-                    ("/diagnostics_agg", "diagnostics_agg"),
-                    ("/diagnostics_toplevel_state", "diagnostics_toplevel_state"),
+                    ('/diagnostics', 'diagnostics'),
+                    ('/diagnostics_agg', 'diagnostics_agg'),
+                    ('/diagnostics_toplevel_state', 'diagnostics_toplevel_state'),
                 ],
             ),
             # Updater
             Node(
-                package="clearpath_diagnostics",
-                executable="diagnostics_updater",
-                output="screen",
+                package='clearpath_diagnostics',
+                executable='diagnostics_updater',
+                output='screen',
                 remappings=[
-                    ("/diagnostics", "diagnostics"),
-                    ("/diagnostics_agg", "diagnostics_agg"),
-                    ("/diagnostics_toplevel_state", "diagnostics_toplevel_state"),
+                    ('/diagnostics', 'diagnostics'),
+                    ('/diagnostics_agg', 'diagnostics_agg'),
+                    ('/diagnostics_toplevel_state', 'diagnostics_toplevel_state'),
                 ],
                 arguments=['-s', setup_path]
             ),
