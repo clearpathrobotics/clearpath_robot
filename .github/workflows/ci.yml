@@ -7,6 +7,19 @@ on:
     - cron: "0 0 * * *" # every day at midnight
 
 jobs:
+  Clearpath_robot_osrf_industrial_ci:
+    name: Humble OSRF Industrial
+    strategy:
+      matrix:
+        env:
+          - {ROS_DISTRO: humble, ROS_REPO: testing}
+          - {ROS_DISTRO: humble, ROS_REPO: main}
+      fail-fast: false
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: 'ros-industrial/industrial_ci@master'
+        env: ${{matrix.env}}
   clearpath_robot_osrf_ci:
     name: Humble OSRF Release
     runs-on: ubuntu-22.04
@@ -24,7 +37,6 @@ jobs:
             clearpath_generator_robot
             clearpath_robot
             clearpath_sensors
-          vcs-repo-file-url: clearpath_robot.repos
   clearpath_robot_cpr_ci:
     name: Humble Clearpath Release
     runs-on: ubuntu-22.04
@@ -48,7 +60,6 @@ jobs:
             clearpath_generator_robot
             clearpath_robot
             clearpath_sensors
-          vcs-repo-file-url: clearpath_robot.repos
   clearpath_robot_src_ci:
     name: Humble Clearpath Source
     runs-on: ubuntu-22.04

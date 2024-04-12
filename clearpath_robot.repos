@@ -1,5 +1,0 @@
-repositories:
-  clearpath_robot:
-    type: git
-    url: https://github.com/clearpathrobotics/clearpath_robot.git
-    version: main
