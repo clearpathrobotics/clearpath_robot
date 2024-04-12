@@ -12,8 +12,8 @@ jobs:
     strategy:
       matrix:
         env:
-          - {ROS_DISTRO: humble, ROS_REPO: testing, ROSDEP_SKIP_KEYS: "sevcon_traction umx_driver valence_bms_driver"}
-          - {ROS_DISTRO: humble, ROS_REPO: main, ROSDEP_SKIP_KEYS: "sevcon_traction umx_driver valence_bms_driver"}
+          - {ROS_DISTRO: humble, ROS_REPO: testing, ROSDEP_SKIP_KEYS: "micro_ros_agent sevcon_traction umx_driver valence_bms_driver"}
+          - {ROS_DISTRO: humble, ROS_REPO: main, ROSDEP_SKIP_KEYS: "micro_ros_agent sevcon_traction umx_driver valence_bms_driver"}
       fail-fast: false
     runs-on: ubuntu-22.04
     steps:
