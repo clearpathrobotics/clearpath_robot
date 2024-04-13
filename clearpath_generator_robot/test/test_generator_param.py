@@ -1,9 +1,7 @@
-#!/usr/bin/env python3
-
 # Software License Agreement (BSD)
 #
-# @author    Roni Kreinin <rkreinin@clearpathrobotics.com>
-# @copyright (c) 2023, Clearpath Robotics, Inc., All rights reserved.
+# @author    Luis Camero <lcamero@clearpathrobotics.com>
+# @copyright (c) 2024, Clearpath Robotics, Inc., All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -27,20 +25,35 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+import os
+import shutil
 
-# Redistribution and use in source and binary forms, with or without
-# modification, is not permitted without the express permission
-# of Clearpath Robotics.
+from ament_index_python.packages import get_package_share_directory
+from clearpath_generator_robot.param.generator import RobotParamGenerator
 
-from clearpath_generator_common.param.generator import ParamGenerator
-from clearpath_generator_robot.param.sensors import SensorParam
+SAMPLE_DIR = '/opt/ros/humble/share/clearpath_config/sample/'
 
 
-class RobotParamGenerator(ParamGenerator):
+class TestRobotLaunchGenerator:
 
-    def generate_sensors(self) -> None:
-        sensors = self.clearpath_config.sensors.get_all_sensors()
-        for sensor in sensors:
-            if sensor.get_launch_enabled():
-                sensor_param = SensorParam(sensor, self.namespace, self.sensors_params_path)
-                sensor_param.generate_config()
+    def test_samples(self):
+        errors = []
+        share_dir = get_package_share_directory('clearpath_config')
+        sample_dir = os.path.join(share_dir, 'sample')
+        for sample in os.listdir(sample_dir):
+            # Create Clearpath Directory
+            src = os.path.join(sample_dir, sample)
+            dst = os.path.join(os.environ['HOME'], '.clearpath', 'robot.yaml')
+            shutil.rmtree(os.path.dirname(dst), ignore_errors=True)
+            os.makedirs(os.path.dirname(dst), exist_ok=True)
+            shutil.copy(src, dst)
+            # Generate
+            try:
+                rpg = RobotParamGenerator(os.path.dirname(dst))
+                rpg.generate()
+            except Exception as e:
+                errors.append("Sample '%s' failed to load: '%s'" % (
+                    sample,
+                    e.args[0],
+                ))
+        assert not errors, 'Errors: %s' % '\n'.join(errors)

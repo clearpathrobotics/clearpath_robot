@@ -31,19 +31,18 @@
 # Redistribution and use in source and binary forms, with or without
 # modification, is not permitted without the express permission
 # of Clearpath Robotics.
-
-from clearpath_config.platform.battery import BatteryConfig
-from clearpath_generator_common.common import LaunchFile, Package
-from clearpath_generator_common.launch.writer import LaunchWriter
-from clearpath_generator_common.launch.generator import LaunchGenerator
-from clearpath_generator_robot.launch.sensors import SensorLaunch
+import os
 
 from clearpath_config.common.types.platform import Platform
-
-import os
+from clearpath_config.platform.battery import BatteryConfig
+from clearpath_generator_common.common import LaunchFile, Package
+from clearpath_generator_common.launch.generator import LaunchGenerator
+from clearpath_generator_common.launch.writer import LaunchWriter
+from clearpath_generator_robot.launch.sensors import SensorLaunch
 
 
 class RobotLaunchGenerator(LaunchGenerator):
+
     def __init__(self, setup_path: str = '/etc/clearpath/') -> None:
         super().__init__(setup_path)
 
@@ -72,7 +71,7 @@ class RobotLaunchGenerator(LaunchGenerator):
             name='configure_mcu',
             cmd=[
                 ['export ROS_DOMAIN_ID=0;'],
-                [LaunchFile.Variable('FindExecutable(name=\'ros2\')'),
+                [LaunchFile.Variable("FindExecutable(name='ros2')"),
                  ' service call platform/mcu/configure',
                  ' clearpath_platform_msgs/srv/ConfigureMcu',
                  ' \"{{domain_id: {0},'.format(self.clearpath_config.system.domain_id),
@@ -153,7 +152,7 @@ class RobotLaunchGenerator(LaunchGenerator):
         # Valence BMS
         self.bms_launch_file = None
         if (self.clearpath_config.platform.battery.model in
-            [BatteryConfig.VALENCE_U24_12XP, BatteryConfig.VALENCE_U27_12XP]):
+                [BatteryConfig.VALENCE_U24_12XP, BatteryConfig.VALENCE_U27_12XP]):
 
             can_dev = 'can1'
             bms_id = '0'
@@ -161,10 +160,10 @@ class RobotLaunchGenerator(LaunchGenerator):
             launch_args = self.clearpath_config.platform.battery.launch_args
 
             if launch_args:
-               if 'can_device' in launch_args:
-                   can_dev = launch_args['can_device']
-               if 'bms_id' in launch_args:
-                   bms_id = launch_args['bms_id']
+                if 'can_device' in launch_args:
+                    can_dev = launch_args['can_device']
+                if 'bms_id' in launch_args:
+                    bms_id = launch_args['bms_id']
 
             bms_launch_args = [
                 ('namespace', self.namespace),

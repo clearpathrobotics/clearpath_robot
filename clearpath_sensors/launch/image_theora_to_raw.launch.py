@@ -52,10 +52,10 @@ def generate_launch_description():
     )
 
     theora_transport_node = Node(
-        name="image_theora_to_raw",
+        name='image_theora_to_raw',
         namespace=namespace,
-        package="image_transport",
-        executable="republish",
+        package='image_transport',
+        executable='republish',
         remappings=[
             ('in/theora', in_theora),
             ('out', out_raw),

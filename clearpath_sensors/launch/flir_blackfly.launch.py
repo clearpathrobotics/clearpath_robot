@@ -28,7 +28,7 @@
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
-from launch_ros.actions import Node, ComposableNodeContainer
+from launch_ros.actions import ComposableNodeContainer, Node
 from launch_ros.descriptions import ComposableNode
 from launch_ros.substitutions import FindPackageShare
 
@@ -58,7 +58,7 @@ def generate_launch_description():
         'namespace',
         default_value='sensors/camera_0')
 
-    name = "flir_blackfly"
+    name = 'flir_blackfly'
     blackfly_camera_node = Node(
         package='spinnaker_camera_driver',
         namespace=namespace,

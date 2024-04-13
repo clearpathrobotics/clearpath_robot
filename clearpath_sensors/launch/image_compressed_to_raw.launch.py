@@ -52,10 +52,10 @@ def generate_launch_description():
     )
 
     compressed_transport_node = Node(
-        name="image_compressed_to_raw",
+        name='image_compressed_to_raw',
         namespace=namespace,
-        package="image_transport",
-        executable="republish",
+        package='image_transport',
+        executable='republish',
         remappings=[
             ('in/compressed', in_compressed),
             ('out', out_raw),

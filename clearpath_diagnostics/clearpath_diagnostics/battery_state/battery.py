@@ -29,21 +29,18 @@
 # Redistribution and use in source and binary forms, with or without
 # modification, is not permitted without the express permission
 # of Clearpath Robotics.
-
-from clearpath_platform_msgs.msg import Power
-from sensor_msgs.msg import BatteryState
+from math import nan
 
 from clearpath_config.common.types.platform import Platform
 from clearpath_config.platform.battery import BatteryConfig
-
-from math import nan
+from clearpath_platform_msgs.msg import Power
+from sensor_msgs.msg import BatteryState
 
 
 # Base Battery
-
 class Battery:
     class BaseBattery:
-        """ Base Battery class. """
+        """Base Battery class."""
 
         """Battery configuration. Represents number of battery cells in series and parallel."""
         CONFIGURATIONS = {
@@ -101,7 +98,6 @@ class Battery:
                 case Platform.DD150 | Platform.DO150:
                     self.power_msg_voltage_index = Power.D150_MEASURED_BATTERY
                     self.power_msg_current_index = Power.D150_TOTAL_CURRENT
-
 
             # System capacity
             self._msg.capacity = self._msg.design_capacity = self.system_capacity
@@ -189,6 +185,7 @@ class Battery:
 
     class LiION(BaseBattery):
         """Base Lithium ION battery."""
+
         LUT = []
 
         def __init__(

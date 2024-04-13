@@ -29,99 +29,89 @@
 # Redistribution and use in source and binary forms, with or without
 # modification, is not permitted without the express permission
 # of Clearpath Robotics.
-
-from clearpath_config.sensors.types.sensor import BaseSensor
 from clearpath_config.sensors.types.cameras import BaseCamera
+from clearpath_config.sensors.types.sensor import BaseSensor
 
 from clearpath_generator_common.common import LaunchFile, Package, ParamFile
 from clearpath_generator_common.launch.writer import LaunchWriter
 
 
 class SensorLaunch():
-    class BaseLaunch():
-        CLEARPATH_SENSORS = 'clearpath_sensors'
-        SENSOR_NAMESPACE = 'sensors'
-        CLEARPATH_SENSORS_PACKAGE = Package(CLEARPATH_SENSORS)
 
-        # Launch arguments
-        PARAMETERS = 'parameters'
-        NAMESPACE = 'namespace'
-        # Republish arguments
-        INPUT = 'input_ns'
-        OUTPUT = 'output_ns'
-        CONTAINER = 'container'
+    CLEARPATH_SENSORS = 'clearpath_sensors'
+    SENSOR_NAMESPACE = 'sensors'
+    CLEARPATH_SENSORS_PACKAGE = Package(CLEARPATH_SENSORS)
 
-        def __init__(self,
-                     sensor: BaseSensor,
-                     robot_namespace: str,
-                     launch_path: str,
-                     param_path: str) -> None:
-            self.sensor = sensor
-            self._robot_namespace = robot_namespace
-            self.parameters = ParamFile(self.name, path=param_path)
+    # Launch arguments
+    PARAMETERS = 'parameters'
+    NAMESPACE = 'namespace'
+    # Republish arguments
+    INPUT = 'input_ns'
+    OUTPUT = 'output_ns'
+    CONTAINER = 'container'
 
-            # Generated launch file
-            self.launch_file = LaunchFile(
-                self.name,
-                path=launch_path)
+    def __init__(
+            self,
+            sensor: BaseSensor,
+            robot_namespace: str,
+            launch_path: str,
+            param_path: str
+            ) -> None:
+        self.sensor = sensor
+        self._robot_namespace = robot_namespace
+        self.parameters = ParamFile(self.name, path=param_path)
 
-            # Set launch args for default launch file
-            self.launch_args = [
-                (self.PARAMETERS, self.parameters.full_path),
-                (self.NAMESPACE, self.namespace)
-            ]
+        # Generated launch file
+        self.launch_file = LaunchFile(
+            self.name,
+            path=launch_path)
 
-            self.default_sensor_launch_file = LaunchFile(
-                self.model,
-                package=self.CLEARPATH_SENSORS_PACKAGE,
-                args=self.launch_args)
+        # Set launch args for default launch file
+        self.launch_args = [
+            (self.PARAMETERS, self.parameters.full_path),
+            (self.NAMESPACE, self.namespace)
+        ]
 
-        def generate(self):
-            sensor_writer = LaunchWriter(self.launch_file)
-            # Add default sensor launch file
-            sensor_writer.add(self.default_sensor_launch_file)
-            # Cameras republishers
-            if self.sensor.get_sensor_type() == BaseCamera.get_sensor_type():
-                for republihser in self.sensor._republishers:
-                    sensor_writer.add(LaunchFile(
-                        "image_%s" % republihser.TYPE,
-                        package=self.CLEARPATH_SENSORS_PACKAGE,
-                        args=[
-                            (self.NAMESPACE, self.namespace),
-                            (self.PARAMETERS, self.parameters.full_path),
-                            (self.INPUT, republihser.input),
-                            (self.OUTPUT, republihser.output),
-                            (self.CONTAINER, 'image_processing_container')
-                        ]
-                    ))
-            # Generate sensor launch file
-            sensor_writer.generate_file()
+        self.default_sensor_launch_file = LaunchFile(
+            self.model,
+            package=self.CLEARPATH_SENSORS_PACKAGE,
+            args=self.launch_args)
 
-        @property
-        def namespace(self) -> str:
-            """Return sensor namespace"""
-            if self._robot_namespace in ('', '/'):
-                return f'{self.SENSOR_NAMESPACE}/{self.sensor.name}'
-            else:
-                return f'{self._robot_namespace}/{self.SENSOR_NAMESPACE}/{self.sensor.name}'
+    def generate(self):
+        sensor_writer = LaunchWriter(self.launch_file)
+        # Add default sensor launch file
+        sensor_writer.add(self.default_sensor_launch_file)
+        # Cameras republishers
+        if self.sensor.get_sensor_type() == BaseCamera.get_sensor_type():
+            for republihser in self.sensor._republishers:
+                sensor_writer.add(LaunchFile(
+                    'image_%s' % republihser.TYPE,
+                    package=self.CLEARPATH_SENSORS_PACKAGE,
+                    args=[
+                        (self.NAMESPACE, self.namespace),
+                        (self.PARAMETERS, self.parameters.full_path),
+                        (self.INPUT, republihser.input),
+                        (self.OUTPUT, republihser.output),
+                        (self.CONTAINER, 'image_processing_container')
+                    ]
+                ))
+        # Generate sensor launch file
+        sensor_writer.generate_file()
 
-        @property
-        def name(self) -> str:
-            """Return sensor name"""
-            return self.sensor.name
+    @property
+    def namespace(self) -> str:
+        """Return sensor namespace."""
+        if self._robot_namespace in ('', '/'):
+            return f'{self.SENSOR_NAMESPACE}/{self.sensor.name}'
+        else:
+            return f'{self._robot_namespace}/{self.SENSOR_NAMESPACE}/{self.sensor.name}'
 
-        @property
-        def model(self) -> str:
-            """Return sensor model"""
-            return self.sensor.SENSOR_MODEL
+    @property
+    def name(self) -> str:
+        """Return sensor name."""
+        return self.sensor.name
 
-    def __new__(cls,
-                sensor: BaseSensor,
-                robot_namespace: str,
-                launch_path: str,
-                param_path: str) -> BaseLaunch:
-        return SensorLaunch.BaseLaunch(
-            sensor,
-            robot_namespace,
-            launch_path,
-            param_path)
+    @property
+    def model(self) -> str:
+        """Return sensor model."""
+        return self.sensor.SENSOR_MODEL

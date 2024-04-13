@@ -7,18 +7,57 @@ on:
     - cron: "0 0 * * *" # every day at midnight
 
 jobs:
-  clearpath_robot_ci:
-    name: Humble
+  clearpath_robot_osrf_industrial_ci:
+    name: Humble OSRF Industrial
+    strategy:
+      matrix:
+        env:
+          - {ROS_REPO: testing, ROS_DISTRO: humble, ROSDEP_SKIP_KEYS: "micro_ros_agent sevcon_traction umx_driver valence_bms_driver"}
+          - {ROS_REPO: main, ROS_DISTRO: humble, ROSDEP_SKIP_KEYS: "micro_ros_agent sevcon_traction umx_driver valence_bms_driver"}
+      fail-fast: false
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
-      - uses: ros-tooling/setup-ros@v0.6
+      - uses: 'ros-industrial/industrial_ci@master'
+        env: ${{matrix.env}}
+  clearpath_robot_cpr_ci:
+    name: Humble Clearpath Release
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: humble
+      - name: clearpath-package-server
+        run: |
+          sudo apt install wget
+          wget https://packages.clearpathrobotics.com/public.key -O - | sudo apt-key add -
+          sudo sh -c 'echo "deb https://packages.clearpathrobotics.com/stable/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/clearpath-latest.list'
+          sudo apt-get update
+      - uses: ros-tooling/action-ros-ci@v0.3
+        id: action_ros_ci_step
+        with:
+          target-ros2-distro: humble
+          package-name: |
+            clearpath_diagnostics
+            clearpath_generator_robot
+            clearpath_robot
+            clearpath_sensors
+  clearpath_robot_src_ci:
+    name: Humble Clearpath Source
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: humble
       - uses: ros-tooling/action-ros-ci@v0.3
         id: action_ros_ci_step
         with:
           target-ros2-distro: humble
-
-          package-name: clearpath_robot
+          package-name: |
+            clearpath_diagnostics
+            clearpath_generator_robot
+            clearpath_robot
+            clearpath_sensors
           vcs-repo-file-url: dependencies.repos
