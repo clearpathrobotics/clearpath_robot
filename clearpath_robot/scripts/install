@@ -92,6 +92,33 @@ class SensorsProvider(robot_upstart.providers.Generic):
         }
 
 
+class ManipulatorsProvider(robot_upstart.providers.Generic):
+    def post_install(self):
+        pass
+
+    def generate_install(self):
+        manipulators_service_path = os.path.join(
+            get_package_share_directory('clearpath_robot'),
+            'services/clearpath-manipulators.service')
+        with open(manipulators_service_path) as f:
+            manipulators_service_contents: str = ''
+            manipulators_service_lines = f.readlines()
+            for line in manipulators_service_lines:
+                # Replace User with username from config
+                if 'User=' in line:
+                    line = 'User={0}\n'.format(clearpath_config.system.username)
+                manipulators_service_contents += line
+        return {
+            "/lib/systemd/system/clearpath-manipulators.service": {
+                "content": manipulators_service_contents,
+                "mode": 0o644
+            },
+            "/etc/systemd/system/clearpath-robot.service.wants/clearpath-manipulators.service": {
+                "symlink": "/lib/systemd/system/clearpath-manipulators.service"
+            }
+        }
+
+
 class DiscoveryServerProvider(robot_upstart.providers.Generic):
     def post_install(self):
         pass
@@ -166,8 +193,15 @@ class RobotProvider(robot_upstart.providers.Generic):
 setup_path = BaseGenerator.get_args()
 workspace_setup = os.path.join(setup_path, 'setup.bash')
 config_path = os.path.join(setup_path, 'robot.yaml')
-platform_service_launch = os.path.join(setup_path, 'platform/launch/platform-service.launch.py')
-sensors_service_launch = os.path.join(setup_path, 'sensors/launch/sensors-service.launch.py')
+platform_service_launch = os.path.join(
+    setup_path,
+    'platform/launch/platform-service.launch.py')
+sensors_service_launch = os.path.join(
+    setup_path,
+    'sensors/launch/sensors-service.launch.py')
+manipulators_service_launch = os.path.join(
+    setup_path,
+    'manipulators/launch/manipulators-service.launch.py')
 
 # Create Dummy Launch
 if not os.path.isfile(platform_service_launch):
@@ -176,6 +210,9 @@ if not os.path.isfile(platform_service_launch):
 if not os.path.isfile(sensors_service_launch):
     os.makedirs(os.path.dirname(sensors_service_launch), exist_ok=True)
     open(sensors_service_launch, 'w+').close()
+if not os.path.isfile(manipulators_service_launch):
+    os.makedirs(os.path.dirname(manipulators_service_launch), exist_ok=True)
+    open(manipulators_service_launch, 'w+').close()
 
 # Read YAML
 config = read_yaml(config_path)
@@ -186,10 +223,11 @@ rmw = clearpath_config.system.middleware.rmw_implementation
 domain_id = clearpath_config.system.domain_id
 
 # Platform
-platform = robot_upstart.Job(name='clearpath-platform',
-                             rmw=rmw,
-                             workspace_setup=workspace_setup,
-                             ros_domain_id=domain_id)
+platform = robot_upstart.Job(
+    name='clearpath-platform',
+    rmw=rmw,
+    workspace_setup=workspace_setup,
+    ros_domain_id=domain_id)
 
 platform.symlink = True
 platform.add(filename=platform_service_launch)
@@ -199,10 +237,11 @@ platform_extras = robot_upstart.Job(workspace_setup=workspace_setup)
 platform_extras.install(Provider=PlatformProvider)
 
 # Sensors
-sensors = robot_upstart.Job(name='clearpath-sensors',
-                            rmw=rmw,
-                            workspace_setup=workspace_setup,
-                            ros_domain_id=domain_id)
+sensors = robot_upstart.Job(
+    name='clearpath-sensors',
+    rmw=rmw,
+    workspace_setup=workspace_setup,
+    ros_domain_id=domain_id)
 
 sensors.symlink = True
 sensors.add(filename=sensors_service_launch)
@@ -210,6 +249,20 @@ sensors.install()
 
 sensors_extras = robot_upstart.Job(workspace_setup=workspace_setup)
 sensors_extras.install(Provider=SensorsProvider)
+
+# Manipulators
+manipulators = robot_upstart.Job(
+    name='clearpath-manipulators',
+    rmw=rmw,
+    workspace_setup=workspace_setup,
+    ros_domain_id=domain_id)
+
+manipulators.symlink = True
+manipulators.add(filename=manipulators_service_launch)
+manipulators.install()
+
+manipulators_extras = robot_upstart.Job(workspace_setup=workspace_setup)
+manipulators_extras.install(Provider=ManipulatorsProvider)
 
 # Discovery Server
 discovery_server = robot_upstart.Job(workspace_setup=workspace_setup)
