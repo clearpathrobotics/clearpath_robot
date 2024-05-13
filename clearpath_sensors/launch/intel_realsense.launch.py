@@ -29,7 +29,7 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 
-from launch_ros.actions import Node
+from launch_ros.actions import Node, ComposableNodeContainer
 from launch_ros.substitutions import FindPackageShare
 
 
@@ -49,16 +49,52 @@ def generate_launch_description():
         'namespace',
         default_value='')
 
+    name = "intel_realsense"
     realsense2_camera_node = Node(
         package='realsense2_camera',
         namespace=namespace,
+        name=name,
         executable='realsense2_camera_node',
         parameters=[parameters],
         output='screen',
+        remappings=[
+            # Color
+            ('color/image_raw', 'color/image'),
+            ('color/image_raw/compressed', 'color/compressed'),
+            ('color/image_raw/compressedDepth', 'color/compressedDepth'),
+            ('color/image_raw/theora', 'color/theora'),
+            # Depth
+            ('depth/image_rect_raw', 'depth/image'),
+            ('depth/image_rect_raw/compressed', 'depth/compressed'),
+            ('depth/image_rect_raw/compressedDepth', 'depth/compressedDepth'),
+            ('depth/image_rect_raw/theora', 'depth/theora'),
+            # Infra1
+            ('infra1/image_rect_raw', 'infra1/image'),
+            ('infra1/image_rect_raw/compressed', 'infra1/compressed'),
+            ('infra1/image_rect_raw/compressedDepth', 'infra1/compressedDepth'),
+            ('infra1/image_rect_raw/theora', 'infra1/theora'),
+            # Infra2
+            ('infra2/image_rect_raw', 'infra2/image'),
+            ('infra2/image_rect_raw/compressed', 'infra2/compressed'),
+            ('infra2/image_rect_raw/compressedDepth', 'infra2/compressedDepth'),
+            ('infra2/image_rect_raw/theora', 'infra2/theora'),
+            # Points
+            ('depth/color/points', 'points'),
+        ]
+    )
+
+    image_processing_container = ComposableNodeContainer(
+        name='image_processing_container',
+        namespace=namespace,
+        package='rclcpp_components',
+        executable='component_container',
+        composable_node_descriptions=[],
+        output='screen'
     )
 
     ld = LaunchDescription()
     ld.add_action(arg_parameters)
     ld.add_action(arg_namespace)
     ld.add_action(realsense2_camera_node)
+    ld.add_action(image_processing_container)
     return ld
