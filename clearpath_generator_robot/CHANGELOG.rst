@@ -2,6 +2,17 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Lint error in test
+* Workspace install paths
+* Ignore error from deleting clearpath temp folder
+* More linting changes
+* Fixed linting errors
+* Added pytest to check config
+* Fixed linter errors
+* Contributors: Luis Camero
+
 0.2.7 (2024-04-10)
 ------------------
 * Check the correct launch file

@@ -2,6 +2,13 @@
 Changelog for package clearpath_diagnostics
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Even more lint errors
+* More linting changes
+* Fixed linting errors
+* Contributors: Luis Camero
+
 0.2.7 (2024-04-10)
 ------------------
 
