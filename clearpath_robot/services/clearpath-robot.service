@@ -1,5 +1,6 @@
 [Unit]
 Description="Clearpath robot main generation and bringup service"
+After=network-online.target
 
 [Service]
 User=administrator
