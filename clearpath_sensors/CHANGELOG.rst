@@ -2,8 +2,8 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.8 (2024-05-14)
+------------------
 * Map points to API
 * Fixed linting errors
 * Renamed realsense node to intel_realsense

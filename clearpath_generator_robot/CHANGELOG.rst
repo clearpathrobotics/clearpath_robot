@@ -2,8 +2,8 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.8 (2024-05-14)
+------------------
 * Lint error in test
 * Workspace install paths
 * Ignore error from deleting clearpath temp folder
