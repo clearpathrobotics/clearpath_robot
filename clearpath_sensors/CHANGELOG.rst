@@ -2,6 +2,11 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix tf_static for realsense and microstrain
+* Contributors: Hilary Luo
+
 0.2.8 (2024-05-14)
 ------------------
 * Map points to API

@@ -2,6 +2,9 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.2.8 (2024-05-14)
 ------------------
 * Ensure that the network interfaces are active before clearpath_robot service starts - required for FastDDS
