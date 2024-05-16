@@ -29,7 +29,7 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 
-from launch_ros.actions import Node, ComposableNodeContainer
+from launch_ros.actions import ComposableNodeContainer, Node
 from launch_ros.substitutions import FindPackageShare
 
 
@@ -54,7 +54,7 @@ def generate_launch_description():
         'robot_namespace',
         default_value='')
 
-    name = "intel_realsense"
+    name = 'intel_realsense'
     realsense2_camera_node = Node(
         package='realsense2_camera',
         namespace=namespace,
@@ -85,7 +85,7 @@ def generate_launch_description():
             ('infra2/image_rect_raw/theora', 'infra2/theora'),
             # Points
             ('depth/color/points', 'points'),
-            #TF
+            # TF
             ('/tf_static', PathJoinSubstitution(['/', robot_namespace, 'tf_static']))
         ]
     )
