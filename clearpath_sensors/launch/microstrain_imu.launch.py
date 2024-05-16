@@ -51,7 +51,7 @@ def generate_launch_description():
     arg_robot_namespace = DeclareLaunchArgument(
         'robot_namespace',
         default_value='')
-    
+
     arg_parameters = DeclareLaunchArgument(
         'parameters',
         default_value=PathJoinSubstitution([
