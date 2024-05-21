@@ -289,3 +289,8 @@ class RobotLaunchGenerator(LaunchGenerator):
             platform_service_launch_writer.add(self.bms_launch_file)
 
         platform_service_launch_writer.generate_file()
+
+    def generate_manipulators(self) -> None:
+        manipulator_service_launch_writer = LaunchWriter(self.manipulators_service_launch_file)
+        manipulator_service_launch_writer.add(self.manipulators_launch_file)
+        manipulator_service_launch_writer.generate_file()

@@ -11,6 +11,9 @@ ros2 run clearpath_generator_common generate_discovery_server
 # Generate description
 ros2 run clearpath_generator_common generate_description
 
+# Generate semantic description
+ros2 run clearpath_generator_common generate_semantic_description
+
 # Generate parameters
 ros2 run clearpath_generator_robot generate_param
 
