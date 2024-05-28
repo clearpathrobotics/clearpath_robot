@@ -2,6 +2,11 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Added Zed launch and configuration files
+* Contributors: Luis Camero
+
 0.2.10 (2024-05-16)
 -------------------
 
