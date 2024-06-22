@@ -37,6 +37,8 @@ from ament_index_python.packages import get_package_share_directory
 from clearpath_config.clearpath_config import ClearpathConfig
 from clearpath_config.common.utils.yaml import read_yaml
 
+from launch_ros.substitutions import FindPackageShare
+
 from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
@@ -63,9 +65,9 @@ def launch_setup(context, *args, **kwargs):
     setup_path = LaunchConfiguration('setup_path')
 
     robot_yaml = PathJoinSubstitution(
-        [setup_path, 'robot.yaml']
+        [FindPackageShare('clearpath_diagnostics'), 'config', 'robot.yaml']
     )
-
+        
     analyzer_params_filepath = PathJoinSubstitution(
         [pkg_clearpath_diagnostics, 'config', 'diagnostics.yaml']
     )
