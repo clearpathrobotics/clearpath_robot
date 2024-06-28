@@ -63,7 +63,7 @@ def launch_setup(context, *args, **kwargs):
     setup_path = LaunchConfiguration('setup_path')
 
     robot_yaml = PathJoinSubstitution(
-        [setup_path, 'robot.yaml']
+        [pkg_clearpath_diagnostics, 'config', 'robot.yaml']
     )
 
     analyzer_params_filepath = PathJoinSubstitution(
@@ -101,7 +101,7 @@ def launch_setup(context, *args, **kwargs):
                     ('/diagnostics_agg', 'diagnostics_agg'),
                     ('/diagnostics_toplevel_state', 'diagnostics_toplevel_state'),
                 ],
-                arguments=['-s', setup_path]
+                arguments=['-s', '/hardware_ws/src/clearpath_robot/clearpath_diagnostics/config/']
             ),
         ]
     )
