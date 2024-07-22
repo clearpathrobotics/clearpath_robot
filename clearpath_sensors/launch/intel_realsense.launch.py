@@ -32,6 +32,33 @@ from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import ComposableNodeContainer, Node
 from launch_ros.substitutions import FindPackageShare
 
+CAMERAS = [
+    'color',
+    'depth',
+    'infra1',
+    'infra2',
+    'aligned_depth_to_color',
+    'aligned_depth_to_infra1',
+    'aligned_dpeth_to_infra2',
+]
+
+IMAGES = [
+    'image_raw',
+    'image_rect_raw',
+]
+
+TOPICS = [
+    'camera_info',
+    'metadata',
+]
+
+OTHERS = [
+    'rgbd',
+    'extrinsics/depth_to_color',
+    'extrinsics/depth_to_infra1',
+    'extrinsics/depth_to_infra2',
+]
+
 
 def generate_launch_description():
     parameters = LaunchConfiguration('parameters')
@@ -54,6 +81,27 @@ def generate_launch_description():
         'robot_namespace',
         default_value='')
 
+    remappings = [
+        ('/tf_static', PathJoinSubstitution(['/', robot_namespace, 'tf_static'])),
+        ('~/depth/color/points', 'points'),
+    ]
+
+    for camera in CAMERAS:
+        for image in IMAGES:
+            remappings.extend([
+                ('~/%s/%s' % (camera, image), '%s/image' % camera),
+                ('~/%s/%s/compressed' % (camera, image), '%s/image/compressed' % camera),
+                ('~/%s/%s/compressedDepth' % (camera, image), '%s/image/compressedDepth' % camera),
+                ('~/%s/%s/theora' % (camera, image), '%s/image/theora' % camera),
+            ])
+        for topic in TOPICS:
+            remappings.append(
+                ('~/%s/%s' % (camera, topic), '%s/%s' % (camera, topic))
+            )
+
+    for topic in OTHERS:
+        remappings.append(('~/%s' % topic, '%s' % topic))
+
     name = 'intel_realsense'
     realsense2_camera_node = Node(
         package='realsense2_camera',
@@ -62,32 +110,7 @@ def generate_launch_description():
         executable='realsense2_camera_node',
         parameters=[parameters],
         output='screen',
-        remappings=[
-            # Color
-            ('color/image_raw', 'color/image'),
-            ('color/image_raw/compressed', 'color/compressed'),
-            ('color/image_raw/compressedDepth', 'color/compressedDepth'),
-            ('color/image_raw/theora', 'color/theora'),
-            # Depth
-            ('depth/image_rect_raw', 'depth/image'),
-            ('depth/image_rect_raw/compressed', 'depth/compressed'),
-            ('depth/image_rect_raw/compressedDepth', 'depth/compressedDepth'),
-            ('depth/image_rect_raw/theora', 'depth/theora'),
-            # Infra1
-            ('infra1/image_rect_raw', 'infra1/image'),
-            ('infra1/image_rect_raw/compressed', 'infra1/compressed'),
-            ('infra1/image_rect_raw/compressedDepth', 'infra1/compressedDepth'),
-            ('infra1/image_rect_raw/theora', 'infra1/theora'),
-            # Infra2
-            ('infra2/image_rect_raw', 'infra2/image'),
-            ('infra2/image_rect_raw/compressed', 'infra2/compressed'),
-            ('infra2/image_rect_raw/compressedDepth', 'infra2/compressedDepth'),
-            ('infra2/image_rect_raw/theora', 'infra2/theora'),
-            # Points
-            ('depth/color/points', 'points'),
-            # TF
-            ('/tf_static', PathJoinSubstitution(['/', robot_namespace, 'tf_static']))
-        ]
+        remappings=remappings,
     )
 
     image_processing_container = ComposableNodeContainer(
