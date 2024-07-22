@@ -2,8 +2,8 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.12 (2024-07-22)
+-------------------
 * Remove test file
 * Updated Microstrain parameters
 * Generate remappings
