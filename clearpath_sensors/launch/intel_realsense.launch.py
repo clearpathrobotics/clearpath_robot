@@ -89,14 +89,14 @@ def generate_launch_description():
     for camera in CAMERAS:
         for image in IMAGES:
             remappings.extend([
-                ('~/%s/%s' % (camera, image), '%s/image' % camera),
-                ('~/%s/%s/compressed' % (camera, image), '%s/image/compressed' % camera),
-                ('~/%s/%s/compressedDepth' % (camera, image), '%s/image/compressedDepth' % camera),
-                ('~/%s/%s/theora' % (camera, image), '%s/image/theora' % camera),
+                (f'~/{camera}/{image}', f'{camera}/image'),
+                (f'~/{camera}/{image}/compressed', f'{camera}/compressed'),
+                (f'~/{camera}/{image}/compressedDepth', f'{camera}/compressedDepth'),
+                (f'~/{camera}/{image}/theora', f'{camera}/theora'),
             ])
         for topic in TOPICS:
             remappings.append(
-                ('~/%s/%s' % (camera, topic), '%s/%s' % (camera, topic))
+                (f'~/{camera}/{topic}', f'{camera}/{topic}')
             )
 
     for topic in OTHERS:
