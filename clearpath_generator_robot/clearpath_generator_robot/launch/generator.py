@@ -260,6 +260,14 @@ class RobotLaunchGenerator(LaunchGenerator):
                 self.lighting_node,
                 self.puma_node,
             ],
+            Platform.R100: common_platform_components + [
+                self.imu_0_filter_node,
+                self.imu_0_filter_config,
+                self.eth_uros_node,
+                self.configure_mcu,
+                self.lighting_node,
+                self.puma_node,
+            ],
         }
 
     def generate_sensors(self) -> None:
