@@ -194,6 +194,15 @@ class RobotLaunchGenerator(LaunchGenerator):
           namespace=self.namespace,
         )
 
+        # Puma Multi-Drive Node
+        self.puma_node = LaunchFile.Node(
+          package='puma_motor_driver',
+          executable='multi_puma_node',
+          parameters=[os.path.join(self.platform_params_path, 'control.yaml')],
+          name='puma_control',
+          namespace=self.namespace,
+        )
+
         # Components required for each platform
         common_platform_components = [
             self.wireless_watcher_node,
@@ -225,6 +234,7 @@ class RobotLaunchGenerator(LaunchGenerator):
                 self.eth_uros_node,
                 self.configure_mcu,
                 self.lighting_node,
+                self.puma_node,
             ],
             Platform.DO100: common_platform_components + [
                 self.imu_0_filter_node,
@@ -232,6 +242,7 @@ class RobotLaunchGenerator(LaunchGenerator):
                 self.eth_uros_node,
                 self.configure_mcu,
                 self.lighting_node,
+                self.puma_node,
             ],
             Platform.DD150: common_platform_components + [
                 self.imu_0_filter_node,
@@ -239,6 +250,7 @@ class RobotLaunchGenerator(LaunchGenerator):
                 self.eth_uros_node,
                 self.configure_mcu,
                 self.lighting_node,
+                self.puma_node,
             ],
             Platform.DO150: common_platform_components + [
                 self.imu_0_filter_node,
@@ -246,6 +258,15 @@ class RobotLaunchGenerator(LaunchGenerator):
                 self.eth_uros_node,
                 self.configure_mcu,
                 self.lighting_node,
+                self.puma_node,
+            ],
+            Platform.R100: common_platform_components + [
+                self.imu_0_filter_node,
+                self.imu_0_filter_config,
+                self.eth_uros_node,
+                self.configure_mcu,
+                self.lighting_node,
+                self.puma_node,
             ],
         }
 
