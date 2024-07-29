@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 Restart=on-failure
-User=administrator
+User=root
 Type=forking
 ExecStart=/bin/sh -e /usr/sbin/clearpath-vcan-bridge
 
