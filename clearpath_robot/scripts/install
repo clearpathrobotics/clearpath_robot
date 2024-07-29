@@ -51,9 +51,6 @@ class VirtualCANProvider(robot_upstart.providers.Generic):
             vcan_service_contents: str = ''
             vcan_service_lines = f.readlines()
             for line in vcan_service_lines:
-                # Replace User with username from config
-                if 'User=' in line:
-                    line = 'User={0}\n'.format(clearpath_config.system.username)
                 # Customize vcan bridges
                 if 'ExecStart=' in line:
                     if puma_enabled:
@@ -236,6 +233,7 @@ PUMA_ENABLED = [
     Platform.DD150,
     Platform.DO100,
     Platform.DO150,
+    Platform.R100
 ]
 
 setup_path = BaseGenerator.get_args()
