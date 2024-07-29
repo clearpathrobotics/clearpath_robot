@@ -318,10 +318,10 @@ microstrain_inertial_driver:
     # ******************************************************************
 
     # Static IMU message covariance values (the device does not generate these)
-    imu_orientation_cov   : [0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01]
-    imu_linear_cov        : [0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01]
-    imu_angular_cov       : [0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01]
-    imu_mag_cov           : [0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01]
+    imu_orientation_cov   : [0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01]
+    imu_linear_cov        : [0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01]
+    imu_angular_cov       : [0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01]
+    imu_mag_cov           : [0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01]
     imu_pressure_variance : 0.01
 
 
