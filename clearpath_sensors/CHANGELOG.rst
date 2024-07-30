@@ -2,6 +2,12 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fixed bug in microstrain param
+* Fixed remapping to allow for compressed vizualization
+* Contributors: Luis Camero
+
 0.2.12 (2024-07-22)
 -------------------
 * Remove test file
