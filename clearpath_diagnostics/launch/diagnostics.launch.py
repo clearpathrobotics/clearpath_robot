@@ -92,9 +92,21 @@ def launch_setup(context, *args, **kwargs):
                 ],
             ),
             # Updater
+            # Node(
+            #     package='clearpath_diagnostics',
+            #     executable='diagnostics_updater',
+            #     output='screen',
+            #     remappings=[
+            #         ('/diagnostics', 'diagnostics'),
+            #         ('/diagnostics_agg', 'diagnostics_agg'),
+            #         ('/diagnostics_toplevel_state', 'diagnostics_toplevel_state'),
+            #     ],
+            #     arguments=['-s', '/hardware_ws/src/clearpath_robot/clearpath_diagnostics/config/']
+            # ),
+
             Node(
                 package='clearpath_diagnostics',
-                executable='diagnostics_updater',
+                executable='battery_state_updater',
                 output='screen',
                 remappings=[
                     ('/diagnostics', 'diagnostics'),
