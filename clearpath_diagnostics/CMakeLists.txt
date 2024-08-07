@@ -15,6 +15,7 @@ install(PROGRAMS
   ${PROJECT_NAME}/diagnostics_updater
   ${PROJECT_NAME}/battery_state/battery_state_estimator
   ${PROJECT_NAME}/battery_state/battery_state_control
+  ${PROJECT_NAME}/hardware_state_updater
   DESTINATION lib/${PROJECT_NAME}
 )
 
