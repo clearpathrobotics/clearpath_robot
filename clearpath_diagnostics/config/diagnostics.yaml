@@ -1,15 +1,20 @@
 /**:
+
   analyzers:
     ros__parameters:
-      path: Clearpath Diagnostics
-      platform:
+      path: Diagnostics
+      battery:
         type: diagnostic_aggregator/AnalyzerGroup
-        path: Platform
+        path: Batteries
         analyzers:
-          firmware:
+          battery:
             type: diagnostic_aggregator/GenericAnalyzer
-            path: Firmware
-            contains: [ 'Firmware' ]
+            path: Battery_State
+            contains: [ 'Battery' ]
+
+  analyzers:
+    ros__parameters:
+      path: Costa_diagnostics
       sensors:
         type: diagnostic_aggregator/AnalyzerGroup
         path: Sensors
@@ -29,8 +34,12 @@
           imu:
             type: diagnostic_aggregator/GenericAnalyzer
             path: IMU
-            contains: [ 'imu' ]
+            contains: [ 'data_raw' ]
           gps:
             type: diagnostic_aggregator/GenericAnalyzer
             path: GPS
             contains: [ 'gps' ]
+
+            
+
+          
