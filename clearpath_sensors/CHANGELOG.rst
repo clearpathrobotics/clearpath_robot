@@ -2,6 +2,11 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Adds GQ7 yaml and launch file
+* Contributors: robbiefish
+
 0.2.13 (2024-07-30)
 -------------------
 * Fixed bug in microstrain param
