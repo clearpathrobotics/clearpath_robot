@@ -106,7 +106,7 @@ def launch_setup(context, *args, **kwargs):
 
             Node(
                 package='clearpath_diagnostics',
-                executable='battery_state_updater',
+                executable='hardware_state_updater',
                 output='screen',
                 remappings=[
                     ('/diagnostics', 'diagnostics'),
