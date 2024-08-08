@@ -2,8 +2,8 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.14 (2024-08-08)
+-------------------
 * Adds GQ7 yaml and launch file
 * Contributors: robbiefish
 
