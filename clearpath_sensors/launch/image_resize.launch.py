@@ -84,6 +84,7 @@ def generate_launch_description():
                 ('resize/theora', PathJoinSubstitution([output_ns, 'theora'])),
             ],
             parameters=[parameters],
+            extra_arguments=[{'use_intra_process_comms': True}],
         ),
     ]
 
