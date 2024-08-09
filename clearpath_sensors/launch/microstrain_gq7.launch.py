@@ -26,52 +26,23 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, GroupAction, IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 
-from launch_ros.actions import ComposableNodeContainer, Node
+from launch_ros.actions import SetRemap
 from launch_ros.substitutions import FindPackageShare
-
-CAMERAS = [
-    'color',
-    'depth',
-    'infra1',
-    'infra2',
-    'aligned_depth_to_color',
-    'aligned_depth_to_infra1',
-    'aligned_dpeth_to_infra2',
-]
-
-IMAGES = [
-    'image_raw',
-    'image_rect_raw',
-]
-
-TOPICS = [
-    'camera_info',
-    'metadata',
-]
-
-OTHERS = [
-    'rgbd',
-    'extrinsics/depth_to_color',
-    'extrinsics/depth_to_infra1',
-    'extrinsics/depth_to_infra2',
-]
 
 
 def generate_launch_description():
+    pkg_microstrain_inertial_driver = FindPackageShare('microstrain_inertial_driver')
+
     parameters = LaunchConfiguration('parameters')
     namespace = LaunchConfiguration('namespace')
     robot_namespace = LaunchConfiguration('robot_namespace')
 
-    arg_parameters = DeclareLaunchArgument(
-        'parameters',
-        default_value=PathJoinSubstitution([
-          FindPackageShare('clearpath_sensors'),
-          'config',
-          'intel_realsense.yaml'
-        ]))
+    launch_microstrain_imu = PathJoinSubstitution([
+        pkg_microstrain_inertial_driver, 'launch', 'microstrain_launch.py'])
 
     arg_namespace = DeclareLaunchArgument(
         'namespace',
@@ -81,51 +52,32 @@ def generate_launch_description():
         'robot_namespace',
         default_value='')
 
-    remappings = [
-        ('/tf_static', PathJoinSubstitution(['/', robot_namespace, 'tf_static'])),
-        ('~/depth/color/points', 'points'),
-    ]
+    arg_parameters = DeclareLaunchArgument(
+        'parameters',
+        default_value=PathJoinSubstitution([
+          FindPackageShare('clearpath_sensors'),
+          'config',
+          'microstrain_gq7.yaml'
+        ]))
 
-    for camera in CAMERAS:
-        for image in IMAGES:
-            remappings.extend([
-                (f'~/{camera}/{image}', f'{camera}/image'),
-                (f'~/{camera}/{image}/compressed', f'{camera}/compressed'),
-                (f'~/{camera}/{image}/compressedDepth', f'{camera}/compressedDepth'),
-                (f'~/{camera}/{image}/theora', f'{camera}/theora'),
-            ])
-        for topic in TOPICS:
-            remappings.append(
-                (f'~/{camera}/{topic}', f'{camera}/{topic}')
-            )
+    launch_microstrain_imu = GroupAction([
+        SetRemap('/tf', 'tf'),
+        SetRemap('/tf_static', PathJoinSubstitution(['/', robot_namespace, 'tf_static'])),
 
-    for topic in OTHERS:
-        remappings.append(('~/%s' % topic, '%s' % topic))
-
-    name = 'intel_realsense'
-    realsense2_camera_node = Node(
-        package='realsense2_camera',
-        namespace=namespace,
-        name=name,
-        executable='realsense2_camera_node',
-        parameters=[parameters],
-        output='screen',
-        remappings=remappings,
-    )
-
-    image_processing_container = ComposableNodeContainer(
-        name='image_processing_container',
-        namespace=namespace,
-        package='rclcpp_components',
-        executable='component_container',
-        composable_node_descriptions=[],
-        output='screen'
-    )
+        IncludeLaunchDescription(
+          PythonLaunchDescriptionSource([launch_microstrain_imu]),
+          launch_arguments=[
+            ('namespace', namespace),
+            ('params_file', parameters),
+            ('configure', 'true'),
+            ('activate', 'true')
+          ]
+        )
+    ])
 
     ld = LaunchDescription()
-    ld.add_action(arg_parameters)
     ld.add_action(arg_namespace)
     ld.add_action(arg_robot_namespace)
-    ld.add_action(realsense2_camera_node)
-    ld.add_action(image_processing_container)
+    ld.add_action(arg_parameters)
+    ld.add_action(launch_microstrain_imu)
     return ld

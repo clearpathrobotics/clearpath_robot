@@ -28,7 +28,7 @@
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
-from launch_ros.actions import ComposableNodeContainer, Node
+from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
 from launch_ros.substitutions import FindPackageShare
 
@@ -59,25 +59,25 @@ def generate_launch_description():
         default_value='sensors/camera_0')
 
     name = 'flir_blackfly'
-    blackfly_camera_node = Node(
-        package='spinnaker_camera_driver',
-        namespace=namespace,
-        name=name,
-        executable='camera_driver_node',
-        parameters=[parameters, {'parameter_file': param_mapping_file}],
-        output='screen',
-        remappings=[
-            (name + '/camera_info', 'camera_info'),
-            (name + '/control', 'control'),
-            (name + '/meta', 'meta'),
-            (name + '/image_raw', 'raw/image'),
-            (name + '/image_raw/compressed', 'raw/compressed'),
-            (name + '/image_raw/compressedDepth', 'raw/compressedDepth'),
-            (name + '/image_raw/theora', 'raw/theora'),
-        ]
-    )
 
     composable_nodes = [
+        ComposableNode(
+            package='spinnaker_camera_driver',
+            plugin='spinnaker_camera_driver::CameraDriver',
+            name=name,
+            namespace=namespace,
+            parameters=[parameters, {'parameter_file': param_mapping_file}],
+            remappings=[
+                (name + '/camera_info', 'raw/camera_info'),
+                (name + '/control', 'control'),
+                (name + '/meta', 'meta'),
+                (name + '/image_raw', 'raw/image'),
+                (name + '/image_raw/compressed', 'raw/compressed'),
+                (name + '/image_raw/compressedDepth', 'raw/compressedDepth'),
+                (name + '/image_raw/theora', 'raw/theora'),
+            ],
+            extra_arguments=[{'use_intra_process_comms': True}],
+        ),
         ComposableNode(
             package='image_proc',
             plugin='image_proc::DebayerNode',
@@ -93,7 +93,8 @@ def generate_launch_description():
                 ('image_mono/compressed', 'mono/compressed'),
                 ('image_mono/compressedDepth', 'mono/compressedDepth'),
                 ('image_mono/theora', 'mono/theora'),
-            ]
+            ],
+            extra_arguments=[{'use_intra_process_comms': True}],
         )
     ]
 
@@ -110,6 +111,5 @@ def generate_launch_description():
     ld.add_action(arg_parameters)
     ld.add_action(arg_param_mapping_file)
     ld.add_action(arg_namespace)
-    ld.add_action(blackfly_camera_node)
     ld.add_action(image_processing_container)
     return ld

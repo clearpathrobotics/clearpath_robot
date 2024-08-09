@@ -1,7 +1,7 @@
 # Software License Agreement (BSD)
 #
-# @author    Roni Kreinin <rkreinin@clearpathrobotics.com>
-# @copyright (c) 2023, Clearpath Robotics, Inc., All rights reserved.
+# @author    Luis Camero <lcamero@clearpathrobotics.com>
+# @copyright (c) 2024, Clearpath Robotics, Inc., All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -32,31 +32,50 @@ from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import ComposableNodeContainer, Node
 from launch_ros.substitutions import FindPackageShare
 
+HIDDEN = [
+    'odom',
+    'path_map',
+    'path_odom',
+    'pose',
+    'pose/status',
+    'pose_with_covariance',
+    'left_cam_imu_transform',
+]
+
 CAMERAS = [
-    'color',
-    'depth',
-    'infra1',
-    'infra2',
-    'aligned_depth_to_color',
-    'aligned_depth_to_infra1',
-    'aligned_dpeth_to_infra2',
-]
-
-IMAGES = [
-    'image_raw',
-    'image_rect_raw',
-]
-
-TOPICS = [
-    'camera_info',
-    'metadata',
+    # Depth
+    ('depth', 'depth'),
+    # Left
+    ('left', 'left'),
+    ('left_gray', 'left/gray'),
+    ('left_raw', 'left/raw'),
+    ('left_raw_gray', 'left/raw_gray'),
+    # Color
+    ('rgb', 'color'),
+    ('rgb_gray', 'color/gray'),
+    ('rgb_raw', 'color/raw'),
+    ('rgb_raw_gray', 'color/raw_gray'),
+    # Right
+    ('right', 'right'),
+    ('right_gray', 'right/gray'),
+    ('right_raw', 'right/raw'),
+    ('right_raw_gray', 'right/raw_gray'),
+    # Stereo
+    ('stereo', 'stereo'),
+    ('stereo_raw', 'stereo/raw')
 ]
 
 OTHERS = [
-    'rgbd',
-    'extrinsics/depth_to_color',
-    'extrinsics/depth_to_infra1',
-    'extrinsics/depth_to_infra2',
+    'temperature/imu',
+    'temperature/left',
+    'temperature/right',
+    'imu/data',
+    'imu/data_raw',
+    'imu/mag',
+    'atm_press',
+    'confidence/confidence_map',
+    'disparity/disparity_image',
+    'point_cloud/cloud_registered',
 ]
 
 
@@ -70,7 +89,7 @@ def generate_launch_description():
         default_value=PathJoinSubstitution([
           FindPackageShare('clearpath_sensors'),
           'config',
-          'intel_realsense.yaml'
+          'stereolabs_zed.yaml'
         ]))
 
     arg_namespace = DeclareLaunchArgument(
@@ -81,35 +100,61 @@ def generate_launch_description():
         'robot_namespace',
         default_value='')
 
-    remappings = [
-        ('/tf_static', PathJoinSubstitution(['/', robot_namespace, 'tf_static'])),
-        ('~/depth/color/points', 'points'),
-    ]
+    remappings = []
 
-    for camera in CAMERAS:
-        for image in IMAGES:
-            remappings.extend([
-                (f'~/{camera}/{image}', f'{camera}/image'),
-                (f'~/{camera}/{image}/compressed', f'{camera}/compressed'),
-                (f'~/{camera}/{image}/compressedDepth', f'{camera}/compressedDepth'),
-                (f'~/{camera}/{image}/theora', f'{camera}/theora'),
-            ])
-        for topic in TOPICS:
+    # Hidden Topics
+    for hidden in HIDDEN:
+        remappings.append(
+            ('~/%s' % hidden, PathJoinSubstitution(['/', namespace, '_' + hidden]))
+        )
+
+    # Cameras
+    for old, new in CAMERAS:
+        if 'depth' in old:
+            image = 'depth_registered'
             remappings.append(
-                (f'~/{camera}/{topic}', f'{camera}/{topic}')
+                ('~/%s/depth_info' % (old),
+                    PathJoinSubstitution(['/', namespace, new, 'depth_info'])),
             )
+        elif 'raw_gray' in old:
+            image = 'image_raw_gray'
+        elif 'raw' in old:
+            image = 'image_raw_color'
+        elif 'gray' in old:
+            image = 'image_rect_gray'
+        else:
+            image = 'image_rect_color'
+        remappings.extend([
+            ('~/%s/camera_info' % (old),
+                PathJoinSubstitution(['/', namespace, new, 'camera_info'])),
+            ('~/%s/%s' % (old, image),
+                PathJoinSubstitution(['/', namespace, new, 'image'])),
+            ('~/%s/%s/compressed' % (old, image),
+                PathJoinSubstitution(['/', namespace, new, 'compressed'])),
+            ('~/%s/%s/compressedDepth' % (old, image),
+                PathJoinSubstitution(['/', namespace, new, 'compressedDepth'])),
+            ('~/%s/%s/theora' % (old, image),
+                PathJoinSubstitution(['/', namespace, new, 'theora'])),
+        ])
 
+    # Others
     for topic in OTHERS:
-        remappings.append(('~/%s' % topic, '%s' % topic))
+        remappings.append(
+            ('~/%s' % topic,
+                PathJoinSubstitution(['/', namespace, topic])),
+        )
 
-    name = 'intel_realsense'
-    realsense2_camera_node = Node(
-        package='realsense2_camera',
+    # Transforms
+    remappings.append(('/tf', PathJoinSubstitution(['/', robot_namespace, 'tf'])))
+    remappings.append(('/tf_static', PathJoinSubstitution(['/', robot_namespace, 'tf_static'])))
+
+    stereolabs_zed_node = Node(
+        package='zed_wrapper',
         namespace=namespace,
-        name=name,
-        executable='realsense2_camera_node',
-        parameters=[parameters],
+        executable='zed_wrapper',
+        name='stereolabs_zed',
         output='screen',
+        parameters=[parameters],
         remappings=remappings,
     )
 
@@ -126,6 +171,6 @@ def generate_launch_description():
     ld.add_action(arg_parameters)
     ld.add_action(arg_namespace)
     ld.add_action(arg_robot_namespace)
-    ld.add_action(realsense2_camera_node)
+    ld.add_action(stereolabs_zed_node)
     ld.add_action(image_processing_container)
     return ld

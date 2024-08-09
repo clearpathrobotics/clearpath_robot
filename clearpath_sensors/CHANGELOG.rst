@@ -2,6 +2,38 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.2.14 (2024-08-08)
+-------------------
+* Adds GQ7 yaml and launch file
+* Contributors: robbiefish
+
+0.2.13 (2024-07-30)
+-------------------
+* Fixed bug in microstrain param
+* Fixed remapping to allow for compressed vizualization
+* Contributors: Luis Camero
+
+0.2.12 (2024-07-22)
+-------------------
+* Remove test file
+* Updated Microstrain parameters
+* Generate remappings
+* Updated Realsense parameters
+* Contributors: Luis Camero
+
+0.2.11 (2024-05-28)
+-------------------
+* Added Zed launch and configuration files
+* Contributors: Luis Camero
+
+0.2.10 (2024-05-16)
+-------------------
+
+0.2.9 (2024-05-16)
+------------------
+* Fix tf_static for realsense and microstrain
+* Contributors: Hilary Luo
+
 0.2.8 (2024-05-14)
 ------------------
 * Map points to API

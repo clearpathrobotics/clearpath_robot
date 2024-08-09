@@ -2,6 +2,26 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.2.14 (2024-08-08)
+-------------------
+
+0.2.13 (2024-07-30)
+-------------------
+
+0.2.12 (2024-07-22)
+-------------------
+
+0.2.11 (2024-05-28)
+-------------------
+
+0.2.10 (2024-05-16)
+-------------------
+* Block microstrain in J100 MCU udev rule
+* Contributors: Hilary Luo
+
+0.2.9 (2024-05-16)
+------------------
+
 0.2.8 (2024-05-14)
 ------------------
 * Ensure that the network interfaces are active before clearpath_robot service starts - required for FastDDS
