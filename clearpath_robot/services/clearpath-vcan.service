@@ -1,0 +1,12 @@
+[Unit]
+Description="Clearpath Virtual CAN over UDP Bridge"
+After=network.target
+
+[Service]
+Restart=on-failure
+User=root
+Type=forking
+ExecStart=/bin/sh -e /usr/sbin/clearpath-vcan-bridge
+
+[Install]
+WantedBy=multi-user.target
