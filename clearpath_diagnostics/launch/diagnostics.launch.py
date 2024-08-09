@@ -91,18 +91,20 @@ def launch_setup(context, *args, **kwargs):
                     ('/diagnostics_toplevel_state', 'diagnostics_toplevel_state'),
                 ],
             ),
+
             # Updater
-            # Node(
-            #     package='clearpath_diagnostics',
-            #     executable='diagnostics_updater',
-            #     output='screen',
-            #     remappings=[
-            #         ('/diagnostics', 'diagnostics'),
-            #         ('/diagnostics_agg', 'diagnostics_agg'),
-            #         ('/diagnostics_toplevel_state', 'diagnostics_toplevel_state'),
-            #     ],
-            #     arguments=['-s', '/hardware_ws/src/clearpath_robot/clearpath_diagnostics/config/']
-            # ),
+            Node(
+                package='clearpath_diagnostics',
+                executable='diagnostics_updater',
+                output='screen',
+                remappings=[
+                    ('/diagnostics', 'diagnostics'),
+                    ('/diagnostics_agg', 'diagnostics_agg'),
+                    ('/diagnostics_toplevel_state', 'diagnostics_toplevel_state'),
+                ],
+                arguments=['-s', '/hardware_ws/src/clearpath_robot/clearpath_diagnostics/config/']
+            ),
+
 
             Node(
                 package='clearpath_diagnostics',
@@ -115,6 +117,41 @@ def launch_setup(context, *args, **kwargs):
                 ],
                 arguments=['-s', '/hardware_ws/src/clearpath_robot/clearpath_diagnostics/config/']
             ),
+
+            Node(
+                package='diagnostic_common_diagnostics',
+                executable='cpu_monitor.py',
+                name = 'cpu_monitor',
+                output='screen',
+                remappings=[
+                    ('/diagnostics', 'diagnostics'),
+                    ('/diagnostics_agg', 'diagnostics_agg'),
+                    ('/diagnostics_toplevel_state', 'diagnostics_toplevel_state'),
+
+                ],
+            ),  
+
+            Node(
+                package='clearpath_diagnostics',
+                executable='hd_monitor.py',
+                output='screen',
+                remappings=[
+                    ('/diagnostics', 'diagnostics'),
+                    ('/diagnostics_agg', 'diagnostics_agg'),
+                    ('/diagnostics_toplevel_state', 'diagnostics_toplevel_state'),
+                ],
+            ),            
+            
+            Node(
+                package='diagnostic_common_diagnostics',
+                executable='ram_monitor.py',
+                output='screen',
+                remappings=[
+                    ('/diagnostics', 'diagnostics'),
+                    ('/diagnostics_agg', 'diagnostics_agg'),
+                    ('/diagnostics_toplevel_state', 'diagnostics_toplevel_state'),
+                ],
+            ),  
         ]
     )
 

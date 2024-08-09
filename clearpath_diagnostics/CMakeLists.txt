@@ -16,6 +16,8 @@ install(PROGRAMS
   ${PROJECT_NAME}/battery_state/battery_state_estimator
   ${PROJECT_NAME}/battery_state/battery_state_control
   ${PROJECT_NAME}/hardware_state_updater
+  ${PROJECT_NAME}/hd_monitor.py
+
   DESTINATION lib/${PROJECT_NAME}
 )
 

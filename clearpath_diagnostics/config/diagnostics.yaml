@@ -1,5 +1,4 @@
 /**:
-
   analyzers:
     ros__parameters:
       path: Diagnostics
@@ -39,6 +38,10 @@
             type: diagnostic_aggregator/GenericAnalyzer
             path: GPS
             contains: [ 'gps' ]
+      cpu:
+        type: diagnostic_aggregator/GenericAnalyzer
+        path: CPU_State
+        contains: [ 'cpu_monitor'] 
 
             
 
