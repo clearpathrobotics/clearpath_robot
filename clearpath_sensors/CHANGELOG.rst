@@ -2,8 +2,8 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.15 (2024-08-12)
+-------------------
 * Removed unused import
 * Add blackfly to composable container
 * Use intraprocess comms
