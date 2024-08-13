@@ -45,6 +45,7 @@ class SensorLaunch():
     # Launch arguments
     PARAMETERS = 'parameters'
     NAMESPACE = 'namespace'
+    ROBOT_NAMESPACE = 'robot_namespace'
     # Republish arguments
     INPUT = 'input_ns'
     OUTPUT = 'output_ns'
@@ -69,7 +70,8 @@ class SensorLaunch():
         # Set launch args for default launch file
         self.launch_args = [
             (self.PARAMETERS, self.parameters.full_path),
-            (self.NAMESPACE, self.namespace)
+            (self.NAMESPACE, self.namespace),
+            (self.ROBOT_NAMESPACE, self._robot_namespace),
         ]
 
         self.default_sensor_launch_file = LaunchFile(

@@ -85,10 +85,10 @@ microstrain_inertial_driver:
     #             Transform will be published from earth_frame_id to map_frame_id using relative position configuration
     #             Transform between map_frame_id and target_frame_id will be published using position information reported by the device
     # for more information, see: https://wiki.ros.org/microstrain_inertial_driver/transforms
-    tf_mode : 0
+    tf_mode : 2
 
     # Frame ID that most header.frame_id fields will be populated with.
-    frame_id: "imu_link"
+    frame_id: "gq7_link"
 
     # Frame IDs determining the transforms published by this node to aid in navigation. See https://www.ros.org/reps/rep-0105.html
     # Note: If use_enu_frame is false, these frames (with the exception of earth_frame_id) will automatically have "_ned" appended to them.
@@ -102,7 +102,7 @@ microstrain_inertial_driver:
     # Target frame ID to publish transform to. Note that there needs to be some path of transforms between this and frame_id
     #     If tf_mode is set to 1, a transform between earth_frame_id and target_frame_id will be published
     #     If tf_mode is set to 2, a transform between map_frame_id and target_frame_id will be published
-    target_frame_id : "base_link"
+    target_frame_id : "odom"
 
     # Static transform between mount_frame_id and frame_id.
     # Note: It is recommended to define this in a urdf file if you are building a robot, or are able to modify the robot's description.
@@ -131,7 +131,7 @@ microstrain_inertial_driver:
     #     For GQ7 - in the vehicle frame wrt IMU origin (meters)
     #     For all other models - in the IMU frame wrt IMU origin (meters)
     # Note: Make this as accurate as possible for good performance
-    gnss1_antenna_offset_source : 1
+    gnss1_antenna_offset_source : 2
     gnss1_antenna_offset        : [0.0, -0.7, -1.0]
 
 
@@ -147,7 +147,7 @@ microstrain_inertial_driver:
     #     For GQ7 - in the vehicle frame wrt IMU origin (meters)
     #     For all other models - in the IMU frame wrt IMU origin (meters)
     # Note: Make this as accurate as possible for good performance
-    gnss2_antenna_offset_source : 1
+    gnss2_antenna_offset_source : 2
     gnss2_antenna_offset        : [0.0, 0.7, -1.0]
 
     # GNSS signal configuration
@@ -218,7 +218,7 @@ microstrain_inertial_driver:
     #     Reference position - Units provided by reference frame (ECEF - meters, LLH - deg, deg, meters)
     # Note: The source selected here will determine the transform published between earth_frame_id and map_frame_id when running in relative transform mode
     # For more information, see: https://wiki.ros.org/microstrain_inertial_driver/relative_position_configuration
-    filter_relative_position_config : False
+    filter_relative_position_config : True
     filter_relative_position_frame  : 2
     filter_relative_position_source : 2
     filter_relative_position_ref    : [0.0, 0.0, 0.01]
@@ -418,8 +418,8 @@ microstrain_inertial_driver:
     imu_wheel_speed_data_rate : 0    # Rate of imu/wheel_Speed topic
 
     # The speed at which the individual GNSS1 publishers will publish at.
-    gnss1_llh_position_data_rate   : 2  # Rate of gnss_1/llh_position topic
-    gnss1_velocity_data_rate       : 2  # Rate of gnss_1/velocity topic
+    gnss1_llh_position_data_rate   : 0  # Rate of gnss_1/llh_position topic
+    gnss1_velocity_data_rate       : 0  # Rate of gnss_1/velocity topic
     gnss1_velocity_ecef_data_rate  : 0  # Rate of gnss_1/velocity_ecef topic
                                         # Note: gnss1_odometry_earth_data_rate depends on the contents of this message.
                                         #       If it is set to a higher value, this message will be published at that rate.
@@ -427,8 +427,8 @@ microstrain_inertial_driver:
     gnss1_time_data_rate           : 0  # Rate of gnss_1/time topic
 
     # The speed at which the individual GNSS2 publishers will publish at.
-    gnss2_llh_position_data_rate   : 2  # Rate of gnss_2/llh_position topic
-    gnss2_velocity_data_rate       : 2  # Rate of gnss_2/velocity topic
+    gnss2_llh_position_data_rate   : 0  # Rate of gnss_2/llh_position topic
+    gnss2_velocity_data_rate       : 0  # Rate of gnss_2/velocity topic
     gnss2_velocity_ecef_data_rate  : 0  # Rate of gnss_2/velocity_ecef topic
                                         # Note: gnss2_odometry_earth_data_rate depends on the contents of this message.
                                         #       If it is set to a higher value, this message will be published at that rate.
@@ -447,8 +447,8 @@ microstrain_inertial_driver:
     filter_velocity_ecef_data_rate         : 0  # Rate of ekf/velocity_ecef topic
                                                 # Note: filter_odometry_earth_data_rate depends on the contents of this message.
                                                 #       If either are set to a higher value, this message will be published at that rate.
-    filter_odometry_earth_data_rate        : 25 # Rate of ekf/odometry_earth topic
-    filter_odometry_map_data_rate          : 25 # Rate of ekf/odometry_map topic
+    filter_odometry_earth_data_rate        : 0 # Rate of ekf/odometry_earth topic
+    filter_odometry_map_data_rate          : 100 # Rate of ekf/odometry_map topic
     filter_dual_antenna_heading_data_rate  : 0  # Rate of ekf/dual_antenna_heading topic
                                                 # Note: mip_filter_gnss_position_aiding_status_data_rate depends on the contents of this message.
                                                 #       If either are set to a higher value, this message will be published at that rate.
@@ -468,7 +468,7 @@ microstrain_inertial_driver:
     mip_filter_gnss_position_aiding_status_data_rate     : 0  # Rate of mip/filter/gnss_aiding_status
                                                               # Note: filter_llh_position_data_rate depends on the contents of this message.
                                                               #       If it is set to a higher value, this message will be published at that rate.
-    mip_filter_multi_antenna_offset_correction_data_rate : 0  # Rate of mip/filter/multi_antenna_offset_correction
+    mip_filter_multi_antenna_offset_correction_data_rate : 1  # Rate of mip/filter/multi_antenna_offset_correction
                                                               # Note: This message will also affect the frequency that the transform between frame_id and gnss_1/2_frame_id are published
     mip_filter_gnss_dual_antenna_status_data_rate        : 0  # Rate of mip/filter/gnss_dual_antenna_status
                                                               # Note: filter_dual_antenna_heading_data_rate depends on the contents of this message.

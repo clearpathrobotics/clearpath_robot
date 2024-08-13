@@ -62,12 +62,16 @@ def launch_setup(context, *args, **kwargs):
 
     setup_path = LaunchConfiguration('setup_path')
 
+    robot_yaml = PathJoinSubstitution(
+        [setup_path, 'robot.yaml']
+    )
+
     analyzer_params_filepath = PathJoinSubstitution(
         [pkg_clearpath_diagnostics, 'config', 'diagnostics.yaml']
     )
 
     # Read robot YAML
-    config = read_yaml(setup_path.perform(context) + 'robot.yaml')
+    config = read_yaml(robot_yaml.perform(context))
     # Parse robot YAML into config
     clearpath_config = ClearpathConfig(config)
 

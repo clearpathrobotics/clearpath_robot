@@ -39,12 +39,17 @@ def generate_launch_description():
 
     parameters = LaunchConfiguration('parameters')
     namespace = LaunchConfiguration('namespace')
+    robot_namespace = LaunchConfiguration('robot_namespace')
 
     launch_microstrain_imu = PathJoinSubstitution([
         pkg_microstrain_inertial_driver, 'launch', 'microstrain_launch.py'])
 
     arg_namespace = DeclareLaunchArgument(
         'namespace',
+        default_value='')
+
+    arg_robot_namespace = DeclareLaunchArgument(
+        'robot_namespace',
         default_value='')
 
     arg_parameters = DeclareLaunchArgument(
@@ -59,6 +64,7 @@ def generate_launch_description():
         SetRemap('imu/data', 'data'),
         SetRemap('/moving_ang', 'moving_ang'),
         SetRemap('/tf', 'tf'),
+        SetRemap('/tf_static', PathJoinSubstitution(['/', robot_namespace, 'tf_static'])),
 
         IncludeLaunchDescription(
           PythonLaunchDescriptionSource([launch_microstrain_imu]),
@@ -73,6 +79,7 @@ def generate_launch_description():
 
     ld = LaunchDescription()
     ld.add_action(arg_namespace)
+    ld.add_action(arg_robot_namespace)
     ld.add_action(arg_parameters)
     ld.add_action(launch_microstrain_imu)
     return ld
