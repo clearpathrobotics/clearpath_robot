@@ -2,6 +2,13 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.2.15 (2024-08-12)
+-------------------
+* Removed unused import
+* Add blackfly to composable container
+* Use intraprocess comms
+* Contributors: Luis Camero
+
 0.2.14 (2024-08-08)
 -------------------
 * Adds GQ7 yaml and launch file
