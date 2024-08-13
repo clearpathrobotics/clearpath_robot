@@ -27,17 +27,45 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-filename="/etc/clearpath/robot.yaml"
+usage() { echo "Usage: $0 -p port -d device -v virtual -b baud" 1>&2; }
+help()
+{
+  echo "-p: port to bind to [11412]";
+  echo "-d: device to create [ttycan0]";
+  echo "-v: virtual can device [vcan0]";
+  echo "-b: baud level [s0 (10 Kbit/s), s1 (20 Kbit/s), s2 (50 Kbit/s), s3 (100 Kbit/s), s4 (125 Kbit/s), s5 (250 Kbit/s), s6 (500 Kbit/s), s7 (800 Kbit/s), s8 (1000 Kbit/s)]";
+}
 
-m1=$(md5sum "$filename")
-
-while true; do
-  sleep 1
-
-  m2=$(md5sum "$filename")
-
-  if [ "$m1" != "$m2" ] ; then
-    echo "robot.yaml has changed." >&2
-    exit 1
-  fi
+while getopts :p:d:v:b:h: o;
+do
+  case "${o}" in
+    p) port=${OPTARG};;
+    d) dev=${OPTARG};;
+    v) vcan=${OPTARG};;
+    b) baud=${OPTARG};;
+    h | *) usage; help; exit 0;;
+  esac
 done
+
+if [ -z "${port}" ] || [ -z "${dev}" ] || [ -z "${vcan}" ] || [ -z "${baud}" ]; then
+  echo "Missing required arguments.";
+  usage;
+  help;
+  exit 1;
+fi
+
+echo "Port: $port";
+echo "Device: $dev";
+echo "Virtual CAN: $vcan";
+echo "Baud Rate: $baud";
+
+socat udp4-datagram:192.168.131.2:$port,bind=:$port,range=192.168.131.1/24 pty,link=$dev &
+sleep 1
+
+slcand -o -c -F -$baud $dev $vcan &
+sleep 1
+
+ip link set $vcan txqueuelen 100
+sleep 1
+
+ip link set $vcan up

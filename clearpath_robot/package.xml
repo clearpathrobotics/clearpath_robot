@@ -24,6 +24,10 @@
   <exec_depend>clearpath_generator_common</exec_depend>
   <exec_depend>robot_upstart</exec_depend>
 
+  <!-- Manipulator dependencies -->
+  <exec_depend>kortex_driver</exec_depend>
+  <exec_depend>robotiq_controllers</exec_depend>
+
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 

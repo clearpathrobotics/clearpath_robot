@@ -98,6 +98,9 @@ class Battery:
                 case Platform.DD150 | Platform.DO150:
                     self.power_msg_voltage_index = Power.D150_MEASURED_BATTERY
                     self.power_msg_current_index = Power.D150_TOTAL_CURRENT
+                case Platform.R100:
+                    self.power_msg_voltage_index = Power.R100_MEASURED_BATTERY
+                    self.power_msg_current_index = Power.R100_TOTAL_CURRENT
 
             # System capacity
             self._msg.capacity = self._msg.design_capacity = self.system_capacity
@@ -285,13 +288,32 @@ class Battery:
             [14.5, 1.0],
         ]
 
+    class DTM8A31(SLA):
+        CAPACITY = 50.0
+        VOLTAGE = 24.0
+        LUT = [
+            [23.2, 0.0],
+            [23.4, 0.1],
+            [23.8, 0.2],
+            [24.0, 0.3],
+            [24.4, 0.4],
+            [24.6, 0.5],
+            [24.8, 0.6],
+            [25.0, 0.7],
+            [25.1, 0.8],
+            [25.2, 0.90],
+            [25.3, 0.95],
+            [25.4, 1.00],
+        ]
+
     # Match battery name to class
     BATTERIES = {
         BatteryConfig.HE2613: HE2613,
         BatteryConfig.ES20_12C: ES20_12C,
         BatteryConfig.U1_35: U1_35,
         BatteryConfig.TLV1222: TLV1222,
-        BatteryConfig.RB20: RB20
+        BatteryConfig.RB20: RB20,
+        BatteryConfig.DTM8A31: DTM8A31,
     }
 
     def __new__(cls,
