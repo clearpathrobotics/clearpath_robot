@@ -71,6 +71,9 @@ class VirtualCANProvider(robot_upstart.providers.Generic):
                 "content": vcan_bridge_contents,
                 "mode": 0o755
             },
+            "/etc/systemd/system/multi-user.target.wants/clearpath-vcan.service": {
+                "symlink": "/lib/systemd/system/clearpath-vcan.service"
+            },
         }
 
 

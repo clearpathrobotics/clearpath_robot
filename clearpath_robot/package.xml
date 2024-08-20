@@ -15,6 +15,8 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <exec_depend>can-utils</exec_depend>
+  <exec_depend>socat</exec_depend>
+
   <!-- Metapackage dependencies-->
   <exec_depend>clearpath_generator_robot</exec_depend>
   <exec_depend>clearpath_sensors</exec_depend>
