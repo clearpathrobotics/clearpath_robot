@@ -95,6 +95,17 @@ def generate_launch_description():
                 ('image_mono/theora', 'mono/theora'),
             ],
             extra_arguments=[{'use_intra_process_comms': True}],
+        ),
+        ComposableNode(
+            package='topic_tools',
+            plugin='topic_tools::RelayNode',
+            name='camera_info_relay',
+            namespace=namespace,
+            parameters=[{
+                'input_topic': 'raw/camera_info',
+                'output_topic': 'color/camera_info',
+                'lazy': True,
+            }]
         )
     ]
 
