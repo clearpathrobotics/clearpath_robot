@@ -313,5 +313,6 @@ class RobotLaunchGenerator(LaunchGenerator):
 
     def generate_manipulators(self) -> None:
         manipulator_service_launch_writer = LaunchWriter(self.manipulators_service_launch_file)
-        manipulator_service_launch_writer.add(self.manipulators_launch_file)
+        if self.clearpath_config.manipulators.get_all_manipulators():
+            manipulator_service_launch_writer.add(self.manipulators_launch_file)
         manipulator_service_launch_writer.generate_file()
