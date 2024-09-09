@@ -77,11 +77,13 @@ def generate_launch_description():
             namespace=namespace,
             # Remap subscribers and publishers
             remappings=[
-                ('image',  PathJoinSubstitution([input_ns, 'image'])),
-                ('resize', PathJoinSubstitution([output_ns, 'image'])),
-                ('resize/compressed', PathJoinSubstitution([output_ns, 'compressed'])),
-                ('resize/compressedDepth', PathJoinSubstitution([output_ns, 'compressedDepth'])),
-                ('resize/theora', PathJoinSubstitution([output_ns, 'theora'])),
+                ('image/image_raw',  PathJoinSubstitution([input_ns, 'image'])),
+                ('image/camera_info',  PathJoinSubstitution([input_ns, 'camera_info'])),
+                ('resize/camera_info', PathJoinSubstitution([output_ns, 'camera_info'])),
+                ('resize/image_raw', PathJoinSubstitution([output_ns, 'image'])),
+                ('resize/image_raw/compressed', PathJoinSubstitution([output_ns, 'compressed'])),
+                ('resize/image_raw/compressedDepth', PathJoinSubstitution([output_ns, 'compressedDepth'])),
+                ('resize/image_raw/theora', PathJoinSubstitution([output_ns, 'theora'])),
             ],
             parameters=[parameters],
             extra_arguments=[{'use_intra_process_comms': True}],
