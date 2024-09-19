@@ -2,8 +2,8 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.0 (2024-09-19)
+------------------
 * Only add manipulator.launch if manipulator added
 * Add Ridgeback to generator
 * Added dependency to puma_motor_driver
