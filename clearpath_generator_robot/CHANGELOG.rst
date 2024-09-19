@@ -2,6 +2,15 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Only add manipulator.launch if manipulator added
+* Add Ridgeback to generator
+* Added dependency to puma_motor_driver
+* Added puma node to generated platform launch
+* Added manipulators to launch generator
+* Contributors: Luis Camero, luis-camero
+
 0.2.15 (2024-08-12)
 -------------------
 

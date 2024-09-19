@@ -2,6 +2,20 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Enable vcan service when installed
+* Add dependency socat
+* Headers to bash scripts
+* Add R100 to Puma enabled
+* Use root as user
+* Add vcan service
+* Added vcan script
+* Added SRDF generation to robot service
+* Removed incorrect dependency
+* Added manipulators dependencies and service
+* Contributors: Luis Camero, luis-camero
+
 0.2.15 (2024-08-12)
 -------------------
 
