@@ -2,6 +2,13 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Disable all tools in default microstrain config
+* Update remappings on image_resize republisher
+* Add relay to have a camera info topic
+* Contributors: Luis Camero, luis-camero
+
 0.2.15 (2024-08-12)
 -------------------
 * Removed unused import
