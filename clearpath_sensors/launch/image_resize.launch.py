@@ -82,7 +82,8 @@ def generate_launch_description():
                 ('resize/camera_info', PathJoinSubstitution([output_ns, 'camera_info'])),
                 ('resize/image_raw', PathJoinSubstitution([output_ns, 'image'])),
                 ('resize/image_raw/compressed', PathJoinSubstitution([output_ns, 'compressed'])),
-                ('resize/image_raw/compressedDepth', PathJoinSubstitution([output_ns, 'compressedDepth'])),
+                ('resize/image_raw/compressedDepth', PathJoinSubstitution(
+                    [output_ns, 'compressedDepth'])),
                 ('resize/image_raw/theora', PathJoinSubstitution([output_ns, 'theora'])),
             ],
             parameters=[parameters],
