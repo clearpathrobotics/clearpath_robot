@@ -2,6 +2,11 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Line too long
+* Contributors: Luis Camero
+
 0.3.0 (2024-09-19)
 ------------------
 * Disable all tools in default microstrain config
