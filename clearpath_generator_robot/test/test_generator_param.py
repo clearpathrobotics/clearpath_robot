@@ -29,9 +29,11 @@ import os
 import shutil
 
 from ament_index_python.packages import get_package_share_directory
+from clearpath_generator_common.ros import ROS_DISTRO
 from clearpath_generator_robot.param.generator import RobotParamGenerator
 
-SAMPLE_DIR = '/opt/ros/humble/share/clearpath_config/sample/'
+
+SAMPLE_DIR = f'/opt/ros/{ROS_DISTRO}/share/clearpath_config/sample/'
 
 
 class TestRobotLaunchGenerator:
