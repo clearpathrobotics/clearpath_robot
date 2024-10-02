@@ -2,12 +2,12 @@ repositories:
   clearpath_config:
     type: git
     url: https://github.com/clearpathrobotics/clearpath_config.git
-    version: main
+    version: jazzy-2.0RC
   clearpath_common:
     type: git
     url: https://github.com/clearpathrobotics/clearpath_common.git
-    version: humble
+    version: jazzy-2.0RC
   clearpath_msgs:
     type: git
     url: https://github.com/clearpathrobotics/clearpath_msgs.git
-    version: main
+    version: jazzy-2.0RC
