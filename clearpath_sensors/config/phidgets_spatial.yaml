@@ -1,0 +1,22 @@
+phidgets_spatial:
+  ros__parameters:
+    # Communication
+    serial: -1
+    hub_port: 0
+    # ROS Message
+    frame_id: imu_link
+    publish_rate: 0.0
+    # Timing
+    time_resynchronization_interval_ms: 5000
+    data_interval_ms: 20
+    callback_delta_epsilon_ms: 1
+    # Algorithm
+    use_orientation: False
+    spatial_algorithm: ahrs
+    ahrs_angular_velocity_threshold: 1.0
+    ahrs_angular_velocity_delta_threshold: 0.1
+    ahrs_acceleration_threshold: 0.1
+    ahrs_mag_time: 10.0
+    ahrs_accel_time: 10.0
+    ahrs_bias_time: 1.25
+
