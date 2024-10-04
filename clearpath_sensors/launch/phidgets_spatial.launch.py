@@ -59,7 +59,7 @@ def generate_launch_description():
     )
 
     imu_processing_container = ComposableNodeContainer(
-        name="imu_processing_container",
+        name='imu_processing_container',
         namespace=namespace,
         package='rclcpp_components',
         executable='component_container',
