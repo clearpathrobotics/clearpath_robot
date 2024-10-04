@@ -15,6 +15,7 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <exec_depend>depthai_ros_driver</exec_depend>
   <exec_depend>flir_camera_description</exec_depend>
   <exec_depend>flir_camera_msgs</exec_depend>
   <exec_depend>image_proc</exec_depend>
