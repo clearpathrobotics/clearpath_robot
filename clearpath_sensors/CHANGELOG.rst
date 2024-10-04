@@ -2,6 +2,12 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add OAKD camera
+* Add phidget spatial config and launch files
+* Contributors: Luis Camero, Tony Baltovski
+
 0.3.1 (2024-09-23)
 ------------------
 * Line too long

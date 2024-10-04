@@ -2,6 +2,11 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* [clearpath_robot] Added script to grab diagnostic logs for troubleshooting.
+* Contributors: Luis Camero, Tony Baltovski
+
 0.3.1 (2024-09-23)
 ------------------
 
