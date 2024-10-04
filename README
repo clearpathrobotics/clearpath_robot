@@ -1,0 +1,5 @@
+# clearpath_robot
+
+ROS 2 packages for interfacing with Clearpath Platforms (real hardware).
+
+For supported platforms, sensors and manipulators plus additional details, please see: https://docs.clearpathrobotics.com/docs/ros/
