@@ -37,7 +37,6 @@ from launch_ros.substitutions import FindPackageShare
 def generate_launch_description():
     parameters = LaunchConfiguration('parameters')
     namespace = LaunchConfiguration('namespace')
-    robot_namespace = LaunchConfiguration('robot_namespace')
 
     arg_parameters = DeclareLaunchArgument(
         'parameters',
@@ -49,10 +48,6 @@ def generate_launch_description():
 
     arg_namespace = DeclareLaunchArgument(
         'namespace',
-        default_value='')
-
-    arg_robot_namespace = DeclareLaunchArgument(
-        'robot_namespace',
         default_value='')
 
     depthai_oakd_node = ComposableNode(
@@ -100,6 +95,5 @@ def generate_launch_description():
     ld = LaunchDescription()
     ld.add_action(arg_parameters)
     ld.add_action(arg_namespace)
-    ld.add_action(arg_robot_namespace)
     ld.add_action(image_processing_container)
     return ld
