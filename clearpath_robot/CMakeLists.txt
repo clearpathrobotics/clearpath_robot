@@ -15,7 +15,9 @@ install(
 )
 
 install(
-  PROGRAMS scripts/install
+  PROGRAMS
+  scripts/install
+  scripts/grab-diagnostics
   DESTINATION lib/${PROJECT_NAME}
 )
 
