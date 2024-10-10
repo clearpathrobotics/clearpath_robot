@@ -225,7 +225,6 @@ class RobotLaunchGenerator(LaunchGenerator):
                 ]
             ))
 
-
         # Components required for each platform
         common_platform_components = [
             self.wireless_watcher_node,
