@@ -203,13 +203,38 @@ class RobotLaunchGenerator(LaunchGenerator):
           namespace=self.namespace,
         )
 
+        # ROS2 socketcan bridges
+        ros2_socketcan_package = Package('ros2_socketcan')
+        self.can_bridges = []
+        for can_bridge in self.clearpath_config.platform.can_bridges.get_all():
+            self.can_bridges.append(LaunchFile(
+                'socket_can_receiver',
+                package=ros2_socketcan_package,
+                args=[
+                    ('interface', can_bridge.interface),
+                    ('from_can_bus_topic', f'{self.namespace}/{can_bridge.topic_rx}'),
+                ]
+            ))
+
+            self.can_bridges.append(LaunchFile(
+                'socket_can_sender',
+                package=ros2_socketcan_package,
+                args=[
+                    ('interface', can_bridge.interface),
+                    ('to_can_bus_topic', f'{self.namespace}/{can_bridge.topic_tx}'),
+                ]
+            ))
+
         # Components required for each platform
         common_platform_components = [
             self.wireless_watcher_node,
             self.diagnostics_launch,
             self.battery_state_estimator,
-            self.battery_state_control
+            self.battery_state_control,
         ]
+
+        if len(self.can_bridges) > 0:
+            common_platform_components.extend(self.can_bridges)
 
         self.platform_components = {
             Platform.J100: common_platform_components + [
