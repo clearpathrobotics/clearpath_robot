@@ -92,6 +92,11 @@ class SensorParam():
 
         self.param_file.update(self.sensor.get_ros_parameters())
 
+        if 'luxonis_oakd' in self.param_file.parameters:
+            luxonis_params = self.param_file.parameters['luxonis_oakd']
+            self.param_file.parameters[self.sensor.name] = luxonis_params
+            self.param_file.parameters.pop('luxonis_oakd')
+
     def generate_config(self):
         sensor_writer = ParamWriter(self.param_file)
         sensor_writer.write_file()

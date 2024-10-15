@@ -25,8 +25,10 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+import os
+
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, OpaqueFunction
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 
 from launch_ros.actions import ComposableNodeContainer
@@ -34,25 +36,15 @@ from launch_ros.descriptions import ComposableNode
 from launch_ros.substitutions import FindPackageShare
 
 
-def generate_launch_description():
+def launch_setup(context):
     parameters = LaunchConfiguration('parameters')
     namespace = LaunchConfiguration('namespace')
 
-    arg_parameters = DeclareLaunchArgument(
-        'parameters',
-        default_value=PathJoinSubstitution([
-          FindPackageShare('clearpath_sensors'),
-          'config',
-          'intel_realsense.yaml'
-        ]))
-
-    arg_namespace = DeclareLaunchArgument(
-        'namespace',
-        default_value='')
+    name = os.path.basename(namespace.perform(context))
 
     depthai_oakd_node = ComposableNode(
         package='depthai_ros_driver',
-        name='oakd',
+        name=name,
         namespace=namespace,
         plugin='depthai_ros_driver::Camera',
         parameters=[parameters],
@@ -81,19 +73,49 @@ def generate_launch_description():
         extra_arguments=[{'use_intra_process_comms': True}],
     )
 
+    depthai_pcl_node = ComposableNode(
+        package='depth_image_proc',
+        plugin='depth_image_proc::PointCloudXyzrgbNode',
+        name='point_cloud_xyzrgb_node',
+        namespace=namespace,
+        remappings=[
+            ('depth_registered/image_rect', 'stereo/image'),
+            ('rgb/image_rect_color', 'color/image'),
+            ('rgb/camera_info', 'color/camera_info'),
+        ],
+    )
+
     image_processing_container = ComposableNodeContainer(
         name='image_processing_container',
         namespace=namespace,
         package='rclcpp_components',
         executable='component_container',
         composable_node_descriptions=[
-          depthai_oakd_node
+          depthai_oakd_node,
+          depthai_pcl_node,
         ],
         output='screen'
     )
 
+    return [image_processing_container]
+
+
+def generate_launch_description():
+    # Launch configurations
+    arg_parameters = DeclareLaunchArgument(
+        'parameters',
+        default_value=PathJoinSubstitution([
+          FindPackageShare('clearpath_sensors'),
+          'config',
+          'intel_realsense.yaml'
+        ]))
+
+    arg_namespace = DeclareLaunchArgument(
+        'namespace',
+        default_value='')
+
     ld = LaunchDescription()
     ld.add_action(arg_parameters)
     ld.add_action(arg_namespace)
-    ld.add_action(image_processing_container)
+    ld.add_action(OpaqueFunction(function=launch_setup))
     return ld
