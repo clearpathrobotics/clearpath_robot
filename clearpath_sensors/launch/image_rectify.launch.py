@@ -60,7 +60,7 @@ def generate_launch_description():
 
     arg_output_ns = DeclareLaunchArgument(
         'output_ns',
-        default_value='`rectif`y'
+        default_value='rectify'
     )
 
     arg_container = DeclareLaunchArgument(
