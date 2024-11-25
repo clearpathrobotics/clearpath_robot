@@ -16,10 +16,10 @@ find_package(ament_cmake_python REQUIRED)
 find_package(controller_interface REQUIRED)
 find_package(controller_manager REQUIRED)
 find_package(controller_manager_msgs REQUIRED)
+find_package(clearpath_motor_msgs REQUIRED)
 find_package(clearpath_platform_msgs REQUIRED)
 find_package(hardware_interface REQUIRED)
 find_package(pluginlib REQUIRED)
-find_package(clearpath_motor_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 
 find_package(geometry_msgs REQUIRED)
@@ -170,10 +170,34 @@ ament_target_dependencies(
   rclcpp
 )
 
+# Lynx Hardware
+add_library(
+  lynx_hardware
+  SHARED
+  src/lynx/hardware.cpp
+  src/lynx/hardware_interface.cpp
+)
+
+target_include_directories(
+  lynx_hardware
+  PRIVATE
+  include
+)
+
+ament_target_dependencies(
+  lynx_hardware
+  clearpath_motor_msgs
+  clearpath_platform_msgs
+  hardware_interface
+  pluginlib
+  rclcpp
+)
+
 pluginlib_export_plugin_description_file(hardware_interface src/a200/hardware.xml)
 pluginlib_export_plugin_description_file(hardware_interface src/j100/hardware.xml)
 pluginlib_export_plugin_description_file(hardware_interface src/w200/hardware.xml)
 pluginlib_export_plugin_description_file(hardware_interface src/puma/hardware.xml)
+pluginlib_export_plugin_description_file(hardware_interface src/lynx/hardware.xml)
 
 # INSTALL
 install(
@@ -181,6 +205,7 @@ install(
           j100_hardware
           w200_hardware
           puma_hardware
+          lynx_hardware
           ${LIGHTING_EXECUTABLE}
           ${LIGHTING_LIB}
   LIBRARY DESTINATION lib
@@ -208,6 +233,7 @@ ament_export_libraries(
   j100_hardware
   w200_hardware
   puma_hardware
+  lynx_hardware
   ${LIGHTING_LIB}
 )
 ament_export_dependencies(
