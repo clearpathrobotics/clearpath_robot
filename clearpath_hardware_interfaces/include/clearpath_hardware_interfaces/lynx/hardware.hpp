@@ -31,8 +31,8 @@
  * Please send comments, questions, or patches to code@clearpathrobotics.com
  *
  */
-#ifndef CLEARPATH_PLATFORM_LYNX__HARDWARE_HPP_
-#define CLEARPATH_PLATFORM_LYNX__HARDWARE_HPP_
+#ifndef CLEARPATH_HARDWARE_INTERFACES__LYNX_HARDWARE_HPP_
+#define CLEARPATH_HARDWARE_INTERFACES__LYNX_HARDWARE_HPP_
 
 #include <memory>
 #include <string>
@@ -46,10 +46,10 @@
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "hardware_interface/visibility_control.h"
 
-#include "clearpath_platform/lynx/hardware_interface.hpp"
+#include "clearpath_hardware_interfaces/lynx/hardware_interface.hpp"
 
 
-namespace clearpath_platform
+namespace clearpath_hardware_interfaces
 {
 
 static constexpr uint8_t DIFF_DRIVE_FOUR_JOINTS = 4;
@@ -99,6 +99,6 @@ protected:
   std::string hw_name_;
 };
 
-}  // namespace clearpath_platform
+}  // namespace clearpath_hardware_interfaces
 
-#endif  // CLEARPATH_PLATFORM_LYNX__HARDWARE_HPP_
+#endif  // CLEARPATH_HARDWARE_INTERFACES__LYNX_HARDWARE_HPP_

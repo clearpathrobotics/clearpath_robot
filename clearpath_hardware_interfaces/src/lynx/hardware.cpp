@@ -28,9 +28,9 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 */
-#include "clearpath_platform/lynx/hardware.hpp"
+#include "clearpath_hardware_interfaces/lynx/hardware.hpp"
 
-namespace clearpath_platform
+namespace clearpath_hardware_interfaces
 {
 
 /**
@@ -312,8 +312,8 @@ hardware_interface::return_type LynxHardware::write(const rclcpp::Time & /*time*
   return hardware_interface::return_type::OK;
 }
 
-} // namespace clearpath_platform
+} // namespace clearpath_hardware_interfaces
 
 #include "pluginlib/class_list_macros.hpp"
 PLUGINLIB_EXPORT_CLASS(
-  clearpath_platform::LynxHardware, hardware_interface::SystemInterface)
+  clearpath_hardware_interfaces::LynxHardware, hardware_interface::SystemInterface)

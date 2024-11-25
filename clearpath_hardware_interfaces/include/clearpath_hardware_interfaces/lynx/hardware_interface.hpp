@@ -31,8 +31,8 @@
  * Please send comments, questions, or patches to code@clearpathrobotics.com
  *
  */
-#ifndef CLEARPATH_PLATFORM__LYNX_DRIVE_HARDWARE_INTERFACE_HPP_
-#define CLEARPATH_PLATFORM__LYNX_DRIVE_HARDWARE_INTERFACE_HPP_
+#ifndef CLEARPATH_HARDWARE_INTERFACES__LYNX_HARDWARE_INTERFACE_HPP_
+#define CLEARPATH_HARDWARE_INTERFACES__LYNX_HARDWARE_INTERFACE_HPP_
 
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
@@ -40,7 +40,7 @@
 #include "clearpath_motor_msgs/msg/lynx_feedback.hpp"
 #include "clearpath_motor_msgs/msg/lynx_multi_feedback.hpp"
 
-namespace clearpath_platform
+namespace clearpath_hardware_interfaces
 {
 
 class LynxHardwareInterface
@@ -63,6 +63,6 @@ class LynxHardwareInterface
   std::atomic_bool has_feedback_;
 };
 
-} // namespace clearpath_platform
+} // namespace clearpath_hardware_interfaces
 
-#endif // CLEARPATH_PLATFORM__LYNX_DRIVE_HARDWARE_INTERFACE_HPP_
+#endif // CLEARPATH_HARDWARE_INTERFACES__LYNX_HARDWARE_INTERFACE_HPP_

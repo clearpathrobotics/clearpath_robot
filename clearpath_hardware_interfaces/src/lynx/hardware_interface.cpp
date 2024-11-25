@@ -28,9 +28,9 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 */
-#include "clearpath_platform/lynx/hardware_interface.hpp"
+#include "clearpath_hardware_interfaces/lynx/hardware_interface.hpp"
 
-using clearpath_platform::LynxHardwareInterface;
+using clearpath_hardware_interfaces::LynxHardwareInterface;
 
 /**
  * @brief Construct a new LynxHardwareInterface object
