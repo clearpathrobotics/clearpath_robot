@@ -43,6 +43,7 @@ namespace clearpath_lighting
 
 enum Platform
 {
+  A300,
   DD100,
   DO100,
   DD150,
@@ -53,6 +54,7 @@ enum Platform
 
 static std::map<std::string, Platform> ClearpathPlatforms
 {
+  {"a300", Platform::A300},
   {"dd100", Platform::DD100},
   {"do100", Platform::DO100},
   {"dd150", Platform::DD150},
@@ -63,12 +65,24 @@ static std::map<std::string, Platform> ClearpathPlatforms
 
 static std::map<Platform, int> PlatformNumLights
 {
+  {Platform::A300, 4},
   {Platform::DD100, 4},
   {Platform::DO100, 4},
   {Platform::DD150, 4},
   {Platform::DO150, 4},
   {Platform::R100, 8},
   {Platform::W200, 4},
+};
+
+static std::map<Platform, float> PlatformBrightness
+{
+  {Platform::A300, 0.5f},
+  {Platform::DD100, 1.0f},
+  {Platform::DO100, 1.0f},
+  {Platform::DD150, 1.0f},
+  {Platform::DO150, 1.0f},
+  {Platform::R100, 1.0f},
+  {Platform::W200, 1.0f},
 };
 
 }

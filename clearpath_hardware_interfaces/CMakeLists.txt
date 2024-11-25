@@ -37,6 +37,7 @@ find_package(tf2_ros REQUIRED)
 set(LIGHTING_EXECUTABLE lighting_node)
 set(LIGHTING_LIB clearpath_platform_lighting)
 set(LIGHTING_DEPENDENCIES
+    clearpath_motor_msgs
     clearpath_platform_msgs
     sensor_msgs
     rclcpp

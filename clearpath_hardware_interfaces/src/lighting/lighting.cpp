@@ -75,6 +75,11 @@ Lighting::Lighting()
       Sequence::fillLightingState(COLOR_BLUE, platform_),
       Sequence::fillLightingState(COLOR_RED, platform_),
       MS_TO_STEPS(2000), 0.5)},
+    
+    {State::MotorFault, BlinkSequence(
+      Sequence::fillLightingState(COLOR_RED, platform_),
+      Sequence::fillLightingState(COLOR_RED, platform_),
+      MS_TO_STEPS(500), 0.5)},
 
     {State::ShoreAndCharging, PulseSequence(
       Sequence::fillLightingState(COLOR_BLUE, platform_),
@@ -106,6 +111,14 @@ Lighting::Lighting()
       Sequence::fillLightingState(COLOR_ORANGE, platform_),
       Sequence::fillLightingState(COLOR_RED, platform_),
       MS_TO_STEPS(2000), 0.5)},
+    
+    {State::MotorOverheated, PulseSequence(
+      Sequence::fillFrontRearLightingState(COLOR_WHITE, COLOR_ORANGE, platform_),
+      Sequence::fillFrontRearLightingState(COLOR_WHITE, COLOR_RED, platform_),
+      MS_TO_STEPS(4000))},
+    
+    {State::MotorThrottled, SolidSequence(
+      Sequence::fillFrontRearLightingState(COLOR_WHITE_DIM, COLOR_ORANGE, platform_))},
 
     {State::LowBattery, PulseSequence(
       Sequence::fillLightingState(COLOR_ORANGE, platform_),
@@ -140,6 +153,7 @@ void Lighting::spinOnce()
   {
     case State::Idle:
     case State::Driving:
+    case State::MotorThrottled:
     case State::ShorePower:
     case State::ShoreAndCharging:
     case State::ShoreAndCharged:
@@ -148,10 +162,11 @@ void Lighting::spinOnce()
       user_commands_allowed_ = true;
       break;
     case State::LowBattery:
+    case State::MotorOverheated:
     case State::NeedsReset:
     case State::BatteryFault:
     case State::ShoreFault:
-   //case State::PumaFault:
+    case State::MotorFault:
     case State::Stopped:
       user_commands_allowed_ = false;
       break;
@@ -231,6 +246,15 @@ void Lighting::initializeSubscribers()
     "platform/cmd_vel",
     rclcpp::SensorDataQoS(),
     std::bind(&Lighting::cmdVelCallback, this, std::placeholders::_1));
+  
+  // System protection
+  if (platform_ == Platform::A300)
+  {
+    system_protection_sub_ = this->create_subscription<clearpath_motor_msgs::msg::LynxSystemProtection>(
+    "platform/motors/system_protection",
+    rclcpp::SensorDataQoS(),
+    std::bind(&Lighting::systemProtectionCallback, this, std::placeholders::_1));
+  }
 }
 
 /**
@@ -341,6 +365,14 @@ void Lighting::cmdVelCallback(const geometry_msgs::msg::TwistStamped::SharedPtr 
 }
 
 /**
+ * @brief System protection callback
+ */
+void Lighting::systemProtectionCallback(const clearpath_motor_msgs::msg::LynxSystemProtection::SharedPtr msg)
+{
+  system_protection_msg_ = *msg;
+}
+
+/**
  * @brief Update state if new state is higher priority
  */
 void Lighting::setState(Lighting::State new_state)
@@ -381,6 +413,70 @@ void Lighting::updateState()
     {
       setState(State::LowBattery);
     }
+  }
+
+  // Lynx motor errors
+  if (system_protection_msg_.system_state == clearpath_motor_msgs::msg::LynxSystemProtection::ERROR)
+  {
+    setState(State::MotorFault);
+    LightingState off_1 = LightingState(4, COLOR_RED);
+    LightingState on_1 = LightingState(4, COLOR_RED);
+    LightingState off_2 = LightingState(4, COLOR_RED);
+    LightingState on_2 = LightingState(4, COLOR_RED);
+
+    if (system_protection_msg_.motor_states.at(
+      clearpath_motor_msgs::msg::LynxSystemProtection::A300_MOTOR_REAR_LEFT) == clearpath_motor_msgs::msg::LynxSystemProtection::ERROR)
+    {
+      off_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_LEFT) = COLOR_BLACK;
+      on_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_LEFT) = COLOR_RED;
+      off_2.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_LEFT) = COLOR_BLACK;
+      on_2.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_LEFT) = COLOR_RED;
+    }
+
+    if (system_protection_msg_.motor_states.at(
+      clearpath_motor_msgs::msg::LynxSystemProtection::A300_MOTOR_FRONT_LEFT) == clearpath_motor_msgs::msg::LynxSystemProtection::ERROR)
+    {
+      off_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_LEFT) = COLOR_BLACK;
+      on_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_LEFT) = COLOR_RED;
+      off_2.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_LEFT) = COLOR_BLACK;
+      on_2.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_LEFT) = COLOR_RED;
+    }
+
+    if (system_protection_msg_.motor_states.at(
+      clearpath_motor_msgs::msg::LynxSystemProtection::A300_MOTOR_REAR_RIGHT) == clearpath_motor_msgs::msg::LynxSystemProtection::ERROR)
+    {
+      off_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_RIGHT) = COLOR_BLACK;
+      on_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_RIGHT) = COLOR_RED;
+      off_2.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_RIGHT) = COLOR_BLACK;
+      on_2.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_RIGHT) = COLOR_RED;
+    }
+
+    if (system_protection_msg_.motor_states.at(
+      clearpath_motor_msgs::msg::LynxSystemProtection::A300_MOTOR_FRONT_RIGHT) == clearpath_motor_msgs::msg::LynxSystemProtection::ERROR)
+    {
+      off_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_RIGHT) = COLOR_BLACK;
+      on_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_RIGHT) = COLOR_RED;
+      off_2.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_RIGHT) = COLOR_BLACK;
+      on_2.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_RIGHT) = COLOR_RED;
+    }
+
+    lighting_sequence_.at(State::MotorFault) = 
+      BlinkSequence(
+        off_1,
+        on_1,
+        MS_TO_STEPS(1000), 0.9) +
+      BlinkSequence(
+        off_2,
+        on_2,
+        MS_TO_STEPS(200), 0.5);
+  }
+  else if (system_protection_msg_.system_state == clearpath_motor_msgs::msg::LynxSystemProtection::OVERHEATED)
+  {
+    setState(State::MotorOverheated);
+  }
+  else if (system_protection_msg_.system_state == clearpath_motor_msgs::msg::LynxSystemProtection::THROTTLED)
+  {
+    setState(State::MotorThrottled);
   }
 
   // Charger connected
