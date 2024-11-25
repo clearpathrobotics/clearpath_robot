@@ -18,8 +18,12 @@
   <exec_depend>socat</exec_depend>
 
   <!-- Metapackage dependencies-->
+  <exec_depend>clearpath_diagnostics</exec_depend>
   <exec_depend>clearpath_generator_robot</exec_depend>
+  <exec_depend>clearpath_hardware_interfaces</exec_depend>
   <exec_depend>clearpath_sensors</exec_depend>
+  <exec_depend>lynx_motor_driver</exec_depend>
+  <exec_depend>puma_motor_driver</exec_depend>
 
   <!-- Package dependencies-->
   <exec_depend>clearpath_config</exec_depend>
