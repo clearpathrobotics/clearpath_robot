@@ -93,8 +93,6 @@ protected:
   std::vector<double> hw_commands_;
   std::vector<double> hw_states_position_, hw_states_position_offset_, hw_states_velocity_;
 
-  std::map<std::string, uint8_t> wheel_joints_;
-
   uint8_t num_joints_;
   std::string hw_name_;
 };

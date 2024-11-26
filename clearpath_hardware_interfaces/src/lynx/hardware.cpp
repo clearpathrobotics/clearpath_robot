@@ -55,16 +55,17 @@ void LynxHardware::writeCommandsToHardware()
 {
   sensor_msgs::msg::JointState joint_state;
 
-  for (const auto &it : wheel_joints_)
+  for (auto i = 0u; i < num_joints_; i++)
   {
-    joint_state.name.push_back(it.first);
-    double speed = hw_commands_[it.second];
+    joint_state.name.push_back(info_.joints[i].name);
+    double speed = hw_commands_[i];
     if (std::abs(speed) < MINIMUM_VELOCITY)
     {
       speed = 0.0;
     }
     joint_state.velocity.push_back(speed);
   }
+
   node_->drive_command(joint_state);
   return;
 }
@@ -79,13 +80,18 @@ void LynxHardware::updateJointsFromHardware(const rclcpp::Duration & period)
 
   if (node_->has_new_feedback())
   {
-
     auto msg = node_->get_feedback();
 
     for (auto& lynx : msg.drivers)
     {
-      hw_states_velocity_[wheel_joints_[lynx.joint_name]] = lynx.velocity;
-      hw_states_position_[wheel_joints_[lynx.joint_name]] += lynx.velocity * period.seconds();
+      for (auto i = 0; i < num_joints_; i++)
+      {
+        if (lynx.joint_name == info_.joints[i].name)
+        {
+          hw_states_velocity_[i] = lynx.velocity;
+          hw_states_position_[i] += lynx.velocity * period.seconds();
+        }
+      }
     }
   }
 }
@@ -238,9 +244,6 @@ std::vector<hardware_interface::CommandInterface> LynxHardware::export_command_i
     command_interfaces.emplace_back(
       hardware_interface::CommandInterface(
         info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_commands_[i]));
-
-    // Map wheel joint name to index
-    wheel_joints_[info_.joints[i].name] = i;
   }
 
   return command_interfaces;
