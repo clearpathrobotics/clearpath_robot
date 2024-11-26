@@ -282,7 +282,7 @@ class RobotLaunchGenerator(LaunchGenerator):
 
         # Only add estimator when no BMS is present
         if self.bms_launch_file is None and self.bms_node is None:
-            common_platform_components.extend(self.battery_state_estimator)
+            common_platform_components.append(self.battery_state_estimator)
 
         if len(self.can_bridges) > 0:
             common_platform_components.extend(self.can_bridges)
