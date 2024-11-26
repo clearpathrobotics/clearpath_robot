@@ -37,9 +37,14 @@ def generate_launch_description():
 
     namespace = LaunchConfiguration('namespace')
     parameters = LaunchConfiguration('parameters')
+    robot_namespace = LaunchConfiguration('robot_namespace')
 
     arg_namespace = DeclareLaunchArgument(
         'namespace',
+        default_value='')
+
+    arg_robot_namespace = DeclareLaunchArgument(
+        'robot_namespace',
         default_value='')
 
     arg_parameters = DeclareLaunchArgument(
@@ -56,7 +61,7 @@ def generate_launch_description():
         namespace=namespace,
         parameters=[parameters],
         remappings=[
-          ('/diagnostics', 'diagnostics'),
+          ('/diagnostics', PathJoinSubstitution(['/', robot_namespace, 'diagnostics'])),
         ],
         output='screen'
     )
@@ -68,9 +73,10 @@ def generate_launch_description():
         output='screen',
         parameters=[parameters],
         remappings=[
-          ('/diagnostics', 'diagnostics'),
-          ('/tf', 'tf'),
-          ('/tf_static', 'tf_static'),
+          ('/diagnostics', PathJoinSubstitution(['/', robot_namespace, 'diagnostics'])),
+          ('/tf', PathJoinSubstitution(['/', robot_namespace, 'tf'])),
+          ('/tf_static', PathJoinSubstitution(['/', robot_namespace, 'tf_static'])),
+          ('velodyne_points', 'points'),
         ],
     )
 
@@ -79,11 +85,15 @@ def generate_launch_description():
         executable='velodyne_laserscan_node',
         namespace=namespace,
         output='screen',
-        parameters=[parameters]
+        parameters=[parameters],
+        remappings=[
+          ('velodyne_points', 'points'),
+        ],
     )
 
     ld = LaunchDescription()
     ld.add_action(arg_namespace)
+    ld.add_action(arg_robot_namespace)
     ld.add_action(arg_parameters)
     ld.add_action(velodyne_driver_node)
     ld.add_action(velodyne_pointcloud_node)
