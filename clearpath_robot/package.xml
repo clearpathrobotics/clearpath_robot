@@ -18,12 +18,15 @@
   <exec_depend>socat</exec_depend>
 
   <!-- Metapackage dependencies-->
+  <exec_depend version_gte="1.0.0">clearpath_diagnostics</exec_depend>
   <exec_depend version_gte="1.0.0">clearpath_generator_robot</exec_depend>
+  <exec_depend version_gte="1.0.0">clearpath_hardware_interfaces</exec_depend>
   <exec_depend version_gte="1.0.0">clearpath_sensors</exec_depend>
+  <exec_depend version_gte="1.0.0">puma_motor_driver</exec_depend>
 
   <!-- Package dependencies-->
   <exec_depend version_gte="1.0.0">clearpath_config</exec_depend>
-  <exec_depend version_gte="1.0.0">clearpath_generator_common</exec_depend>
+  <exec_depend version_gte="1.0.0">clearpath_common</exec_depend>
   <exec_depend>robot_upstart</exec_depend>
 
   <!-- Manipulator dependencies -->
