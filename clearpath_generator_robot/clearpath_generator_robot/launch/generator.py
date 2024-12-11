@@ -199,7 +199,7 @@ class RobotLaunchGenerator(LaunchGenerator):
                 case BatteryConfig.S1P6:
                     module_ids = [49, 50, 51, 52, 53, 54]
 
-            module_series = str(module_ids)                
+            module_series = str([module_ids])                
 
             can_dev = 'vcan1'
 
@@ -268,7 +268,7 @@ class RobotLaunchGenerator(LaunchGenerator):
         self.can_bridges = []
         for can_bridge in self.clearpath_config.platform.can_bridges.get_all():
             self.can_bridges.append(LaunchFile(
-                'receiver',
+                f'{can_bridge.interface}_receiver',
                 package=ros2_socketcan_package,
                 args=[
                     ('namespace', self.namespace),
@@ -278,7 +278,7 @@ class RobotLaunchGenerator(LaunchGenerator):
             ))
 
             self.can_bridges.append(LaunchFile(
-                'sender',
+                f'{can_bridge.interface}_sender',
                 package=ros2_socketcan_package,
                 args=[
                     ('namespace', self.namespace),
