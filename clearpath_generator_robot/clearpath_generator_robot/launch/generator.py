@@ -269,6 +269,7 @@ class RobotLaunchGenerator(LaunchGenerator):
         for can_bridge in self.clearpath_config.platform.can_bridges.get_all():
             self.can_bridges.append(LaunchFile(
                 f'{can_bridge.interface}_receiver',
+                filename='receiver',
                 package=ros2_socketcan_package,
                 args=[
                     ('namespace', self.namespace),
@@ -279,6 +280,7 @@ class RobotLaunchGenerator(LaunchGenerator):
 
             self.can_bridges.append(LaunchFile(
                 f'{can_bridge.interface}_sender',
+                filename='sender',
                 package=ros2_socketcan_package,
                 args=[
                     ('namespace', self.namespace),
