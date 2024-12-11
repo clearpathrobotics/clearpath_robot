@@ -46,6 +46,10 @@ class RobotLaunchGenerator(LaunchGenerator):
     def __init__(self, setup_path: str = '/etc/clearpath/') -> None:
         super().__init__(setup_path)
 
+        # Additional packages specific to physical robots
+        self.pkg_clearpath_sensors = Package('clearpath_sensors')
+        self.pkg_clearpath_hardware_interfaces = Package('clearpath_hardware_interfaces')
+
         # Filter for MCU IMU
         self.imu_0_filter_node = LaunchFile.Node(
             package='imu_filter_madgwick',
