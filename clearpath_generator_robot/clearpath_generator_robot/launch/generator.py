@@ -189,7 +189,19 @@ class RobotLaunchGenerator(LaunchGenerator):
             inventus_bmu_params_file = ParamFile('default', package=pkg_inventus_bmu)
             inventus_bmu_params = inventus_bmu_params_file.full_path
 
-            can_dev = 'can1'
+            module_ids = []
+
+            match(self.clearpath_config.platform.battery.configuration):
+                case BatteryConfig.S1P2:
+                    module_ids = [49, 50]
+                case BatteryConfig.S1P4:
+                    module_ids = [49, 50, 51, 52]
+                case BatteryConfig.S1P6:
+                    module_ids = [49, 50, 51, 52, 53, 54]
+
+            module_series = str(module_ids)                
+
+            can_dev = 'vcan1'
 
             if launch_args:
                 if 'params' in launch_args:
@@ -204,7 +216,9 @@ class RobotLaunchGenerator(LaunchGenerator):
                 self.namespace,
                 parameters=[
                     inventus_bmu_params,
-                    {'can_device': can_dev}
+                    {'can_device': can_dev},
+                    {'module_ids': module_ids},
+                    {'module_series': module_series}
                 ],
                 remappings=[
                     ('bms/battery_state', 'platform/bms/state'),
