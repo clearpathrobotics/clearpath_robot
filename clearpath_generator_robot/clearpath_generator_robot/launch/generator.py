@@ -189,7 +189,19 @@ class RobotLaunchGenerator(LaunchGenerator):
             inventus_bmu_params_file = ParamFile('default', package=pkg_inventus_bmu)
             inventus_bmu_params = inventus_bmu_params_file.full_path
 
-            can_dev = 'can1'
+            module_ids = []
+
+            match(self.clearpath_config.platform.battery.configuration):
+                case BatteryConfig.S1P2:
+                    module_ids = [49, 50]
+                case BatteryConfig.S1P4:
+                    module_ids = [49, 50, 51, 52]
+                case BatteryConfig.S1P6:
+                    module_ids = [49, 50, 51, 52, 53, 54]
+
+            module_series = str([module_ids])                
+
+            can_dev = 'vcan1'
 
             if launch_args:
                 if 'params' in launch_args:
@@ -204,7 +216,9 @@ class RobotLaunchGenerator(LaunchGenerator):
                 self.namespace,
                 parameters=[
                     inventus_bmu_params,
-                    {'can_device': can_dev}
+                    {'can_device': can_dev},
+                    {'module_ids': module_ids},
+                    {'module_series': module_series}
                 ],
                 remappings=[
                     ('bms/battery_state', 'platform/bms/state'),
@@ -254,7 +268,8 @@ class RobotLaunchGenerator(LaunchGenerator):
         self.can_bridges = []
         for can_bridge in self.clearpath_config.platform.can_bridges.get_all():
             self.can_bridges.append(LaunchFile(
-                'receiver',
+                f'{can_bridge.interface}_receiver',
+                filename='receiver',
                 package=ros2_socketcan_package,
                 args=[
                     ('namespace', self.namespace),
@@ -264,7 +279,8 @@ class RobotLaunchGenerator(LaunchGenerator):
             ))
 
             self.can_bridges.append(LaunchFile(
-                'sender',
+                f'{can_bridge.interface}_sender',
+                filename='sender',
                 package=ros2_socketcan_package,
                 args=[
                     ('namespace', self.namespace),
