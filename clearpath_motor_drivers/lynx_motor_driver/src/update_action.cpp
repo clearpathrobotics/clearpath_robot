@@ -32,7 +32,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 // Binary files will have 15 reserved bytes that should be ignored
 static constexpr uint8_t BINARY_FILE_RESERVED_BYTE_START_INDEX = 3;
 static constexpr uint8_t BINARY_FILE_RESERVED_BYTE_END_INDEX = 18;
-static constexpr uint8_t ALIVE_CHECK_ATTEMPTS = 5;
+static constexpr uint8_t ALIVE_CHECK_ATTEMPTS = 100;
 
 /**
  * @brief Read
@@ -177,14 +177,25 @@ void LynxMotorNode::executeUpdateAction(const std::shared_ptr<GoalHandleUpdate> 
 
   RCLCPP_INFO(this->get_logger(), "Executing goal");
 
+  for (auto & driver : drivers_)
+  {
+    driver.updateReset();
+
+    // Send Boot request
+    RCLCPP_INFO(this->get_logger(), "Send boot request to %s", driver.getJointName().c_str());
+    driver.sendBootRequest();
+  }
+
+  // Allow time for Lynx to enter bootloader
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
   // Update each driver sequentially
   for (auto & driver : drivers_)
   {
     last_progress = 0.0f;
+    counter = 0;
 
-    // Reset update variables
-    driver.updateReset();
-
+    RCLCPP_INFO(this->get_logger(), "Send alive check to %s", driver.getJointName().c_str());
     // Wait for Lynx Alive response
     do {
       // Exit if action is cancelled
@@ -192,57 +203,49 @@ void LynxMotorNode::executeUpdateAction(const std::shared_ptr<GoalHandleUpdate> 
         goal_handle->canceled(result);
         RCLCPP_INFO(this->get_logger(), "Goal canceled while updating %s", driver.getJointName().c_str());
         return;
-      }
-
-      // Send Boot request
-      RCLCPP_INFO(this->get_logger(), "Send boot request to %s", driver.getJointName().c_str());
-      driver.sendBootRequest();
-
-      // Allow time for Lynx to enter bootloader
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      }      
 
       // Send alive check
-      RCLCPP_INFO(this->get_logger(), "Send alive check to %s", driver.getJointName().c_str());
       driver.sendBootAliveCheck();
 
-      std::this_thread::sleep_for(std::chrono::milliseconds(400));
-      counter++;
-    } while (!driver.tryGetUpdateAlive() && counter < ALIVE_CHECK_ATTEMPTS);
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    } while (!driver.tryGetUpdateAlive() && counter++ < ALIVE_CHECK_ATTEMPTS);
 
-    // Lynx did not respond in time
-    if (counter == ALIVE_CHECK_ATTEMPTS)
+    // Lynx responded
+    if (counter < ALIVE_CHECK_ATTEMPTS)
+    {
+      RCLCPP_INFO(this->get_logger(), "Driver %s is in bootloader", driver.getJointName().c_str());
+
+      do {
+        // Exit if action is cancelled
+        if (goal_handle->is_canceling()) {
+          goal_handle->canceled(result);
+          RCLCPP_INFO(this->get_logger(), "Goal canceled while updating %s", driver.getJointName().c_str());
+          return;
+        }
+
+        // Run an iteration of the update process
+        progress = driver.updateApp();
+
+        // Report progress as feedback
+        if (progress - last_progress >= 0.01f)
+        {
+          feedback->progress.at(i) = std::round(progress * 100);
+          goal_handle->publish_feedback(feedback);
+          last_progress = progress;
+        }
+      } while (progress < 1.0f);
+      result->success.at(i) = true;
+    }
+    else // Lynx did not respond in time
     {
       RCLCPP_INFO(this->get_logger(), "Driver %s is unresponsive, skipping", driver.getJointName().c_str());
-      continue;
+      result->success.at(i) = false;
     }
 
-    RCLCPP_INFO(this->get_logger(), "Driver %s is in bootloader", driver.getJointName().c_str());
-
-    do {
-      // Exit if action is cancelled
-      if (goal_handle->is_canceling()) {
-        goal_handle->canceled(result);
-        RCLCPP_INFO(this->get_logger(), "Goal canceled while updating %s", driver.getJointName().c_str());
-        return;
-      }
-
-      // Run an iteration of the update process
-      progress = driver.updateApp();
-
-      // Report progress as feedback
-      if (progress - last_progress >= 0.01f)
-      {
-        feedback->progress.at(i) = std::round(progress * 100);
-        goal_handle->publish_feedback(feedback);
-        last_progress = progress;
-      }
-    } while (progress < 1.0f);
-
-    // Send 100% on success
+    // Send 100% on last feedback message
     feedback->progress.at(i) = 100.0;
-    goal_handle->publish_feedback(feedback);
-
-    result->success.at(i) = true;
+    goal_handle->publish_feedback(feedback);    
 
     i++;
   }
