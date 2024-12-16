@@ -32,6 +32,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 // Binary files will have 15 reserved bytes that should be ignored
 static constexpr uint8_t BINARY_FILE_RESERVED_BYTE_START_INDEX = 3;
 static constexpr uint8_t BINARY_FILE_RESERVED_BYTE_END_INDEX = 18;
+static constexpr uint8_t ALIVE_CHECK_ATTEMPTS = 5;
 
 /**
  * @brief Read
@@ -172,28 +173,17 @@ void LynxMotorNode::executeUpdateAction(const std::shared_ptr<GoalHandleUpdate> 
   float progress = 0.0f;
   float last_progress = 0.0f;
   uint8_t i = 0;
+  uint16_t counter = 0;
 
   RCLCPP_INFO(this->get_logger(), "Executing goal");
-
-  for (auto & driver : drivers_)
-  {
-    // Reset update variables
-    driver.updateReset();
-    // Send Boot request to each driver
-    RCLCPP_INFO(this->get_logger(), "Send boot request to %s", driver.getJointName().c_str());
-    driver.sendBootRequest();
-  }
-
-  // Allow time for Lynx to enter bootloader
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   // Update each driver sequentially
   for (auto & driver : drivers_)
   {
     last_progress = 0.0f;
 
-    RCLCPP_INFO(this->get_logger(), "Send alive check to %s", driver.getJointName().c_str());
-    driver.sendBootAliveCheck();
+    // Reset update variables
+    driver.updateReset();
 
     // Wait for Lynx Alive response
     do {
@@ -204,8 +194,27 @@ void LynxMotorNode::executeUpdateAction(const std::shared_ptr<GoalHandleUpdate> 
         return;
       }
 
-      std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    } while (!driver.tryGetUpdateAlive());
+      // Send Boot request
+      RCLCPP_INFO(this->get_logger(), "Send boot request to %s", driver.getJointName().c_str());
+      driver.sendBootRequest();
+
+      // Allow time for Lynx to enter bootloader
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+      // Send alive check
+      RCLCPP_INFO(this->get_logger(), "Send alive check to %s", driver.getJointName().c_str());
+      driver.sendBootAliveCheck();
+
+      std::this_thread::sleep_for(std::chrono::milliseconds(400));
+      counter++;
+    } while (!driver.tryGetUpdateAlive() && counter < ALIVE_CHECK_ATTEMPTS);
+
+    // Lynx did not respond in time
+    if (counter == ALIVE_CHECK_ATTEMPTS)
+    {
+      RCLCPP_INFO(this->get_logger(), "Driver %s is unresponsive, skipping", driver.getJointName().c_str());
+      continue;
+    }
 
     RCLCPP_INFO(this->get_logger(), "Driver %s is in bootloader", driver.getJointName().c_str());
 
@@ -241,7 +250,6 @@ void LynxMotorNode::executeUpdateAction(const std::shared_ptr<GoalHandleUpdate> 
   // Check if goal is done
   if (rclcpp::ok()) {
     goal_handle->succeed(result);
-    RCLCPP_INFO(this->get_logger(), "Update succeeded");
     updating_ = false;
   }
 }
