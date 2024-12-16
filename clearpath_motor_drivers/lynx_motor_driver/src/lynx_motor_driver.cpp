@@ -616,6 +616,7 @@ void LynxMotorDriver::updateReset()
   (void)tryGetUpdateAck(temp);
   (void)tryGetUpdateAlive();
   can_count_ = 0;
+  app_count_ = 0;
 }
 
 /**
@@ -636,7 +637,6 @@ void LynxMotorDriver::copyApplication(const std::queue<uint8_t> app)
  */
 float LynxMotorDriver::updateApp()
 {
-  static uint16_t app_count;
   uint16_t can_count;
   uint8_t frame_data[8];
 
@@ -649,14 +649,14 @@ float LynxMotorDriver::updateApp()
       update_app_queue_.pop();
     }
 
-    app_count++;
+    app_count_++;
 
     do
     {
       send(CAN_MSGID_BOOT_DATA, frame_data, 8);
       // Wait for ACK
       getUpdateAck(can_count);
-    } while (can_count != app_count);
+    } while (can_count < app_count_);
   }
   else // Send remaining bytes
   {
@@ -674,14 +674,14 @@ float LynxMotorDriver::updateApp()
       }
     }
   
-    app_count++;
+    app_count_++;
 
     do
     {
       send(CAN_MSGID_BOOT_DATA, frame_data, 8);
       // Wait for ACK
       getUpdateAck(can_count);
-    } while (can_count != app_count);
+    } while (can_count < app_count_);
   }
 
   // Calculate progress

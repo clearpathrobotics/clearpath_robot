@@ -182,7 +182,7 @@ private:
   // Update application
   std::queue<uint8_t> update_app_queue_;
   uint32_t update_app_size_;
-  uint32_t can_count_;
+  uint32_t app_count_, can_count_;
 
   // Get COBID from message ID
   uint32_t getCOBID(const uint32_t id) const;
