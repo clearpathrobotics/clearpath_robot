@@ -318,13 +318,14 @@ bool LynxMotorDriver::processMessage(const Message& received_msg)
 
     case CAN_MSGID_BOOT_RESP:
     {
-      uint8_t resp = received_msg.getDataAsUint8();
+      uint16_t resp = received_msg.getDataAsUint16();
       if (resp == 0)
       {
         action_mutexes_[Action::Fields::UpdateAlive]->unlock();
       }
-      else if (resp == 1)
+      else
       {
+        can_count_ = resp;
         action_mutexes_[Action::Fields::UpdateAck]->unlock();
       }
       break;
@@ -609,6 +610,14 @@ void LynxMotorDriver::sendBootAliveCheck()
   send(CAN_MSGID_BOOT_ALIVE);
 }
 
+void LynxMotorDriver::updateReset()
+{
+  uint16_t temp;
+  (void)tryGetUpdateAck(temp);
+  (void)tryGetUpdateAlive();
+  can_count_ = 0;
+}
+
 /**
  * @brief Copy the application to the driver.
  * 
@@ -627,6 +636,8 @@ void LynxMotorDriver::copyApplication(const std::queue<uint8_t> app)
  */
 float LynxMotorDriver::updateApp()
 {
+  static uint16_t app_count;
+  uint16_t can_count;
   uint8_t frame_data[8];
 
   if (update_app_queue_.size() >= 8)
@@ -639,9 +650,13 @@ float LynxMotorDriver::updateApp()
     }
 
     send(CAN_MSGID_BOOT_DATA, frame_data, 8);
+    app_count++;
 
     // Wait for ACK
-    getUpdateAck();
+    do
+    {
+      getUpdateAck(can_count);
+    } while (can_count != app_count);
   }
   else // Send remaining bytes
   {
@@ -660,9 +675,13 @@ float LynxMotorDriver::updateApp()
     }
   
     send(CAN_MSGID_BOOT_DATA, frame_data, 8);
+    app_count++;
 
     // Wait for ACK
-    getUpdateAck();
+    do
+    {
+      getUpdateAck(can_count);
+    } while (can_count != app_count);
   }
 
   // Calculate progress
@@ -715,9 +734,15 @@ bool LynxMotorDriver::tryGetOffset(float & offset)
  * @return true if acquired.
  * @return false otherwise.
  */
-bool LynxMotorDriver::tryGetUpdateAck()
+bool LynxMotorDriver::tryGetUpdateAck(uint16_t & can_count)
 {
-  return action_mutexes_[Action::Fields::UpdateAck]->try_lock();
+  if (action_mutexes_[Action::Fields::UpdateAck]->try_lock())
+  {
+    can_count = can_count_;
+    return true;
+  }
+
+  return false;
 }
 
 /**
@@ -735,9 +760,10 @@ bool LynxMotorDriver::tryGetUpdateAlive()
  * @brief Acquire the update ack mutex.
  * Blocks until acquired.
  */
-void LynxMotorDriver::getUpdateAck()
+void LynxMotorDriver::getUpdateAck(uint16_t & can_count)
 {
-  return action_mutexes_[Action::Fields::UpdateAck]->lock();
+  action_mutexes_[Action::Fields::UpdateAck]->lock();
+  can_count = can_count_;
 }
 
 /**
@@ -746,7 +772,7 @@ void LynxMotorDriver::getUpdateAck()
  */
 void LynxMotorDriver::getUpdateAlive()
 {
-  return action_mutexes_[Action::Fields::UpdateAlive]->lock();
+  action_mutexes_[Action::Fields::UpdateAlive]->lock();
 }
 
 }  // namespace lynx_motor_driver

@@ -177,6 +177,8 @@ void LynxMotorNode::executeUpdateAction(const std::shared_ptr<GoalHandleUpdate> 
 
   for (auto & driver : drivers_)
   {
+    // Reset update variables
+    driver.updateReset();
     // Send Boot request to each driver
     RCLCPP_INFO(this->get_logger(), "Send boot request to %s", driver.getJointName().c_str());
     driver.sendBootRequest();
