@@ -649,12 +649,12 @@ float LynxMotorDriver::updateApp()
       update_app_queue_.pop();
     }
 
-    send(CAN_MSGID_BOOT_DATA, frame_data, 8);
     app_count++;
 
-    // Wait for ACK
     do
     {
+      send(CAN_MSGID_BOOT_DATA, frame_data, 8);
+      // Wait for ACK
       getUpdateAck(can_count);
     } while (can_count != app_count);
   }
@@ -674,12 +674,12 @@ float LynxMotorDriver::updateApp()
       }
     }
   
-    send(CAN_MSGID_BOOT_DATA, frame_data, 8);
     app_count++;
 
-    // Wait for ACK
     do
     {
+      send(CAN_MSGID_BOOT_DATA, frame_data, 8);
+      // Wait for ACK
       getUpdateAck(can_count);
     } while (can_count != app_count);
   }
