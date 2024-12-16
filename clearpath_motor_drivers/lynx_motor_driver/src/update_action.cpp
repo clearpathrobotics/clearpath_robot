@@ -207,8 +207,6 @@ void LynxMotorNode::executeUpdateAction(const std::shared_ptr<GoalHandleUpdate> 
 
     RCLCPP_INFO(this->get_logger(), "Driver %s is in bootloader", driver.getJointName().c_str());
 
-    driver.getUpdateAck();
-
     do {
       // Exit if action is cancelled
       if (goal_handle->is_canceling()) {
