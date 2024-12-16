@@ -111,8 +111,8 @@ rclcpp_action::GoalResponse LynxMotorNode::handleUpdateGoal(
     filename = dir / folder / file;
   }
   
-  RCLCPP_INFO(this->get_logger(), "Uploading file %s", filename.c_str());
   app = readBinaryFile(filename);
+  RCLCPP_INFO(this->get_logger(), "Uploading file %s len %ld", filename.c_str(), app.size());
   // Copy binary to each driver
   for (auto & driver : drivers_)
   {
@@ -175,17 +175,20 @@ void LynxMotorNode::executeUpdateAction(const std::shared_ptr<GoalHandleUpdate> 
 
   RCLCPP_INFO(this->get_logger(), "Executing goal");
 
+  for (auto & driver : drivers_)
+  {
+    // Send Boot request to each driver
+    RCLCPP_INFO(this->get_logger(), "Send boot request to %s", driver.getJointName().c_str());
+    driver.sendBootRequest();
+  }
+
+  // Allow time for Lynx to enter bootloader
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
   // Update each driver sequentially
   for (auto & driver : drivers_)
   {
     last_progress = 0.0f;
-
-    // Send Boot request
-    RCLCPP_INFO(this->get_logger(), "Send boot request to %s", driver.getJointName().c_str());
-    driver.sendBootRequest();
-
-    // Allow time for Lynx to enter bootloader
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     RCLCPP_INFO(this->get_logger(), "Send alive check to %s", driver.getJointName().c_str());
     driver.sendBootAliveCheck();
@@ -203,6 +206,8 @@ void LynxMotorNode::executeUpdateAction(const std::shared_ptr<GoalHandleUpdate> 
     } while (!driver.tryGetUpdateAlive());
 
     RCLCPP_INFO(this->get_logger(), "Driver %s is in bootloader", driver.getJointName().c_str());
+
+    driver.getUpdateAck();
 
     do {
       // Exit if action is cancelled
