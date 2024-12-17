@@ -13,11 +13,6 @@ SUBSYSTEM=="tty", ATTRS{idProduct}=="6001", ATTRS{idVendor}=="0403", ATTRS{produ
 # Rule to enable low latency mode for FTDI adaptors, regardless if flavoured or not.
 SUBSYSTEM=="tty", KERNEL=="ttyUSB[0-9]*", ATTRS{idProduct}=="6001", ATTRS{idVendor}=="0403", MODE="0666", RUN+="/bin/bash -c 'echo 1 > /sys$devpath/device/latency_timer'", SYMLINK+="ftdi_%s{serial}"
 
-# Udev rule for the Logitech controllers
-KERNEL=="js*", ATTRS{idVendor}=="046d", ATTRS{idProduct}=="c21f", SYMLINK+="input/f710"
-KERNEL=="js*", ATTRS{idVendor}=="046d", ATTRS{idProduct}=="c219", SYMLINK+="input/f710"
-KERNEL=="js*", ATTRS{idVendor}=="046d", ATTRS{idProduct}=="c21d", SYMLINK+="input/f310"
-
 # CAN rule for PCI CANBUS card
 SUBSYSTEM=="net", KERNEL == "can0", RUN+="/bin/sh -c 'ip link set can0 type can bitrate 1000000; ip link set can0 up'"
 SUBSYSTEM=="net", KERNEL == "can1", RUN+="/bin/sh -c 'ip link set can1 type can bitrate 500000;  ip link set can1 up'"
