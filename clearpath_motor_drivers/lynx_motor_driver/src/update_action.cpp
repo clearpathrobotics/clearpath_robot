@@ -203,7 +203,7 @@ void LynxMotorNode::executeUpdateAction(const std::shared_ptr<GoalHandleUpdate> 
         goal_handle->canceled(result);
         RCLCPP_INFO(this->get_logger(), "Goal canceled while updating %s", driver.getJointName().c_str());
         return;
-      }      
+      }
 
       // Send alive check
       driver.sendBootAliveCheck();
