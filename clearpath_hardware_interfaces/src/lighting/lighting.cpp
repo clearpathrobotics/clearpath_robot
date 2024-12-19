@@ -108,8 +108,8 @@ Lighting::Lighting()
       MS_TO_STEPS(1000), 0.5)},
 
     {State::NeedsReset, BlinkSequence(
-      Sequence::fillLightingState(COLOR_ORANGE, platform_),
-      Sequence::fillLightingState(COLOR_RED, platform_),
+      Sequence::fillOppositeCornerLightingState(COLOR_RED, COLOR_BLACK, platform_),
+      Sequence::fillOppositeCornerLightingState(COLOR_BLACK, COLOR_RED, platform_),
       MS_TO_STEPS(2000), 0.5)},
     
     {State::MotorOverheated, PulseSequence(
@@ -123,7 +123,7 @@ Lighting::Lighting()
     {State::LowBattery, PulseSequence(
       Sequence::fillLightingState(COLOR_ORANGE, platform_),
       Sequence::fillLightingState(COLOR_BLACK, platform_),
-      MS_TO_STEPS(4000))},
+      MS_TO_STEPS(8000))},
 
     {State::Driving, SolidSequence(
       Sequence::fillFrontRearLightingState(COLOR_WHITE, COLOR_RED, platform_))},
@@ -133,6 +133,11 @@ Lighting::Lighting()
   };
 
   current_sequence_ = lighting_sequence_.at(state_);
+
+  // Initial good battery message values until we receive the first message
+  battery_state_msg_.percentage = 1.0f;
+  battery_state_msg_.power_supply_health = sensor_msgs::msg::BatteryState::POWER_SUPPLY_HEALTH_GOOD;
+  battery_state_msg_.power_supply_status = sensor_msgs::msg::BatteryState::POWER_SUPPLY_STATUS_DISCHARGING;
 
   // Initialize ROS2 components
   initializePublishers();
@@ -210,12 +215,6 @@ void Lighting::initializeSubscribers()
     "platform/cmd_lights",
     rclcpp::SystemDefaultsQoS(),
     std::bind(&Lighting::cmdLightsCallback, this, std::placeholders::_1));
-
-  // MCU status
-  status_sub_ = this->create_subscription<clearpath_platform_msgs::msg::Status>(
-    "platform/mcu/status",
-    rclcpp::SensorDataQoS(),
-    std::bind(&Lighting::statusCallback, this, std::placeholders::_1));
 
   // MCU power status
   power_sub_ = this->create_subscription<clearpath_platform_msgs::msg::Power>(
@@ -314,14 +313,6 @@ void Lighting::cmdLightsCallback(const clearpath_platform_msgs::msg::Lights::Sha
 
   // Publish if allowed
   cmd_lights_pub_->publish(*msg);
-}
-
-/**
- * @brief MCU status callback
- */
-void Lighting::statusCallback(const clearpath_platform_msgs::msg::Status::SharedPtr msg)
-{
-  status_msg_ = *msg;
 }
 
 /**

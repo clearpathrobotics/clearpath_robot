@@ -78,8 +78,8 @@ public:
     ShorePower,
     Charged,
     Charging,
-    Stopped,
     NeedsReset,
+    Stopped,
     LowBattery,
     Driving,
     Idle
@@ -99,7 +99,6 @@ private:
   void startUserTimeoutTimer();
 
   void cmdLightsCallback(const clearpath_platform_msgs::msg::Lights::SharedPtr msg);
-  void statusCallback(const clearpath_platform_msgs::msg::Status::SharedPtr msg);
   void powerCallback(const clearpath_platform_msgs::msg::Power::SharedPtr msg);
   void stopStatusCallback(const clearpath_platform_msgs::msg::StopStatus::SharedPtr msg);
   void batteryStateCallback(const sensor_msgs::msg::BatteryState::SharedPtr msg);
@@ -130,7 +129,6 @@ private:
 
   // Messages
   clearpath_platform_msgs::msg::Lights lights_msg_;
-  clearpath_platform_msgs::msg::Status status_msg_;
   clearpath_platform_msgs::msg::Power power_msg_;
   clearpath_platform_msgs::msg::StopStatus stop_status_msg_;
   sensor_msgs::msg::BatteryState battery_state_msg_;
