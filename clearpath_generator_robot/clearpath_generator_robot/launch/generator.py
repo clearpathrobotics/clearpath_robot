@@ -132,9 +132,28 @@ class RobotLaunchGenerator(LaunchGenerator):
             ],
         )
 
-        # Diagnostics
+        # Diagnostics launch args
+        self.diag_updater_params = LaunchFile.LaunchArg(
+            'diagnostic_updater_params',
+            default_value=os.path.join(self.platform_params_path, 'diagnostic_updater.yaml'),
+        )
+        self.diag_aggregator_params = LaunchFile.LaunchArg(
+            'diagnostic_aggregator_params',
+            default_value=os.path.join(self.platform_params_path, 'diagnostic_aggregator.yaml'),
+        )
+
+        self.diagnostic_args = [
+            ('namespace', self.namespace),
+            ('updater_parameters', LaunchFile.Variable('diagnostic_updater_params')),
+            ('aggregator_parameters', LaunchFile.Variable('diagnostic_aggregator_params')),
+        ]
+
+        # Diagnostics launch
         clearpath_diagnostics_package = Package('clearpath_diagnostics')
-        self.diagnostics_launch = LaunchFile('diagnostics', package=clearpath_diagnostics_package)
+        self.diagnostics_launch = LaunchFile(
+            'diagnostics',
+            package=clearpath_diagnostics_package,
+            args=self.diagnostic_args)
 
         # Battery state
         self.battery_state_estimator = LaunchFile.Node(
@@ -296,6 +315,8 @@ class RobotLaunchGenerator(LaunchGenerator):
         # Components required for each platform
         common_platform_components = [
             self.wireless_watcher_node,
+            self.diag_updater_params,
+            self.diag_aggregator_params,
             self.diagnostics_launch,
             self.battery_state_control,
         ]

@@ -1,9 +1,8 @@
-#!/usr/bin/env python3
-
 # Software License Agreement (BSD)
 #
 # @author    Roni Kreinin <rkreinin@clearpathrobotics.com>
-# @copyright (c) 2023, Clearpath Robotics, Inc., All rights reserved.
+# @author    Hilary Luo <hluo@clearpathrobotics.com>
+# @copyright (c) 2025, Clearpath Robotics, Inc., All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -28,63 +27,50 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-# Redistribution and use in source and binary forms, with or without
-# modification, is not permitted without the express permission
-# of Clearpath Robotics.
-
-from ament_index_python.packages import get_package_share_directory
-
-from clearpath_config.clearpath_config import ClearpathConfig
-from clearpath_config.common.utils.yaml import read_yaml
-
 from launch import LaunchDescription
-from launch.actions import (
-    DeclareLaunchArgument,
-    GroupAction,
-    OpaqueFunction,
-)
+from launch.actions import DeclareLaunchArgument, GroupAction
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 
-from launch_ros.actions import Node, PushRosNamespace
+from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
 
 
-ARGUMENTS = [
-    DeclareLaunchArgument(
-        'setup_path',
-        default_value='/etc/clearpath/',
-        description='Clearpath setup path',
-    )
-]
+def generate_launch_description():
+    namespace = LaunchConfiguration('namespace')
+    aggregator_parameters = LaunchConfiguration('aggregator_parameters')
+    updater_parameters = LaunchConfiguration('updater_parameters')
 
+    arg_namespace = DeclareLaunchArgument(
+        'namespace',
+        default_value='',
+        description='Robot namespace, applied to diagnostic nodes and topics')
 
-def launch_setup(context, *args, **kwargs):
-    pkg_clearpath_diagnostics = get_package_share_directory('clearpath_diagnostics')
+    arg_aggregator_params = DeclareLaunchArgument(
+        'aggregator_parameters',
+        default_value=PathJoinSubstitution([
+          FindPackageShare('clearpath_diagnostics'),
+          'config',
+          'diagnostic_aggregator.yaml'
+        ]))
 
-    setup_path = LaunchConfiguration('setup_path')
+    arg_updater_params = DeclareLaunchArgument(
+        'updater_parameters',
+        default_value=PathJoinSubstitution([
+          FindPackageShare('clearpath_diagnostics'),
+          'config',
+          'diagnostic_updater.yaml'
+        ]))
 
-    robot_yaml = PathJoinSubstitution(
-        [setup_path, 'robot.yaml']
-    )
-
-    analyzer_params_filepath = PathJoinSubstitution(
-        [pkg_clearpath_diagnostics, 'config', 'diagnostics.yaml']
-    )
-
-    # Read robot YAML
-    config = read_yaml(robot_yaml.perform(context))
-    # Parse robot YAML into config
-    clearpath_config = ClearpathConfig(config)
-
-    namespace = clearpath_config.system.namespace
-    diagnostics = GroupAction(
+    diagnostics_action = GroupAction(
         [
-            PushRosNamespace(namespace),
             # Aggregator
             Node(
                 package='diagnostic_aggregator',
                 executable='aggregator_node',
+                name='diagnostic_aggregator',
+                namespace=namespace,
                 output='screen',
-                parameters=[analyzer_params_filepath],
+                parameters=[aggregator_parameters],
                 remappings=[
                     ('/diagnostics', 'diagnostics'),
                     ('/diagnostics_agg', 'diagnostics_agg'),
@@ -94,22 +80,23 @@ def launch_setup(context, *args, **kwargs):
             # Updater
             Node(
                 package='clearpath_diagnostics',
-                executable='diagnostics_updater',
+                executable='clearpath_diagnostic_updater',
+                name='clearpath_diagnostic_updater',
+                namespace=namespace,
                 output='screen',
+                parameters=[updater_parameters],
                 remappings=[
                     ('/diagnostics', 'diagnostics'),
                     ('/diagnostics_agg', 'diagnostics_agg'),
                     ('/diagnostics_toplevel_state', 'diagnostics_toplevel_state'),
                 ],
-                arguments=['-s', setup_path]
             ),
         ]
     )
 
-    return [diagnostics]
-
-
-def generate_launch_description():
-    ld = LaunchDescription(ARGUMENTS)
-    ld.add_action(OpaqueFunction(function=launch_setup))
+    ld = LaunchDescription()
+    ld.add_action(arg_namespace)
+    ld.add_action(arg_aggregator_params)
+    ld.add_action(arg_updater_params)
+    ld.add_action(diagnostics_action)
     return ld

@@ -1,0 +1,5 @@
+clearpath_diagnostic_updater:
+  ros__parameters:
+    serial_number: unknown
+    platform_model: unknown
+    topics: {}
