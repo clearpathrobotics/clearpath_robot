@@ -259,13 +259,8 @@ class Battery:
         ]
 
     class HE2411(LiION):
-        """
-        TODO All values are placeholders, copied from HE2613
-
-        Waiting for details to fill this in
-        """
-        CAPACITY = 12.8
-        VOLTAGE = 25.9
+        CAPACITY = 11.6
+        VOLTAGE = 25.3
         LUT = [
             [21.00, 0.0],
             [21.84, 0.1],
