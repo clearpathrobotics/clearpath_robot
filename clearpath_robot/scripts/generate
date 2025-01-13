@@ -37,6 +37,9 @@ source /etc/clearpath/setup.bash
 # Generate discovery server start file
 ros2 run clearpath_generator_common generate_discovery_server
 
+# Generate Zenoh router start file
+ros2 run clearpath_generator_common generate_zenoh_router
+
 # Generate vcan bridge start file
 ros2 run clearpath_generator_common generate_vcan
 
