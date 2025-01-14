@@ -258,6 +258,40 @@ class Battery:
             [29.40, 1.0],
         ]
 
+    class HE2411(LiION):
+        CAPACITY = 11.6
+        VOLTAGE = 25.3
+        LUT = [
+            [21.00, 0.0],
+            [21.84, 0.1],
+            [22.68, 0.2],
+            [23.52, 0.3],
+            [24.36, 0.4],
+            [25.20, 0.5],
+            [26.04, 0.6],
+            [26.88, 0.7],
+            [27.72, 0.8],
+            [28.56, 0.9],
+            [29.40, 1.0],
+        ]
+
+    class HE2410(LiION):
+        CAPACITY = 9.8
+        VOLTAGE = 25.3
+        LUT = [
+            [21.00, 0.0],
+            [21.84, 0.1],
+            [22.68, 0.2],
+            [23.52, 0.3],
+            [24.36, 0.4],
+            [25.20, 0.5],
+            [26.04, 0.6],
+            [26.88, 0.7],
+            [27.72, 0.8],
+            [28.56, 0.9],
+            [29.40, 1.0],
+        ]
+
     class ES20_12C(SLA):
         CAPACITY = 20.0
         VOLTAGE = 12.0
@@ -309,6 +343,8 @@ class Battery:
     # Match battery name to class
     BATTERIES = {
         BatteryConfig.HE2613: HE2613,
+        BatteryConfig.HE2411: HE2411,
+        BatteryConfig.HE2410: HE2410,
         BatteryConfig.ES20_12C: ES20_12C,
         BatteryConfig.U1_35: U1_35,
         BatteryConfig.TLV1222: TLV1222,
