@@ -8,8 +8,8 @@ Changelog for package clearpath_platform
 0.3.3 (2024-10-04)
 ------------------
 
-Forthcoming
------------
+1.1.0 (2025-01-15)
+------------------
 * Add HE2411 battery support (`#119 <https://github.com/clearpathrobotics/clearpath_robot/issues/119>`_)
   * Add support for the HE2410 and HE2411 batteries
 * Contributors: Chris Iverach-Brereton
