@@ -203,7 +203,7 @@ class RobotLaunchGenerator(LaunchGenerator):
                 case BatteryConfig.S1P6:
                     module_ids = [49, 50, 51, 52, 53, 54]
 
-            module_series = str([module_ids])                
+            module_series = str([module_ids])
 
             can_dev = 'vcan1'
 

@@ -86,8 +86,8 @@ void Sequence::reset()
 
 /**
  * @brief Get lighting sequence
- * 
- * @return LightingSequence 
+ *
+ * @return LightingSequence
  */
 const LightingSequence& Sequence::getSequence() const
 {
@@ -125,7 +125,7 @@ LightingState Sequence::fillFrontRearLightingState(ColorHSV front_color, ColorHS
 {
   front_color.setV(front_color.v() * PlatformBrightness.at(platform));
   rear_color.setV(rear_color.v() * PlatformBrightness.at(platform));
-  
+
   LightingState lighting_state(PlatformNumLights.at(platform), COLOR_BLACK);
   switch (platform)
   {
@@ -144,7 +144,7 @@ LightingState Sequence::fillFrontRearLightingState(ColorHSV front_color, ColorHS
       lighting_state.at(clearpath_platform_msgs::msg::Lights::D150_LIGHTS_REAR_LEFT) = rear_color;
       lighting_state.at(clearpath_platform_msgs::msg::Lights::D150_LIGHTS_REAR_RIGHT) = rear_color;
       break;
-    
+
     case Platform::W200:
       lighting_state.at(clearpath_platform_msgs::msg::Lights::W200_LIGHTS_FRONT_LEFT) = front_color;
       lighting_state.at(clearpath_platform_msgs::msg::Lights::W200_LIGHTS_FRONT_RIGHT) = front_color;
@@ -199,21 +199,21 @@ LightingState Sequence::fillLeftRightLightingState(ColorHSV left_color, ColorHSV
       lighting_state.at(clearpath_platform_msgs::msg::Lights::D150_LIGHTS_FRONT_RIGHT) = right_color;
       lighting_state.at(clearpath_platform_msgs::msg::Lights::D150_LIGHTS_REAR_RIGHT) = right_color;
       break;
-    
+
     case Platform::W200:
       lighting_state.at(clearpath_platform_msgs::msg::Lights::W200_LIGHTS_FRONT_LEFT) = left_color;
       lighting_state.at(clearpath_platform_msgs::msg::Lights::W200_LIGHTS_REAR_LEFT) = left_color;
       lighting_state.at(clearpath_platform_msgs::msg::Lights::W200_LIGHTS_FRONT_RIGHT) = right_color;
       lighting_state.at(clearpath_platform_msgs::msg::Lights::W200_LIGHTS_REAR_RIGHT) = right_color;
       break;
-    
+
     case Platform::A300:
       lighting_state.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_LEFT) = left_color;
       lighting_state.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_LEFT) = left_color;
       lighting_state.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_RIGHT) = right_color;
       lighting_state.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_RIGHT) = right_color;
       break;
-    
+
     case Platform::R100:
       lighting_state.at(clearpath_platform_msgs::msg::Lights::R100_LIGHTS_FRONT_PORT_UPPER) = left_color;
       lighting_state.at(clearpath_platform_msgs::msg::Lights::R100_LIGHTS_FRONT_PORT_LOWER) = left_color;
@@ -254,21 +254,20 @@ LightingState Sequence::fillOppositeCornerLightingState(ColorHSV front_left_colo
       lighting_state.at(clearpath_platform_msgs::msg::Lights::D150_LIGHTS_FRONT_RIGHT) = front_right_color;
       lighting_state.at(clearpath_platform_msgs::msg::Lights::D150_LIGHTS_REAR_LEFT) = front_right_color;
       break;
-    
     case Platform::W200:
       lighting_state.at(clearpath_platform_msgs::msg::Lights::W200_LIGHTS_FRONT_LEFT) = front_left_color;
       lighting_state.at(clearpath_platform_msgs::msg::Lights::W200_LIGHTS_REAR_RIGHT) = front_left_color;
       lighting_state.at(clearpath_platform_msgs::msg::Lights::W200_LIGHTS_FRONT_RIGHT) = front_right_color;
       lighting_state.at(clearpath_platform_msgs::msg::Lights::W200_LIGHTS_REAR_LEFT) = front_right_color;
       break;
-    
+
     case Platform::A300:
       lighting_state.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_LEFT) = front_left_color;
       lighting_state.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_RIGHT) = front_left_color;
       lighting_state.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_RIGHT) = front_right_color;
       lighting_state.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_LEFT) = front_right_color;
       break;
-    
+
     case Platform::R100:
       lighting_state.at(clearpath_platform_msgs::msg::Lights::R100_LIGHTS_FRONT_PORT_UPPER) = front_left_color;
       lighting_state.at(clearpath_platform_msgs::msg::Lights::R100_LIGHTS_FRONT_PORT_LOWER) = front_left_color;
@@ -280,7 +279,6 @@ LightingState Sequence::fillOppositeCornerLightingState(ColorHSV front_left_colo
       lighting_state.at(clearpath_platform_msgs::msg::Lights::R100_LIGHTS_REAR_PORT_LOWER) = front_right_color;
       break;
   }
-
   return lighting_state;
 }
 

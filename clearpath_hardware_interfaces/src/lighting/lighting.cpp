@@ -75,7 +75,7 @@ Lighting::Lighting()
       Sequence::fillLightingState(COLOR_BLUE, platform_),
       Sequence::fillLightingState(COLOR_RED, platform_),
       MS_TO_STEPS(2000), 0.5)},
-    
+
     {State::MotorFault, BlinkSequence(
       Sequence::fillLightingState(COLOR_RED, platform_),
       Sequence::fillLightingState(COLOR_RED, platform_),
@@ -111,12 +111,12 @@ Lighting::Lighting()
       Sequence::fillOppositeCornerLightingState(COLOR_RED, COLOR_BLACK, platform_),
       Sequence::fillOppositeCornerLightingState(COLOR_BLACK, COLOR_RED, platform_),
       MS_TO_STEPS(2000), 0.5)},
-    
+
     {State::MotorOverheated, PulseSequence(
       Sequence::fillFrontRearLightingState(COLOR_WHITE, COLOR_ORANGE, platform_),
       Sequence::fillFrontRearLightingState(COLOR_WHITE, COLOR_RED, platform_),
       MS_TO_STEPS(4000))},
-    
+
     {State::MotorThrottled, SolidSequence(
       Sequence::fillFrontRearLightingState(COLOR_WHITE_DIM, COLOR_ORANGE, platform_))},
 
@@ -245,7 +245,7 @@ void Lighting::initializeSubscribers()
     "platform/cmd_vel",
     rclcpp::SensorDataQoS(),
     std::bind(&Lighting::cmdVelCallback, this, std::placeholders::_1));
-  
+
   // System protection
   if (platform_ == Platform::A300)
   {
@@ -451,7 +451,7 @@ void Lighting::updateState()
       on_2.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_RIGHT) = COLOR_RED;
     }
 
-    lighting_sequence_.at(State::MotorFault) = 
+    lighting_sequence_.at(State::MotorFault) =
       BlinkSequence(
         off_1,
         on_1,

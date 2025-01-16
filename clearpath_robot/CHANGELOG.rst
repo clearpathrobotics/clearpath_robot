@@ -2,6 +2,27 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.0 (2025-01-15)
+------------------
+* Add dependency for ewellix_driver (`#125 <https://github.com/clearpathrobotics/clearpath_robot/issues/125>`_)
+  * Add dependency for ewellix_driver
+  * Alphabetical dependencies
+* Contributors: luis-camero
+
+1.0.1 (2024-11-28)
+------------------
+* Added missing dependencies (`#108 <https://github.com/clearpathrobotics/clearpath_robot/issues/108>`_)
+* Contributors: Roni Kreinin
+
+1.0.0 (2024-11-26)
+------------------
+* Added minimum version.
+* Make robot service always restart vcan
+* Add ur_robot_driver dependency
+* Add vcan to robot service wants
+* Change vcan service to use generated script
+* Contributors: Luis Camero, Tony Baltovski
+
 0.3.2 (2024-10-04)
 ------------------
 * [clearpath_robot] Added script to grab diagnostic logs for troubleshooting.

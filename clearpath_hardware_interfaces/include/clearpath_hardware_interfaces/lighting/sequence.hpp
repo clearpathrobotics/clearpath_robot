@@ -82,7 +82,7 @@ public:
 
     ls = sequence_;
     other_ls = other.getSequence();
-    
+
     for (std::size_t i = 0; i < sequence_.size(); i++)
     {
       ls.at(i).insert(ls.at(i).end(), other_ls.at(i).begin(), other_ls.at(i).end());
@@ -90,7 +90,7 @@ public:
 
     s.setSequence(ls);
     s.setNumStates(num_states_ + other.getNumStates());
-    
+
     return s;
   }
 

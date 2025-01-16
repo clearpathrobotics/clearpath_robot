@@ -2,6 +2,26 @@
 Changelog for package clearpath_platform
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.0 (2025-01-15)
+------------------
+* Add HE2411 battery support (`#119 <https://github.com/clearpathrobotics/clearpath_robot/issues/119>`_)
+  * Add support for the HE2410 and HE2411 batteries
+* Contributors: Chris Iverach-Brereton
+
+1.0.1 (2024-11-28)
+------------------
+
+1.0.0 (2024-11-26)
+------------------
+* Fixed version of new package.
+* Added minimum version.
+* Remove platform.launch.py
+* Move battery_state to clearpath_hardware_interfaces
+* Removed config install
+* Renamed header directory
+* Add clearpath_hardware_interfaces
+* Contributors: Luis Camero, Tony Baltovski
+
 0.3.4 (2024-10-08)
 ------------------
 
