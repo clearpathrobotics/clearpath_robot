@@ -94,6 +94,29 @@ public:
     return s;
   }
 
+  bool operator==(Sequence const& other)
+  {
+    LightingSequence ls, other_ls;
+
+    ls = sequence_;
+    other_ls = other.getSequence();
+    
+    for (std::size_t i = 0; i < sequence_.size(); i++)
+    {
+      if (ls.at(i) != other_ls.at(i))
+      {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  bool operator!=(Sequence const& other)
+  {
+    return !(sequence_ == other.getSequence());
+  }
+
 protected:
   LightingSequence sequence_;
   uint16_t current_state_, num_states_;

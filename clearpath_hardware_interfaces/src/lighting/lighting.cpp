@@ -178,7 +178,7 @@ void Lighting::spinOnce()
   }
 
   // Change lighting sequence if state has changed
-  if (old_state_ != state_)
+  if (old_state_ != state_ || current_sequence_ != lighting_sequence_.at(old_state_))
   {
     current_sequence_ = lighting_sequence_.at(state_);
     current_sequence_.reset();

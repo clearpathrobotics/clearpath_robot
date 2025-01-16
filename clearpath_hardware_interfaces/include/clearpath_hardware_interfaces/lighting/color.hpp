@@ -60,6 +60,16 @@ struct hsv_t {
     s = 0.0;
     v = 0.0;
   }
+
+  bool operator==(hsv_t const& other)
+  {
+    return (h == other.h && s == other.s && v == other.v);
+  }
+
+  bool operator!=(hsv_t const& other)
+  {
+    return !(*this == other);
+  }
 };
 
 static const hsv_t COLOR_RED = hsv_t(0.0, 100.0, 37.5);
@@ -85,9 +95,9 @@ public:
   ColorHSV(hsv_t hsv);
   static std::vector<ColorHSV> fade(ColorHSV start, ColorHSV end, uint32_t steps);
   clearpath_platform_msgs::msg::RGB getRgbMsg();
-  double h() { return hsv_.h; };
-  double s() { return hsv_.s; };
-  double v() { return hsv_.v; };
+  double h() const { return hsv_.h; };
+  double s() const { return hsv_.s; };
+  double v() const { return hsv_.v; };
 
   void setH(const double h)
   {
@@ -102,6 +112,16 @@ public:
   void setV(const double v)
   {
     hsv_.v = v;
+  }
+
+  bool operator==(const ColorHSV other) const
+  {
+    return (h() == other.h() && s() == other.s() && v() == other.v());
+  }
+
+  bool operator!=(const ColorHSV other) const
+  {
+    return !(*this == other);
   }
 
 private:
