@@ -29,7 +29,7 @@
 
 source /opt/ros/jazzy/setup.bash
 
-// Check if clearpath_generator_common package exists, if not look for it from a workspace
+# Check if clearpath_generator_common package exists, if not look for it from a workspace
 if [ ! -d "/opt/ros/jazzy/share/clearpath_generator_common" ]; then
   echo "/opt/ros/jazzy/share/clearpath_generator_common does not exist"
   echo "Expecting a workspace with clearpath_generator_common package"
