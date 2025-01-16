@@ -415,40 +415,17 @@ void Lighting::updateState()
     LightingState off_2 = LightingState(4, COLOR_RED);
     LightingState on_2 = LightingState(4, COLOR_RED);
 
-    if (system_protection_msg_.motor_states.at(
-      clearpath_motor_msgs::msg::LynxSystemProtection::A300_MOTOR_REAR_LEFT) == clearpath_motor_msgs::msg::LynxSystemProtection::ERROR)
+    uint8_t i = 0;
+    for (auto motor_state : system_protection_msg_.motor_states)
     {
-      off_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_LEFT) = COLOR_BLACK;
-      on_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_LEFT) = COLOR_RED;
-      off_2.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_LEFT) = COLOR_BLACK;
-      on_2.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_LEFT) = COLOR_RED;
-    }
-
-    if (system_protection_msg_.motor_states.at(
-      clearpath_motor_msgs::msg::LynxSystemProtection::A300_MOTOR_FRONT_LEFT) == clearpath_motor_msgs::msg::LynxSystemProtection::ERROR)
-    {
-      off_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_LEFT) = COLOR_BLACK;
-      on_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_LEFT) = COLOR_RED;
-      off_2.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_LEFT) = COLOR_BLACK;
-      on_2.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_LEFT) = COLOR_RED;
-    }
-
-    if (system_protection_msg_.motor_states.at(
-      clearpath_motor_msgs::msg::LynxSystemProtection::A300_MOTOR_REAR_RIGHT) == clearpath_motor_msgs::msg::LynxSystemProtection::ERROR)
-    {
-      off_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_RIGHT) = COLOR_BLACK;
-      on_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_RIGHT) = COLOR_RED;
-      off_2.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_RIGHT) = COLOR_BLACK;
-      on_2.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_RIGHT) = COLOR_RED;
-    }
-
-    if (system_protection_msg_.motor_states.at(
-      clearpath_motor_msgs::msg::LynxSystemProtection::A300_MOTOR_FRONT_RIGHT) == clearpath_motor_msgs::msg::LynxSystemProtection::ERROR)
-    {
-      off_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_RIGHT) = COLOR_BLACK;
-      on_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_RIGHT) = COLOR_RED;
-      off_2.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_RIGHT) = COLOR_BLACK;
-      on_2.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_RIGHT) = COLOR_RED;
+      if (motor_state == clearpath_motor_msgs::msg::LynxSystemProtection::ERROR)
+      {
+        off_1.at(a300_motor_light_map_.at(i)) = COLOR_BLACK;
+        on_1.at(a300_motor_light_map_.at(i)) = COLOR_RED;
+        off_2.at(a300_motor_light_map_.at(i)) = COLOR_BLACK;
+        on_2.at(a300_motor_light_map_.at(i)) = COLOR_RED;
+      }
+      i++;
     }
 
     lighting_sequence_.at(State::MotorFault) = 

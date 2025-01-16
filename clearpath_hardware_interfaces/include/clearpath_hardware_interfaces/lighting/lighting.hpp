@@ -87,6 +87,25 @@ public:
 
   std::map<State, Sequence> lighting_sequence_;
 
+  std::map<uint8_t, uint8_t> a300_motor_light_map_ = {
+    {
+      clearpath_motor_msgs::msg::LynxSystemProtection::A300_MOTOR_REAR_LEFT, 
+      clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_LEFT
+    },
+    {
+      clearpath_motor_msgs::msg::LynxSystemProtection::A300_MOTOR_FRONT_LEFT, 
+      clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_LEFT
+    },
+    {
+      clearpath_motor_msgs::msg::LynxSystemProtection::A300_MOTOR_FRONT_RIGHT, 
+      clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_RIGHT
+    },
+    {
+      clearpath_motor_msgs::msg::LynxSystemProtection::A300_MOTOR_REAR_RIGHT, 
+      clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_RIGHT
+    }
+  };
+
   Lighting();
 
 private:
