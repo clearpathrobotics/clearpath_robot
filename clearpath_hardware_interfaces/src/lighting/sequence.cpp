@@ -41,6 +41,7 @@ using clearpath_lighting::PulseSequence;
 using clearpath_lighting::Sequence;
 using clearpath_lighting::SolidSequence;
 using clearpath_lighting::LightingState;
+using clearpath_lighting::LightingSequence;
 using clearpath_lighting::Platform;
 
 /**
@@ -84,10 +85,36 @@ void Sequence::reset()
 }
 
 /**
+ * @brief Get lighting sequence
+ *
+ * @return LightingSequence
+ */
+const LightingSequence& Sequence::getSequence() const
+{
+  return sequence_;
+}
+
+void Sequence::setSequence(LightingSequence sequence)
+{
+  sequence_ = sequence;
+}
+
+uint16_t Sequence::getNumStates() const
+{
+  return num_states_;
+}
+
+void Sequence::setNumStates(const uint16_t num_states)
+{
+  num_states_ = num_states;
+}
+
+/**
  * @brief Fill all lights with a color
  */
 LightingState Sequence::fillLightingState(ColorHSV color, Platform platform)
 {
+  color.setV(color.v() * PlatformBrightness.at(platform));
   return LightingState(PlatformNumLights.at(platform), color);
 }
 
@@ -96,6 +123,9 @@ LightingState Sequence::fillLightingState(ColorHSV color, Platform platform)
  */
 LightingState Sequence::fillFrontRearLightingState(ColorHSV front_color, ColorHSV rear_color, Platform platform)
 {
+  front_color.setV(front_color.v() * PlatformBrightness.at(platform));
+  rear_color.setV(rear_color.v() * PlatformBrightness.at(platform));
+
   LightingState lighting_state(PlatformNumLights.at(platform), COLOR_BLACK);
   switch (platform)
   {
@@ -122,6 +152,13 @@ LightingState Sequence::fillFrontRearLightingState(ColorHSV front_color, ColorHS
       lighting_state.at(clearpath_platform_msgs::msg::Lights::W200_LIGHTS_REAR_RIGHT) = rear_color;
       break;
 
+    case Platform::A300:
+      lighting_state.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_LEFT) = front_color;
+      lighting_state.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_RIGHT) = front_color;
+      lighting_state.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_LEFT) = rear_color;
+      lighting_state.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_RIGHT) = rear_color;
+      break;
+
     case Platform::R100:
       lighting_state.at(clearpath_platform_msgs::msg::Lights::R100_LIGHTS_FRONT_PORT_UPPER) = front_color;
       lighting_state.at(clearpath_platform_msgs::msg::Lights::R100_LIGHTS_FRONT_PORT_LOWER) = front_color;
@@ -141,6 +178,9 @@ LightingState Sequence::fillFrontRearLightingState(ColorHSV front_color, ColorHS
  */
 LightingState Sequence::fillLeftRightLightingState(ColorHSV left_color, ColorHSV right_color, Platform platform)
 {
+  left_color.setV(left_color.v() * PlatformBrightness.at(platform));
+  right_color.setV(right_color.v() * PlatformBrightness.at(platform));
+
   LightingState lighting_state(PlatformNumLights.at(platform), COLOR_BLACK);
   switch (platform)
   {
@@ -167,6 +207,13 @@ LightingState Sequence::fillLeftRightLightingState(ColorHSV left_color, ColorHSV
       lighting_state.at(clearpath_platform_msgs::msg::Lights::W200_LIGHTS_REAR_RIGHT) = right_color;
       break;
 
+    case Platform::A300:
+      lighting_state.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_LEFT) = left_color;
+      lighting_state.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_LEFT) = left_color;
+      lighting_state.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_RIGHT) = right_color;
+      lighting_state.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_RIGHT) = right_color;
+      break;
+
     case Platform::R100:
       lighting_state.at(clearpath_platform_msgs::msg::Lights::R100_LIGHTS_FRONT_PORT_UPPER) = left_color;
       lighting_state.at(clearpath_platform_msgs::msg::Lights::R100_LIGHTS_FRONT_PORT_LOWER) = left_color;
@@ -186,6 +233,9 @@ LightingState Sequence::fillLeftRightLightingState(ColorHSV left_color, ColorHSV
  */
 LightingState Sequence::fillOppositeCornerLightingState(ColorHSV front_left_color, ColorHSV front_right_color, Platform platform)
 {
+  front_left_color.setV(front_left_color.v() * PlatformBrightness.at(platform));
+  front_right_color.setV(front_right_color.v() * PlatformBrightness.at(platform));
+
   LightingState lighting_state(PlatformNumLights.at(platform), COLOR_BLACK);
   switch (platform)
   {
@@ -204,12 +254,18 @@ LightingState Sequence::fillOppositeCornerLightingState(ColorHSV front_left_colo
       lighting_state.at(clearpath_platform_msgs::msg::Lights::D150_LIGHTS_FRONT_RIGHT) = front_right_color;
       lighting_state.at(clearpath_platform_msgs::msg::Lights::D150_LIGHTS_REAR_LEFT) = front_right_color;
       break;
-
     case Platform::W200:
       lighting_state.at(clearpath_platform_msgs::msg::Lights::W200_LIGHTS_FRONT_LEFT) = front_left_color;
       lighting_state.at(clearpath_platform_msgs::msg::Lights::W200_LIGHTS_REAR_RIGHT) = front_left_color;
       lighting_state.at(clearpath_platform_msgs::msg::Lights::W200_LIGHTS_FRONT_RIGHT) = front_right_color;
       lighting_state.at(clearpath_platform_msgs::msg::Lights::W200_LIGHTS_REAR_LEFT) = front_right_color;
+      break;
+
+    case Platform::A300:
+      lighting_state.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_LEFT) = front_left_color;
+      lighting_state.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_RIGHT) = front_left_color;
+      lighting_state.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_RIGHT) = front_right_color;
+      lighting_state.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_LEFT) = front_right_color;
       break;
 
     case Platform::R100:

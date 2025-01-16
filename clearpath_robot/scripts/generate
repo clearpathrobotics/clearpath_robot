@@ -27,7 +27,14 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
+
+// Check if clearpath_generator_common package exists, if not look for it from a workspace
+if [ ! -d "/opt/ros/jazzy/share/clearpath_generator_common" ]; then
+  echo "/opt/ros/jazzy/share/clearpath_generator_common does not exist"
+  echo "Expecting a workspace with clearpath_generator_common package"
+  source /home/$USER/colcon_ws/install/setup.bash
+fi
 
 # Generate and source setup.bash
 ros2 run clearpath_generator_common generate_bash
@@ -35,6 +42,9 @@ source /etc/clearpath/setup.bash
 
 # Generate discovery server start file
 ros2 run clearpath_generator_common generate_discovery_server
+
+# Generate Zenoh router start file
+ros2 run clearpath_generator_common generate_zenoh_router
 
 # Generate vcan bridge start file
 ros2 run clearpath_generator_common generate_vcan

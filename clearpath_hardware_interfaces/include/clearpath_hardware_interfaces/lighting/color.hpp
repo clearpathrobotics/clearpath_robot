@@ -60,20 +60,31 @@ struct hsv_t {
     s = 0.0;
     v = 0.0;
   }
+
+  bool operator==(hsv_t const& other)
+  {
+    return (h == other.h && s == other.s && v == other.v);
+  }
+
+  bool operator!=(hsv_t const& other)
+  {
+    return !(*this == other);
+  }
 };
 
-static const hsv_t COLOR_RED = hsv_t(0.0, 100.0, 100.0);
-static const hsv_t COLOR_RED_DIM = hsv_t(0.0, 100.0, 10.0);
-static const hsv_t COLOR_MAGENTA = hsv_t(300.0, 100.0, 100.0);
-static const hsv_t COLOR_BLUE = hsv_t(240.0, 100.0, 100.0);
-static const hsv_t COLOR_BLUE_DIM = hsv_t(240.0, 100.0, 10.0);
-static const hsv_t COLOR_CYAN = hsv_t(180.0, 100.0, 100.0);
-static const hsv_t COLOR_GREEN = hsv_t(120.0, 100.0, 100.0);
-static const hsv_t COLOR_GREEN_DIM = hsv_t(120.0, 100.0, 10.0);
-static const hsv_t COLOR_YELLOW = hsv_t(60.0, 100.0, 100.0);
-static const hsv_t COLOR_ORANGE = hsv_t(30.0, 100.0, 100.0);
-static const hsv_t COLOR_WHITE = hsv_t(0.0, 0.0, 100.0);
-static const hsv_t COLOR_WHITE_DIM = hsv_t(0.0, 0.0, 10.0);
+static const hsv_t COLOR_RED = hsv_t(0.0, 100.0, 37.5);
+static const hsv_t COLOR_RED_DIM = hsv_t(0.0, 100.0, 18.75);
+static const hsv_t COLOR_MAGENTA = hsv_t(300.0, 100.0, 25.0);
+static const hsv_t COLOR_BLUE = hsv_t(240.0, 100.0, 25.0);
+static const hsv_t COLOR_BLUE_DIM = hsv_t(240.0, 100.0, 12.5);
+static const hsv_t COLOR_CYAN = hsv_t(180.0, 100.0, 25.0);
+static const hsv_t COLOR_GREEN = hsv_t(120.0, 100.0, 25.0);
+static const hsv_t COLOR_GREEN_DIM = hsv_t(120.0, 100.0, 12.5);
+static const hsv_t COLOR_YELLOW = hsv_t(60.0, 100.0, 25.0);
+static const hsv_t COLOR_ORANGE = hsv_t(30.0, 100.0, 25.0);
+static const hsv_t COLOR_ORANGE_DARK = hsv_t(30.0, 100.0, 1.0);
+static const hsv_t COLOR_WHITE = hsv_t(0.0, 0.0, 25.0);
+static const hsv_t COLOR_WHITE_DIM = hsv_t(0.0, 0.0, 12.5);
 static const hsv_t COLOR_BLACK = hsv_t(0.0, 0.0, 0.0);
 
 
@@ -84,9 +95,35 @@ public:
   ColorHSV(hsv_t hsv);
   static std::vector<ColorHSV> fade(ColorHSV start, ColorHSV end, uint32_t steps);
   clearpath_platform_msgs::msg::RGB getRgbMsg();
-  double h() { return hsv_.h; };
-  double s() { return hsv_.s; };
-  double v() { return hsv_.v; };
+  double h() const { return hsv_.h; };
+  double s() const { return hsv_.s; };
+  double v() const { return hsv_.v; };
+
+  void setH(const double h)
+  {
+    hsv_.h = h;
+  }
+
+  void setS(const double s)
+  {
+    hsv_.s = s;
+  }
+
+  void setV(const double v)
+  {
+    hsv_.v = v;
+  }
+
+  bool operator==(const ColorHSV other) const
+  {
+    return (h() == other.h() && s() == other.s() && v() == other.v());
+  }
+
+  bool operator!=(const ColorHSV other) const
+  {
+    return !(*this == other);
+  }
+
 private:
   hsv_t hsv_;
 };

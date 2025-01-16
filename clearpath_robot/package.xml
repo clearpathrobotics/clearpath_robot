@@ -22,6 +22,7 @@
   <exec_depend version_gte="1.0.0">clearpath_generator_robot</exec_depend>
   <exec_depend version_gte="1.0.0">clearpath_hardware_interfaces</exec_depend>
   <exec_depend version_gte="1.0.0">clearpath_sensors</exec_depend>
+  <exec_depend version_gte="1.0.0">lynx_motor_driver</exec_depend>
   <exec_depend version_gte="1.0.0">puma_motor_driver</exec_depend>
 
   <!-- Package dependencies-->
@@ -30,8 +31,7 @@
   <exec_depend>robot_upstart</exec_depend>
 
   <!-- Manipulator dependencies -->
-  <exec_depend>ewellix_driver</exec_depend>
-  <exec_depend>kortex_driver</exec_depend>
+  <!--<exec_depend>kortex_driver</exec_depend>-->
   <exec_depend>robotiq_controllers</exec_depend>
   <exec_depend>ur_robot_driver</exec_depend>
 

@@ -2,16 +2,16 @@ repositories:
   clearpath_config:
     type: git
     url: https://github.com/clearpathrobotics/clearpath_config.git
-    version: humble
+    version: jazzy
   clearpath_common:
     type: git
     url: https://github.com/clearpathrobotics/clearpath_common.git
-    version: humble
+    version: jazzy
   clearpath_msgs:
     type: git
     url: https://github.com/clearpathrobotics/clearpath_msgs.git
-    version: humble
+    version: jazzy
   clearpath_ros2_socketcan_interface:
     type: git
     url: https://github.com/clearpathrobotics/clearpath_ros2_socketcan_interface.git
-    version: humble
+    version: jazzy

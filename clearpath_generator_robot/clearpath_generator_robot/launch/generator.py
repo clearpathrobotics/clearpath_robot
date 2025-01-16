@@ -35,7 +35,7 @@ import os
 
 from clearpath_config.common.types.platform import Platform
 from clearpath_config.platform.battery import BatteryConfig
-from clearpath_generator_common.common import LaunchFile, Package
+from clearpath_generator_common.common import LaunchFile, Package, ParamFile
 from clearpath_generator_common.launch.generator import LaunchGenerator
 from clearpath_generator_common.launch.writer import LaunchWriter
 from clearpath_generator_robot.launch.sensors import SensorLaunch
@@ -45,6 +45,10 @@ class RobotLaunchGenerator(LaunchGenerator):
 
     def __init__(self, setup_path: str = '/etc/clearpath/') -> None:
         super().__init__(setup_path)
+
+        # Additional packages specific to physical robots
+        self.pkg_clearpath_sensors = Package('clearpath_sensors')
+        self.pkg_clearpath_hardware_interfaces = Package('clearpath_hardware_interfaces')
 
         # Filter for MCU IMU
         self.imu_0_filter_node = LaunchFile.Node(
@@ -149,8 +153,11 @@ class RobotLaunchGenerator(LaunchGenerator):
             arguments=['-s', setup_path]
         )
 
-        # Valence BMS
+        # BMS
         self.bms_launch_file = None
+        self.bms_node = None
+
+        # Valence BMS
         if (self.clearpath_config.platform.battery.model in
                 [BatteryConfig.VALENCE_U24_12XP, BatteryConfig.VALENCE_U27_12XP]):
 
@@ -176,6 +183,54 @@ class RobotLaunchGenerator(LaunchGenerator):
                 package=Package('valence_bms_driver'),
                 args=bms_launch_args
                 )
+        # Inventus BMS
+        elif (self.clearpath_config.platform.battery.model in
+              [BatteryConfig.S_24V20_U1]):
+
+            pkg_inventus_bmu = Package('inventus_bmu')
+            launch_args = self.clearpath_config.platform.battery.launch_args
+
+            inventus_bmu_params_file = ParamFile('default', package=pkg_inventus_bmu)
+            inventus_bmu_params = inventus_bmu_params_file.full_path
+
+            module_ids = []
+
+            match(self.clearpath_config.platform.battery.configuration):
+                case BatteryConfig.S1P2:
+                    module_ids = [49, 50]
+                case BatteryConfig.S1P4:
+                    module_ids = [49, 50, 51, 52]
+                case BatteryConfig.S1P6:
+                    module_ids = [49, 50, 51, 52, 53, 54]
+
+            module_series = str([module_ids])
+
+            can_dev = 'vcan1'
+
+            if launch_args:
+                if 'params' in launch_args:
+                    inventus_bmu_params = launch_args['params']
+                if 'can_device' in launch_args:
+                    can_dev = launch_args['can_device']
+
+            self.bms_node = LaunchFile.Node(
+                'inventus_bmu',
+                'inventus_bmu',
+                'inventus_bmu_driver',
+                self.namespace,
+                parameters=[
+                    inventus_bmu_params,
+                    {'can_device': can_dev},
+                    {'module_ids': module_ids},
+                    {'module_series': module_series}
+                ],
+                remappings=[
+                    ('bms/battery_state', 'platform/bms/state'),
+                    ('modules', 'platform/bms/modules'),
+                    ('bms/low_soc_alarm', 'platform/bms/low_soc_alarm'),
+                    ('bms/soc_difference_alarm', 'platform/bms/soc_difference_alarm')
+                ]
+            )
 
         # Lighting
         self.lighting_node = LaunchFile.Node(
@@ -203,12 +258,22 @@ class RobotLaunchGenerator(LaunchGenerator):
           namespace=self.namespace,
         )
 
+        # BLDC Multi-Drive Node
+        self.lynx_node = LaunchFile.Node(
+          package='lynx_motor_driver',
+          executable='lynx_motor_driver',
+          parameters=[os.path.join(self.platform_params_path, 'control.yaml')],
+          name='lynx_control',
+          namespace=self.namespace,
+        )
+
         # ROS2 socketcan bridges
         ros2_socketcan_package = Package('clearpath_ros2_socketcan_interface')
         self.can_bridges = []
         for can_bridge in self.clearpath_config.platform.can_bridges.get_all():
             self.can_bridges.append(LaunchFile(
-                'receiver',
+                f'{can_bridge.interface}_receiver',
+                filename='receiver',
                 package=ros2_socketcan_package,
                 args=[
                     ('namespace', self.namespace),
@@ -218,7 +283,8 @@ class RobotLaunchGenerator(LaunchGenerator):
             ))
 
             self.can_bridges.append(LaunchFile(
-                'sender',
+                f'{can_bridge.interface}_sender',
+                filename='sender',
                 package=ros2_socketcan_package,
                 args=[
                     ('namespace', self.namespace),
@@ -231,9 +297,12 @@ class RobotLaunchGenerator(LaunchGenerator):
         common_platform_components = [
             self.wireless_watcher_node,
             self.diagnostics_launch,
-            self.battery_state_estimator,
-            self.battery_state_control
+            self.battery_state_control,
         ]
+
+        # Only add estimator when no BMS is present
+        if self.bms_launch_file is None and self.bms_node is None:
+            common_platform_components.append(self.battery_state_estimator)
 
         if len(self.can_bridges) > 0:
             common_platform_components.extend(self.can_bridges)
@@ -247,6 +316,12 @@ class RobotLaunchGenerator(LaunchGenerator):
                 self.nmea_driver_node
             ],
             Platform.A200: common_platform_components,
+            Platform.A300: common_platform_components + [
+                self.eth_uros_node,
+                self.configure_mcu,
+                self.lighting_node,
+                self.lynx_node,
+            ],
             Platform.W200: common_platform_components + [
                 self.imu_0_filter_node,
                 self.imu_0_filter_config,
@@ -335,6 +410,9 @@ class RobotLaunchGenerator(LaunchGenerator):
 
         if self.bms_launch_file:
             platform_service_launch_writer.add(self.bms_launch_file)
+
+        if self.bms_node:
+            platform_service_launch_writer.add(self.bms_node)
 
         platform_service_launch_writer.generate_file()
 

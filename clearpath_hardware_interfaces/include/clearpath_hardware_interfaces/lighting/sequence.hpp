@@ -61,13 +61,61 @@ class Sequence
 {
 
 public:
+  Sequence();
+
   clearpath_platform_msgs::msg::Lights getLightsMsg();
   void reset();
   static LightingState fillLightingState(ColorHSV color, clearpath_lighting::Platform platform);
   static LightingState fillFrontRearLightingState(ColorHSV front_color, ColorHSV rear_color, clearpath_lighting::Platform platform);
   static LightingState fillLeftRightLightingState(ColorHSV left_color, ColorHSV right_color, clearpath_lighting::Platform platform);
   static LightingState fillOppositeCornerLightingState(ColorHSV front_left_color, ColorHSV front_right_color, clearpath_lighting::Platform platform);
-  Sequence();
+  const LightingSequence& getSequence() const;
+  void setSequence(LightingSequence sequence);
+
+  uint16_t getNumStates() const;
+  void setNumStates(const uint16_t num_states);
+
+  Sequence operator+(Sequence const& other)
+  {
+    Sequence s;
+    LightingSequence ls, other_ls;
+
+    ls = sequence_;
+    other_ls = other.getSequence();
+
+    for (std::size_t i = 0; i < sequence_.size(); i++)
+    {
+      ls.at(i).insert(ls.at(i).end(), other_ls.at(i).begin(), other_ls.at(i).end());
+    }
+
+    s.setSequence(ls);
+    s.setNumStates(num_states_ + other.getNumStates());
+
+    return s;
+  }
+
+  bool operator==(Sequence const& other)
+  {
+    LightingSequence ls, other_ls;
+
+    ls = sequence_;
+    other_ls = other.getSequence();
+    
+    for (std::size_t i = 0; i < sequence_.size(); i++)
+    {
+      if (ls.at(i) != other_ls.at(i))
+      {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  bool operator!=(Sequence const& other)
+  {
+    return !(sequence_ == other.getSequence());
+  }
 
 protected:
   LightingSequence sequence_;

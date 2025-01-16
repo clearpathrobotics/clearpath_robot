@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<library path="lynx_hardware">
+  <class name="clearpath_hardware_interfaces/LynxHardware"
+         type="clearpath_hardware_interfaces::LynxHardware"
+         base_class_type="hardware_interface::SystemInterface">
+    <description>
+      The ros2_control LynxHardware using a system hardware interface-type.
+    </description>
+  </class>
+</library>

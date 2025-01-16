@@ -1,9 +1,10 @@
 /**
  *
  *  \file
- *  \brief      Platform Header
+ *  \brief      Lynx Motor hardware interface class
+ *  \author     Luis Camero <lcamero@clearpathrobotics.com>
  *  \author     Roni Kreinin <rkreinin@clearpathrobotics.com>
- *  \copyright  Copyright (c) 2023, Clearpath Robotics, Inc.
+ *  \copyright  Copyright (c) 2024, Clearpath Robotics, Inc.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,62 +30,39 @@
  *
  * Please send comments, questions, or patches to code@clearpathrobotics.com
  *
- * Adapted from https://gist.github.com/borgel/d9a8bc11aeb5e0005d8320026c46f6f7
  */
+#ifndef CLEARPATH_HARDWARE_INTERFACES__LYNX_HARDWARE_INTERFACE_HPP_
+#define CLEARPATH_HARDWARE_INTERFACES__LYNX_HARDWARE_INTERFACE_HPP_
 
-#ifndef CLEARPATH_HARDWARE_INTERFACES__LIGHTING__PLATFORM_HPP_
-#define CLEARPATH_HARDWARE_INTERFACES__LIGHTING__PLATFORM_HPP_
+#include "rclcpp/rclcpp.hpp"
+#include "sensor_msgs/msg/joint_state.hpp"
 
-#include <map>
-#include <stdint.h>
+#include "clearpath_motor_msgs/msg/lynx_feedback.hpp"
+#include "clearpath_motor_msgs/msg/lynx_multi_feedback.hpp"
 
-namespace clearpath_lighting
+namespace clearpath_hardware_interfaces
 {
 
-enum Platform
+class LynxHardwareInterface
+: public rclcpp::Node
 {
-  A300,
-  DD100,
-  DO100,
-  DD150,
-  DO150,
-  R100,
-  W200
+  public:
+  explicit LynxHardwareInterface(std::string node_name);
+
+  void drive_command(const sensor_msgs::msg::JointState msg);
+
+  bool has_new_feedback();
+  void feedback_callback(const clearpath_motor_msgs::msg::LynxMultiFeedback::SharedPtr msg);
+  clearpath_motor_msgs::msg::LynxMultiFeedback get_feedback();
+
+  private:
+  rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr pub_cmd_;
+  rclcpp::Subscription<clearpath_motor_msgs::msg::LynxMultiFeedback>::SharedPtr sub_feedback_;
+
+  clearpath_motor_msgs::msg::LynxMultiFeedback feedback_;
+  std::atomic_bool has_feedback_;
 };
 
-static std::map<std::string, Platform> ClearpathPlatforms
-{
-  {"a300", Platform::A300},
-  {"dd100", Platform::DD100},
-  {"do100", Platform::DO100},
-  {"dd150", Platform::DD150},
-  {"do150", Platform::DO150},
-  {"r100", Platform::R100},
-  {"w200", Platform::W200},
-};
+} // namespace clearpath_hardware_interfaces
 
-static std::map<Platform, int> PlatformNumLights
-{
-  {Platform::A300, 4},
-  {Platform::DD100, 4},
-  {Platform::DO100, 4},
-  {Platform::DD150, 4},
-  {Platform::DO150, 4},
-  {Platform::R100, 8},
-  {Platform::W200, 4},
-};
-
-static std::map<Platform, float> PlatformBrightness
-{
-  {Platform::A300, 0.5f},
-  {Platform::DD100, 1.0f},
-  {Platform::DO100, 1.0f},
-  {Platform::DD150, 1.0f},
-  {Platform::DO150, 1.0f},
-  {Platform::R100, 1.0f},
-  {Platform::W200, 1.0f},
-};
-
-}
-
-#endif  // CLEARPATH_HARDWARE_INTERFACES__LIGHTING__PLATFORM_HPP_
+#endif // CLEARPATH_HARDWARE_INTERFACES__LYNX_HARDWARE_INTERFACE_HPP_

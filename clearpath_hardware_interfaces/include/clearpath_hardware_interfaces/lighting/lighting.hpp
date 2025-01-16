@@ -44,7 +44,9 @@
 #include "clearpath_platform_msgs/msg/power.hpp"
 #include "clearpath_platform_msgs/msg/stop_status.hpp"
 
-#include "geometry_msgs/msg/twist.hpp"
+#include "clearpath_motor_msgs/msg/lynx_system_protection.hpp"
+
+#include "geometry_msgs/msg/twist_stamped.hpp"
 #include "sensor_msgs/msg/battery_state.hpp"
 #include "std_msgs/msg/bool.hpp"
 
@@ -68,14 +70,16 @@ public:
   {
     BatteryFault = 0,
     ShoreFault,
-    //PumaFault,
+    MotorFault,
+    MotorOverheated,
+    MotorThrottled,
     ShoreAndCharged,
     ShoreAndCharging,
     ShorePower,
     Charged,
     Charging,
-    Stopped,
     NeedsReset,
+    Stopped,
     LowBattery,
     Driving,
     Idle
@@ -95,12 +99,12 @@ private:
   void startUserTimeoutTimer();
 
   void cmdLightsCallback(const clearpath_platform_msgs::msg::Lights::SharedPtr msg);
-  void statusCallback(const clearpath_platform_msgs::msg::Status::SharedPtr msg);
   void powerCallback(const clearpath_platform_msgs::msg::Power::SharedPtr msg);
   void stopStatusCallback(const clearpath_platform_msgs::msg::StopStatus::SharedPtr msg);
   void batteryStateCallback(const sensor_msgs::msg::BatteryState::SharedPtr msg);
   void stopEngagedCallback(const std_msgs::msg::Bool::SharedPtr msg);
-  void cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg);
+  void cmdVelCallback(const geometry_msgs::msg::TwistStamped::SharedPtr msg);
+  void systemProtectionCallback(const clearpath_motor_msgs::msg::LynxSystemProtection::SharedPtr msg);
 
   /** Updates the current lighting state based on all inputs */
   void setState(Lighting::State new_state);
@@ -116,7 +120,8 @@ private:
   rclcpp::Subscription<clearpath_platform_msgs::msg::StopStatus>::SharedPtr stop_status_sub_;
   rclcpp::Subscription<sensor_msgs::msg::BatteryState>::SharedPtr battery_state_sub_;
   rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr stop_engaged_sub_;
-  rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_sub_;
+  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr cmd_vel_sub_;
+  rclcpp::Subscription<clearpath_motor_msgs::msg::LynxSystemProtection>::SharedPtr system_protection_sub_;
 
   // Timers
   rclcpp::TimerBase::SharedPtr lighting_timer_;
@@ -124,12 +129,12 @@ private:
 
   // Messages
   clearpath_platform_msgs::msg::Lights lights_msg_;
-  clearpath_platform_msgs::msg::Status status_msg_;
   clearpath_platform_msgs::msg::Power power_msg_;
   clearpath_platform_msgs::msg::StopStatus stop_status_msg_;
   sensor_msgs::msg::BatteryState battery_state_msg_;
   std_msgs::msg::Bool stop_engaged_msg_;
-  geometry_msgs::msg::Twist cmd_vel_msg_;
+  geometry_msgs::msg::TwistStamped cmd_vel_msg_;
+  clearpath_motor_msgs::msg::LynxSystemProtection system_protection_msg_;
 
   // Variables
   Platform platform_;

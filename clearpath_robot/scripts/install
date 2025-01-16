@@ -38,6 +38,8 @@ from ament_index_python.packages import get_package_share_directory
 
 import os
 
+import robot_upstart.providers
+
 
 class VirtualCANProvider(robot_upstart.providers.Generic):
     def post_install(self):
@@ -55,16 +57,16 @@ class VirtualCANProvider(robot_upstart.providers.Generic):
         with open(vcan_bridge_path) as f:
             vcan_bridge_contents = f.read()
         return {
-            "/lib/systemd/system/clearpath-vcan.service": {
-                "content": vcan_service_contents,
-                "mode": 0o644
+            '/lib/systemd/system/clearpath-vcan.service': {
+                'content': vcan_service_contents,
+                'mode': 0o644
             },
-            "/usr/sbin/clearpath-vcan-bridge": {
-                "content": vcan_bridge_contents,
-                "mode": 0o755
+            '/usr/sbin/clearpath-vcan-bridge': {
+                'content': vcan_bridge_contents,
+                'mode': 0o755
             },
-            "/etc/systemd/system/clearpath-robot.service.wants/clearpath-vcan.service": {
-                "symlink": "/lib/systemd/system/clearpath-vcan.service"
+            '/etc/systemd/system/clearpath-robot.service.wants/clearpath-vcan.service': {
+                'symlink': '/lib/systemd/system/clearpath-vcan.service'
             },
         }
 
@@ -86,12 +88,12 @@ class PlatformProvider(robot_upstart.providers.Generic):
                     line = 'User={0}\n'.format(clearpath_config.system.username)
                 platform_service_contents += line
         return {
-            "/lib/systemd/system/clearpath-platform.service": {
-                "content": platform_service_contents,
-                "mode": 0o644
+            '/lib/systemd/system/clearpath-platform.service': {
+                'content': platform_service_contents,
+                'mode': 0o644
             },
-            "/etc/systemd/system/clearpath-robot.service.wants/clearpath-platform.service": {
-                "symlink": "/lib/systemd/system/clearpath-platform.service"
+            '/etc/systemd/system/clearpath-robot.service.wants/clearpath-platform.service': {
+                'symlink': '/lib/systemd/system/clearpath-platform.service'
             }
         }
 
@@ -113,12 +115,12 @@ class SensorsProvider(robot_upstart.providers.Generic):
                     line = 'User={0}\n'.format(clearpath_config.system.username)
                 sensors_service_contents += line
         return {
-            "/lib/systemd/system/clearpath-sensors.service": {
-                "content": sensors_service_contents,
-                "mode": 0o644
+            '/lib/systemd/system/clearpath-sensors.service': {
+                'content': sensors_service_contents,
+                'mode': 0o644
             },
-            "/etc/systemd/system/clearpath-robot.service.wants/clearpath-sensors.service": {
-                "symlink": "/lib/systemd/system/clearpath-sensors.service"
+            '/etc/systemd/system/clearpath-robot.service.wants/clearpath-sensors.service': {
+                'symlink': '/lib/systemd/system/clearpath-sensors.service'
             }
         }
 
@@ -140,12 +142,12 @@ class ManipulatorsProvider(robot_upstart.providers.Generic):
                     line = 'User={0}\n'.format(clearpath_config.system.username)
                 manipulators_service_contents += line
         return {
-            "/lib/systemd/system/clearpath-manipulators.service": {
-                "content": manipulators_service_contents,
-                "mode": 0o644
+            '/lib/systemd/system/clearpath-manipulators.service': {
+                'content': manipulators_service_contents,
+                'mode': 0o644
             },
-            "/etc/systemd/system/clearpath-robot.service.wants/clearpath-manipulators.service": {
-                "symlink": "/lib/systemd/system/clearpath-manipulators.service"
+            '/etc/systemd/system/clearpath-robot.service.wants/clearpath-manipulators.service': {
+                'symlink': '/lib/systemd/system/clearpath-manipulators.service'
             }
         }
 
@@ -168,14 +170,42 @@ class DiscoveryServerProvider(robot_upstart.providers.Generic):
                 discovery_service_contents += line
 
         return {
-            "/lib/systemd/system/clearpath-discovery.service": {
-                "content": discovery_service_contents,
-                "mode": 0o644
+            '/lib/systemd/system/clearpath-discovery.service': {
+                'content': discovery_service_contents,
+                'mode': 0o644
             },
-            "/etc/systemd/system/clearpath-robot.service.wants/clearpath-discovery.service": {
-                "symlink": "/lib/systemd/system/clearpath-discovery.service"
+            '/etc/systemd/system/clearpath-robot.service.wants/clearpath-discovery.service': {
+                'symlink': '/lib/systemd/system/clearpath-discovery.service'
             }
         }
+
+
+class ZenohRouterServiceProvider(robot_upstart.providers.Generic):
+    def post_install(self):
+        pass
+
+    def generate_install(self):
+        zenoh_router_service_path = os.path.join(
+            get_package_share_directory('clearpath_robot'),
+            'services/clearpath-zenoh-router.service')
+        with open(zenoh_router_service_path) as f:
+            zenoh_router_service_contents: str = ''
+            zenoh_router_lines = f.readlines()
+            for line in zenoh_router_lines:
+                # Replace User with username from config
+                if 'User=' in line:
+                    line = f'User={clearpath_config.system.username}\n'
+                zenoh_router_service_contents += line
+
+        return {
+                '/lib/systemd/system/clearpath-zenoh-router.service': {
+                    'content': zenoh_router_service_contents,
+                    'mode': 0o644
+                },
+                '/etc/systemd/system/clearpath-robot.service.wants/clearpath-zenoh-router.service': {
+                    'symlink': '/lib/systemd/system/clearpath-zenoh-router.service'
+                }
+            }
 
 
 class RobotProvider(robot_upstart.providers.Generic):
@@ -206,17 +236,17 @@ class RobotProvider(robot_upstart.providers.Generic):
         with open(robot_service_exec_contents_path) as f:
             robot_service_exec_contents = f.read()
         return {
-            "/lib/systemd/system/clearpath-robot.service": {
-                "content": robot_service_contents,
-                "mode": 0o644
+            '/lib/systemd/system/clearpath-robot.service': {
+                'content': robot_service_contents,
+                'mode': 0o644
             },
-            "/usr/sbin/clearpath-robot-generate": {
-                "content": robot_service_execpre_contents,
-                "mode": 0o755
+            '/usr/sbin/clearpath-robot-generate': {
+                'content': robot_service_execpre_contents,
+                'mode': 0o755
             },
-            "/usr/sbin/clearpath-robot-check": {
-                "content": robot_service_exec_contents,
-                "mode": 0o755
+            '/usr/sbin/clearpath-robot-check': {
+                'content': robot_service_exec_contents,
+                'mode': 0o755
             }
         }
 
@@ -296,6 +326,10 @@ manipulators_extras.install(Provider=ManipulatorsProvider)
 # Discovery Server
 discovery_server = robot_upstart.Job(workspace_setup=workspace_setup)
 discovery_server.install(Provider=DiscoveryServerProvider)
+
+# Zenoh Router
+zenoh_router = robot_upstart.Job(workspace_setup=workspace_setup)
+zenoh_router.install(Provider=ZenohRouterServiceProvider)
 
 # Virtual CAN Bridge
 vcan_bridge = robot_upstart.Job(workspace_setup=workspace_setup)

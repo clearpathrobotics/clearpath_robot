@@ -1,8 +1,9 @@
 /**
  *
  *  \file
- *  \brief      Puma motor hardware class
+ *  \brief      Lynx Motor hardware class
  *  \author     Luis Camero <lcamero@clearpathrobotics.com>
+ *  \author     Roni Kreinin <rkreinin@clearpathrobotics.com>
  *  \copyright  Copyright (c) 2024, Clearpath Robotics, Inc.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,8 +31,8 @@
  * Please send comments, questions, or patches to code@clearpathrobotics.com
  *
  */
-#ifndef CLEARPATH_HARDWARE_INTERFACES_PUMA__HARDWARE_HPP_
-#define CLEARPATH_HARDWARE_INTERFACES_PUMA__HARDWARE_HPP_
+#ifndef CLEARPATH_HARDWARE_INTERFACES__LYNX_HARDWARE_HPP_
+#define CLEARPATH_HARDWARE_INTERFACES__LYNX_HARDWARE_HPP_
 
 #include <memory>
 #include <string>
@@ -44,22 +45,21 @@
 #include "hardware_interface/types/hardware_interface_return_values.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 
-#include "clearpath_hardware_interfaces/puma/hardware_interface.hpp"
+#include "clearpath_hardware_interfaces/lynx/hardware_interface.hpp"
 #include "clearpath_hardware_interfaces/visibility_control.h"
 
 
 namespace clearpath_hardware_interfaces
 {
 
-static constexpr uint8_t DIFF_DRIVE_TWO_JOINTS = 2;
 static constexpr uint8_t DIFF_DRIVE_FOUR_JOINTS = 4;
 static constexpr double MINIMUM_VELOCITY = 0.01f;
 
 
-class PumaHardware : public hardware_interface::SystemInterface
+class LynxHardware : public hardware_interface::SystemInterface
 {
 public:
-  RCLCPP_SHARED_PTR_DEFINITIONS(PumaHardware)
+  RCLCPP_SHARED_PTR_DEFINITIONS(LynxHardware)
 
   HARDWARE_INTERFACE_PUBLIC
   hardware_interface::CallbackReturn on_init(const hardware_interface::HardwareInfo & info) override;
@@ -83,17 +83,15 @@ public:
   hardware_interface::return_type write(const rclcpp::Time & time, const rclcpp::Duration & period) override;
 protected:
   void writeCommandsToHardware();
-  void updateJointsFromHardware();
+  void updateJointsFromHardware(const rclcpp::Duration & period);
   virtual hardware_interface::CallbackReturn getHardwareInfo(const hardware_interface::HardwareInfo & info);
   virtual hardware_interface::CallbackReturn validateJoints();
   virtual hardware_interface::CallbackReturn initHardwareInterface();
-  std::shared_ptr<PumaHardwareInterface> node_;
+  std::shared_ptr<LynxHardwareInterface> node_;
 
   // Store the command for the robot
   std::vector<double> hw_commands_;
   std::vector<double> hw_states_position_, hw_states_position_offset_, hw_states_velocity_;
-
-  std::map<std::string, uint8_t> wheel_joints_;
 
   uint8_t num_joints_;
   std::string hw_name_;
@@ -101,4 +99,4 @@ protected:
 
 }  // namespace clearpath_hardware_interfaces
 
-#endif  // CLEARPATH_HARDWARE_INTERFACES_PUMA_HARDWARE_HPP_
+#endif  // CLEARPATH_HARDWARE_INTERFACES__LYNX_HARDWARE_HPP_

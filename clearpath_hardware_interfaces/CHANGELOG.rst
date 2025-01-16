@@ -2,12 +2,6 @@
 Changelog for package clearpath_platform
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-0.3.4 (2024-10-08)
-------------------
-
-0.3.3 (2024-10-04)
-------------------
-
 1.1.0 (2025-01-15)
 ------------------
 * Add HE2411 battery support (`#119 <https://github.com/clearpathrobotics/clearpath_robot/issues/119>`_)
@@ -27,6 +21,12 @@ Changelog for package clearpath_platform
 * Renamed header directory
 * Add clearpath_hardware_interfaces
 * Contributors: Luis Camero, Tony Baltovski
+
+0.3.4 (2024-10-08)
+------------------
+
+0.3.3 (2024-10-04)
+------------------
 
 0.3.2 (2024-09-29)
 ------------------
