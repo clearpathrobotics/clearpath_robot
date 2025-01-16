@@ -2,6 +2,13 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add dependency for ewellix_driver (`#125 <https://github.com/clearpathrobotics/clearpath_robot/issues/125>`_)
+  * Add dependency for ewellix_driver
+  * Alphabetical dependencies
+* Contributors: luis-camero
+
 1.0.1 (2024-11-28)
 ------------------
 * Added missing dependencies (`#108 <https://github.com/clearpathrobotics/clearpath_robot/issues/108>`_)
