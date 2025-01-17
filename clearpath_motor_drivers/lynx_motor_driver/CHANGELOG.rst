@@ -2,8 +2,8 @@
 Changelog for package lynx_motor_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.0.1 (2025-01-17)
+------------------
 * [clearpath_motor_drivers/lynx_motor_driver] Fixed required version of clearpath_motor_msgs.
 * Contributors: Tony Baltovski
 
