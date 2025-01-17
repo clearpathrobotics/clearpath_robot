@@ -2,6 +2,9 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.0.0 (2025-01-17)
 ------------------
 * Add the package initializations that used to be in clearpath_common_generator into the robot generators (`#110 <https://github.com/clearpathrobotics/clearpath_robot/issues/110>`_)

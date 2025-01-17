@@ -2,6 +2,11 @@
 Changelog for package lynx_motor_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* [clearpath_motor_drivers/lynx_motor_driver] Fixed required version of clearpath_motor_msgs.
+* Contributors: Tony Baltovski
+
 2.0.0 (2025-01-17)
 ------------------
 * CAN bootloader fixes (`#112 <https://github.com/clearpathrobotics/clearpath_robot/issues/112>`_)
