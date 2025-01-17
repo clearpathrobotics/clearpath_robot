@@ -2,6 +2,11 @@
 Changelog for package clearpath_diagnostics
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* [clearpath_diagnostics] Fixed version.
+* Contributors: Tony Baltovski
+
 2.0.2 (2025-01-17)
 ------------------
 
