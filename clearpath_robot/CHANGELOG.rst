@@ -9,6 +9,50 @@ Changelog for package clearpath_robot
   * Alphabetical dependencies
 * Contributors: luis-camero
 
+Forthcoming
+-----------
+* [clearpath_robot] Fixed comment.
+* [clearpath_robot] Added check for binary install path and fallback to check from a workspace in generate. (`#127 <https://github.com/clearpathrobotics/clearpath_robot/issues/127>`_)
+* 1.1.0
+* Changes.
+* Add dependency for ewellix_driver (`#125 <https://github.com/clearpathrobotics/clearpath_robot/issues/125>`_)
+  * Add dependency for ewellix_driver
+  * Alphabetical dependencies
+* Add zenoh service files & generators (`#116 <https://github.com/clearpathrobotics/clearpath_robot/issues/116>`_)
+  * Add zenoh service files & generators
+* Remove udev rules for joy controllers (`#113 <https://github.com/clearpathrobotics/clearpath_robot/issues/113>`_)
+* A300 (`#106 <https://github.com/clearpathrobotics/clearpath_robot/issues/106>`_)
+  * Added lynx hardware interface
+  * Lynx motor driver
+  Rename clearpath_platform namespace to clearpath_hardware_interfaces
+  * Added A300 and Inventus battery to generator
+  * A300 lighting
+  * Dependencies and README
+  * Rename platform to hardware_interfaces in hardware.xml
+  * Fix append of bms in generator
+  * Removed wheel_joints\_ map
+  ---------
+  Co-authored-by: Luis Camero <lcamero@clearpathrobotics.com>
+* Make robot service always restart vcan
+* Add ur_robot_driver dependency
+* Add vcan to robot service wants
+* Change vcan service to use generated script
+* 0.3.2
+* Changes.
+* [clearpath_robot] Added script to grab diagnostic logs for troublesho… (`#84 <https://github.com/clearpathrobotics/clearpath_robot/issues/84>`_)
+  * [clearpath_robot] Added script to grab diagnostic logs for troubleshooting.
+  * Make grab-diagnostics script executable and installed
+  ---------
+  Co-authored-by: Luis Camero <lcamero@clearpathrobotics.com>
+* Remove missing jazzy dependencies (for now)
+* Socket CAN Bridges (`#93 <https://github.com/clearpathrobotics/clearpath_robot/issues/93>`_)
+  * Generate can bridges
+  * Generate script source robot workspace
+  * Remove extra line
+  ---------
+  Co-authored-by: Roni Kreinin <rkreinin@clearpathrobotics.com>
+* Contributors: Chris Iverach-Brereton, Luis Camero, Roni Kreinin, Tony Baltovski, luis-camero
+
 1.0.1 (2024-11-28)
 ------------------
 * Added missing dependencies (`#108 <https://github.com/clearpathrobotics/clearpath_robot/issues/108>`_)

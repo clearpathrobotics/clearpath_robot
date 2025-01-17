@@ -2,6 +2,11 @@
 Changelog for package clearpath_diagnostics
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix hard-coded humble packages (`#117 <https://github.com/clearpathrobotics/clearpath_robot/issues/117>`_)
+* Contributors: Chris Iverach-Brereton, Luis Camero, Tony Baltovski
+
 1.1.0 (2025-01-15)
 ------------------
 

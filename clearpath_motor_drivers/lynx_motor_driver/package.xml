@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="3">
   <name>lynx_motor_driver</name>
-  <version>0.0.0</version>
+  <version>1.1.0</version>
   <description>A ROS driver for Clearpath Lynx motor controllers</description>
 
   <maintainer email="rkreinin@clearpathrobotics.com">Roni Kreinin</maintainer>
@@ -10,7 +10,7 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
   <depend>ament_index_cpp</depend>
   <depend>can_msgs</depend>
-  <depend>clearpath_motor_msgs</depend>
+  <depend version_gte="2.0.1">clearpath_motor_msgs</depend>
   <depend>clearpath_ros2_socketcan_interface</depend>
   <depend>rclcpp</depend>
   <depend>ros2_socketcan</depend>

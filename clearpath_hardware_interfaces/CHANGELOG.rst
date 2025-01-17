@@ -8,6 +8,45 @@ Changelog for package clearpath_platform
   * Add support for the HE2410 and HE2411 batteries
 * Contributors: Chris Iverach-Brereton
 
+Forthcoming
+-----------
+* Fixed motor error lighting sequence (`#120 <https://github.com/clearpathrobotics/clearpath_robot/issues/120>`_)
+  * Update motor error lighting sequence if motor_states changes without the lighting state changing
+  Added lighting emulator script
+  * Removed light emulator
+* 1.1.0
+* Changes.
+* Add HE2410 & HE2411 battery support (`#119 <https://github.com/clearpathrobotics/clearpath_robot/issues/119>`_) (`#121 <https://github.com/clearpathrobotics/clearpath_robot/issues/121>`_)
+  * Cherry-pick from Humble
+* Add HE2411 battery support (`#119 <https://github.com/clearpathrobotics/clearpath_robot/issues/119>`_)
+  * Add support for the HE2410 and HE2411 batteries
+* Add visibility_control.h to clearpath_hardware_interfaces, update includes to reference this file (`#115 <https://github.com/clearpathrobotics/clearpath_robot/issues/115>`_)
+* A300 lighting fixes (`#114 <https://github.com/clearpathrobotics/clearpath_robot/issues/114>`_)
+  * Set NeedsReset to higher priority than Stopped
+  Changed NeedsReset lighting pattern
+  Set battery message initial values to not trigger battery fault
+  Increased low battery lighting sequence duration
+  * Updated low battery sequence
+* A300 (`#106 <https://github.com/clearpathrobotics/clearpath_robot/issues/106>`_)
+  * Added lynx hardware interface
+  * Lynx motor driver
+  Rename clearpath_platform namespace to clearpath_hardware_interfaces
+  * Added A300 and Inventus battery to generator
+  * A300 lighting
+  * Dependencies and README
+  * Rename platform to hardware_interfaces in hardware.xml
+  * Fix append of bms in generator
+  * Removed wheel_joints\_ map
+  ---------
+  Co-authored-by: Luis Camero <lcamero@clearpathrobotics.com>
+* Apply twist stamped changes
+* Remove platform.launch.py
+* Move battery_state to clearpath_hardware_interfaces
+* Removed config install
+* Renamed header directory
+* Add clearpath_hardware_interfaces
+* Contributors: Chris Iverach-Brereton, Luis Camero, Roni Kreinin, Tony Baltovski
+
 1.0.1 (2024-11-28)
 ------------------
 

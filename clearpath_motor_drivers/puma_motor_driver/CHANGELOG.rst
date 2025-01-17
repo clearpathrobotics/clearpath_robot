@@ -5,6 +5,13 @@ Changelog for package puma_motor_driver
 1.1.0 (2025-01-15)
 ------------------
 
+Forthcoming
+-----------
+* 1.1.0
+* Changes.
+* Add clearpath_motor_drivers, puma_motor_driver
+* Contributors: Luis Camero, Tony Baltovski
+
 1.0.1 (2024-11-28)
 ------------------
 

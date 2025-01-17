@@ -5,6 +5,46 @@ Changelog for package clearpath_sensors
 1.1.0 (2025-01-15)
 ------------------
 
+Forthcoming
+-----------
+* Remap `navsatfix` to `fix` (`#128 <https://github.com/clearpathrobotics/clearpath_robot/issues/128>`_)
+* 1.1.0
+* Changes.
+* Remove the image-conversion launch files; they're being relocated to clearpath_offboard_sensors (`#118 <https://github.com/clearpathrobotics/clearpath_robot/issues/118>`_)
+* Fix the path for the pointcloud calibration path for Jazzy
+* Add support for Axis cameras (`#101 <https://github.com/clearpathrobotics/clearpath_robot/issues/101>`_)
+  * Add the axis camera launch file
+  * Add the default PTZ dome configuration & pass those parameters by default
+  * Set the node name so the parameter namespace resolves correctly
+  * Add the complete PTZ config for the dome camera
+  * Remap image_raw -> image, ~joint_states -> /robot_namespace/joint_states
+  * Add missing / to namespaces
+  * Remove the ~ from the namespaces; it's not needed
+  * Move the joint_states into the platform namespace
+  * Remove duplicate `ptz` entry
+* Move imu_filter.yaml to clearpath_sensors
+* Remappings to for Phidget Spatial
+* Ffmpeg manual launch (`#105 <https://github.com/clearpathrobotics/clearpath_robot/issues/105>`_)
+  * Added manual launch files for encoding/decoding ffmpeg
+* Switch remove RGB from pointcloud
+* Added pointcloud support to OakD
+* Set Blackfly binning as 2 for optimal operation
+* Update frame rate to match default in clearpath_config although this rate is always overridden, must be integer
+* Restrict image transports on decoded blackfly topics to relevant ones
+* Disable all extra image transports on the encoded Blackfly topic
+* Add ffmpeg compression support for Blackfly
+* 0.3.2
+* Changes.
+* Add OAKD (`#92 <https://github.com/clearpathrobotics/clearpath_robot/issues/92>`_)
+  * Add OAKD
+  * Remove unused parameter
+  * Add UDEV for OAKD
+* Add phidgets spatial (`#91 <https://github.com/clearpathrobotics/clearpath_robot/issues/91>`_)
+  * Add phidget spatial config and launch files
+  * Add dependency
+  * Double to single quotes
+* Contributors: Chris Iverach-Brereton, Hilary Luo, Luis Camero, Tony Baltovski, luis-camero
+
 1.0.1 (2024-11-28)
 ------------------
 
