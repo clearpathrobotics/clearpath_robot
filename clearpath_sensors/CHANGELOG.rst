@@ -5,8 +5,8 @@ Changelog for package clearpath_sensors
 1.1.0 (2025-01-15)
 ------------------
 
-Forthcoming
------------
+2.0.0 (2025-01-17)
+------------------
 * Remap `navsatfix` to `fix` (`#128 <https://github.com/clearpathrobotics/clearpath_robot/issues/128>`_)
 * 1.1.0
 * Changes.

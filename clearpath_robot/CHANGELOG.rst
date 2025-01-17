@@ -9,8 +9,8 @@ Changelog for package clearpath_robot
   * Alphabetical dependencies
 * Contributors: luis-camero
 
-Forthcoming
------------
+2.0.0 (2025-01-17)
+------------------
 * [clearpath_robot] Fixed comment.
 * [clearpath_robot] Added check for binary install path and fallback to check from a workspace in generate. (`#127 <https://github.com/clearpathrobotics/clearpath_robot/issues/127>`_)
 * 1.1.0
