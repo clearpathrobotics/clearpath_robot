@@ -11,7 +11,7 @@
 
   <exec_depend version_gte="2.0.0">clearpath_config</exec_depend>
   <exec_depend version_gte="2.0.0">clearpath_generator_common</exec_depend>
-  <exec_depend version_gte="2.0.1">clearpath_platform_msgs</exec_depend>
+  <exec_depend version_gte="2.0.0">clearpath_platform_msgs</exec_depend>
   <exec_depend>diagnostic_updater</exec_depend>
   <exec_depend>diagnostic_aggregator</exec_depend>
   <exec_depend>diagnostic_msgs</exec_depend>
