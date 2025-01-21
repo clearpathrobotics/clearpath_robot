@@ -128,4 +128,4 @@ jobs:
             clearpath_generator_robot
             clearpath_robot
             clearpath_sensors
-          vcs-repo-file-url: dependencies.repos
+          vcs-repo-file-url: updated_dependencies.repos
