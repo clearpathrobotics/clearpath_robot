@@ -2,8 +2,8 @@
 Changelog for package lynx_motor_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.0.4 (2025-01-22)
+------------------
 * Multiply feedback velocity by wheel direction (`#132 <https://github.com/clearpathrobotics/clearpath_robot/issues/132>`_)
 * Contributors: Roni Kreinin
 
