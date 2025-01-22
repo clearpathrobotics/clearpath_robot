@@ -2,6 +2,11 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add config and launch for inventus
+* Contributors: Luis Camero
+
 2.0.3 (2025-01-17)
 ------------------
 

@@ -5,6 +5,11 @@ Changelog for package clearpath_sensors
 1.1.0 (2025-01-15)
 ------------------
 
+Forthcoming
+-----------
+* Add config and launch for inventus
+* Contributors: Luis Camero
+
 2.0.3 (2025-01-17)
 ------------------
 
