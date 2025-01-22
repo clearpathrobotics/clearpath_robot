@@ -187,10 +187,11 @@ class RobotLaunchGenerator(LaunchGenerator):
         elif (self.clearpath_config.platform.battery.model in
               [BatteryConfig.S_24V20_U1]):
 
-            pkg_inventus_bmu = Package('inventus_bmu')
             launch_args = self.clearpath_config.platform.battery.launch_args
 
-            inventus_bmu_params_file = ParamFile('default', package=pkg_inventus_bmu)
+            inventus_bmu_params_file = ParamFile(
+                'inventus_bmu',
+                package=self.pkg_clearpath_sensors)
             inventus_bmu_params = inventus_bmu_params_file.full_path
 
             module_ids = []
