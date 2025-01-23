@@ -39,7 +39,12 @@ ClearpathDiagnosticUpdater::ClearpathDiagnosticUpdater()
 
   // Set Hardware ID as serial number in diagnostics
   updater_.setHardwareID(serial_number_);
+  // Publish MCU Status information as diagnostics
   updater_.add("MCU Status", this, &ClearpathDiagnosticUpdater::mcu_status_diagnostic);
+
+  double mcu_status_rate = 1.0;
+  mcu_freq_status_ = std::make_shared<diagnostic_updater::FrequencyStatus>(
+    diagnostic_updater::FrequencyStatusParam(&mcu_status_rate, &mcu_status_rate, 0.1, 5));
 
   // subscribe to MCU status
   sub_mcu_status_ =
@@ -72,11 +77,14 @@ void ClearpathDiagnosticUpdater::mcu_callback(const clearpath_platform_msgs::msg
   connection_uptime_ = msg.connection_uptime.sec;
   mcu_temperature_ = msg.mcu_temperature;
   pcb_temperature_ = msg.pcb_temperature;
+  mcu_freq_status_->tick();
 }
 
 void ClearpathDiagnosticUpdater::mcu_status_diagnostic(
   diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
+  mcu_freq_status_->run(stat);
+
   // add to append key-value pairs to the diagnostic
   stat.add("Firmware Version", firmware_version_);
   stat.add("Hardware ID", mcu_hardware_id_);
