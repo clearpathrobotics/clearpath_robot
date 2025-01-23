@@ -59,7 +59,7 @@ echo "Device: $dev";
 echo "Virtual CAN: $vcan";
 echo "Baud Rate: $baud";
 
-socat udp4-datagram:192.168.131.2:$port,bind=:$port,range=192.168.131.1/24 pty,link=$dev &
+socat TCP4-LISTEN:$port,range=192.168.131.1/24,reuseaddr pty,link=$dev &
 sleep 1
 
 slcand -o -c -F -$baud $dev $vcan &
