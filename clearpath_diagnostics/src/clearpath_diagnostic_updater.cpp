@@ -51,6 +51,7 @@ ClearpathDiagnosticUpdater::ClearpathDiagnosticUpdater()
   setup_topic_rate_diagnostics();
 }
 
+// get parameter from yaml and log an error if the parameter is not present
 std::string ClearpathDiagnosticUpdater::get_mandatory_param(std::string param_name)
 {
   try {
@@ -62,6 +63,7 @@ std::string ClearpathDiagnosticUpdater::get_mandatory_param(std::string param_na
   }
 }
 
+// save data from MCU Status messages
 void ClearpathDiagnosticUpdater::mcu_callback(const clearpath_platform_msgs::msg::Status & msg)
 {
   firmware_version_ = msg.firmware_version;
@@ -165,11 +167,11 @@ void ClearpathDiagnosticUpdater::setup_topic_rate_diagnostics()
     }
 
     /*
-    The section below does not use a generic subscription because the generic subscription was
-    observed to have significantly hgiher CPU usage seemingly related to too short of callbacks
-    and allocating / releasing the memory too quickly with Fast DDS. Standard subscriptions
-    perform more reliably.
-    */
+     * The section below does not use a generic subscription because the generic subscription was
+     * observed to have significantly hgiher CPU usage seemingly related to too short of callbacks
+     * and allocating/releasing the memory too quickly with Fast DDS. Standard subscriptions
+     * perform more reliably.
+     */
 
     // Create a subscription using the topic name and message type info from the yaml
     if (type == "sensor_msgs/msg/CompressedImage") {
