@@ -61,6 +61,7 @@ private:
   int pcb_temperature_;
   long connection_uptime_;
   long mcu_uptime_;
+  std::shared_ptr<diagnostic_updater::FrequencyStatus> mcu_freq_status_;
   rclcpp::Subscription<clearpath_platform_msgs::msg::Status>::SharedPtr sub_mcu_status_;
 
   diagnostic_updater::Updater updater_;
