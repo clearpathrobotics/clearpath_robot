@@ -66,9 +66,9 @@ private:
   diagnostic_updater::Updater updater_;
   std::map<std::string, std::map<std::string, rclcpp::Parameter>> topic_map_;
 
+  // Lists to ensure all variables relating to the rate monitoring persist until spin
   std::list<double> rates_;
-  std::list<std::shared_ptr<diagnostic_updater::HeaderlessTopicDiagnostic>>
-  topic_diagnostics_;
+  std::list<std::shared_ptr<diagnostic_updater::HeaderlessTopicDiagnostic>> topic_diagnostics_;
   std::list<std::shared_ptr<void>> subscriptions_;
 
   void mcu_callback(const clearpath_platform_msgs::msg::Status & msg);
