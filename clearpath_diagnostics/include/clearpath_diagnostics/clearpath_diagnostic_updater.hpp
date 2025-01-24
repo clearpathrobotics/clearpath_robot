@@ -60,6 +60,7 @@ private:
   std::string installed_apt_firmware_version_;
   std::string mcu_firmware_version_;
   std::string mcu_platform_model_;
+  double mcu_status_rate_;
   int mcu_temperature_;
   int pcb_temperature_;
   long connection_uptime_;
