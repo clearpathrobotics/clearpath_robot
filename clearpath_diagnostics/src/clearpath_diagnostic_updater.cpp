@@ -36,11 +36,17 @@ ClearpathDiagnosticUpdater::ClearpathDiagnosticUpdater()
 {
   serial_number_ = this->get_mandatory_param("serial_number");
   platform_model_ = this->get_mandatory_param("platform_model");
+  ros_distro_ = this->get_mandatory_param("ros_distro");
+  latest_apt_firmware_version_ = this->get_mandatory_param("latest_apt_firmware_version");
+  installed_apt_firmware_version_ = this->get_mandatory_param("installed_apt_firmware_version");
 
   // Set Hardware ID as serial number in diagnostics
   updater_.setHardwareID(serial_number_);
-  // Publish MCU Status information as diagnostics
-  updater_.add("MCU Status", this, &ClearpathDiagnosticUpdater::mcu_status_diagnostic);
+  if (latest_apt_firmware_version_ != "simulated") {
+    // Publish MCU Status information as diagnostics
+    updater_.add("MCU Status", this, &ClearpathDiagnosticUpdater::mcu_status_diagnostic);
+    updater_.add("Firmware Version", this, &ClearpathDiagnosticUpdater::check_firmware_version);
+  }
 
   double mcu_status_rate = 1.0;
   mcu_freq_status_ = std::make_shared<diagnostic_updater::FrequencyStatus>(
@@ -68,11 +74,37 @@ std::string ClearpathDiagnosticUpdater::get_mandatory_param(std::string param_na
   }
 }
 
+void ClearpathDiagnosticUpdater::check_firmware_version(
+  diagnostic_updater::DiagnosticStatusWrapper & stat)
+{
+  if (latest_apt_firmware_version_ == "not_found") {
+      stat.summaryf(diagnostic_msgs::msg::DiagnosticStatus::ERROR,
+                   "ros-%s-clearpath-firmware package not found",
+                   ros_distro_.c_str());
+  } else if (mcu_firmware_version_ == latest_apt_firmware_version_) {
+      stat.summaryf(diagnostic_msgs::msg::DiagnosticStatus::OK,
+                   "Firmware is up to date (%s)",
+                   mcu_firmware_version_.c_str());
+  } else if (mcu_firmware_version_ < latest_apt_firmware_version_) {
+      stat.summaryf(diagnostic_msgs::msg::DiagnosticStatus::WARN,
+                   "New firmware available. (%s}) -> (%s)",
+                   mcu_firmware_version_.c_str(),
+                   latest_apt_firmware_version_.c_str());
+  } else {
+      stat.summaryf(diagnostic_msgs::msg::DiagnosticStatus::WARN,
+                   "ros-%s-clearpath-firmware package is outdated.",
+                   ros_distro_.c_str());
+  }
+  stat.add("Latest Firmware Version Package", latest_apt_firmware_version_);
+  stat.add("Firmware Version Installed on Computer", installed_apt_firmware_version_);
+  stat.add("Firmware Version on MCU", mcu_firmware_version_);
+}
+
 // save data from MCU Status messages
 void ClearpathDiagnosticUpdater::mcu_callback(const clearpath_platform_msgs::msg::Status & msg)
 {
-  firmware_version_ = msg.firmware_version;
-  mcu_hardware_id_ = msg.hardware_id;
+  mcu_firmware_version_ = msg.firmware_version;
+  mcu_platform_model_ = msg.hardware_id;
   mcu_uptime_ = msg.mcu_uptime.sec;
   connection_uptime_ = msg.connection_uptime.sec;
   mcu_temperature_ = msg.mcu_temperature;
@@ -86,8 +118,8 @@ void ClearpathDiagnosticUpdater::mcu_status_diagnostic(
   mcu_freq_status_->run(stat);
 
   // add to append key-value pairs to the diagnostic
-  stat.add("Firmware Version", firmware_version_);
-  stat.add("Hardware ID", mcu_hardware_id_);
+  stat.add("Firmware Version", mcu_firmware_version_);
+  stat.add("Platform Model", mcu_platform_model_);
   stat.add("MCU Uptime", mcu_uptime_);
   stat.add("Connection Uptime", connection_uptime_);
   stat.add("MCU Temperature", mcu_temperature_);
