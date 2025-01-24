@@ -59,10 +59,17 @@ echo "Device: $dev";
 echo "Virtual CAN: $vcan";
 echo "Baud Rate: $baud";
 
-socat TCP4-LISTEN:$port,range=192.168.131.1/24,reuseaddr pty,link=$dev &
-sleep 1
+# Start socket listener
+socat -d -d TCP4-LISTEN:$port,range=192.168.131.1/24,reuseaddr pty,link=$dev > /tmp/socat_log.txt 2>&1 &
 
+# Wait for client to connect to socket
+tail -f /tmp/socat_log.txt | grep -m 1 --line-buffered "starting data transfer"
+
+echo "TCP Socket connected"
+
+# Start slcand
 slcand -o -c -F -$baud $dev $vcan &
+
 sleep 1
 
 ip link set $vcan txqueuelen 100
