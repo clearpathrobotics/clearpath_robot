@@ -48,9 +48,9 @@ ClearpathDiagnosticUpdater::ClearpathDiagnosticUpdater()
     updater_.add("Firmware Version", this, &ClearpathDiagnosticUpdater::check_firmware_version);
   }
 
-  double mcu_status_rate = 1.0;
+  mcu_status_rate_ = 1.0;
   mcu_freq_status_ = std::make_shared<diagnostic_updater::FrequencyStatus>(
-    diagnostic_updater::FrequencyStatusParam(&mcu_status_rate, &mcu_status_rate, 0.1, 5));
+    diagnostic_updater::FrequencyStatusParam(&mcu_status_rate_, &mcu_status_rate_, 0.1, 5));
 
   // subscribe to MCU status
   sub_mcu_status_ =
