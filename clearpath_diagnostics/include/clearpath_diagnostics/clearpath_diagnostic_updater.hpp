@@ -55,8 +55,11 @@ private:
   std::string namespace_;
 
   // MCU Status Info
-  std::string firmware_version_;
-  std::string mcu_hardware_id_;
+  std::string ros_distro_;  // Specifically the ros distro used for the firmware apt package check
+  std::string latest_apt_firmware_version_;
+  std::string installed_apt_firmware_version_;
+  std::string mcu_firmware_version_;
+  std::string mcu_platform_model_;
   int mcu_temperature_;
   int pcb_temperature_;
   long connection_uptime_;
@@ -73,6 +76,7 @@ private:
   std::list<std::shared_ptr<void>> subscriptions_;
 
   void mcu_callback(const clearpath_platform_msgs::msg::Status & msg);
+  void check_firmware_version(diagnostic_updater::DiagnosticStatusWrapper & stat);
   void mcu_status_diagnostic(diagnostic_updater::DiagnosticStatusWrapper & stat);
 
   std::string get_mandatory_param(std::string param_name);
