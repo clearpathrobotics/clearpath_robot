@@ -45,7 +45,7 @@ ClearpathDiagnosticUpdater::ClearpathDiagnosticUpdater()
   if (latest_apt_firmware_version_ != "simulated") {
     // Publish MCU Status information as diagnostics
     updater_.add("MCU Status", this, &ClearpathDiagnosticUpdater::mcu_status_diagnostic);
-    updater_.add("Firmware Version", this, &ClearpathDiagnosticUpdater::check_firmware_version);
+    updater_.add("MCU Firmware Version", this, &ClearpathDiagnosticUpdater::check_firmware_version);
   }
 
   mcu_status_rate_ = 1.0;
@@ -115,15 +115,14 @@ void ClearpathDiagnosticUpdater::mcu_callback(const clearpath_platform_msgs::msg
 void ClearpathDiagnosticUpdater::mcu_status_diagnostic(
   diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
-  mcu_freq_status_->run(stat);
-
-  // add to append key-value pairs to the diagnostic
   stat.add("Firmware Version", mcu_firmware_version_);
   stat.add("Platform Model", mcu_platform_model_);
   stat.add("MCU Uptime", mcu_uptime_);
   stat.add("Connection Uptime", connection_uptime_);
   stat.add("MCU Temperature", mcu_temperature_);
   stat.add("PCB Temperature", pcb_temperature_);
+
+  mcu_freq_status_->run(stat);
 }
 
 void ClearpathDiagnosticUpdater::setup_topic_rate_diagnostics()
