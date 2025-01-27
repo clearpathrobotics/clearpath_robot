@@ -83,7 +83,7 @@ private:
   std::string get_mandatory_param(std::string param_name);
   void setup_topic_rate_diagnostics();
 
-  template <class MsgType> void add_rate_diagnostic(const std::string topic_name, const double rate)
+  template<class MsgType> void add_rate_diagnostic(const std::string topic_name, const double rate)
   {
     // Store the rate so that it can be accessed via a pointer and is not deleted
     rates_.push_back(rate);
