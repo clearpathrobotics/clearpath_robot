@@ -124,6 +124,9 @@ def generate_launch_description():
     ld.add_action(arg_namespace)
     ld.add_action(arg_container)
     ld.add_action(arg_filter)
+    ld.add_action(arg_input_mag)
+    ld.add_action(arg_input_raw)
+    ld.add_action(arg_output)
     ld.add_action(imu_filter_container)
     ld.add_action(load_composable_nodes)
     return ld
