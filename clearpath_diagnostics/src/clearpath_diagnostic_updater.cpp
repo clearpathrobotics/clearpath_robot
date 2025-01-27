@@ -24,6 +24,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
 #include "clearpath_diagnostics/clearpath_diagnostic_updater.hpp"
 
+#define UNKNOWN "unknown"
+
 namespace clearpath
 {
 
@@ -39,6 +41,10 @@ ClearpathDiagnosticUpdater::ClearpathDiagnosticUpdater()
   ros_distro_ = this->get_mandatory_param("ros_distro");
   latest_apt_firmware_version_ = this->get_mandatory_param("latest_apt_firmware_version");
   installed_apt_firmware_version_ = this->get_mandatory_param("installed_apt_firmware_version");
+
+  // Initialize variables that are populated in callbacks
+  mcu_firmware_version_ = UNKNOWN;
+  mcu_platform_model_ = UNKNOWN;
 
   // Set Hardware ID as serial number in diagnostics
   updater_.setHardwareID(serial_number_);
@@ -70,7 +76,7 @@ std::string ClearpathDiagnosticUpdater::get_mandatory_param(std::string param_na
   } catch (const std::exception & e) {
     RCLCPP_ERROR(this->get_logger(), "Could not retrieve parameter %s: %s",
                                       param_name.c_str(), e.what());
-    return "unknown";
+    return UNKNOWN;
   }
 }
 
@@ -78,22 +84,29 @@ void ClearpathDiagnosticUpdater::check_firmware_version(
   diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   if (latest_apt_firmware_version_ == "not_found") {
-      stat.summaryf(diagnostic_msgs::msg::DiagnosticStatus::ERROR,
-                   "ros-%s-clearpath-firmware package not found",
-                   ros_distro_.c_str());
+    stat.summaryf(diagnostic_msgs::msg::DiagnosticStatus::ERROR,
+                  "ros-%s-clearpath-firmware package not found",
+                  ros_distro_.c_str());
+  } else if (latest_apt_firmware_version_ == UNKNOWN) {
+    stat.summaryf(diagnostic_msgs::msg::DiagnosticStatus::ERROR,
+                  "ros-%s-clearpath-firmware package version not provided in config",
+                  ros_distro_.c_str());
+  } else if (mcu_firmware_version_ == UNKNOWN) {
+    stat.summary(diagnostic_msgs::msg::DiagnosticStatus::ERROR,
+                  "No firmware version received from MCU");
   } else if (mcu_firmware_version_ == latest_apt_firmware_version_) {
-      stat.summaryf(diagnostic_msgs::msg::DiagnosticStatus::OK,
-                   "Firmware is up to date (%s)",
-                   mcu_firmware_version_.c_str());
+    stat.summaryf(diagnostic_msgs::msg::DiagnosticStatus::OK,
+                  "Firmware is up to date (%s)",
+                  mcu_firmware_version_.c_str());
   } else if (mcu_firmware_version_ < latest_apt_firmware_version_) {
-      stat.summaryf(diagnostic_msgs::msg::DiagnosticStatus::WARN,
-                   "New firmware available. (%s}) -> (%s)",
-                   mcu_firmware_version_.c_str(),
-                   latest_apt_firmware_version_.c_str());
+    stat.summaryf(diagnostic_msgs::msg::DiagnosticStatus::WARN,
+                  "New firmware available: (%s) -> (%s)",
+                  mcu_firmware_version_.c_str(),
+                  latest_apt_firmware_version_.c_str());
   } else {
-      stat.summaryf(diagnostic_msgs::msg::DiagnosticStatus::WARN,
-                   "ros-%s-clearpath-firmware package is outdated.",
-                   ros_distro_.c_str());
+    stat.summaryf(diagnostic_msgs::msg::DiagnosticStatus::WARN,
+                  "ros-%s-clearpath-firmware package is outdated",
+                  ros_distro_.c_str());
   }
   stat.add("Latest Firmware Version Package", latest_apt_firmware_version_);
   stat.add("Firmware Version Installed on Computer", installed_apt_firmware_version_);
