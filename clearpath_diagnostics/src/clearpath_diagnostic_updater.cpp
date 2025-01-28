@@ -50,8 +50,7 @@ ClearpathDiagnosticUpdater::ClearpathDiagnosticUpdater()
   updater_.setHardwareID(serial_number_);
   if (latest_apt_firmware_version_ == "not_applicable") {
     RCLCPP_INFO(this->get_logger(), "No MCU indicated, MCU diagnostics disabled.");
-  }
-  else if (latest_apt_firmware_version_ != "simulated") {
+  } else if (latest_apt_firmware_version_ != "simulated") {
     // Publish MCU Status information as diagnostics
     updater_.add("MCU Status", this, &ClearpathDiagnosticUpdater::mcu_status_diagnostic);
     updater_.add("MCU Firmware Version", this, &ClearpathDiagnosticUpdater::check_firmware_version);
