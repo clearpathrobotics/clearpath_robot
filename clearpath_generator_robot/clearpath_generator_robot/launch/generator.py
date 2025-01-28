@@ -294,6 +294,14 @@ class RobotLaunchGenerator(LaunchGenerator):
                 ]
             ))
 
+        # A300 Fan Control Node
+        self.a300_fan_control = LaunchFile.Node(
+          package='clearpath_hardware_interfaces',
+          executable='fan_control_node',
+          name='a300_fan_control',
+          namespace=self.namespace,
+        )
+
         # Components required for each platform
         common_platform_components = [
             self.wireless_watcher_node,
@@ -322,6 +330,7 @@ class RobotLaunchGenerator(LaunchGenerator):
                 self.configure_mcu,
                 self.lighting_node,
                 self.lynx_node,
+                self.a300_fan_control,
             ],
             Platform.W200: common_platform_components + [
                 self.imu_0_filter_node,
