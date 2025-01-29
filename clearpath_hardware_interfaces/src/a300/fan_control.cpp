@@ -49,7 +49,7 @@ a300_cooling::ThermalSensors::ThermalSensors()
     {"main_gnd_lug", ThermalSensor{-20, 0, 60, 80}},
     {"dcdc_24v",     ThermalSensor{-20, 0, 60, 80}},
     {"dcdc_12v",     ThermalSensor{-20, 0, 60, 80}},
-    {"battery",      ThermalSensor{-20, 0, 60, 80}},
+    {"battery",      ThermalSensor{-20, 0, 55, 60}},
     {"pcb_motor1",   ThermalSensor{-20, 0, 60, 80}},
     {"mcu_motor1",   ThermalSensor{-20, 0, 60, 80}},
     {"pcb_motor2",   ThermalSensor{-20, 0, 60, 80}},

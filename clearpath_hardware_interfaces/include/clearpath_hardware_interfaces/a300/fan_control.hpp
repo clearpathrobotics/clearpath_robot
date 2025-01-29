@@ -36,7 +36,7 @@ constexpr float FAN_CMD_LOW_ERROR = 0.0f;
 constexpr float FAN_CMD_LOW_WARNING = 0.25f;
 
 /// Fan command for normal state, percent of maximum speed
-constexpr float FAN_CMD_NORMAL = 0.25f;
+constexpr float FAN_CMD_NORMAL = 0.5f;
 
 /// Initial temperature reading when no data is available, degrees Celsius
 constexpr float INITIAL_READING = 30.0f;
