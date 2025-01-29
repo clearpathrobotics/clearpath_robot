@@ -37,10 +37,10 @@ find_package(tf2_ros REQUIRED)
 set(LIGHTING_EXECUTABLE lighting_node)
 set(LIGHTING_LIB clearpath_platform_lighting)
 set(LIGHTING_DEPENDENCIES
-    clearpath_motor_msgs
-    clearpath_platform_msgs
-    sensor_msgs
-    rclcpp
+  clearpath_motor_msgs
+  clearpath_platform_msgs
+  sensor_msgs
+  rclcpp
 )
 
 add_library(
@@ -68,6 +68,27 @@ target_include_directories(
   PRIVATE
   include
 )
+
+# Cooling
+set(FAN_CONTROL_EXECUTABLE fan_control_node)
+set(FAN_CONTROL_DEPENDENCIES
+  clearpath_motor_msgs
+  clearpath_platform_msgs
+  sensor_msgs
+  rclcpp
+)
+
+add_executable(${FAN_CONTROL_EXECUTABLE} src/a300/fan_control.cpp)
+
+target_include_directories(
+  ${FAN_CONTROL_EXECUTABLE}
+  PRIVATE
+  include
+)
+
+target_link_libraries(${FAN_CONTROL_EXECUTABLE})
+ament_target_dependencies(${FAN_CONTROL_EXECUTABLE} ${FAN_CONTROL_DEPENDENCIES})
+
 
 # A200 Hardware
 add_library(
@@ -207,6 +228,7 @@ install(
           w200_hardware
           puma_hardware
           lynx_hardware
+          ${FAN_CONTROL_EXECUTABLE}
           ${LIGHTING_EXECUTABLE}
           ${LIGHTING_LIB}
   LIBRARY DESTINATION lib
