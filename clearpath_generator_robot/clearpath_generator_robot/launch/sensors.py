@@ -105,7 +105,7 @@ class SensorLaunch():
                 ))
         # IMU Filter
         if self.sensor.get_sensor_type() == BaseIMU.get_sensor_type():
-            if self.sensor.filter.TYPE != IMUFilter.NoFilter.TYPE:
+            if self.sensor.imu_filter.TYPE != IMUFilter.NoFilter.TYPE:
                 sensor_writer.add(LaunchFile(
                     'imu_filter',
                     package=self.CLEARPATH_SENSORS_PACKAGE,
@@ -113,10 +113,10 @@ class SensorLaunch():
                         (self.NAMESPACE, self.namespace),
                         (self.PARAMETERS, self.parameters.full_path),
                         (self.CONTAINER, 'imu_filter_container'),
-                        (self.FILTER, self.sensor.filter.TYPE),
-                        (self.INPUT_RAW, self.sensor.filter.input_raw),
-                        (self.INPUT_MAG, self.sensor.filter.input_mag),
-                        (self.OUTPUT_IMU, self.sensor.filter.output),
+                        (self.FILTER, self.sensor.imu_filter.TYPE),
+                        (self.INPUT_RAW, self.sensor.imu_filter.input_raw),
+                        (self.INPUT_MAG, self.sensor.imu_filter.input_mag),
+                        (self.OUTPUT_IMU, self.sensor.imu_filter.output),
                     ]
                 ))
         # Generate sensor launch file

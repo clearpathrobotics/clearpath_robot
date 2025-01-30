@@ -27,9 +27,14 @@
 # POSSIBILITY OF SUCH DAMAGE.
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.conditions import LaunchConfigurationEquals, LaunchConfigurationNotEquals
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
-
+from launch.conditions import IfCondition
+from launch.substitutions import (
+    EqualsSubstitution,
+    LaunchConfiguration,
+    NotEqualsSubstitution,
+    PathJoinSubstitution,
+    PythonExpression
+)
 from launch_ros.actions import ComposableNodeContainer, LoadComposableNodes
 from launch_ros.descriptions import ComposableNode
 from launch_ros.substitutions import FindPackageShare
@@ -39,6 +44,7 @@ def generate_launch_description():
     parameters = LaunchConfiguration('parameters')
     namespace = LaunchConfiguration('namespace')
     container = LaunchConfiguration('container')
+    imu_filter = LaunchConfiguration('filter')
     input_mag = LaunchConfiguration('input_mag')
     input_raw = LaunchConfiguration('input_raw')
     output = LaunchConfiguration('output')
@@ -91,7 +97,7 @@ def generate_launch_description():
             name='imu_filter_madgwick',
             namespace=namespace,
             parameters=[parameters],
-            condition=LaunchConfigurationEquals('filter', 'madgwick'),
+            condition=IfCondition(EqualsSubstitution(imu_filter, 'madgwick')),
             remappings=[
                 ('imu/data', output),
                 ('imu/data_raw', input_raw),
@@ -103,7 +109,7 @@ def generate_launch_description():
 
     # Create container
     imu_filter_container = ComposableNodeContainer(
-        condition=LaunchConfigurationEquals('container', ''),
+        condition=IfCondition(EqualsSubstitution(container, '')),
         name='imu_filter_container',
         namespace=namespace,
         package='rclcpp_components',
@@ -114,7 +120,7 @@ def generate_launch_description():
 
     # Use container launched by IMU
     load_composable_nodes = LoadComposableNodes(
-        condition=LaunchConfigurationNotEquals('container', ''),
+        condition=IfCondition(NotEqualsSubstitution(container, '')),
         composable_node_descriptions=composable_nodes,
         target_container=PythonExpression(["'", namespace, '/', container, "'"])
     )

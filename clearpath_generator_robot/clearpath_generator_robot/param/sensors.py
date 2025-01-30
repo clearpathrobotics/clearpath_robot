@@ -86,7 +86,7 @@ class SensorParam():
 
         # IMU Filter
         if self.sensor.get_sensor_type() == BaseIMU.get_sensor_type():
-            if self.sensor.filter.TYPE != IMUFilter.NoFilter.TYPE:
+            if self.sensor.imu_filter.TYPE != IMUFilter.NoFilter.TYPE:
                 name = 'imu_filter'
                 imu_filter_file = ParamFile(
                     name=name,
