@@ -93,9 +93,6 @@ LynxMotorNode::LynxMotorNode(const std::string node_name) :
       can_bus_,
       node_handle_,
       std::bind(&LynxMotorNode::canRxCallback, this, std::placeholders::_1)));
-  
-  // Send every 1ms
-  can_interface_->startSendTimer(1);
 
   // Initialise drivers
   for (uint8_t i = 0; i < joint_names_.size(); i++)
