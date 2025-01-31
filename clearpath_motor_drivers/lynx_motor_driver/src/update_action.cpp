@@ -28,6 +28,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include <fstream>
 #include <filesystem>
 #include <queue>
+#include <glob.h>
 
 // Binary files will have 15 reserved bytes that should be ignored
 static constexpr uint8_t BINARY_FILE_RESERVED_BYTE_START_INDEX = 3;
@@ -108,8 +109,25 @@ rclcpp_action::GoalResponse LynxMotorNode::handleUpdateGoal(
     // Find default binary in lynx_motor_driver package
     std::filesystem::path dir(ament_index_cpp::get_package_share_directory("lynx_motor_driver"));
     std::filesystem::path folder("bin");
-    std::filesystem::path file("lynx_firmware-release.txt");
+    std::filesystem::path file("lynx_firmware-release-*.txt");
     filename = dir / folder / file;
+
+    // Find file name from wildcard
+    glob_t globResult;
+    int globStatus = glob(filename.c_str(), 0, nullptr, &globResult);
+
+    if (globStatus == 0)
+    {
+      // Use first file
+      filename = std::string(globResult.gl_pathv[0]);
+      globfree(&globResult);
+    }
+    else
+    {
+      // Can't find default binary
+      RCLCPP_ERROR(this->get_logger(), "Default binary file not found");
+      return rclcpp_action::GoalResponse::REJECT;
+    }
   }
   
   app = readBinaryFile(filename);

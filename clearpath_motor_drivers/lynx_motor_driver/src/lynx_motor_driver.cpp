@@ -541,7 +541,7 @@ void LynxMotorDriver::send(const uint32_t id, const DataT value)
   std::copy(std::begin(data), std::end(data), std::begin(frame.data));
   
   // Send frame to CAN interface
-  can_interface_->queue(frame);
+  can_interface_->send(frame);
 }
 
 /**
@@ -558,7 +558,7 @@ void LynxMotorDriver::send(const uint32_t id)
   frame.is_extended = true;
   
   // Send frame to CAN interface
-  can_interface_->queue(frame);
+  can_interface_->send(frame);
 }
 
 /**
@@ -589,7 +589,7 @@ void LynxMotorDriver::send(const uint32_t id, uint8_t * data, uint8_t length)
   std::copy(std::begin(buffer), std::end(buffer), std::begin(frame.data));
   
   // Send frame to CAN interface
-  can_interface_->queue(frame);
+  can_interface_->send(frame);
 }
 
 /**
