@@ -2,6 +2,26 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Jazzy Phidgets IMU Filter (`#138 <https://github.com/clearpathrobotics/clearpath_robot/issues/138>`_)
+  * IMU Filter
+  * Add imu_filter launch file and added madgwick entry to filter
+  * Add imu filter to generator
+  * Rename imu_filter_node to imu_filter_madgwick
+* Added initial fan control for A300. (`#136 <https://github.com/clearpathrobotics/clearpath_robot/issues/136>`_)
+  * Added initial fan control for A300.
+  * Fixed normal command and updated battery range.
+* Feature/diagnostics (`#135 <https://github.com/clearpathrobotics/clearpath_robot/issues/135>`_)
+  * Initial port of diagnostics to C++
+  * Remap axis camera topics to match API
+  * Monitor MCU Status message frequency
+  * Added firmware version check
+  * Group MCU diagnostics together
+  * Improve messaging around firmware versions
+  * Disable MCU diagnostics for A200
+* Contributors: Hilary Luo, Tony Baltovski, luis-camero
+
 2.0.4 (2025-01-22)
 ------------------
 * Add config and launch for inventus

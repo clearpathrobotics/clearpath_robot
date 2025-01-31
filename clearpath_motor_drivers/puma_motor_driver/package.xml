@@ -11,8 +11,8 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <depend>can_msgs</depend>
-  <depend version_gte="2.0.0">clearpath_motor_msgs</depend>
-  <depend version_gte="1.0.0">clearpath_ros2_socketcan_interface</depend>
+  <depend version_gte="2.1.0">clearpath_motor_msgs</depend>
+  <depend version_gte="2.1.0">clearpath_ros2_socketcan_interface</depend>
   <depend>rclcpp</depend>
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>

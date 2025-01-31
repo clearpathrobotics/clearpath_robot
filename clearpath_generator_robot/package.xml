@@ -10,12 +10,12 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <exec_depend version_gte="2.0.0">clearpath_config</exec_depend>
-  <exec_depend version_gte="2.0.0">clearpath_diagnostics</exec_depend>
-  <exec_depend version_gte="2.0.0">clearpath_generator_common</exec_depend>
-  <exec_depend version_gte="2.0.0">clearpath_hardware_interfaces</exec_depend>
-  <exec_depend version_gte="2.0.0">clearpath_motor_msgs</exec_depend>
-  <exec_depend version_gte="2.0.0">clearpath_sensors</exec_depend>
+  <exec_depend version_gte="2.1.0">clearpath_config</exec_depend>
+  <exec_depend version_gte="2.1.0">clearpath_diagnostics</exec_depend>
+  <exec_depend version_gte="2.1.0">clearpath_generator_common</exec_depend>
+  <exec_depend version_gte="2.1.0">clearpath_hardware_interfaces</exec_depend>
+  <exec_depend version_gte="2.1.0">clearpath_motor_msgs</exec_depend>
+  <exec_depend version_gte="2.1.0">clearpath_sensors</exec_depend>
 
   <exec_depend>imu_filter_madgwick</exec_depend>
   <!-- <exec_depend>inventus_bmu</exec_depend> -->

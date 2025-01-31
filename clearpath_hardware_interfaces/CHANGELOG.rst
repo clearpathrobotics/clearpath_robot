@@ -8,6 +8,14 @@ Changelog for package clearpath_platform
   * Add support for the HE2410 and HE2411 batteries
 * Contributors: Chris Iverach-Brereton
 
+Forthcoming
+-----------
+* [clearpath_hardware_interfaces] Added license to A300 fan control files. (`#141 <https://github.com/clearpathrobotics/clearpath_robot/issues/141>`_)
+* Added initial fan control for A300. (`#136 <https://github.com/clearpathrobotics/clearpath_robot/issues/136>`_)
+  * Added initial fan control for A300.
+  * Fixed normal command and updated battery range.
+* Contributors: Tony Baltovski
+
 2.0.4 (2025-01-22)
 ------------------
 

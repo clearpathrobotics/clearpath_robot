@@ -9,6 +9,11 @@ Changelog for package clearpath_robot
   * Alphabetical dependencies
 * Contributors: luis-camero
 
+Forthcoming
+-----------
+* Check that user exists before installing (`#140 <https://github.com/clearpathrobotics/clearpath_robot/issues/140>`_)
+* Contributors: luis-camero
+
 2.0.4 (2025-01-22)
 ------------------
 
