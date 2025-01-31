@@ -32,6 +32,7 @@
 
 from clearpath_config.common.utils.dictionary import merge_dict
 from clearpath_config.sensors.types.cameras import BaseCamera
+from clearpath_config.sensors.types.imu import BaseIMU, IMUFilter
 from clearpath_config.sensors.types.sensor import BaseSensor
 
 from clearpath_generator_common.common import Package, ParamFile
@@ -82,6 +83,18 @@ class SensorParam():
                 republisher_file.parameters[rename] = republisher_file.parameters.pop(name)
                 default_parameters = merge_dict(default_parameters,
                                                 republisher_file.parameters)
+
+        # IMU Filter
+        if self.sensor.get_sensor_type() == BaseIMU.get_sensor_type():
+            if self.sensor.imu_filter.TYPE != IMUFilter.NoFilter.TYPE:
+                name = 'imu_filter'
+                imu_filter_file = ParamFile(
+                    name=name,
+                    package=self.clearpath_sensors_package,
+                    parameters={}
+                )
+                imu_filter_file.read()
+                default_parameters = merge_dict(default_parameters, imu_filter_file.parameters)
 
         # Parameter file to generate
         self.param_file = ParamFile(

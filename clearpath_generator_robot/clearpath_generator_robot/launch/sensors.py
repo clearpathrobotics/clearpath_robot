@@ -30,6 +30,7 @@
 # modification, is not permitted without the express permission
 # of Clearpath Robotics.
 from clearpath_config.sensors.types.cameras import BaseCamera
+from clearpath_config.sensors.types.imu import BaseIMU, IMUFilter
 from clearpath_config.sensors.types.sensor import BaseSensor
 
 from clearpath_generator_common.common import LaunchFile, Package, ParamFile
@@ -50,6 +51,11 @@ class SensorLaunch():
     INPUT = 'input_ns'
     OUTPUT = 'output_ns'
     CONTAINER = 'container'
+    # IMU filter
+    FILTER = 'filter'
+    INPUT_RAW = 'input_raw'
+    INPUT_MAG = 'input_mag'
+    OUTPUT_IMU = 'output'
 
     def __init__(
             self,
@@ -95,6 +101,22 @@ class SensorLaunch():
                         (self.INPUT, republisher.input),
                         (self.OUTPUT, republisher.output),
                         (self.CONTAINER, 'image_processing_container')
+                    ]
+                ))
+        # IMU Filter
+        if self.sensor.get_sensor_type() == BaseIMU.get_sensor_type():
+            if self.sensor.imu_filter.TYPE != IMUFilter.NoFilter.TYPE:
+                sensor_writer.add(LaunchFile(
+                    'imu_filter',
+                    package=self.CLEARPATH_SENSORS_PACKAGE,
+                    args=[
+                        (self.NAMESPACE, self.namespace),
+                        (self.PARAMETERS, self.parameters.full_path),
+                        (self.CONTAINER, 'imu_filter_container'),
+                        (self.FILTER, self.sensor.imu_filter.TYPE),
+                        (self.INPUT_RAW, self.sensor.imu_filter.input_raw),
+                        (self.INPUT_MAG, self.sensor.imu_filter.input_mag),
+                        (self.OUTPUT_IMU, self.sensor.imu_filter.output),
                     ]
                 ))
         # Generate sensor launch file
