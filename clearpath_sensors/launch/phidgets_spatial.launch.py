@@ -63,8 +63,8 @@ def generate_launch_description():
       ]
     )
 
-    imu_processing_container = ComposableNodeContainer(
-        name='imu_processing_container',
+    imu_filter_container = ComposableNodeContainer(
+        name='imu_filter_container',
         namespace=namespace,
         package='rclcpp_components',
         executable='component_container',
@@ -77,5 +77,5 @@ def generate_launch_description():
     ld = LaunchDescription()
     ld.add_action(arg_namespace)
     ld.add_action(arg_parameters)
-    ld.add_action(imu_processing_container)
+    ld.add_action(imu_filter_container)
     return ld

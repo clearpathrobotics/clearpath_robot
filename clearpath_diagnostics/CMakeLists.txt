@@ -7,14 +7,32 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(ament_cmake_python REQUIRED)
+find_package(clearpath_platform_msgs REQUIRED)
+find_package(diagnostic_updater REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(sensor_msgs REQUIRED)
 
-ament_python_install_package(${PROJECT_NAME})
-
-install(PROGRAMS
-  ${PROJECT_NAME}/diagnostics_updater
-  DESTINATION lib/${PROJECT_NAME}
+set(DEPENDENCIES
+  ament_cmake
+  clearpath_platform_msgs
+  diagnostic_updater
+  rclcpp
+  sensor_msgs
 )
+
+add_executable(clearpath_diagnostic_updater
+  src/clearpath_diagnostic_updater.cpp
+)
+target_include_directories(clearpath_diagnostic_updater PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include/${PROJECT_NAME}>)
+target_compile_features(clearpath_diagnostic_updater PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+
+ament_target_dependencies(clearpath_diagnostic_updater ${DEPENDENCIES})
+target_link_libraries(clearpath_diagnostic_updater)
+
+install(TARGETS clearpath_diagnostic_updater
+  DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY config launch
   DESTINATION share/${PROJECT_NAME}

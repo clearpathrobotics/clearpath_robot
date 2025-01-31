@@ -54,7 +54,7 @@ class RobotLaunchGenerator(LaunchGenerator):
         self.imu_0_filter_node = LaunchFile.Node(
             package='imu_filter_madgwick',
             executable='imu_filter_madgwick_node',
-            name='imu_filter_node',
+            name='imu_filter_madgwick',
             namespace=self.namespace,
             parameters=[LaunchFile.Variable('imu_filter')],
             remappings=[
@@ -132,9 +132,28 @@ class RobotLaunchGenerator(LaunchGenerator):
             ],
         )
 
-        # Diagnostics
+        # Diagnostics launch args
+        self.diag_updater_params = LaunchFile.LaunchArg(
+            'diagnostic_updater_params',
+            default_value=os.path.join(self.platform_params_path, 'diagnostic_updater.yaml'),
+        )
+        self.diag_aggregator_params = LaunchFile.LaunchArg(
+            'diagnostic_aggregator_params',
+            default_value=os.path.join(self.platform_params_path, 'diagnostic_aggregator.yaml'),
+        )
+
+        self.diagnostic_args = [
+            ('namespace', self.namespace),
+            ('updater_parameters', LaunchFile.Variable('diagnostic_updater_params')),
+            ('aggregator_parameters', LaunchFile.Variable('diagnostic_aggregator_params')),
+        ]
+
+        # Diagnostics launch
         clearpath_diagnostics_package = Package('clearpath_diagnostics')
-        self.diagnostics_launch = LaunchFile('diagnostics', package=clearpath_diagnostics_package)
+        self.diagnostics_launch = LaunchFile(
+            'diagnostics',
+            package=clearpath_diagnostics_package,
+            args=self.diagnostic_args)
 
         # Battery state
         self.battery_state_estimator = LaunchFile.Node(
@@ -294,9 +313,19 @@ class RobotLaunchGenerator(LaunchGenerator):
                 ]
             ))
 
+        # A300 Fan Control Node
+        self.a300_fan_control = LaunchFile.Node(
+          package='clearpath_hardware_interfaces',
+          executable='fan_control_node',
+          name='a300_fan_control',
+          namespace=self.namespace,
+        )
+
         # Components required for each platform
         common_platform_components = [
             self.wireless_watcher_node,
+            self.diag_updater_params,
+            self.diag_aggregator_params,
             self.diagnostics_launch,
             self.battery_state_control,
         ]
@@ -322,6 +351,7 @@ class RobotLaunchGenerator(LaunchGenerator):
                 self.configure_mcu,
                 self.lighting_node,
                 self.lynx_node,
+                self.a300_fan_control,
             ],
             Platform.W200: common_platform_components + [
                 self.imu_0_filter_node,

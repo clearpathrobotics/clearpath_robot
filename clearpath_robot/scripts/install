@@ -27,6 +27,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import pwd
 import robot_upstart
 
 from clearpath_config.clearpath_config import ClearpathConfig
@@ -263,6 +264,23 @@ manipulators_service_launch = os.path.join(
     setup_path,
     'manipulators/launch/manipulators-service.launch.py')
 
+# Read YAML
+config = read_yaml(config_path)
+# Parse YAML into config
+clearpath_config = ClearpathConfig(config)
+rmw = clearpath_config.system.middleware.rmw_implementation
+domain_id = clearpath_config.system.domain_id
+
+# Check that user exists
+try:
+    pwd.getpwnam(clearpath_config.system.username)
+except:
+    print(
+        f'Error. User "{clearpath_config.system.username}" does not exist.\n'
+        f'Modify the "robot.yaml" system.username entry to match an existing user.'
+    )
+    exit(1)
+
 # Create Dummy Launch
 if not os.path.isfile(platform_service_launch):
     os.makedirs(os.path.dirname(platform_service_launch), exist_ok=True)
@@ -273,13 +291,6 @@ if not os.path.isfile(sensors_service_launch):
 if not os.path.isfile(manipulators_service_launch):
     os.makedirs(os.path.dirname(manipulators_service_launch), exist_ok=True)
     open(manipulators_service_launch, 'w+').close()
-
-# Read YAML
-config = read_yaml(config_path)
-# Parse YAML into config
-clearpath_config = ClearpathConfig(config)
-rmw = clearpath_config.system.middleware.rmw_implementation
-domain_id = clearpath_config.system.domain_id
 
 # Platform
 platform = robot_upstart.Job(
