@@ -2,8 +2,8 @@
 Changelog for package lynx_motor_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.1.0 (2025-01-31)
+------------------
 * Lynx updates (`#139 <https://github.com/clearpathrobotics/clearpath_robot/issues/139>`_)
   * Wildcard for binary file name
   * Don't queue CAN messages
