@@ -5,6 +5,14 @@ diagnostic_aggregator:
       type: diagnostic_aggregator/AnalyzerGroup
       path: Platform
       analyzers:
+        power:
+          type: diagnostic_aggregator/GenericAnalyzer
+          path: Power
+          contains: [ 'Battery', 'Power' ]
+        stop_status:
+          type: diagnostic_aggregator/GenericAnalyzer
+          path: E-stop Status
+          contains: [ 'E-stop' ]
         mcu:
           type: diagnostic_aggregator/GenericAnalyzer
           path: MCU
