@@ -17,6 +17,8 @@ find_package(controller_interface REQUIRED)
 find_package(controller_manager REQUIRED)
 find_package(controller_manager_msgs REQUIRED)
 find_package(clearpath_platform_msgs REQUIRED)
+find_package(diagnostic_msgs REQUIRED)
+find_package(diagnostic_updater REQUIRED)
 find_package(hardware_interface REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(clearpath_motor_msgs REQUIRED)
@@ -37,9 +39,11 @@ find_package(tf2_ros REQUIRED)
 set(LIGHTING_EXECUTABLE lighting_node)
 set(LIGHTING_LIB clearpath_platform_lighting)
 set(LIGHTING_DEPENDENCIES
-    clearpath_platform_msgs
-    sensor_msgs
-    rclcpp
+  clearpath_platform_msgs
+  diagnostic_msgs
+  diagnostic_updater
+  sensor_msgs
+  rclcpp
 )
 
 add_library(
