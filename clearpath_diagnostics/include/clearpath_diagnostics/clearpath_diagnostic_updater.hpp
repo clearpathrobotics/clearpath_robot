@@ -60,6 +60,51 @@ private:
   using FrequencyStatus = diagnostic_updater::FrequencyStatus;
   using FrequencyStatusParam = diagnostic_updater::FrequencyStatusParam;
 
+  // Callbacks
+  void mcu_status_callback(const clearpath_platform_msgs::msg::Status & msg);
+  void mcu_power_callback(const clearpath_platform_msgs::msg::Power & msg);
+  void bms_state_callback(const BatteryState & msg);
+  void stop_status_callback(const clearpath_platform_msgs::msg::StopStatus & msg);
+
+  // Diagnostic Tasks
+  void firmware_diagnostic(DiagnosticStatusWrapper & stat);
+  void mcu_status_diagnostic(DiagnosticStatusWrapper & stat);
+  void mcu_power_diagnostic(DiagnosticStatusWrapper & stat);
+  void bms_state_diagnostic(DiagnosticStatusWrapper & stat);
+  void stop_status_diagnostic(DiagnosticStatusWrapper & stat);
+
+  // Get parameters from config
+  std::string get_string_param(std::string param_name, bool mandatory = false);
+  double get_double_param(std::string param_name, bool mandatory = false);
+
+  void setup_topic_rate_diagnostics();
+
+  // Template to add rate diagnostics for a given topic and rate
+  template<class MsgType> void add_rate_diagnostic(const std::string topic_name, const double rate)
+  {
+    // Store the rate so that it can be accessed via a pointer and is not deleted
+    rates_.push_back(rate);
+
+    // Create the diagnostic task object that handles calculating and publishing rate statistics
+    auto topic_diagnostic =
+      std::make_shared<diagnostic_updater::HeaderlessTopicDiagnostic>(
+        topic_name,
+        updater_,
+        FrequencyStatusParam(&rates_.back(), &rates_.back(), 0.1, 5));
+
+    // Store the diagnostic task object so that it can be accessed via a pointer and is not deleted
+    topic_diagnostics_.push_back(topic_diagnostic);
+
+    auto sub = this->create_subscription<MsgType>(
+      topic_name,
+      rclcpp::SensorDataQoS(),
+      [this, topic_diagnostic]
+      ([[maybe_unused]] const MsgType & msg) {
+        topic_diagnostic->tick();
+      });
+    subscriptions_.push_back(std::static_pointer_cast<void>(sub));
+  }
+
   // Parameters from config
   std::string serial_number_;
   std::string platform_model_;
@@ -106,50 +151,6 @@ private:
   std::list<std::shared_ptr<diagnostic_updater::HeaderlessTopicDiagnostic>> topic_diagnostics_;
   std::list<std::shared_ptr<void>> subscriptions_;
 
-  // Callbacks
-  void mcu_status_callback(const clearpath_platform_msgs::msg::Status & msg);
-  void mcu_power_callback(const clearpath_platform_msgs::msg::Power & msg);
-  void bms_state_callback(const BatteryState & msg);
-  void stop_status_callback(const clearpath_platform_msgs::msg::StopStatus & msg);
-
-  // Diagnostic Tasks
-  void firmware_diagnostic(DiagnosticStatusWrapper & stat);
-  void mcu_status_diagnostic(DiagnosticStatusWrapper & stat);
-  void mcu_power_diagnostic(DiagnosticStatusWrapper & stat);
-  void bms_state_diagnostic(DiagnosticStatusWrapper & stat);
-  void stop_status_diagnostic(DiagnosticStatusWrapper & stat);
-
-  // Get parameters from config
-  std::string get_string_param(std::string param_name, bool mandatory = false);
-  double get_double_param(std::string param_name, bool mandatory = false);
-
-  void setup_topic_rate_diagnostics();
-
-  // Template to add rate diagnostics for a given topic and rate
-  template<class MsgType> void add_rate_diagnostic(const std::string topic_name, const double rate)
-  {
-    // Store the rate so that it can be accessed via a pointer and is not deleted
-    rates_.push_back(rate);
-
-    // Create the diagnostic task object that handles calculating and publishing rate statistics
-    auto topic_diagnostic =
-      std::make_shared<diagnostic_updater::HeaderlessTopicDiagnostic>(
-        topic_name,
-        updater_,
-        FrequencyStatusParam(&rates_.back(), &rates_.back(), 0.1, 5));
-
-    // Store the diagnostic task object so that it can be accessed via a pointer and is not deleted
-    topic_diagnostics_.push_back(topic_diagnostic);
-
-    auto sub = this->create_subscription<MsgType>(
-      topic_name,
-      rclcpp::SensorDataQoS(),
-      [this, topic_diagnostic]
-      ([[maybe_unused]] const MsgType & msg) {
-        topic_diagnostic->tick();
-      });
-    subscriptions_.push_back(std::static_pointer_cast<void>(sub));
-  }
 };
 
 }
