@@ -327,31 +327,33 @@ void ClearpathDiagnosticUpdater::bms_state_diagnostic(DiagnosticStatusWrapper & 
 
   mcu_power_freq_status_->run(stat);
 
-  // standard diagnostic summaries based on charging activity / level
-  if (bms_state_msg_.power_supply_status == BatteryState::POWER_SUPPLY_STATUS_CHARGING) {
-    stat.mergeSummaryf(DiagnosticStatus::OK,
-                        "Battery Charging (%.1f%%)",
-                        bms_state_msg_.percentage * 100);
-  } else if (bms_state_msg_.percentage >= 0.2) {
-    stat.mergeSummaryf(DiagnosticStatus::OK,
-                        "Battery level is %.1f%%",
-                        bms_state_msg_.percentage * 100);
-  } else if (bms_state_msg_.percentage >= 0.1) {
-    stat.mergeSummaryf(DiagnosticStatus::WARN,
-                        "Low Battery (%.1f%%)",
-                        bms_state_msg_.percentage * 100);
-  } else {
-    stat.mergeSummaryf(DiagnosticStatus::WARN,
-                        "Critically Low Battery (%.1f%%)",
-                        bms_state_msg_.percentage * 100);
-  }
+  // Diagnostic summaries based on charging activity / level
+  if (bms_state_msg_.header.stamp.sec != 0) {
+    if (bms_state_msg_.power_supply_status == BatteryState::POWER_SUPPLY_STATUS_CHARGING) {
+      stat.mergeSummaryf(DiagnosticStatus::OK,
+                          "Battery Charging (%.1f%%)",
+                          bms_state_msg_.percentage * 100);
+    } else if (bms_state_msg_.percentage >= 0.2) {
+      stat.mergeSummaryf(DiagnosticStatus::OK,
+                          "Battery level is %.1f%%",
+                          bms_state_msg_.percentage * 100);
+    } else if (bms_state_msg_.percentage >= 0.1) {
+      stat.mergeSummaryf(DiagnosticStatus::WARN,
+                          "Low Battery (%.1f%%)",
+                          bms_state_msg_.percentage * 100);
+    } else {
+      stat.mergeSummaryf(DiagnosticStatus::WARN,
+                          "Critically Low Battery (%.1f%%)",
+                          bms_state_msg_.percentage * 100);
+    }
 
-  // Error diagnostic summaries
-  if (bms_state_msg_.power_supply_health != BatteryState::POWER_SUPPLY_HEALTH_GOOD) {
-    stat.mergeSummaryf(DiagnosticStatus::ERROR,
-                        "Power Supply Health: %s", power_supply_health.c_str());
-  } else if (bms_state_msg_.power_supply_status == BatteryState::POWER_SUPPLY_STATUS_UNKNOWN) {
-    stat.mergeSummary(DiagnosticStatus::ERROR, "Power Supply Status Unknown");
+    // Error diagnostic summaries
+    if (bms_state_msg_.power_supply_health != BatteryState::POWER_SUPPLY_HEALTH_GOOD) {
+      stat.mergeSummaryf(DiagnosticStatus::ERROR,
+                          "Power Supply Health: %s", power_supply_health.c_str());
+    } else if (bms_state_msg_.power_supply_status == BatteryState::POWER_SUPPLY_STATUS_UNKNOWN) {
+      stat.mergeSummary(DiagnosticStatus::ERROR, "Power Supply Status Unknown");
+    }
   }
 }
 
@@ -377,12 +379,14 @@ void ClearpathDiagnosticUpdater::stop_status_diagnostic(DiagnosticStatusWrapper 
   stat.add("Stop loop needs to be reset",
     (stop_status_msg_.needs_reset ? "True" : "False"));
 
-  if (!stop_status_msg_.stop_power_status) {
-    stat.summary(DiagnosticStatus::ERROR, "E-stop loop is interrupted");
-  } else if (stop_status_msg_.needs_reset) {
-    stat.summary(DiagnosticStatus::ERROR, "E-stop needs to be reset");
-  } else {
-    stat.summary(DiagnosticStatus::OK, "OK");
+  stop_status_freq_status_->run(stat);
+
+  if (stop_status_msg_.header.stamp.sec != 0) {
+    if (!stop_status_msg_.stop_power_status) {
+      stat.mergeSummary(DiagnosticStatus::ERROR, "E-stop loop is interrupted");
+    } else if (stop_status_msg_.needs_reset) {
+      stat.mergeSummary(DiagnosticStatus::ERROR, "E-stop needs to be reset");
+    }
   }
 }
 
