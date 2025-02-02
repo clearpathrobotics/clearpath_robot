@@ -78,32 +78,7 @@ private:
   double get_double_param(std::string param_name, bool mandatory = false);
 
   void setup_topic_rate_diagnostics();
-
-  // Template to add rate diagnostics for a given topic and rate
-  template<class MsgType> void add_rate_diagnostic(const std::string topic_name, const double rate)
-  {
-    // Store the rate so that it can be accessed via a pointer and is not deleted
-    rates_.push_back(rate);
-
-    // Create the diagnostic task object that handles calculating and publishing rate statistics
-    auto topic_diagnostic =
-      std::make_shared<diagnostic_updater::HeaderlessTopicDiagnostic>(
-        topic_name,
-        updater_,
-        FrequencyStatusParam(&rates_.back(), &rates_.back(), 0.1, 5));
-
-    // Store the diagnostic task object so that it can be accessed via a pointer and is not deleted
-    topic_diagnostics_.push_back(topic_diagnostic);
-
-    auto sub = this->create_subscription<MsgType>(
-      topic_name,
-      rclcpp::SensorDataQoS(),
-      [this, topic_diagnostic]
-      ([[maybe_unused]] const MsgType & msg) {
-        topic_diagnostic->tick();
-      });
-    subscriptions_.push_back(std::static_pointer_cast<void>(sub));
-  }
+  template<class MsgType> void add_rate_diagnostic(const std::string topic_name, const double rate);
 
   // Parameters from config
   std::string serial_number_;
