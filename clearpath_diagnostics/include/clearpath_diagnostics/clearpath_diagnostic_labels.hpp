@@ -167,8 +167,6 @@ public:
     {BatteryState::POWER_SUPPLY_TECHNOLOGY_LIFE, "LIFE"},
     {BatteryState::POWER_SUPPLY_TECHNOLOGY_NICD, "NICD"},
     {BatteryState::POWER_SUPPLY_TECHNOLOGY_LIMN, "LIMN"},
-    {BatteryState::POWER_SUPPLY_TECHNOLOGY_TERNARY, "Ternary"},
-    {BatteryState::POWER_SUPPLY_TECHNOLOGY_VRLA, "VRLA"},
   };
 
 };
