@@ -309,7 +309,7 @@ void ClearpathDiagnosticUpdater::bms_state_diagnostic(DiagnosticStatusWrapper & 
   stat.add("Current (A)", bms_state_msg_.current);
   stat.add("Charge (Ah)", bms_state_msg_.charge);
   stat.add("Capacity (Ah)", bms_state_msg_.capacity);
-  stat.addf("Percentage", "%.2f%%", bms_state_msg_.percentage * 100);
+  stat.add("Charge Percentage", bms_state_msg_.percentage * 100);
 
   std::string voltages = "";
   for (auto v : bms_state_msg_.cell_voltage) {
