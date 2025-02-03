@@ -146,6 +146,7 @@ Lighting::Lighting()
   initializeSubscribers();
 
   // Add diagnostic task
+  updater_.setHardwareID(platform);
   updater_.add("Light Status", this, &Lighting::lightingDiagnostic);
 }
 
