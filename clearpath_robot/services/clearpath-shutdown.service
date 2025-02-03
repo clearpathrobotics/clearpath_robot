@@ -1,0 +1,13 @@
+[Unit]
+Description="Clearpath Virtual CAN over UDP Bridge"
+PartOf=clearpath-robot.service
+After=clearpath-robot.service
+
+[Service]
+Restart=on-failure
+User=root
+Type=simple
+ExecStart=/bin/bash -e /usr/sbin/clearpath-shutdown
+
+[Install]
+WantedBy=clearpath-robot.service
