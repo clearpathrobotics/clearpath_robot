@@ -1,13 +1,13 @@
 [Unit]
-Description="Clearpath Virtual CAN over UDP Bridge"
+Description="Clearpath graceful shutdown service"
 PartOf=clearpath-robot.service
 After=clearpath-robot.service
 
 [Service]
 Restart=on-failure
 User=root
-Type=simple
-ExecStart=/bin/bash -e /usr/sbin/clearpath-shutdown
+Type=idle
+ExecStart=/bin/bash -c 'python3 /usr/sbin/clearpath-shutdown'
 
 [Install]
 WantedBy=clearpath-robot.service
