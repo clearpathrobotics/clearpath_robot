@@ -547,17 +547,20 @@ void Lighting::lightingDiagnostic(diagnostic_updater::DiagnosticStatusWrapper & 
       case State::ShoreAndCharged:
       case State::Charging:
       case State::Charged:
-        stat.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, state_label);
+        stat.summaryf(diagnostic_msgs::msg::DiagnosticStatus::OK, "State: %s",
+                      state_label.c_str());
         break;
       case State::LowBattery:
       // case State::MotorOverheated:
       case State::Stopped:
-        stat.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN, state_label);
+        stat.summaryf(diagnostic_msgs::msg::DiagnosticStatus::WARN, "State: %s",
+                      state_label.c_str());
         break;
       case State::NeedsReset:
       case State::BatteryFault:
       case State::ShoreFault:
-        stat.summary(diagnostic_msgs::msg::DiagnosticStatus::ERROR, state_label);
+        stat.summaryf(diagnostic_msgs::msg::DiagnosticStatus::ERROR, "State: %s",
+                      state_label.c_str());
         break;
       // case State::MotorFault:
       //   stat.summaryf(diagnostic_msgs::msg::DiagnosticStatus::ERROR, "%s%s",
