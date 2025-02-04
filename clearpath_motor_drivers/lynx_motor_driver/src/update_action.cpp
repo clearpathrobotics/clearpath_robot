@@ -37,9 +37,9 @@ static constexpr uint8_t ALIVE_CHECK_ATTEMPTS = 100;
 
 /**
  * @brief Read
- * 
- * @param filename 
- * @return std::queue<uint8_t> 
+ *
+ * @param filename
+ * @return std::queue<uint8_t>
  */
 std::queue<uint8_t> LynxMotorNode::readBinaryFile(const std::string filename)
 {
@@ -77,10 +77,10 @@ std::queue<uint8_t> LynxMotorNode::readBinaryFile(const std::string filename)
 
 /**
  * @brief Handle Update goal request
- * 
+ *
  * @param uuid UUID
  * @param goal Goal pointer
- * @return rclcpp_action::GoalResponse 
+ * @return rclcpp_action::GoalResponse
  */
 rclcpp_action::GoalResponse LynxMotorNode::handleUpdateGoal(
   const rclcpp_action::GoalUUID & uuid,
@@ -129,7 +129,7 @@ rclcpp_action::GoalResponse LynxMotorNode::handleUpdateGoal(
       return rclcpp_action::GoalResponse::REJECT;
     }
   }
-  
+
   app = readBinaryFile(filename);
   RCLCPP_INFO(this->get_logger(), "Uploading file %s len %ld", filename.c_str(), app.size());
   // Copy binary to each driver
@@ -143,9 +143,9 @@ rclcpp_action::GoalResponse LynxMotorNode::handleUpdateGoal(
 
 /**
  * @brief Handle update goal cancelled
- * 
+ *
  * @param goal_handle Pointer to goal handle
- * @return rclcpp_action::CancelResponse 
+ * @return rclcpp_action::CancelResponse
  */
 rclcpp_action::CancelResponse LynxMotorNode::handleUpdateCancel(
   const std::shared_ptr<GoalHandleUpdate> goal_handle)
@@ -161,7 +161,7 @@ rclcpp_action::CancelResponse LynxMotorNode::handleUpdateCancel(
 
 /**
  * @brief Handle update goal being accepted
- * 
+ *
  * @param goal_handle Pointer to goal handle
  */
 void LynxMotorNode::handleUpdateAccepted(const std::shared_ptr<GoalHandleUpdate> goal_handle)
@@ -175,7 +175,7 @@ void LynxMotorNode::handleUpdateAccepted(const std::shared_ptr<GoalHandleUpdate>
 
 /**
  * @brief Execute update action
- * 
+ *
  * @param goal_handle Pointer to goal handle
  */
 void LynxMotorNode::executeUpdateAction(const std::shared_ptr<GoalHandleUpdate> goal_handle)
@@ -263,7 +263,7 @@ void LynxMotorNode::executeUpdateAction(const std::shared_ptr<GoalHandleUpdate> 
 
     // Send 100% on last feedback message
     feedback->progress.at(i) = 100.0;
-    goal_handle->publish_feedback(feedback);    
+    goal_handle->publish_feedback(feedback);
 
     i++;
   }

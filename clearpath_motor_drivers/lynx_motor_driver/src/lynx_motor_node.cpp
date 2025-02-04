@@ -26,7 +26,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
 /**
  * @brief Construct a new LynxMotorNode object
- * 
+ *
  * @param node_name Node name
  */
 LynxMotorNode::LynxMotorNode(const std::string node_name) :
@@ -129,7 +129,7 @@ LynxMotorNode::LynxMotorNode(const std::string node_name) :
     std::bind(&LynxMotorNode::handleCalibrateGoal, this, std::placeholders::_1, std::placeholders::_2),
     std::bind(&LynxMotorNode::handleCalibrateCancel, this, std::placeholders::_1),
     std::bind(&LynxMotorNode::handleCalibrateAccepted, this, std::placeholders::_1));
-  
+
   update_action_server_ = rclcpp_action::create_server<Update>(
     this,
     "platform/motors/update",
@@ -148,13 +148,13 @@ LynxMotorNode::LynxMotorNode(const std::string node_name) :
   // Start timers
   feedback_timer_ = this->create_wall_timer(
     std::chrono::milliseconds(static_cast<uint64_t>(1000 / feedback_hz_)), std::bind(&LynxMotorNode::runFeedback, this));
-  
+
   status_timer_ = this->create_wall_timer(
     std::chrono::milliseconds(static_cast<uint64_t>(1000 / status_hz_)), std::bind(&LynxMotorNode::runStatus, this));
-  
+
   debug_timer_ = this->create_wall_timer(
     std::chrono::milliseconds(static_cast<uint64_t>(1000 / debug_hz_)), std::bind(&LynxMotorNode::runDebug, this));
-  
+
   protection_timer_ = this->create_wall_timer(
     std::chrono::milliseconds(1000), std::bind(&LynxMotorNode::sendSystemState, this));
 }
@@ -162,7 +162,7 @@ LynxMotorNode::LynxMotorNode(const std::string node_name) :
 
 /**
  * @brief Update MultiDebug message
- * 
+ *
  */
 void LynxMotorNode::updateDebug()
 {
@@ -181,7 +181,7 @@ void LynxMotorNode::updateDebug()
 
 /**
  * @brief Update MultiStatus message
- * 
+ *
  */
 void LynxMotorNode::updateStatus()
 {
@@ -200,7 +200,7 @@ void LynxMotorNode::updateStatus()
 
 /**
  * @brief Update MultiFeedback message
- * 
+ *
  */
 void LynxMotorNode::updateFeedback()
 {
@@ -219,7 +219,7 @@ void LynxMotorNode::updateFeedback()
 
 /**
  * @brief Update debug message, then publish it
- * 
+ *
  */
 void LynxMotorNode::publishDebug()
 {
@@ -229,7 +229,7 @@ void LynxMotorNode::publishDebug()
 
 /**
  * @brief Update feedback message, then publish it
- * 
+ *
  */
 void LynxMotorNode::publishFeedback()
 {
@@ -239,7 +239,7 @@ void LynxMotorNode::publishFeedback()
 
 /**
  * @brief Update status message, then publish it
- * 
+ *
  */
 void LynxMotorNode::publishStatus()
 {
@@ -250,8 +250,8 @@ void LynxMotorNode::publishStatus()
 /**
  * @brief Callback to driver command subscriber.
  * Send commanded velocity to driver with matching joint name
- * 
- * @param msg 
+ *
+ * @param msg
  */
 void LynxMotorNode::cmdCallback(const sensor_msgs::msg::JointState::SharedPtr msg)
 {
@@ -277,8 +277,8 @@ void LynxMotorNode::cmdCallback(const sensor_msgs::msg::JointState::SharedPtr ms
 /**
  * @brief CAN Rx callback.
  * Process message on receive
- * 
- * @param msg 
+ *
+ * @param msg
  */
 void LynxMotorNode::canRxCallback(const can_msgs::msg::Frame::SharedPtr msg)
 {
@@ -296,7 +296,7 @@ void LynxMotorNode::canRxCallback(const can_msgs::msg::Frame::SharedPtr msg)
 /**
  * @brief Feedback timer callback.
  * Publish feedback and update system protection state
- * 
+ *
  */
 void LynxMotorNode::runFeedback()
 {
@@ -312,7 +312,7 @@ void LynxMotorNode::runFeedback()
 /**
  * @brief Status timer callback.
  * Publish status
- * 
+ *
  */
 void LynxMotorNode::runStatus()
 {
@@ -327,7 +327,7 @@ void LynxMotorNode::runStatus()
 /**
  * @brief Debug timer callback.
  * Publish debug if any of the drivers are running debug firmware.
- * 
+ *
  */
 void LynxMotorNode::runDebug()
 {
@@ -356,7 +356,7 @@ void LynxMotorNode::runDebug()
 
 /**
  * @brief Start debug publisher
- * 
+ *
  */
 void LynxMotorNode::startDebug()
 {
@@ -365,6 +365,6 @@ void LynxMotorNode::startDebug()
   debug_pub_ = this->create_publisher<clearpath_motor_msgs::msg::LynxMultiDebug>(
     "platform/motors/debug",
     rclcpp::SensorDataQoS());
-  
+
   debugging_ = true;
 }

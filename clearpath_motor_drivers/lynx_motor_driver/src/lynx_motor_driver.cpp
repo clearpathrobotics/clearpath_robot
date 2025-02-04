@@ -35,7 +35,7 @@ namespace lynx_motor_driver
 
 /**
  * @brief Construct a new Lynx Motor Driver object
- * 
+ *
  * @param can_id CAN ID
  * @param joint_name Joint name
  * @param direction Direction of rotation
@@ -87,7 +87,7 @@ LynxMotorDriver::LynxMotorDriver(const int64_t& can_id,
 
 /**
  * @brief Process a received CAN message
- * 
+ *
  * @param received_msg Message reference
  * @return true if processed by this driver.
  * @return false otherwise.
@@ -145,13 +145,13 @@ bool LynxMotorDriver::processMessage(const Message& received_msg)
           uint32_t version = std::get<uint32_t>(received_msg.getDataAsIndexedUint32());
           bool debug = (version & 0xFF);
 
-          status_msg_.firmware_version = 
+          status_msg_.firmware_version =
             std::to_string((version >> 24) & 0xFF) +
             "." +
             std::to_string((version >> 16) & 0xFF) +
             "." +
             std::to_string((version >> 8) & 0xFF);
-          
+
           if (debug)
           {
             status_msg_.firmware_version += " Debug";
@@ -342,7 +342,7 @@ bool LynxMotorDriver::processMessage(const Message& received_msg)
 
 /**
  * @brief Check if debug message has been filled
- * 
+ *
  * @return true if message is ready.
  * @return false otherwise.
  */
@@ -365,7 +365,7 @@ bool LynxMotorDriver::debugMessageReady()
 
 /**
  * @brief Check if feedback message has been filled
- * 
+ *
  * @return true if message is ready.
  * @return false otherwise.
  */
@@ -388,7 +388,7 @@ bool LynxMotorDriver::feedbackMessageReady()
 
 /**
  * @brief Check if status message has been filled
- * 
+ *
  * @return true if message is ready.
  * @return false otherwise.
  */
@@ -411,8 +411,8 @@ bool LynxMotorDriver::statusMessageReady()
 
 /**
  * @brief Get the debug message
- * 
- * @return clearpath_motor_msgs::msg::LynxDebug 
+ *
+ * @return clearpath_motor_msgs::msg::LynxDebug
  */
 clearpath_motor_msgs::msg::LynxDebug LynxMotorDriver::getDebugMessage()
 {
@@ -426,8 +426,8 @@ clearpath_motor_msgs::msg::LynxDebug LynxMotorDriver::getDebugMessage()
 
 /**
  * @brief Get the feedback message
- * 
- * @return clearpath_motor_msgs::msg::LynxFeedback 
+ *
+ * @return clearpath_motor_msgs::msg::LynxFeedback
  */
 clearpath_motor_msgs::msg::LynxFeedback LynxMotorDriver::getFeedbackMessage()
 {
@@ -441,8 +441,8 @@ clearpath_motor_msgs::msg::LynxFeedback LynxMotorDriver::getFeedbackMessage()
 
 /**
  * @brief Get the status message
- * 
- * @return clearpath_motor_msgs::msg::LynxStatus 
+ *
+ * @return clearpath_motor_msgs::msg::LynxStatus
  */
 clearpath_motor_msgs::msg::LynxStatus LynxMotorDriver::getStatusMessage()
 {
@@ -456,7 +456,7 @@ clearpath_motor_msgs::msg::LynxStatus LynxMotorDriver::getStatusMessage()
 
 /**
  * @brief Send a velocity to the driver
- * 
+ *
  * @param velocity Velocity in rad/s
  */
 void LynxMotorDriver::sendVelocity(double velocity)
@@ -466,7 +466,7 @@ void LynxMotorDriver::sendVelocity(double velocity)
 
 /**
  * @brief Send the system protection state to the driver
- * 
+ *
  * @param state System protection state
  */
 void LynxMotorDriver::sendProtectionState(uint8_t state)
@@ -476,7 +476,7 @@ void LynxMotorDriver::sendProtectionState(uint8_t state)
 
 /**
  * @brief Get the driver protection state
- * 
+ *
  * @return uint8_t representing the protection state
  */
 uint8_t LynxMotorDriver::getProtectionState()
@@ -486,7 +486,7 @@ uint8_t LynxMotorDriver::getProtectionState()
 
 /**
  * @brief Send a calibration request to the driver
- * 
+ *
  */
 void LynxMotorDriver::sendCalibrationRequest()
 {
@@ -495,7 +495,7 @@ void LynxMotorDriver::sendCalibrationRequest()
 
 /**
  * @brief Cancel calibration on the driver
- * 
+ *
  */
 void LynxMotorDriver::sendCalibrationCancel()
 {
@@ -504,7 +504,7 @@ void LynxMotorDriver::sendCalibrationCancel()
 
 /**
  * @brief Get the COBID from a message ID and the driver's CAN ID
- * 
+ *
  * @param msg_id message ID
  * @return uint32_t representing the COBID
  */
@@ -515,7 +515,7 @@ uint32_t LynxMotorDriver::getCOBID(const uint32_t msg_id) const
 
 /**
  * @brief Send a message to the driver. Converts from DataT to an 8 byte CAN data array.
- * 
+ *
  * @tparam DataT Data type (Up to 8 bytes long)
  * @param id Message ID
  * @param value Data value
@@ -539,14 +539,14 @@ void LynxMotorDriver::send(const uint32_t id, const DataT value)
   uint8_t data[8] = {0};
   std::memcpy(data, &value, sizeof(DataT));
   std::copy(std::begin(data), std::end(data), std::begin(frame.data));
-  
+
   // Send frame to CAN interface
   can_interface_->send(frame);
 }
 
 /**
  * @brief Send a message to the driver with no data.
- * 
+ *
  * @param id Message ID
  */
 void LynxMotorDriver::send(const uint32_t id)
@@ -556,14 +556,14 @@ void LynxMotorDriver::send(const uint32_t id)
   frame.id = getCOBID(id);
   frame.dlc = 0;
   frame.is_extended = true;
-  
+
   // Send frame to CAN interface
   can_interface_->send(frame);
 }
 
 /**
  * @brief Send a message to the driver with data from a buffer.
- * 
+ *
  * @param id Message ID
  * @param data Data buffer
  * @param length Data buffer length
@@ -587,14 +587,14 @@ void LynxMotorDriver::send(const uint32_t id, uint8_t * data, uint8_t length)
   uint8_t buffer[8] = {0};
   std::memcpy(buffer, data, length);
   std::copy(std::begin(buffer), std::end(buffer), std::begin(frame.data));
-  
+
   // Send frame to CAN interface
   can_interface_->send(frame);
 }
 
 /**
  * @brief Send a boot request to the driver.
- * 
+ *
  */
 void LynxMotorDriver::sendBootRequest()
 {
@@ -603,7 +603,7 @@ void LynxMotorDriver::sendBootRequest()
 
 /**
  * @brief Send a boot alive check to the driver.
- * 
+ *
  */
 void LynxMotorDriver::sendBootAliveCheck()
 {
@@ -621,7 +621,7 @@ void LynxMotorDriver::updateReset()
 
 /**
  * @brief Copy the application to the driver.
- * 
+ *
  * @param app Queue of bytes representing the application
  */
 void LynxMotorDriver::copyApplication(const std::queue<uint8_t> app)
@@ -632,7 +632,7 @@ void LynxMotorDriver::copyApplication(const std::queue<uint8_t> app)
 
 /**
  * @brief Run an iteration of a CAN bootloader update.
- * 
+ *
  * @return float representing update progress as a percentage.
  */
 float LynxMotorDriver::updateApp()
@@ -673,7 +673,7 @@ float LynxMotorDriver::updateApp()
         frame_data[i] = 0x00;
       }
     }
-  
+
     app_count_++;
 
     do
@@ -693,7 +693,7 @@ float LynxMotorDriver::updateApp()
 /**
  * @brief Attempt to acquire the iteration mutex.
  * If acquired, assign the iteration value to the iteration parameter.
- * 
+ *
  * @param iteration Reference to iteration variable.
  * @return true on success.
  * @return false otherwise.
@@ -712,7 +712,7 @@ bool LynxMotorDriver::tryGetIteration(uint16_t & iteration)
 /**
  * @brief Attempt to acquire the offset mutex.
  * If acquired, assign the offset value to the offset parameter.
- * 
+ *
  * @param offset Reference to offset variable.
  * @return true on success.
  * @return false otherwise.
@@ -730,7 +730,7 @@ bool LynxMotorDriver::tryGetOffset(float & offset)
 
 /**
  * @brief Attempt to acquire the update ack mutex.
- * 
+ *
  * @return true if acquired.
  * @return false otherwise.
  */
@@ -747,7 +747,7 @@ bool LynxMotorDriver::tryGetUpdateAck(uint16_t & can_count)
 
 /**
  * @brief Attempt to acquire the update alive mutex.
- * 
+ *
  * @return true if acquired.
  * @return false otherwise.
  */
