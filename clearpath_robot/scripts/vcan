@@ -59,13 +59,20 @@ echo "Device: $dev";
 echo "Virtual CAN: $vcan";
 echo "Baud Rate: $baud";
 
-socat udp4-datagram:192.168.131.2:$port,bind=:$port,range=192.168.131.1/24 pty,link=$dev &
+# Bind to UDP4 socket, create a new pty device and bridge them
+socat udp4-datagram:192.168.131.2:$port,bind=:$port,range=192.168.131.1/24 pty,link=$dev,echo=0 &
 sleep 1
 
+# Create virtual serial CAN interface using the pty serial device
 slcand -o -c -F -$baud $dev $vcan &
 sleep 1
 
+# Increase Tx queue length
 ip link set $vcan txqueuelen 100
 sleep 1
 
+# Bring vcan interface up
 ip link set $vcan up
+
+# Send a message to the virtual CAN interface to enable echoing on the serial device
+cangen $vcan -n 1 -L 0 -I 0
