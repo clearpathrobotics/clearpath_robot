@@ -43,7 +43,7 @@ const std::string MCU_TEMPERATURE_TOPIC = "platform/mcu/status/temperature";
 const std::string MOTOR_TEMPERATURE_TOPIC = "platform/motors/status";
 
 /// Battery temperature topic name
-const std::string BATTERY_TEMPERATURE_TOPIC = "platform/bms/battery_state";
+const std::string BATTERY_TEMPERATURE_TOPIC = "platform/bms/state";
 
 /// Fan command for high error state, percent of maximum speed
 constexpr float FAN_CMD_HIGH_ERROR = 1.0f;
