@@ -75,4 +75,4 @@ sleep 1
 ip link set $vcan up
 
 # Send a message to the virtual CAN interface to enable echoing on the serial device
-cangen $vcan -n 1
+cangen $vcan -n 1 -L 0 -I 0
