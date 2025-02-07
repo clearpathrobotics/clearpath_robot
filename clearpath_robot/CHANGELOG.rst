@@ -9,6 +9,11 @@ Changelog for package clearpath_robot
   * Alphabetical dependencies
 * Contributors: luis-camero
 
+Forthcoming
+-----------
+* VCAN fix for Lynx remote request issue (`#146 <https://github.com/clearpathrobotics/clearpath_robot/issues/146>`_)
+* Contributors: Roni Kreinin
+
 2.1.0 (2025-01-31)
 ------------------
 * Check that user exists before installing (`#140 <https://github.com/clearpathrobotics/clearpath_robot/issues/140>`_)
