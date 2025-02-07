@@ -32,7 +32,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 LynxMotorNode::LynxMotorNode(const std::string node_name) :
  Node(node_name),
  updating_(false),
- debugging_(false)
+ debugging_(false),
+ updater_(this)
 {
   // Declare parameters
   this->declare_parameter("can_bus", "can0");
@@ -94,15 +95,24 @@ LynxMotorNode::LynxMotorNode(const std::string node_name) :
       node_handle_,
       std::bind(&LynxMotorNode::canRxCallback, this, std::placeholders::_1)));
 
+  // Setup diagnostics
+  updater_.setHardwareID("Lynx");
+  updater_.add("Lynx Motor Driver Summary", this, &LynxMotorNode::protectionDiagnostic);
+  firmware_version_expected_ = parseFirmwareVersion(getDefaultFirmware());
+
   // Initialise drivers
   for (uint8_t i = 0; i < joint_names_.size(); i++)
   {
-    drivers_.push_back(lynx_motor_driver::LynxMotorDriver(
+    drivers_.emplace_back(
       joint_can_ids_[i],
       joint_names_[i],
       joint_directions_[i],
       can_interface_
-    ));
+    );
+
+    // Add diagnostic tasks
+    std::string name = "Lynx Motor Driver " + std::to_string(i + 1) + " (" + joint_names_[i] + ")";
+    updater_.add(name, std::bind(&LynxMotorNode::driverDiagnostic, this, std::placeholders::_1, i));
   }
 
   // Subsciber
@@ -367,4 +377,143 @@ void LynxMotorNode::startDebug()
     rclcpp::SensorDataQoS());
 
   debugging_ = true;
+}
+
+/**
+ * @brief Diagnostic task to report details for each motor driver
+ *
+ * @param i Driver index number
+ */
+void LynxMotorNode::driverDiagnostic(DiagnosticStatusWrapper & stat, int i)
+{
+  //Fimware update process
+  if (updating_) {
+    // ignore everything else if actively updating the firmware, messages are not valid
+    stat.summary(DiagnosticStatusWrapper::WARN, "Firmware Updating");
+    return;
+  }
+
+  drivers_[i].runFreqStatus(stat);
+
+  if (stat.level == DiagnosticStatusWrapper::ERROR) {
+    // Error from the frequency status means that no messages are being received
+    // therefore return instead of reporting on old data
+    return;
+  }
+
+  stat.add("CAN ID", (int)status_msg_.drivers[i].can_id);
+  stat.add("Joint Name", status_msg_.drivers[i].joint_name);
+  stat.add("Firmware Version", status_msg_.drivers[i].firmware_version);
+  stat.add("Motor Temperature (C)", status_msg_.drivers[i].motor_temperature);
+  stat.add("BLDC MCU Temperature (C)", status_msg_.drivers[i].mcu_temperature);
+  stat.add("BLDC PCB Temperature (C)", status_msg_.drivers[i].pcb_temperature);
+  stat.add("Hardware Triggered Stop", (status_msg_.drivers[i].stopped ? "True" : "False"));
+
+  try {
+    // Set message to warn if motor is in overheated or throttled states
+    if ((system_protection_msg_.motor_states[i] == LynxSystemProtection::THROTTLED) ||
+        (system_protection_msg_.motor_states[i] == LynxSystemProtection::OVERHEATED)) {
+      stat.mergeSummary(DiagnosticStatusWrapper::WARN,
+                        LYNX_PROTECTION_LABELS_.at(system_protection_msg_.motor_states[i]));
+    }
+  } catch(const std::out_of_range & e) {
+    RCLCPP_ERROR(this->get_logger(),
+      "Unknown Lynx system protection message motor state value with no string description: %s",
+      e.what());
+  }
+
+  // Status flags
+  for (auto label : STATUS_FLAG_LABELS_) {
+    // isolate and save the bit associated with the flag
+    bool flag = (status_msg_.drivers[i].status_flags >> label.first) & 0x1;
+    stat.add(label.second, flag ? "True" : "False");
+    if (flag) {
+      if (label.first == LynxStatus::STATUS_FLAG_CALIBRATION_REQUESTED) {
+        // Okay state message only gets added if all previous messages were okay
+        stat.mergeSummary(DiagnosticStatusWrapper::OK, label.second);
+      }
+      else if (label.first == LynxStatus::STATUS_FLAG_ESTOPPED){
+        stat.mergeSummary(DiagnosticStatusWrapper::WARN, label.second);
+      }
+    }
+  }
+
+  // Error flags
+  for (auto label : ERROR_FLAG_LABELS_) {
+    bool flag = (status_msg_.drivers[i].error_flags >> label.first) & 0x1;
+    stat.add(label.second, flag ? "True" : "False");
+    if (flag) {
+      // Flag any active errors in the summary and set level to error
+      stat.mergeSummary(DiagnosticStatusWrapper::ERROR, label.second);
+    }
+  }
+
+  std::string firmware_current = status_msg_.drivers[i].firmware_version;
+  size_t pos = status_msg_.drivers[i].firmware_version.find(' ');
+  if (pos != std::string::npos) {
+    firmware_current = status_msg_.drivers[i].firmware_version.substr(0, pos);
+  }
+
+  // Firmware check
+  if (firmware_version_expected_ != firmware_current) {
+    stat.mergeSummaryf(DiagnosticStatusWrapper::ERROR,
+                       "Firmware mismatch (\"%s\" is installed but expected \"%s\")",
+                       firmware_current.c_str(),
+                       firmware_version_expected_.c_str());
+  }
+}
+
+/**
+ * @brief Diagnostic task to report overal system protection status for all drivers
+ *
+ */
+void LynxMotorNode::protectionDiagnostic(DiagnosticStatusWrapper & stat)
+{
+  // Fimware update process
+  if (updating_) {
+    // Ignore everything else if actively updating the firmware, messages are not valid
+    stat.summary(DiagnosticStatusWrapper::WARN, "Firmware Updating");
+    return;
+  }
+
+  try {
+    // Interpret system protection message
+    if (system_protection_msg_.system_state == LynxSystemProtection::NORMAL) {
+      stat.summary(DiagnosticStatusWrapper::OK,
+                  LYNX_PROTECTION_LABELS_.at(system_protection_msg_.system_state));
+    } else if (system_protection_msg_.system_state == LynxSystemProtection::ERROR) {
+      stat.summary(DiagnosticStatusWrapper::ERROR,
+                  LYNX_PROTECTION_LABELS_.at(system_protection_msg_.system_state));
+    } else {
+      stat.summary(DiagnosticStatusWrapper::WARN,
+                  LYNX_PROTECTION_LABELS_.at(system_protection_msg_.system_state));
+    }
+  } catch(const std::out_of_range & e) {
+    RCLCPP_ERROR(this->get_logger(),
+      "Unknown Lynx system protection message system state value with no string description: %s",
+      e.what());
+  }
+
+  try {
+    for (unsigned i = 0; i < system_protection_msg_.motor_states.size(); i++) {
+      stat.add(LYNX_MOTOR_LABELS_.at(i) + " Motor State",
+              LYNX_PROTECTION_LABELS_.at(system_protection_msg_.motor_states[i]));
+    }
+  } catch(const std::out_of_range & e) {
+    RCLCPP_ERROR(this->get_logger(),
+      "Unknown Lynx system protection message motor state value with no string description: %s",
+      e.what());
+  }
+}
+
+std::string LynxMotorNode::parseFirmwareVersion(std::string filename)
+{
+  std::regex rgx("([Ll]ynx[_-][Ff]irmware[_-][Rr]elease[_-])([0-9]+[.][0-9]+[.][0-9]+)");
+  std::smatch match;
+  std::string version = "unknown";
+
+  if (std::regex_search(filename, match, rgx)) {
+    version = match[2]; // Capture the 2nd subgroup which contains the version number string
+  }
+  return version;
 }

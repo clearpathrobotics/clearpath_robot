@@ -29,6 +29,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include <cstring>
 #include <math.h>
 
+#define CAN_FEEDBACK_RATE 50.0  // Must match the firmware
 
 namespace lynx_motor_driver
 {
@@ -83,6 +84,10 @@ LynxMotorDriver::LynxMotorDriver(const int64_t& can_id,
 
   status_msg_.can_id = getCanID();
   status_msg_.joint_name = getJointName();
+
+  can_feedback_rate_ = std::make_shared<double>(CAN_FEEDBACK_RATE);
+  can_feedback_freq_status_ = std::make_shared<diagnostic_updater::FrequencyStatus>(
+    diagnostic_updater::FrequencyStatusParam(can_feedback_rate_.get(), can_feedback_rate_.get(), 0.1, 5));
 }
 
 /**
@@ -114,18 +119,26 @@ bool LynxMotorDriver::processMessage(const Message& received_msg)
         case Feedback::Fields::Current:
         {
           feedback_msg_.current = data;
+          can_feedback_freq_status_->tick();
+          current_filtered = (current_filtered * DIAGNOSTICS_LOW_PASS) +
+                            (feedback_msg_.current * (1-DIAGNOSTICS_LOW_PASS));
+
           break;
         }
 
         case Feedback::Fields::Voltage:
         {
           feedback_msg_.voltage = data;
+          voltage_filtered = (voltage_filtered * DIAGNOSTICS_LOW_PASS) +
+                            (feedback_msg_.voltage * (1-DIAGNOSTICS_LOW_PASS));
           break;
         }
 
         case Feedback::Fields::Velocity:
         {
           feedback_msg_.velocity = data * direction_;
+          velocity_filtered = (velocity_filtered * DIAGNOSTICS_LOW_PASS) +
+                            (feedback_msg_.velocity * (1-DIAGNOSTICS_LOW_PASS));
           break;
         }
       }
@@ -773,6 +786,22 @@ void LynxMotorDriver::getUpdateAck(uint16_t & can_count)
 void LynxMotorDriver::getUpdateAlive()
 {
   action_mutexes_[Action::Fields::UpdateAlive]->lock();
+}
+
+/**
+ * @brief Runs the frequency diagnostic update to populate the status message
+ */
+void LynxMotorDriver::runFreqStatus(diagnostic_updater::DiagnosticStatusWrapper & stat)
+{
+  can_feedback_freq_status_->run(stat);
+
+  if (stat.level != diagnostic_updater::DiagnosticStatusWrapper::ERROR) {
+    // Error from the frequency status would mean that no messages are being received
+    // therefore return instead of reporting on old data
+    stat.add("Current", current_filtered);
+    stat.add("Voltage", voltage_filtered);
+    stat.add("Velocity", velocity_filtered);
+  }
 }
 
 }  // namespace lynx_motor_driver
