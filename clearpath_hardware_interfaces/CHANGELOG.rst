@@ -8,8 +8,8 @@ Changelog for package clearpath_platform
   * Add support for the HE2410 and HE2411 batteries
 * Contributors: Chris Iverach-Brereton
 
-Forthcoming
------------
+2.1.1 (2025-02-06)
+------------------
 * [clearpath_hardware_interfaces] Fixed BMS topic for fan control. (`#145 <https://github.com/clearpathrobotics/clearpath_robot/issues/145>`_)
 * Contributors: Tony Baltovski
 
