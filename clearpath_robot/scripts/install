@@ -376,8 +376,9 @@ vcan_bridge = robot_upstart.Job(workspace_setup=workspace_setup)
 vcan_bridge.install(Provider=VirtualCANProvider)
 
 # Shutdown script
-shutdown = robot_upstart.Job(workspace_setup=workspace_setup)
-shutdown.install(Provider=ShutdownProvider)
+if clearpath_config.platform.get_platform_model() == Platform.A300:
+    shutdown = robot_upstart.Job(workspace_setup=workspace_setup)
+    shutdown.install(Provider=ShutdownProvider)
 
 # Robot
 robot = robot_upstart.Job(workspace_setup=workspace_setup)
