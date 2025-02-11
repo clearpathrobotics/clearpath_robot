@@ -65,6 +65,7 @@ namespace Status
     McuTemperature,
     PcbTemperature,
     FlagsStatus,
+    FlagsWarning,
     FlagsError,
     Count
   } Fields;
