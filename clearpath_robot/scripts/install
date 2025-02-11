@@ -251,6 +251,35 @@ class RobotProvider(robot_upstart.providers.Generic):
             }
         }
 
+class ShutdownProvider(robot_upstart.providers.Generic):
+    def post_install(self):
+        pass
+
+    def generate_install(self):
+        shutdown_service_path = os.path.join(
+            get_package_share_directory('clearpath_robot'),
+            'services/clearpath-shutdown.service')
+        shutdown_script_path = os.path.join(
+            get_package_share_directory('clearpath_robot'),
+            'scripts/shutdown.py')
+        with open(shutdown_service_path) as f:
+            shutdown_service_contents = f.read()
+        with open(shutdown_script_path) as f:
+            shutdown_script_contents = f.read()
+        return {
+            '/lib/systemd/system/clearpath-shutdown.service': {
+                'content': shutdown_service_contents,
+                'mode': 0o644
+            },
+            '/usr/sbin/clearpath-shutdown': {
+                'content': shutdown_script_contents,
+                'mode': 0o755
+            },
+            '/etc/systemd/system/clearpath-robot.service.wants/clearpath-shutdown.service': {
+                'symlink': '/lib/systemd/system/clearpath-shutdown.service'
+            },
+        }
+
 setup_path = BaseGenerator.get_args()
 workspace_setup = os.path.join(setup_path, 'setup.bash')
 config_path = os.path.join(setup_path, 'robot.yaml')
@@ -345,6 +374,10 @@ zenoh_router.install(Provider=ZenohRouterServiceProvider)
 # Virtual CAN Bridge
 vcan_bridge = robot_upstart.Job(workspace_setup=workspace_setup)
 vcan_bridge.install(Provider=VirtualCANProvider)
+
+# Shutdown script
+shutdown = robot_upstart.Job(workspace_setup=workspace_setup)
+shutdown.install(Provider=ShutdownProvider)
 
 # Robot
 robot = robot_upstart.Job(workspace_setup=workspace_setup)

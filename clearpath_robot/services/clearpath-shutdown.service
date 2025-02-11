@@ -1,0 +1,13 @@
+[Unit]
+Description="Clearpath graceful shutdown service"
+PartOf=clearpath-robot.service
+After=clearpath-robot.service
+
+[Service]
+Restart=on-failure
+User=root
+Type=idle
+ExecStart=/bin/bash -c 'python3 /usr/sbin/clearpath-shutdown'
+
+[Install]
+WantedBy=clearpath-robot.service
