@@ -493,33 +493,30 @@ void Lighting::updateState()
     setState(State::MotorThrottled);
   }
 
-  // Charger connected
-  if (battery_state_msg_.power_supply_status == sensor_msgs::msg::BatteryState::POWER_SUPPLY_STATUS_CHARGING) // || wibotic_charging_msg_.data)
+  // Charger connected and battery full
+  if (battery_state_msg_.power_supply_status == sensor_msgs::msg::BatteryState::POWER_SUPPLY_STATUS_FULL)
   {
-    // Fully charged
-    if (battery_state_msg_.percentage == 1.0)
+    // Shore power connected
+    if (power_msg_.shore_power_connected == 1)
     {
-      // Shore power connected
-      if (power_msg_.shore_power_connected == 1)
-      {
-        setState(State::ShoreAndCharged);
-      }
-      else
-      {
-        setState(State::Charged);
-      }
+      setState(State::ShoreAndCharged);
     }
     else
     {
-      // Shore power connected
-      if (power_msg_.shore_power_connected == 1)
-      {
-        setState(State::ShoreAndCharging);
-      }
-      else
-      {
-        setState(State::Charging);
-      }
+      setState(State::Charged);
+    }
+  }
+  // Charger connected
+  else if (battery_state_msg_.power_supply_status == sensor_msgs::msg::BatteryState::POWER_SUPPLY_STATUS_CHARGING)
+  {
+    // Shore power connected
+    if (power_msg_.shore_power_connected == 1)
+    {
+      setState(State::ShoreAndCharging);
+    }
+    else
+    {
+      setState(State::Charging);
     }
   }
 
