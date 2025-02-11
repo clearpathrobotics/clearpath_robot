@@ -178,6 +178,9 @@ class Battery:
                 avg_voltage += reading.measured_voltages[self.power_msg_voltage_index]
             avg_voltage /= len(self._readings)
             self._msg.percentage = self.linear_interpolation(self.LUT, avg_voltage)
+            # If charging and 100%, set status to full
+            if self._msg.power_supply_status == BatteryState.POWER_SUPPLY_STATUS_CHARGING and self._msg.percentage == 1.0:
+                self._msg.power_supply_status = BatteryState.POWER_SUPPLY_STATUS_FULL
             self._msg.charge = self._msg.capacity * self._msg.percentage
 
         def update_cells(self):
