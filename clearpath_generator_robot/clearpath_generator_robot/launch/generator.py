@@ -286,6 +286,7 @@ class RobotLaunchGenerator(LaunchGenerator):
           parameters=[os.path.join(self.platform_params_path, 'control.yaml')],
           name='lynx_control',
           namespace=self.namespace,
+          remappings=[('/diagnostics', 'diagnostics'),],
         )
 
         # ROS2 socketcan bridges

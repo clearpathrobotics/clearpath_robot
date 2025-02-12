@@ -21,6 +21,10 @@ diagnostic_aggregator:
           type: diagnostic_aggregator/GenericAnalyzer
           path: Lighting
           contains: [ 'Light' ]
+        motor_drivers:
+          type: diagnostic_aggregator/GenericAnalyzer
+          path: Motor Drivers
+          contains: [ 'Lynx' ]
     sensors:
       type: diagnostic_aggregator/AnalyzerGroup
       path: Sensors
