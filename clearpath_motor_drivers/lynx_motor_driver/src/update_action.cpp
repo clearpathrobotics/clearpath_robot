@@ -30,6 +30,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include <queue>
 #include <glob.h>
 
+#define UNKNOWN "unknown"
+
 // Binary files will have 15 reserved bytes that should be ignored
 static constexpr uint8_t BINARY_FILE_RESERVED_BYTE_START_INDEX = 3;
 static constexpr uint8_t BINARY_FILE_RESERVED_BYTE_END_INDEX = 18;
@@ -37,9 +39,9 @@ static constexpr uint8_t ALIVE_CHECK_ATTEMPTS = 100;
 
 /**
  * @brief Read
- * 
- * @param filename 
- * @return std::queue<uint8_t> 
+ *
+ * @param filename
+ * @return std::queue<uint8_t>
  */
 std::queue<uint8_t> LynxMotorNode::readBinaryFile(const std::string filename)
 {
@@ -77,10 +79,10 @@ std::queue<uint8_t> LynxMotorNode::readBinaryFile(const std::string filename)
 
 /**
  * @brief Handle Update goal request
- * 
+ *
  * @param uuid UUID
  * @param goal Goal pointer
- * @return rclcpp_action::GoalResponse 
+ * @return rclcpp_action::GoalResponse
  */
 rclcpp_action::GoalResponse LynxMotorNode::handleUpdateGoal(
   const rclcpp_action::GoalUUID & uuid,
@@ -106,30 +108,12 @@ rclcpp_action::GoalResponse LynxMotorNode::handleUpdateGoal(
   }
   else // Use default binary
   {
-    // Find default binary in lynx_motor_driver package
-    std::filesystem::path dir(ament_index_cpp::get_package_share_directory("lynx_motor_driver"));
-    std::filesystem::path folder("bin");
-    std::filesystem::path file("lynx_firmware-release-*.txt");
-    filename = dir / folder / file;
-
-    // Find file name from wildcard
-    glob_t globResult;
-    int globStatus = glob(filename.c_str(), 0, nullptr, &globResult);
-
-    if (globStatus == 0)
-    {
-      // Use first file
-      filename = std::string(globResult.gl_pathv[0]);
-      globfree(&globResult);
-    }
-    else
-    {
-      // Can't find default binary
-      RCLCPP_ERROR(this->get_logger(), "Default binary file not found");
+    filename = getDefaultFirmware();
+    if (filename == UNKNOWN) {
       return rclcpp_action::GoalResponse::REJECT;
     }
   }
-  
+
   app = readBinaryFile(filename);
   RCLCPP_INFO(this->get_logger(), "Uploading file %s len %ld", filename.c_str(), app.size());
   // Copy binary to each driver
@@ -142,10 +126,41 @@ rclcpp_action::GoalResponse LynxMotorNode::handleUpdateGoal(
 }
 
 /**
+ * @brief Get the filename of the default firmware binary
+ *
+ * @return std::String
+ */
+std::string LynxMotorNode::getDefaultFirmware() {
+  // Find default binary in lynx_motor_driver package
+  std::filesystem::path dir(ament_index_cpp::get_package_share_directory("lynx_motor_driver"));
+  std::filesystem::path folder("bin");
+  std::filesystem::path file("lynx_firmware-release-*.txt");
+  std::string filename = dir / folder / file;
+
+  // Find file name from wildcard
+  glob_t globResult;
+  int globStatus = glob(filename.c_str(), 0, nullptr, &globResult);
+
+  if (globStatus == 0)
+  {
+    // Use first file
+    filename = std::string(globResult.gl_pathv[0]);
+    globfree(&globResult);
+  }
+  else
+  {
+    // Can't find default binary
+    RCLCPP_ERROR(this->get_logger(), "Default binary file not found");
+    filename = UNKNOWN;
+  }
+  return filename;
+}
+
+/**
  * @brief Handle update goal cancelled
- * 
+ *
  * @param goal_handle Pointer to goal handle
- * @return rclcpp_action::CancelResponse 
+ * @return rclcpp_action::CancelResponse
  */
 rclcpp_action::CancelResponse LynxMotorNode::handleUpdateCancel(
   const std::shared_ptr<GoalHandleUpdate> goal_handle)
@@ -161,7 +176,7 @@ rclcpp_action::CancelResponse LynxMotorNode::handleUpdateCancel(
 
 /**
  * @brief Handle update goal being accepted
- * 
+ *
  * @param goal_handle Pointer to goal handle
  */
 void LynxMotorNode::handleUpdateAccepted(const std::shared_ptr<GoalHandleUpdate> goal_handle)
@@ -175,7 +190,7 @@ void LynxMotorNode::handleUpdateAccepted(const std::shared_ptr<GoalHandleUpdate>
 
 /**
  * @brief Execute update action
- * 
+ *
  * @param goal_handle Pointer to goal handle
  */
 void LynxMotorNode::executeUpdateAction(const std::shared_ptr<GoalHandleUpdate> goal_handle)
@@ -263,7 +278,7 @@ void LynxMotorNode::executeUpdateAction(const std::shared_ptr<GoalHandleUpdate> 
 
     // Send 100% on last feedback message
     feedback->progress.at(i) = 100.0;
-    goal_handle->publish_feedback(feedback);    
+    goal_handle->publish_feedback(feedback);
 
     i++;
   }
