@@ -75,7 +75,7 @@ enum class ThermalStatus
 
 /**
  * @brief Convert thermal status to string
- * 
+ *
  * @param status The thermal status
  * @return A string representing the thermal status
  */
@@ -89,7 +89,7 @@ class ThermalSensor
 public:
   /**
    * @brief Construct a new ThermalSensor object with specific threshold values
-   * 
+   *
    * @param low_error Temperature below this value is an error
    * @param low_warning Temperature below this value is a warning
    * @param high_warning Temperature above this value is a warning
@@ -104,14 +104,14 @@ public:
 
   /**
    * @brief Set the temperature reading of the sensor
-   * 
+   *
    * @param value Temperature value to be set
    */
   void setValue(float value);
 
   /**
    * @brief Get the current thermal status of the sensor
-   * 
+   *
    * @return The current thermal status
    */
   ThermalStatus getStatus() const;
@@ -138,7 +138,7 @@ public:
 
   /**
    * @brief Set the value of a specific sensor
-   * 
+   *
    * @param name The sensor's name
    * @param value The temperature value to set
    */
@@ -146,7 +146,7 @@ public:
 
   /**
    * @brief Get the highest thermal status from all sensors
-   * 
+   *
    * @return The highest thermal status
    */
   ThermalStatus getHighestStatus() const;
@@ -158,7 +158,7 @@ private:
 /**
  * @brief Main class for managing fan control based on thermal sensor readings
  */
-class FanController : public rclcpp::Node 
+class FanController : public rclcpp::Node
 {
 public:
   /**
@@ -174,7 +174,7 @@ private:
 
   /**
    * @brief Compute the fan value based on the thermal status
-   * 
+   *
    * @param status The thermal status of the highest priority sensor
    * @return Computed fan value as a uint8_t (0 to 255)
    */
