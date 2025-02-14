@@ -28,6 +28,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include <clearpath_platform_msgs/msg/temperature.hpp>
 #include <clearpath_platform_msgs/msg/fans.hpp>
 #include <clearpath_motor_msgs/msg/lynx_multi_status.hpp>
+#include <diagnostic_updater/diagnostic_updater.hpp>
 #include <mutex>
 #include <map>
 
@@ -62,6 +63,9 @@ constexpr float FAN_CMD_NORMAL = 0.5f;
 
 /// Initial temperature reading when no data is available, degrees Celsius
 constexpr float INITIAL_READING = 30.0f;
+
+/// Timeout for temperature messages to be considered stale
+constexpr int STALE_SECS = 3;
 
 /// Enumeration to represent thermal status
 enum class ThermalStatus
@@ -110,11 +114,28 @@ public:
   void setValue(float value);
 
   /**
+   * @brief Get the temperature reading of the sensor
+   *
+   * @return Temperature value of the sensor
+   */
+  float getValue() const;
+
+  /**
    * @brief Get the current thermal status of the sensor
    *
    * @return The current thermal status
    */
   ThermalStatus getStatus() const;
+
+  /**
+   * @brief Get the thresholds for warning and error states
+   *
+   * @param low_error (out) Threshold for temperature low error
+   * @param low_warning (out) Threshold for temperature low warning
+   * @param high_warning (out) Threshold for temperature high warning
+   * @param high_error (out) Threshold for temperature high error
+   */
+  void getThresholds(float & low_error, float & low_warning, float & high_warning, float & high_error) const;
 
 private:
   float reading_;     ///< Current temperature reading
@@ -135,6 +156,13 @@ public:
    * @brief Default constructor that initializes the sensor list with default values
    */
   ThermalSensors();
+
+  /**
+   * @brief Get the full sensor map
+   *
+   * @return A const reference to the full sensor map
+   */
+  const std::map<std::string, ThermalSensor> & getSensors() const;
 
   /**
    * @brief Set the value of a specific sensor
@@ -180,13 +208,25 @@ private:
    */
   uint8_t computeFanValue(ThermalStatus status);
 
+  /**
+   * @brief Report the current status to diagnostics
+   *
+   * @param stat The diagnostic status wrapper used to populate diagnostic states and values
+   */
+  void fanDiagnostic(diagnostic_updater::DiagnosticStatusWrapper & stat);
+
   std::mutex update_mutex_;    ///< Mutex for updating thermal sensors
   ThermalSensors thermal_sensors_; ///< Thermal sensor data
+  clearpath_platform_msgs::msg::Fans fans_msg_;
   rclcpp::Publisher<clearpath_platform_msgs::msg::Fans>::SharedPtr fan_publisher_; ///< Fan control publisher
   rclcpp::Subscription<clearpath_platform_msgs::msg::Temperature>::SharedPtr temp_subscription_; ///< Temperature subscription
   rclcpp::Subscription<sensor_msgs::msg::BatteryState>::SharedPtr battery_subscription_; ///< Battery state subscription
   rclcpp::Subscription<clearpath_motor_msgs::msg::LynxMultiStatus>::SharedPtr motor_subscription_; ///< Motor status subscription
   rclcpp::TimerBase::SharedPtr control_timer_; ///< Timer for controlling the fan
+  diagnostic_updater::Updater updater_; ///< Diagnostic updater
+  int temperature_stale_; ///< Track time since temperature message was last received
+  int lynx_status_stale_; ///< Track time since Lynx multi-status message was last received
+  int battery_stale_; ///< Track time since battery state message was last received
 };
 
 }  // namespace a300_cooling
