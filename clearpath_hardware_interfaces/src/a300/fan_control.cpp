@@ -29,13 +29,13 @@ std::string a300_cooling::thermalStatusToString(a300_cooling::ThermalStatus stat
     case a300_cooling::ThermalStatus::Normal:
       return "Normal";
     case a300_cooling::ThermalStatus::LowError:
-      return "LowError";
+      return "Low Error";
     case a300_cooling::ThermalStatus::LowWarning:
-      return "LowWarning";
+      return "Low Warning";
     case a300_cooling::ThermalStatus::HighWarning:
-      return "HighWarning";
+      return "High Warning";
     case a300_cooling::ThermalStatus::HighError:
-      return "HighError";
+      return "High Error";
     default:
       return "Unknown";
   }
