@@ -114,13 +114,14 @@ a300_cooling::ThermalStatus a300_cooling::ThermalSensors::getHighestStatus() con
 {
   a300_cooling::ThermalStatus highest_status = a300_cooling::ThermalStatus::Normal;
   for (const auto &sensor : sensors) {
+    if (sensor.second.getStatus() > a300_cooling::ThermalStatus::Normal)
+    {
+      RCLCPP_WARN(rclcpp::get_logger("a300_fan_controller"), "Thermal sensor %s has %s (Measured: %.1f C)",
+                  sensor.first.c_str(), thermalStatusToString(sensor.second.getStatus()).c_str(),
+                  sensor.second.getValue());
+    }
     if (sensor.second.getStatus() > highest_status)
     {
-      if (sensor.second.getStatus() >= a300_cooling::ThermalStatus::Normal)
-      {
-        RCLCPP_WARN(rclcpp::get_logger("a300_fan_controller"), "Thermal sensor %s has %s",
-        sensor.first.c_str(), thermalStatusToString(sensor.second.getStatus()).c_str());
-      }
       highest_status = sensor.second.getStatus();
     }
   }
