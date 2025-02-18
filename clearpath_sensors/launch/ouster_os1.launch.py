@@ -36,8 +36,8 @@ from launch.events import matches_action
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 
 from launch_ros.actions import LifecycleNode
-from launch_ros.events.lifecycle import ChangeState
 from launch_ros.event_handlers import OnStateTransition
+from launch_ros.events.lifecycle import ChangeState
 from launch_ros.substitutions import FindPackageShare
 
 import lifecycle_msgs.msg
@@ -91,7 +91,7 @@ def generate_launch_description():
             target_lifecycle_node=ouster_node, goal_state='inactive',
             entities=[
                 LogInfo(
-                    msg="[LifecycleLaunch] Ouster driver node is activating."),
+                    msg='[LifecycleLaunch] Ouster driver node is activating.'),
                 EmitEvent(event=ChangeState(
                     lifecycle_node_matcher=matches_action(ouster_node),
                     transition_id=lifecycle_msgs.msg.Transition.TRANSITION_ACTIVATE,
