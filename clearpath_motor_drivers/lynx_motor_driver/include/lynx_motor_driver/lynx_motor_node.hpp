@@ -134,11 +134,22 @@ private:
   // Diagnostic Labels
   const std::map<uint8_t, std::string> STATUS_FLAG_LABELS_ = {
     {LynxStatus::STATUS_FLAG_ADC_CALIBRATED, "ADC Calibrated"},
-    {LynxStatus::STATUS_FLAG_ROTOR_CALIBRATED, "Rotor Calibrated"},
+    {LynxStatus::STATUS_FLAG_FOC_ENABLED, "FOC Enabled"},
     {LynxStatus::STATUS_FLAG_CALIBRATION_REQUESTED, "Calibration Requested"},
     {LynxStatus::STATUS_FLAG_CALIBRATION_CANCELLED, "Calibration Cancelled"},
-    {LynxStatus::STATUS_FLAG_FIRST_VEL_RECEIVED, "First Velocity Received"},
     {LynxStatus::STATUS_FLAG_ESTOPPED, "E-stopped"},
+  };
+
+  const std::map<uint8_t, std::string> WARNING_FLAG_LABELS_ = {
+    {LynxStatus::WARNING_FLAG_MOTOR_THERMISTOR, "Motor Thermistor Not Detected"},
+    {LynxStatus::WARNING_FLAG_PCB_THERMISTOR, "PCB Thermistor Not Detected"},
+    {LynxStatus::WARNING_FLAG_PHASE, "Phase Error"},
+    {LynxStatus::WARNING_FLAG_PHASE_A, "Phase A Disconnected"},
+    {LynxStatus::WARNING_FLAG_PHASE_B, "Phase B Disconnected"},
+    {LynxStatus::WARNING_FLAG_PHASE_C, "Phase C Disconnected"},
+    {LynxStatus::WARNING_FLAG_ENCODER_INDEX, "Encoder Index Not Detected"},
+    {LynxStatus::WARNING_FLAG_ENCODER_OUTPUT_A, "Encoder Output A Error"},
+    {LynxStatus::WARNING_FLAG_ENCODER_OUTPUT_B, "Encoder Output B Error"},
   };
 
   const std::map<uint8_t, std::string> ERROR_FLAG_LABELS_ = {
