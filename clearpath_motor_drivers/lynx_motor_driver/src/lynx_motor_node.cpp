@@ -438,6 +438,17 @@ void LynxMotorNode::driverDiagnostic(DiagnosticStatusWrapper & stat, int i)
     }
   }
 
+  // Warning flags
+  for (auto label : WARNING_FLAG_LABELS_) {
+    // isolate and save the bit associated with the flag
+    bool flag = (status_msg_.drivers[i].warning_flags >> label.first) & 0x1;
+    stat.add(label.second, flag ? "True" : "False");
+    if (flag) {
+      // Flag any active warnings in the summary and set level to warning
+      stat.mergeSummary(DiagnosticStatusWrapper::WARN, label.second);
+    }
+  }
+
   // Error flags
   for (auto label : ERROR_FLAG_LABELS_) {
     bool flag = (status_msg_.drivers[i].error_flags >> label.first) & 0x1;

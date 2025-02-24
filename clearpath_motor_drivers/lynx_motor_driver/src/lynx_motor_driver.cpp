@@ -185,6 +185,12 @@ bool LynxMotorDriver::processMessage(const Message& received_msg)
           break;
         }
 
+        case Status::Fields::FlagsWarning:
+        {
+          status_msg_.warning_flags = std::get<uint32_t>(received_msg.getDataAsIndexedUint32());
+          break;
+        }
+
         case Status::Fields::FlagsError:
         {
           status_msg_.error_flags = std::get<uint32_t>(received_msg.getDataAsIndexedUint32());
