@@ -9,6 +9,12 @@ Changelog for package clearpath_robot
   * Alphabetical dependencies
 * Contributors: luis-camero
 
+Forthcoming
+-----------
+* Turn off clearing of SHM on log out (`#152 <https://github.com/clearpathrobotics/clearpath_robot/issues/152>`_)
+  Previously the SHM links were being cleared out when all user sessions ended which was causing ROS communication to fail and the robot to stop working.
+* Contributors: Hilary Luo
+
 2.1.1 (2025-02-06)
 ------------------
 * VCAN fix for Lynx remote request issue (`#146 <https://github.com/clearpathrobotics/clearpath_robot/issues/146>`_)
