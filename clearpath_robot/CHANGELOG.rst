@@ -9,8 +9,8 @@ Changelog for package clearpath_robot
   * Alphabetical dependencies
 * Contributors: luis-camero
 
-Forthcoming
------------
+2.1.2 (2025-02-28)
+------------------
 * Turn off clearing of SHM on log out (`#152 <https://github.com/clearpathrobotics/clearpath_robot/issues/152>`_)
   Previously the SHM links were being cleared out when all user sessions ended which was causing ROS communication to fail and the robot to stop working.
 * Contributors: Hilary Luo
