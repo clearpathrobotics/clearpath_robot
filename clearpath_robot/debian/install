@@ -1,0 +1,1 @@
+install_config/logind/70-clearpath-standard-logind.conf /usr/lib/systemd/logind.conf.d/
