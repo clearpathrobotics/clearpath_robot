@@ -325,7 +325,7 @@ void ClearpathDiagnosticUpdater::bms_state_diagnostic(DiagnosticStatusWrapper & 
   }
   stat.add("Cell Temperature (C)", temperatures);
 
-  mcu_power_freq_status_->run(stat);
+  bms_state_freq_status_->run(stat);
 
   // Diagnostic summaries based on charging activity / level
   if (bms_state_msg_.header.stamp.sec != 0) {
