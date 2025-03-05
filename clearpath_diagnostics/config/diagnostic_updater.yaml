@@ -5,4 +5,4 @@ clearpath_diagnostic_updater:
     ros_distro: unknown
     latest_apt_firmware_version: unknown
     installed_apt_firmware_version: unknown
-    topics: {}
+    # topics: # Must be populated with the topics to be monitored
