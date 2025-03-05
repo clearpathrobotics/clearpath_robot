@@ -47,6 +47,8 @@ ClearpathDiagnosticUpdater::ClearpathDiagnosticUpdater()
   ros_distro_ = get_string_param("ros_distro", true);
   latest_apt_firmware_version_ = get_string_param("latest_apt_firmware_version", true);
   installed_apt_firmware_version_ = get_string_param("installed_apt_firmware_version", true);
+  RCLCPP_INFO(this->get_logger(), "Diagnostics starting for a %s platform with serial number %s",
+              platform_model_.c_str(), serial_number_.c_str());
 
   // Get optional parameters from the config
   mcu_status_topic_ = get_string_param("mcu_status_topic");
@@ -398,7 +400,12 @@ void ClearpathDiagnosticUpdater::setup_topic_rate_diagnostics()
   std::map<std::string, rclcpp::Parameter> topic_map_raw;
 
   // Get all parameters under the "topics" key in the yaml and store it in map format
-  if (!this->get_parameters("topics", topic_map_raw)) {
+  try {
+    if (!this->get_parameters("topics", topic_map_raw)) {
+      RCLCPP_WARN(this->get_logger(), "No topics found to monitor.");
+      return;
+    }
+  } catch (const std::exception & e) {
     RCLCPP_WARN(this->get_logger(), "No topics found to monitor.");
     return;
   }
