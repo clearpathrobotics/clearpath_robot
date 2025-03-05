@@ -110,7 +110,7 @@ void Driver::processMessage(const can_msgs::msg::Frame::SharedPtr received_msg)
   }
 
   // Copy the received data and mark that field as received.
-  std::copy(std::begin(received_msg->data), std::end(received_msg->data), std::begin(field->data));
+  std::copy_n(std::begin(received_msg->data), Field::FIELD_STRUCT_DATA_SIZE, std::begin(field->data));
   field->received = true;
 }
 
