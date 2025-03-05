@@ -1,8 +1,8 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Forthcoming
------------
+1.1.1 (2025-03-05)
+------------------
 * IMU Filter (`#134 <https://github.com/clearpathrobotics/clearpath_robot/issues/134>`_)
   * Add imu_filter launch file and added madgwick entry to filter
   * Add imu filter to generator
