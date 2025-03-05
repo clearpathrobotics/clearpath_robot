@@ -443,10 +443,10 @@ public:
 
   uint8_t deviceNumber() const {return device_number_;}
 
-  // Only used internally but is used for testing.
   struct Field
   {
-    uint8_t data[4];
+    static constexpr int FIELD_STRUCT_DATA_SIZE = 4;
+    uint8_t data[FIELD_STRUCT_DATA_SIZE];
     bool received;
 
     float interpretFixed8x8()
