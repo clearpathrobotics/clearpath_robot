@@ -2,6 +2,14 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* IMU Filter (`#134 <https://github.com/clearpathrobotics/clearpath_robot/issues/134>`_)
+  * Add imu_filter launch file and added madgwick entry to filter
+  * Add imu filter to generator
+  * Rename imu_filter_node to imu_filter_madgwick
+* Contributors: luis-camero
+
 1.1.0 (2025-01-15)
 ------------------
 
