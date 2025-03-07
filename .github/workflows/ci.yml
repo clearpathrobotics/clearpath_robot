@@ -12,8 +12,8 @@ jobs:
     strategy:
       matrix:
         env:
-          - {ROS_REPO: testing, ROS_DISTRO: jazzy, ROSDEP_SKIP_KEYS: "micro_ros_agent sevcon_traction umx_driver valence_bms_driver"}
-          - {ROS_REPO: main, ROS_DISTRO: jazzy, ROSDEP_SKIP_KEYS: "micro_ros_agent sevcon_traction umx_driver valence_bms_driver"}
+          - {ROS_REPO: testing, ROS_DISTRO: jazzy, ROSDEP_SKIP_KEYS: "inventus_bmu micro_ros_agent sevcon_traction umx_driver valence_bms_driver"}
+          - {ROS_REPO: main, ROS_DISTRO: jazzy, ROSDEP_SKIP_KEYS: "inventus_bmu micro_ros_agent sevcon_traction umx_driver valence_bms_driver"}
       fail-fast: false
     runs-on: ubuntu-24.04
     steps:
