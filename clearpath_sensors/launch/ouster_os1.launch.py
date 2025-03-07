@@ -62,7 +62,7 @@ def generate_launch_description():
         default_value=PathJoinSubstitution([
           FindPackageShare('clearpath_sensors'),
           'config',
-          'velodyne_lidar.yaml'
+          'ouster_os1.yaml'
         ]))
 
     ouster_node = LifecycleNode(
