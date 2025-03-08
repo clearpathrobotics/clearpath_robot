@@ -66,6 +66,7 @@ Driver::Driver(
   device_name_(device_name),
   configured_(false),
   state_(ConfigurationState::Initializing),
+  last_power_clear_ts_(0.0),
   control_mode_(clearpath_motor_msgs::msg::PumaStatus::MODE_SPEED),
   gain_p_(1),
   gain_i_(0),
@@ -111,7 +112,7 @@ void Driver::processMessage(const can_msgs::msg::Frame::SharedPtr received_msg)
 
   // Copy the received data and mark that field as received.
   std::copy_n(std::begin(received_msg->data), Field::FIELD_STRUCT_DATA_SIZE,
-      std::begin(field->data));
+    std::begin(field->data));
   field->received = true;
 }
 
@@ -248,17 +249,21 @@ void Driver::verifyParams()
 {
   switch (state_) {
     case ConfigurationState::Initializing:
-      RCLCPP_INFO(rclcpp::get_logger("rclcpp"),
-        "Puma Motor Controller on %s (%i): starting to verify parameters.",
-        device_name_.c_str(), device_number_);
-      state_ = ConfigurationState::PowerFlag;
+      // Don't advance state until we receive LM_API_STATUS_POWER msg
+      if (receivedPower()) {
+        state_ = ConfigurationState::PowerFlag;
+      } else {
+        sendId(LM_API_STATUS_POWER | device_number_);
+      }
       break;
     case ConfigurationState::PowerFlag:
-      if (lastPower() == 0) {
-        state_ = ConfigurationState::EncoderPosRef;
+      if (receivedPower() && (lastPower() == 0)) {
+        // Only advance state when we have a new LM_API_STATUS_POWER msg
+        // with the power flag cleared
         RCLCPP_INFO(rclcpp::get_logger("rclcpp"),
           "Puma Motor Controller on %s (%i): cleared power flag.",
           device_name_.c_str(), device_number_);
+        state_ = ConfigurationState::EncoderPosRef;
       } else {
         sendId(LM_API_STATUS_POWER | device_number_);
       }
@@ -399,9 +404,17 @@ void Driver::verifyParams()
 
 void Driver::configureParams()
 {
+  const double now = nh_->get_clock()->now().seconds();
   switch (state_) {
+    case ConfigurationState::Initializing:
+      break;
     case ConfigurationState::PowerFlag:
-      sendUint8((LM_API_STATUS_POWER | device_number_), 1);
+      if (lastPower() == 1) {
+        if ((now - last_power_clear_ts_) > 1.0) {
+          sendUint8((LM_API_STATUS_POWER | device_number_), 1);
+          last_power_clear_ts_ = now;
+        }
+      }
       break;
     case ConfigurationState::EncoderPosRef:
       sendUint8((LM_API_POS_REF | device_number_), LM_REF_ENCODER);
