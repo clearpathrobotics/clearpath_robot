@@ -29,6 +29,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include <mutex>
 
 #include "clearpath_ros2_socketcan_interface/socketcan_interface.hpp"
+#include "diagnostic_updater/update_functions.hpp"
 
 #include "lynx_motor_driver/message.hpp"
 
@@ -37,6 +38,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include "clearpath_motor_msgs/msg/lynx_status.hpp"
 #include "clearpath_motor_msgs/msg/lynx_system_protection.hpp"
 #include <memory>
+
+// Used to smooth out voltage/current/velocity data for diagnostics since it is infrequently updated
+#define DIAGNOSTICS_LOW_PASS 0.9
 
 namespace lynx_motor_driver
 {
@@ -61,6 +65,7 @@ namespace Status
     McuTemperature,
     PcbTemperature,
     FlagsStatus,
+    FlagsWarning,
     FlagsError,
     Count
   } Fields;
@@ -155,6 +160,9 @@ public:
   void send(const uint32_t id);
   void send(const uint32_t id, uint8_t * data, uint8_t length);
 
+  // Diagnostics
+  void runFreqStatus(diagnostic_updater::DiagnosticStatusWrapper & stat);
+
 private:
   // Driver variables
   int64_t can_id_;
@@ -164,6 +172,7 @@ private:
   bool debug_;
   float offset_;
   uint16_t iteration_;
+  float current_filtered, voltage_filtered, velocity_filtered;
 
   // CAN interface
   std::shared_ptr<clearpath_ros2_socketcan_interface::SocketCANInterface> can_interface_;
@@ -186,6 +195,10 @@ private:
 
   // Get COBID from message ID
   uint32_t getCOBID(const uint32_t id) const;
+
+  // Frequency Status for diagnostics
+  std::shared_ptr<double> can_feedback_rate_; // Shared ptr prevents copy errors of FrequencyStatus
+  std::shared_ptr<diagnostic_updater::FrequencyStatus> can_feedback_freq_status_;
 };
 
 }  // namespace lynx_motor_driver

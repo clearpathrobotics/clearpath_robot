@@ -30,6 +30,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
 #include "diagnostic_updater/diagnostic_updater.hpp"
 #include "diagnostic_updater/publisher.hpp"
+#include "diagnostic_updater/update_functions.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/compressed_image.hpp"
 #include "sensor_msgs/msg/image.hpp"
@@ -39,7 +40,10 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include "sensor_msgs/msg/nav_sat_fix.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
 
+#include "clearpath_diagnostics/clearpath_diagnostic_labels.hpp"
+#include "clearpath_platform_msgs/msg/power.hpp"
 #include "clearpath_platform_msgs/msg/status.hpp"
+#include "clearpath_platform_msgs/msg/stop_status.hpp"
 
 namespace clearpath
 {
@@ -50,63 +54,78 @@ public:
   ClearpathDiagnosticUpdater();
 
 private:
+  using BatteryState = sensor_msgs::msg::BatteryState;
+  using DiagnosticStatus = diagnostic_msgs::msg::DiagnosticStatus;
+  using DiagnosticStatusWrapper = diagnostic_updater::DiagnosticStatusWrapper;
+  using FrequencyStatus = diagnostic_updater::FrequencyStatus;
+  using FrequencyStatusParam = diagnostic_updater::FrequencyStatusParam;
+
+  // Callbacks
+  void mcu_status_callback(const clearpath_platform_msgs::msg::Status & msg);
+  void mcu_power_callback(const clearpath_platform_msgs::msg::Power & msg);
+  void bms_state_callback(const BatteryState & msg);
+  void stop_status_callback(const clearpath_platform_msgs::msg::StopStatus & msg);
+
+  // Diagnostic Tasks
+  void firmware_diagnostic(DiagnosticStatusWrapper & stat);
+  void mcu_status_diagnostic(DiagnosticStatusWrapper & stat);
+  void mcu_power_diagnostic(DiagnosticStatusWrapper & stat);
+  void bms_state_diagnostic(DiagnosticStatusWrapper & stat);
+  void stop_status_diagnostic(DiagnosticStatusWrapper & stat);
+
+  // Get parameters from config
+  std::string get_string_param(std::string param_name, bool mandatory = false);
+  double get_double_param(std::string param_name, bool mandatory = false);
+
+  void setup_topic_rate_diagnostics();
+  template<class MsgType> void add_rate_diagnostic(const std::string topic_name, const double rate);
+
+  // Parameters from config
   std::string serial_number_;
   std::string platform_model_;
   std::string namespace_;
-
-  // MCU Status Info
   std::string ros_distro_;  // Specifically the ros distro used for the firmware apt package check
   std::string latest_apt_firmware_version_;
   std::string installed_apt_firmware_version_;
-  std::string mcu_firmware_version_;
-  std::string mcu_platform_model_;
-  double mcu_status_rate_;
-  int mcu_temperature_;
-  int pcb_temperature_;
-  long connection_uptime_;
-  long mcu_uptime_;
-  std::shared_ptr<diagnostic_updater::FrequencyStatus> mcu_freq_status_;
-  rclcpp::Subscription<clearpath_platform_msgs::msg::Status>::SharedPtr sub_mcu_status_;
-
-  diagnostic_updater::Updater updater_;
   std::map<std::string, std::map<std::string, rclcpp::Parameter>> topic_map_;
+
+  // Topic names and rates
+  std::string mcu_status_topic_;
+  std::string mcu_power_topic_;
+  std::string bms_state_topic_;
+  std::string stop_status_topic_;
+  double mcu_status_rate_;
+  double mcu_power_rate_;
+  double bms_state_rate_;
+  double stop_status_rate_;
+
+  // Message Data
+  std::string mcu_firmware_version_;
+  clearpath_platform_msgs::msg::Status mcu_status_msg_;
+  clearpath_platform_msgs::msg::Power mcu_power_msg_;
+  BatteryState bms_state_msg_;
+  clearpath_platform_msgs::msg::StopStatus stop_status_msg_;
+
+  // Frequency statuses
+  std::shared_ptr<FrequencyStatus> mcu_status_freq_status_;
+  std::shared_ptr<FrequencyStatus> mcu_power_freq_status_;
+  std::shared_ptr<FrequencyStatus> bms_state_freq_status_;
+  std::shared_ptr<FrequencyStatus> stop_status_freq_status_;
+
+  // Subscriptions
+  rclcpp::Subscription<clearpath_platform_msgs::msg::Status>::SharedPtr sub_mcu_status_;
+  rclcpp::Subscription<clearpath_platform_msgs::msg::Power>::SharedPtr sub_mcu_power_;
+  rclcpp::Subscription<BatteryState>::SharedPtr sub_bms_state_;
+  rclcpp::Subscription<clearpath_platform_msgs::msg::StopStatus>::SharedPtr sub_stop_status_;
+
+  // Diagnostic Updater
+  diagnostic_updater::Updater updater_;
 
   // Lists to ensure all variables relating to the rate monitoring persist until spin
   std::list<double> rates_;
   std::list<std::shared_ptr<diagnostic_updater::HeaderlessTopicDiagnostic>> topic_diagnostics_;
   std::list<std::shared_ptr<void>> subscriptions_;
 
-  void mcu_callback(const clearpath_platform_msgs::msg::Status & msg);
-  void check_firmware_version(diagnostic_updater::DiagnosticStatusWrapper & stat);
-  void mcu_status_diagnostic(diagnostic_updater::DiagnosticStatusWrapper & stat);
-
-  std::string get_mandatory_param(std::string param_name);
-  void setup_topic_rate_diagnostics();
-
-  template<class MsgType> void add_rate_diagnostic(const std::string topic_name, const double rate)
-  {
-    // Store the rate so that it can be accessed via a pointer and is not deleted
-    rates_.push_back(rate);
-
-    // Create the diagnostic task object that handles calculating and publishing rate statistics
-    auto topic_diagnostic =
-      std::make_shared<diagnostic_updater::HeaderlessTopicDiagnostic>(
-        topic_name,
-        updater_,
-        diagnostic_updater::FrequencyStatusParam(&rates_.back(), &rates_.back(), 0.1, 5));
-
-    // Store the diagnostic task object so that it can be accessed via a pointer and is not deleted
-    topic_diagnostics_.push_back(topic_diagnostic);
-
-    auto sub = this->create_subscription<MsgType>(
-      topic_name,
-      rclcpp::SensorDataQoS(),
-      [this, topic_diagnostic]
-      ([[maybe_unused]] const MsgType & msg) {
-        topic_diagnostic->tick();
-      });
-    subscriptions_.push_back(std::static_pointer_cast<void>(sub));
-  }
 };
 
 }

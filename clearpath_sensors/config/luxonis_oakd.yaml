@@ -4,7 +4,9 @@ luxonis_oakd:
       i_enable_imu: false
       i_enable_ir: false
       i_floodlight_brightness: 0
+      i_ip: ''
       i_laser_dot_brightness: 100
+      i_mx_id: ''
       i_nn_type: none
       i_pipeline_type: RGBD
       i_usb_speed: SUPER_PLUS

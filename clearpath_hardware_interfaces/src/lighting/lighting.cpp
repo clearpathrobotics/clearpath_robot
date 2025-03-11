@@ -45,7 +45,8 @@ Lighting::Lighting()
 : Node("clearpath_lighting"),
   state_(State::Idle),
   old_state_(State::Idle),
-  user_commands_allowed_(false)
+  user_commands_allowed_(false),
+  updater_(this, 0.25)  // Create the diagnostic updater object
 {
   // Get platform model from platform parameter
   this->declare_parameter("platform", "dd100");
@@ -143,6 +144,10 @@ Lighting::Lighting()
   initializePublishers();
   initializeTimers();
   initializeSubscribers();
+
+  // Add diagnostic task
+  updater_.setHardwareID(platform);
+  updater_.add("Light Status", this, &Lighting::lightingDiagnostic);
 }
 
 /**
@@ -180,6 +185,15 @@ void Lighting::spinOnce()
   // Change lighting sequence if state has changed
   if (old_state_ != state_ || current_sequence_ != lighting_sequence_.at(old_state_))
   {
+    try {
+      RCLCPP_INFO(this->get_logger(),
+        "Lighting state changed to %s", STATE_LABELS.at(state_).c_str());
+    } catch(const std::out_of_range & e) {
+      RCLCPP_ERROR(this->get_logger(),
+                  "Lighting state (%d) does not have a string label: %s",
+                  (int)state_,
+                  e.what());
+    }
     current_sequence_ = lighting_sequence_.at(state_);
     current_sequence_.reset();
     old_state_ = state_;
@@ -311,6 +325,9 @@ void Lighting::cmdLightsCallback(const clearpath_platform_msgs::msg::Lights::Sha
   // Reset user timeout timer
   startUserTimeoutTimer();
 
+  // Save copy of message for diagnostic purposes
+  user_lights_msg_ = *msg;
+
   // Publish if allowed
   cmd_lights_pub_->publish(*msg);
 }
@@ -415,9 +432,12 @@ void Lighting::updateState()
     LightingState off_2 = LightingState(4, COLOR_RED);
     LightingState on_2 = LightingState(4, COLOR_RED);
 
+    diagnostic_qualifier_ = "";
+
     if (system_protection_msg_.motor_states.at(
       clearpath_motor_msgs::msg::LynxSystemProtection::A300_MOTOR_REAR_LEFT) == clearpath_motor_msgs::msg::LynxSystemProtection::ERROR)
     {
+      diagnostic_qualifier_ += "Rear Left ";
       off_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_LEFT) = COLOR_BLACK;
       on_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_LEFT) = COLOR_RED;
       off_2.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_LEFT) = COLOR_BLACK;
@@ -427,6 +447,7 @@ void Lighting::updateState()
     if (system_protection_msg_.motor_states.at(
       clearpath_motor_msgs::msg::LynxSystemProtection::A300_MOTOR_FRONT_LEFT) == clearpath_motor_msgs::msg::LynxSystemProtection::ERROR)
     {
+      diagnostic_qualifier_ += "Front Left ";
       off_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_LEFT) = COLOR_BLACK;
       on_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_LEFT) = COLOR_RED;
       off_2.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_LEFT) = COLOR_BLACK;
@@ -436,6 +457,7 @@ void Lighting::updateState()
     if (system_protection_msg_.motor_states.at(
       clearpath_motor_msgs::msg::LynxSystemProtection::A300_MOTOR_REAR_RIGHT) == clearpath_motor_msgs::msg::LynxSystemProtection::ERROR)
     {
+      diagnostic_qualifier_ += "Rear Right ";
       off_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_RIGHT) = COLOR_BLACK;
       on_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_RIGHT) = COLOR_RED;
       off_2.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_RIGHT) = COLOR_BLACK;
@@ -445,6 +467,7 @@ void Lighting::updateState()
     if (system_protection_msg_.motor_states.at(
       clearpath_motor_msgs::msg::LynxSystemProtection::A300_MOTOR_FRONT_RIGHT) == clearpath_motor_msgs::msg::LynxSystemProtection::ERROR)
     {
+      diagnostic_qualifier_ += "Front Right ";
       off_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_RIGHT) = COLOR_BLACK;
       on_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_RIGHT) = COLOR_RED;
       off_2.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_RIGHT) = COLOR_BLACK;
@@ -470,33 +493,30 @@ void Lighting::updateState()
     setState(State::MotorThrottled);
   }
 
-  // Charger connected
-  if (battery_state_msg_.power_supply_status == sensor_msgs::msg::BatteryState::POWER_SUPPLY_STATUS_CHARGING) // || wibotic_charging_msg_.data)
+  // Charger connected and battery full
+  if (battery_state_msg_.power_supply_status == sensor_msgs::msg::BatteryState::POWER_SUPPLY_STATUS_FULL)
   {
-    // Fully charged
-    if (battery_state_msg_.percentage == 1.0)
+    // Shore power connected
+    if (power_msg_.shore_power_connected == 1)
     {
-      // Shore power connected
-      if (power_msg_.shore_power_connected == 1)
-      {
-        setState(State::ShoreAndCharged);
-      }
-      else
-      {
-        setState(State::Charged);
-      }
+      setState(State::ShoreAndCharged);
     }
     else
     {
-      // Shore power connected
-      if (power_msg_.shore_power_connected == 1)
-      {
-        setState(State::ShoreAndCharging);
-      }
-      else
-      {
-        setState(State::Charging);
-      }
+      setState(State::Charged);
+    }
+  }
+  // Charger connected
+  else if (battery_state_msg_.power_supply_status == sensor_msgs::msg::BatteryState::POWER_SUPPLY_STATUS_CHARGING)
+  {
+    // Shore power connected
+    if (power_msg_.shore_power_connected == 1)
+    {
+      setState(State::ShoreAndCharging);
+    }
+    else
+    {
+      setState(State::Charging);
     }
   }
 
@@ -515,5 +535,68 @@ void Lighting::updateState()
       cmd_vel_msg_.twist.angular.z != 0.0) // Robot is driving
   {
     setState(State::Driving);
+  }
+}
+
+/**
+ * @brief Announce lighting state over diagnostics
+ */
+void Lighting::lightingDiagnostic(diagnostic_updater::DiagnosticStatusWrapper & stat)
+{
+  auto msg = &lights_msg_;
+  if (user_timeout_timer_ && !user_timeout_timer_->is_canceled()) {
+    stat.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "User Controlled");
+    msg = &user_lights_msg_;
+  } else {
+    std::string state_label = "Unknown state";
+    try {
+      state_label = STATE_LABELS.at(state_);
+    } catch(const std::out_of_range & e) {
+      RCLCPP_ERROR(this->get_logger(),
+                  "Lighting state (%d) does not have a string label: %s",
+                  (int)state_,
+                  e.what());
+    }
+    switch(state_)
+    {
+      case State::Idle:
+      case State::Driving:
+      case State::MotorThrottled:
+      case State::ShorePower:
+      case State::ShoreAndCharging:
+      case State::ShoreAndCharged:
+      case State::Charging:
+      case State::Charged:
+        stat.summaryf(diagnostic_msgs::msg::DiagnosticStatus::OK, "State: %s",
+                      state_label.c_str());
+        break;
+      case State::LowBattery:
+      case State::MotorOverheated:
+      case State::Stopped:
+        stat.summaryf(diagnostic_msgs::msg::DiagnosticStatus::WARN, "State: %s",
+                      state_label.c_str());
+        break;
+      case State::NeedsReset:
+      case State::BatteryFault:
+      case State::ShoreFault:
+        stat.summaryf(diagnostic_msgs::msg::DiagnosticStatus::ERROR, "State: %s",
+                      state_label.c_str());
+        break;
+      case State::MotorFault:
+        stat.summaryf(diagnostic_msgs::msg::DiagnosticStatus::ERROR, "%s%s",
+                      diagnostic_qualifier_.c_str(), state_label.c_str());
+        break;
+      default:
+        stat.summary(diagnostic_msgs::msg::DiagnosticStatus::ERROR, "Unknown state");
+    }
+  }
+
+  stat.add("User Control Allowed", (user_commands_allowed_ ? "True" : "False"));
+
+  // color of every light in the light message
+  for (unsigned i = 0; i < msg->lights.size(); i++) {
+    auto rgb = msg->lights[i];
+    auto name = LIGHT_LABELS.at(platform_)[i] + " Light";
+    stat.addf(name, "R: %u, G: %u, B: %u", rgb.red, rgb.green, rgb.blue);
   }
 }

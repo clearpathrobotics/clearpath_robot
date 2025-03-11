@@ -46,6 +46,8 @@
 
 #include "clearpath_motor_msgs/msg/lynx_system_protection.hpp"
 
+#include "diagnostic_msgs/msg/diagnostic_status.hpp"
+#include "diagnostic_updater/diagnostic_updater.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
 #include "sensor_msgs/msg/battery_state.hpp"
 #include "std_msgs/msg/bool.hpp"
@@ -85,6 +87,42 @@ public:
     Idle
   };
 
+  const std::map<State, std::string> STATE_LABELS = {
+    {State::BatteryFault, "Battery Fault"},
+    {State::ShoreFault, "Shore Fault"},
+    {State::MotorFault, "Motor Fault"},
+    {State::MotorOverheated, "Motor Overheated"},
+    {State::MotorThrottled, "Motor Throttled"},
+    {State::ShoreAndCharged, "Shore and Charged"},
+    {State::ShoreAndCharging, "Shore and Charging"},
+    {State::ShorePower, "Shore Power"},
+    {State::Charged, "Charged"},
+    {State::Charging, "Charging"},
+    {State::NeedsReset, "Needs Reset"},
+    {State::Stopped, "E-Stopped"},
+    {State::LowBattery, "Low Battery"},
+    {State::Driving, "Driving"},
+    {State::Idle, "Idle"}
+  };
+
+  const std::map<Platform, std::vector<std::string>> LIGHT_LABELS = {
+    {Platform::DD100, {"Rear Left", "Front Left", "Front Right", "Rear Right"}},
+    {Platform::DO100, {"Rear Left", "Front Left", "Front Right", "Rear Right"}},
+    {Platform::DD150, {"Rear Left", "Front Left", "Front Right", "Rear Right"}},
+    {Platform::DO150, {"Rear Left", "Front Left", "Front Right", "Rear Right"}},
+    {Platform::A300, {"Front Right", "Front Left", "Rear Left", "Rear Right"}},
+    {Platform::R100, {
+      "Front Port Upper",
+      "Front Port Lower",
+      "Front Starboard Upper",
+      "Front Starboard Lower",
+      "Rear Port Upper",
+      "Rear Port Lower",
+      "Rear Starboard Upper",
+      "Rear Starboard Lower"}},
+    {Platform::W200, {"Front Left", "Front Right", "Rear Left", "Rear Right"}},
+  };
+
   std::map<State, Sequence> lighting_sequence_;
 
   Lighting();
@@ -110,6 +148,9 @@ private:
   void setState(Lighting::State new_state);
   void updateState();
 
+  // Report light status to diagnostics
+  void lightingDiagnostic(diagnostic_updater::DiagnosticStatusWrapper& stat);
+
   // Publishers
   rclcpp::Publisher<clearpath_platform_msgs::msg::Lights>::SharedPtr cmd_lights_pub_;
 
@@ -129,6 +170,7 @@ private:
 
   // Messages
   clearpath_platform_msgs::msg::Lights lights_msg_;
+  clearpath_platform_msgs::msg::Lights user_lights_msg_;
   clearpath_platform_msgs::msg::Power power_msg_;
   clearpath_platform_msgs::msg::StopStatus stop_status_msg_;
   sensor_msgs::msg::BatteryState battery_state_msg_;
@@ -142,6 +184,8 @@ private:
   int num_lights_;
   bool user_commands_allowed_;
   Sequence current_sequence_;
+  diagnostic_updater::Updater updater_;
+  std::string diagnostic_qualifier_;
 };
 
 }  // namespace clearpath_lighting

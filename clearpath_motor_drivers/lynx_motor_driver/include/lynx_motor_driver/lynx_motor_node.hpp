@@ -24,6 +24,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #ifndef LYNX_MOTOR_DRIVER__LYNX_MOTOR_NODE_H
 #define LYNX_MOTOR_DRIVER__LYNX_MOTOR_NODE_H
 
+#include <regex>
+
+#include "diagnostic_updater/diagnostic_updater.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "std_msgs/msg/float64.hpp"
@@ -78,6 +81,9 @@ private:
   using GoalHandleCalibrate = rclcpp_action::ServerGoalHandle<Calibrate>;
   using Update = clearpath_motor_msgs::action::LynxUpdate;
   using GoalHandleUpdate = rclcpp_action::ServerGoalHandle<Update>;
+  using LynxStatus = clearpath_motor_msgs::msg::LynxStatus;
+  using LynxSystemProtection = clearpath_motor_msgs::msg::LynxSystemProtection;
+  using DiagnosticStatusWrapper = diagnostic_updater::DiagnosticStatusWrapper;
 
   // Drivers
   std::vector<lynx_motor_driver::LynxMotorDriver> drivers_;
@@ -95,12 +101,13 @@ private:
   std::vector<std::string> joint_names_;
   std::vector<int64_t> joint_can_ids_;
   std::vector<int64_t> joint_directions_;
+  std::string firmware_version_expected_;
 
   // Messages
   clearpath_motor_msgs::msg::LynxMultiStatus status_msg_;
   clearpath_motor_msgs::msg::LynxMultiFeedback feedback_msg_;
   clearpath_motor_msgs::msg::LynxMultiDebug debug_msg_;
-  clearpath_motor_msgs::msg::LynxSystemProtection system_protection_msg_;
+  LynxSystemProtection system_protection_msg_;
 
   // Action servers
   rclcpp_action::Server<Calibrate>::SharedPtr calibrate_action_server_;
@@ -110,7 +117,7 @@ private:
   rclcpp::Publisher<clearpath_motor_msgs::msg::LynxMultiStatus>::SharedPtr status_pub_;
   rclcpp::Publisher<clearpath_motor_msgs::msg::LynxMultiFeedback>::SharedPtr feedback_pub_;
   rclcpp::Publisher<clearpath_motor_msgs::msg::LynxMultiDebug>::SharedPtr debug_pub_;
-  rclcpp::Publisher<clearpath_motor_msgs::msg::LynxSystemProtection>::SharedPtr system_protection_pub_;
+  rclcpp::Publisher<LynxSystemProtection>::SharedPtr system_protection_pub_;
 
   // Subscribers
   rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr cmd_sub_;
@@ -121,6 +128,60 @@ private:
   rclcpp::TimerBase::SharedPtr debug_timer_;
   rclcpp::TimerBase::SharedPtr protection_timer_;
 
+  // Diagnostic Updater
+  diagnostic_updater::Updater updater_;
+
+  // Diagnostic Labels
+  const std::map<uint8_t, std::string> STATUS_FLAG_LABELS_ = {
+    {LynxStatus::STATUS_FLAG_ADC_CALIBRATED, "ADC Calibrated"},
+    {LynxStatus::STATUS_FLAG_FOC_ENABLED, "FOC Enabled"},
+    {LynxStatus::STATUS_FLAG_CALIBRATION_REQUESTED, "Calibration Requested"},
+    {LynxStatus::STATUS_FLAG_CALIBRATION_CANCELLED, "Calibration Cancelled"},
+    {LynxStatus::STATUS_FLAG_ESTOPPED, "E-stopped"},
+  };
+
+  const std::map<uint8_t, std::string> WARNING_FLAG_LABELS_ = {
+    {LynxStatus::WARNING_FLAG_MOTOR_THERMISTOR, "Motor Thermistor Not Detected"},
+    {LynxStatus::WARNING_FLAG_PCB_THERMISTOR, "PCB Thermistor Not Detected"},
+    {LynxStatus::WARNING_FLAG_PHASE, "Phase Error"},
+    {LynxStatus::WARNING_FLAG_PHASE_A, "Phase A Disconnected"},
+    {LynxStatus::WARNING_FLAG_PHASE_B, "Phase B Disconnected"},
+    {LynxStatus::WARNING_FLAG_PHASE_C, "Phase C Disconnected"},
+    {LynxStatus::WARNING_FLAG_ENCODER_INDEX, "Encoder Index Not Detected"},
+    {LynxStatus::WARNING_FLAG_ENCODER_OUTPUT_A, "Encoder Output A Error"},
+    {LynxStatus::WARNING_FLAG_ENCODER_OUTPUT_B, "Encoder Output B Error"},
+  };
+
+  const std::map<uint8_t, std::string> ERROR_FLAG_LABELS_ = {
+    {LynxStatus::ERROR_FLAG_NOT_CALIBRATED, "Not Calibrated"},
+    {LynxStatus::ERROR_FLAG_MOTOR_FAULT, "Motor Fault"},
+    {LynxStatus::ERROR_FLAG_MOTOR_STALLING, "Motor Stalling"},
+    {LynxStatus::ERROR_FLAG_MOTOR_THERMISTOR, "Motor Thermistor Not Detected"},
+    {LynxStatus::ERROR_FLAG_PCB_THERMISTOR, "PCB Thermistor Not Detected"},
+    {LynxStatus::ERROR_FLAG_PHASE, "Phase Error"},
+    {LynxStatus::ERROR_FLAG_PHASE_A, "Phase A Disconnected"},
+    {LynxStatus::ERROR_FLAG_PHASE_B, "Phase B Disconnected"},
+    {LynxStatus::ERROR_FLAG_PHASE_C, "Phase C Disconnected"},
+    {LynxStatus::ERROR_FLAG_ENCODER_POWER, "Encoder Power Error"},
+    {LynxStatus::ERROR_FLAG_ENCODER_INDEX, "Encoder Index Not Detected"},
+    {LynxStatus::ERROR_FLAG_ENCODER_OUTPUT_A, "Encoder Output A Error"},
+    {LynxStatus::ERROR_FLAG_ENCODER_OUTPUT_B, "Encoder Output B Error"},
+  };
+
+  const std::map<uint8_t, std::string> LYNX_PROTECTION_LABELS_ = {
+    {LynxSystemProtection::NORMAL, "Normal"},
+    {LynxSystemProtection::THROTTLED, "Throttled"},
+    {LynxSystemProtection::OVERHEATED, "Overheated"},
+    {LynxSystemProtection::ERROR, "Error"},
+  };
+
+  const std::map<uint8_t, std::string> LYNX_MOTOR_LABELS_ = {
+    {LynxSystemProtection::A300_MOTOR_FRONT_LEFT, "Front Left"},
+    {LynxSystemProtection::A300_MOTOR_FRONT_RIGHT, "Front Right"},
+    {LynxSystemProtection::A300_MOTOR_REAR_LEFT, "Rear Left"},
+    {LynxSystemProtection::A300_MOTOR_REAR_RIGHT, "Rear Right"},
+  };
+
   // System Protection
   void updateSystemState();
   void sendSystemState();
@@ -128,6 +189,10 @@ private:
 
   // Debugging
   void startDebug();
+
+  // Diagnostic Tasks
+  void driverDiagnostic(diagnostic_updater::DiagnosticStatusWrapper & stat, int i);
+  void protectionDiagnostic(diagnostic_updater::DiagnosticStatusWrapper & stat);
 
   // Calibrate action
   rclcpp_action::GoalResponse handleCalibrateGoal(
@@ -147,6 +212,10 @@ private:
     const std::shared_ptr<GoalHandleUpdate> goal_handle);
   void handleUpdateAccepted(const std::shared_ptr<GoalHandleUpdate> goal_handle);
   void executeUpdateAction(const std::shared_ptr<GoalHandleUpdate> goal_handle);
+  std::string getDefaultFirmware();
+
+  // Fimware version check
+  std::string parseFirmwareVersion(std::string filename);
 };
 
 #endif // LYNX_MOTOR_DRIVER__LYNX_MOTOR_NODE_H

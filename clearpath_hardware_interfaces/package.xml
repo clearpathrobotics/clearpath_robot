@@ -23,6 +23,8 @@
   <depend>controller_manager_msgs</depend>
   <depend version_gte="2.1.0">clearpath_motor_msgs</depend>
   <depend version_gte="2.1.0">clearpath_platform_msgs</depend>
+  <depend>diagnostic_msgs</depend>
+  <depend>diagnostic_updater</depend>
   <depend>hardware_interface</depend>
   <depend>geometry_msgs</depend>
   <depend>nav_msgs</depend>

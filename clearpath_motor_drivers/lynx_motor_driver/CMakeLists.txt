@@ -19,6 +19,7 @@ find_package(ament_index_cpp REQUIRED)
 find_package(can_msgs REQUIRED)
 find_package(clearpath_motor_msgs REQUIRED)
 find_package(clearpath_ros2_socketcan_interface REQUIRED)
+find_package(diagnostic_updater REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(sensor_msgs REQUIRED)
@@ -40,6 +41,7 @@ set(DEPENDENCIES
   can_msgs
   clearpath_motor_msgs
   clearpath_ros2_socketcan_interface
+  diagnostic_updater
   rclcpp
   rclcpp_action
   sensor_msgs

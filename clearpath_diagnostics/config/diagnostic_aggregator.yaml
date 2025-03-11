@@ -5,31 +5,27 @@ diagnostic_aggregator:
       type: diagnostic_aggregator/AnalyzerGroup
       path: Platform
       analyzers:
+        power:
+          type: diagnostic_aggregator/GenericAnalyzer
+          path: Power
+          contains: [ 'Battery', 'Power' ]
+        stop_status:
+          type: diagnostic_aggregator/GenericAnalyzer
+          path: E-stop Status
+          contains: [ 'E-stop' ]
         mcu:
           type: diagnostic_aggregator/GenericAnalyzer
           path: MCU
           contains: [ 'MCU' ]
-    sensors:
-      type: diagnostic_aggregator/AnalyzerGroup
-      path: Sensors
-      analyzers:
-        cameras:
+        lighting:
           type: diagnostic_aggregator/GenericAnalyzer
-          path: Cameras
-          contains: [ 'camera' ]
-        lidar2d:
+          path: Lighting
+          contains: [ 'Light' ]
+        motor_drivers:
           type: diagnostic_aggregator/GenericAnalyzer
-          path: Lidar2D
-          contains: [ 'lidar2d' ]
-        lidar3d:
-          type: diagnostic_aggregator/GenericAnalyzer
-          path: Lidar3D
-          contains: [ 'lidar3d' ]
-        imu:
-          type: diagnostic_aggregator/GenericAnalyzer
-          path: IMU
-          contains: [ 'imu' ]
-        gps:
-          type: diagnostic_aggregator/GenericAnalyzer
-          path: GPS
-          contains: [ 'gps' ]
+          path: Motor Drivers
+          contains: [ 'Lynx' ]
+    # sensors:
+    #   type: diagnostic_aggregator/AnalyzerGroup
+    #   path: Sensors
+    #   analyzers: # Must be populated with the sensor categories

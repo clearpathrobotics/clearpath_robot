@@ -258,7 +258,8 @@ class RobotLaunchGenerator(LaunchGenerator):
           executable='lighting_node',
           name='lighting_node',
           namespace=self.namespace,
-          parameters=[{'platform': self.platform_model}]
+          parameters=[{'platform': self.platform_model}],
+          remappings=[('/diagnostics', 'diagnostics'),],
         )
 
         # Sevcon
@@ -285,6 +286,7 @@ class RobotLaunchGenerator(LaunchGenerator):
           parameters=[os.path.join(self.platform_params_path, 'control.yaml')],
           name='lynx_control',
           namespace=self.namespace,
+          remappings=[('/diagnostics', 'diagnostics'),],
         )
 
         # ROS2 socketcan bridges

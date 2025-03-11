@@ -26,9 +26,14 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
 #define UNKNOWN "unknown"
 
+using namespace clearpath_diagnostic_labels;
+
 namespace clearpath
 {
 
+/**
+ * @brief Construct a new ClearpathDiagnosticUpdater node
+ */
 ClearpathDiagnosticUpdater::ClearpathDiagnosticUpdater()
 : Node(
     "clearpath_diagnostic_updater",
@@ -36,78 +41,155 @@ ClearpathDiagnosticUpdater::ClearpathDiagnosticUpdater()
     automatically_declare_parameters_from_overrides(true)),
   updater_(this)  // Create the diagnostic updater object
 {
-  serial_number_ = this->get_mandatory_param("serial_number");
-  platform_model_ = this->get_mandatory_param("platform_model");
-  ros_distro_ = this->get_mandatory_param("ros_distro");
-  latest_apt_firmware_version_ = this->get_mandatory_param("latest_apt_firmware_version");
-  installed_apt_firmware_version_ = this->get_mandatory_param("installed_apt_firmware_version");
+  // Get mandatory parameters from the config
+  serial_number_ = get_string_param("serial_number", true);
+  platform_model_ = get_string_param("platform_model", true);
+  ros_distro_ = get_string_param("ros_distro", true);
+  latest_apt_firmware_version_ = get_string_param("latest_apt_firmware_version", true);
+  installed_apt_firmware_version_ = get_string_param("installed_apt_firmware_version", true);
+  RCLCPP_INFO(this->get_logger(), "Diagnostics starting for a %s platform with serial number %s",
+              platform_model_.c_str(), serial_number_.c_str());
+
+  // Get optional parameters from the config
+  mcu_status_topic_ = get_string_param("mcu_status_topic");
+  mcu_status_topic_ = (mcu_status_topic_ == UNKNOWN) ? "platform/mcu/status" : mcu_status_topic_;
+  mcu_power_topic_ = get_string_param("mcu_power_topic");
+  mcu_power_topic_ = (mcu_power_topic_ == UNKNOWN) ? "platform/mcu/status/power" : mcu_power_topic_;
+  bms_state_topic_ = get_string_param("bms_state_topic");
+  bms_state_topic_ = (bms_state_topic_ == UNKNOWN) ? "platform/bms/state" : bms_state_topic_;
+  stop_status_topic_ = get_string_param("stop_status_topic");
+  stop_status_topic_ =
+    (stop_status_topic_ == UNKNOWN) ? "platform/mcu/status/stop" : stop_status_topic_;
+  mcu_status_rate_ = get_double_param("mcu_status_rate");
+  mcu_status_rate_ = (std::isnan(mcu_status_rate_)) ? 1.0 : mcu_status_rate_;
+  mcu_power_rate_ = get_double_param("mcu_power_rate");
+  mcu_power_rate_ = (std::isnan(mcu_power_rate_)) ? 1.0 : mcu_power_rate_;
+  bms_state_rate_ = get_double_param("bms_state_rate");
+  bms_state_rate_ = (std::isnan(bms_state_rate_)) ? 1.0 : bms_state_rate_;
+  stop_status_rate_ = get_double_param("stop_status_rate");
+  stop_status_rate_ = (std::isnan(stop_status_rate_)) ? 1.0 : stop_status_rate_;
 
   // Initialize variables that are populated in callbacks
   mcu_firmware_version_ = UNKNOWN;
-  mcu_platform_model_ = UNKNOWN;
 
   // Set Hardware ID as serial number in diagnostics
   updater_.setHardwareID(serial_number_);
+
+  // MCU status and firmware version if there is an MCU
   if (latest_apt_firmware_version_ == "not_applicable") {
     RCLCPP_INFO(this->get_logger(), "No MCU indicated, MCU diagnostics disabled.");
   } else if (latest_apt_firmware_version_ != "simulated") {
-    // Publish MCU Status information as diagnostics
+    // Subscribe to MCU Status topics
+    sub_mcu_status_ =
+      this->create_subscription<clearpath_platform_msgs::msg::Status>(
+        mcu_status_topic_,
+        rclcpp::SensorDataQoS(),
+        std::bind(&ClearpathDiagnosticUpdater::mcu_status_callback, this, std::placeholders::_1));
+
+    // Create MCU Frequency Status tracking objects
+    mcu_status_freq_status_ = std::make_shared<FrequencyStatus>(
+      FrequencyStatusParam(&mcu_status_rate_, &mcu_status_rate_, 0.1, 5));
+
+    // Add diagnostic tasks for MCU data
     updater_.add("MCU Status", this, &ClearpathDiagnosticUpdater::mcu_status_diagnostic);
-    updater_.add("MCU Firmware Version", this, &ClearpathDiagnosticUpdater::check_firmware_version);
+    updater_.add("MCU Firmware Version", this, &ClearpathDiagnosticUpdater::firmware_diagnostic);
     RCLCPP_INFO(this->get_logger(), "MCU diagnostics started.");
   }
 
-  mcu_status_rate_ = 1.0;
-  mcu_freq_status_ = std::make_shared<diagnostic_updater::FrequencyStatus>(
-    diagnostic_updater::FrequencyStatusParam(&mcu_status_rate_, &mcu_status_rate_, 0.1, 5));
-
-  // subscribe to MCU status
-  sub_mcu_status_ =
-    this->create_subscription<clearpath_platform_msgs::msg::Status>(
-      "platform/mcu/status",
+  // Diagnostics Applicable to all robot platforms irrelevant of which MCU or battery
+  // Create subscriptions
+  sub_mcu_power_ =
+    this->create_subscription<clearpath_platform_msgs::msg::Power>(
+      mcu_power_topic_,
       rclcpp::SensorDataQoS(),
-      std::bind(&ClearpathDiagnosticUpdater::mcu_callback, this, std::placeholders::_1));
+      std::bind(&ClearpathDiagnosticUpdater::mcu_power_callback, this, std::placeholders::_1));
+  sub_bms_state_ =
+    this->create_subscription<BatteryState>(
+      bms_state_topic_,
+      rclcpp::SensorDataQoS(),
+      std::bind(&ClearpathDiagnosticUpdater::bms_state_callback, this, std::placeholders::_1));
+  sub_stop_status_ =
+    this->create_subscription<clearpath_platform_msgs::msg::StopStatus>(
+      stop_status_topic_,
+      rclcpp::SensorDataQoS(),
+      std::bind(&ClearpathDiagnosticUpdater::stop_status_callback, this, std::placeholders::_1));
+
+  // Create Frequency Status tracking objects
+  mcu_power_freq_status_ = std::make_shared<FrequencyStatus>(
+    FrequencyStatusParam(&mcu_power_rate_, &mcu_power_rate_, 0.1, 5));
+  bms_state_freq_status_ = std::make_shared<FrequencyStatus>(
+    FrequencyStatusParam(&bms_state_rate_, &bms_state_rate_, 0.1, 5));
+  stop_status_freq_status_ = std::make_shared<FrequencyStatus>(
+    FrequencyStatusParam(&stop_status_rate_, &stop_status_rate_, 0.1, 5));
+
+  // Add diagnostic tasks
+  updater_.add("Power Status", this, &ClearpathDiagnosticUpdater::mcu_power_diagnostic);
+  updater_.add("Battery Management System", this,
+    &ClearpathDiagnosticUpdater::bms_state_diagnostic);
+  updater_.add("E-stop Status", this, &ClearpathDiagnosticUpdater::stop_status_diagnostic);
 
   setup_topic_rate_diagnostics();
 }
 
-// get parameter from yaml and log an error if the parameter is not present
-std::string ClearpathDiagnosticUpdater::get_mandatory_param(std::string param_name)
+/**
+ * @brief Get string parameter from config yaml and optionally log an error if parameter is missing
+ */
+std::string ClearpathDiagnosticUpdater::get_string_param(std::string param_name, bool mandatory)
 {
   try {
     return this->get_parameter(param_name).as_string();
   } catch (const std::exception & e) {
-    RCLCPP_ERROR(this->get_logger(), "Could not retrieve parameter %s: %s",
-                                      param_name.c_str(), e.what());
+    if (mandatory) {
+      RCLCPP_ERROR(this->get_logger(), "Could not retrieve mandatory parameter %s: %s",
+                                        param_name.c_str(), e.what());
+    }
     return UNKNOWN;
   }
 }
 
-void ClearpathDiagnosticUpdater::check_firmware_version(
-  diagnostic_updater::DiagnosticStatusWrapper & stat)
+/**
+ * @brief Get double parameter from config yaml and optionally log an error if parameter is missing
+ */
+double ClearpathDiagnosticUpdater::get_double_param(std::string param_name, bool mandatory)
+{
+  try {
+    return this->get_parameter(param_name).as_double();
+  } catch (const std::exception & e) {
+    if (mandatory) {
+      RCLCPP_ERROR(this->get_logger(), "Could not retrieve mandatory parameter %s: %s",
+                                        param_name.c_str(), e.what());
+    }
+    return NAN;
+  }
+}
+
+/**
+ * @brief Report the firmware version information to diagnostics
+ */
+void ClearpathDiagnosticUpdater::firmware_diagnostic(DiagnosticStatusWrapper & stat)
 {
   if (latest_apt_firmware_version_ == "not_found") {
-    stat.summaryf(diagnostic_msgs::msg::DiagnosticStatus::ERROR,
+    stat.summaryf(DiagnosticStatus::ERROR,
                   "ros-%s-clearpath-firmware package not found",
                   ros_distro_.c_str());
   } else if (latest_apt_firmware_version_ == UNKNOWN) {
-    stat.summaryf(diagnostic_msgs::msg::DiagnosticStatus::ERROR,
+    stat.summaryf(DiagnosticStatus::ERROR,
                   "ros-%s-clearpath-firmware package version not provided in config",
                   ros_distro_.c_str());
   } else if (mcu_firmware_version_ == UNKNOWN) {
-    stat.summary(diagnostic_msgs::msg::DiagnosticStatus::ERROR,
+    stat.summary(DiagnosticStatus::ERROR,
                   "No firmware version received from MCU");
   } else if (mcu_firmware_version_ == latest_apt_firmware_version_) {
-    stat.summaryf(diagnostic_msgs::msg::DiagnosticStatus::OK,
+    stat.summaryf(DiagnosticStatus::OK,
                   "Firmware is up to date (%s)",
                   mcu_firmware_version_.c_str());
   } else if (mcu_firmware_version_ < latest_apt_firmware_version_) {
-    stat.summaryf(diagnostic_msgs::msg::DiagnosticStatus::WARN,
+    stat.summaryf(DiagnosticStatus::WARN,
                   "New firmware available: (%s) -> (%s)",
                   mcu_firmware_version_.c_str(),
                   latest_apt_firmware_version_.c_str());
   } else {
-    stat.summaryf(diagnostic_msgs::msg::DiagnosticStatus::WARN,
+    stat.summaryf(DiagnosticStatus::WARN,
                   "ros-%s-clearpath-firmware package is outdated",
                   ros_distro_.c_str());
   }
@@ -116,37 +198,214 @@ void ClearpathDiagnosticUpdater::check_firmware_version(
   stat.add("Firmware Version on MCU", mcu_firmware_version_);
 }
 
-// save data from MCU Status messages
-void ClearpathDiagnosticUpdater::mcu_callback(const clearpath_platform_msgs::msg::Status & msg)
+/**
+ * @brief Save data from MCU Status messages
+ */
+void ClearpathDiagnosticUpdater::mcu_status_callback(
+  const clearpath_platform_msgs::msg::Status & msg)
 {
   mcu_firmware_version_ = msg.firmware_version;
-  mcu_platform_model_ = msg.hardware_id;
-  mcu_uptime_ = msg.mcu_uptime.sec;
-  connection_uptime_ = msg.connection_uptime.sec;
-  mcu_temperature_ = msg.mcu_temperature;
-  pcb_temperature_ = msg.pcb_temperature;
-  mcu_freq_status_->tick();
+  mcu_status_msg_ = msg;
+  mcu_status_freq_status_->tick();
 }
 
-void ClearpathDiagnosticUpdater::mcu_status_diagnostic(
-  diagnostic_updater::DiagnosticStatusWrapper & stat)
+/**
+ * @brief Report MCU Status message information to diagnostics
+ */
+void ClearpathDiagnosticUpdater::mcu_status_diagnostic(DiagnosticStatusWrapper & stat)
 {
   stat.add("Firmware Version", mcu_firmware_version_);
-  stat.add("Platform Model", mcu_platform_model_);
-  stat.add("MCU Uptime", mcu_uptime_);
-  stat.add("Connection Uptime", connection_uptime_);
-  stat.add("MCU Temperature", mcu_temperature_);
-  stat.add("PCB Temperature", pcb_temperature_);
+  stat.add("Platform Model", mcu_status_msg_.hardware_id);
+  stat.add("MCU Uptime (sec)", mcu_status_msg_.mcu_uptime.sec);
+  stat.add("Connection Uptime (sec)", mcu_status_msg_.connection_uptime.sec);
+  stat.add("MCU Temperature (C)", mcu_status_msg_.mcu_temperature);
+  stat.add("PCB Temperature (C)", mcu_status_msg_.pcb_temperature);
 
-  mcu_freq_status_->run(stat);
+  mcu_status_freq_status_->run(stat);
 }
 
+/**
+ * @brief Save data from MCU Power messages
+ */
+void ClearpathDiagnosticUpdater::mcu_power_callback(const clearpath_platform_msgs::msg::Power & msg)
+{
+  mcu_power_msg_ = msg;
+  mcu_power_freq_status_->tick();
+}
+
+/**
+ * @brief Report MCU Power message information to diagnostics
+ */
+void ClearpathDiagnosticUpdater::mcu_power_diagnostic(DiagnosticStatusWrapper & stat)
+{
+  try {
+    stat.add("Shore Power Connected",
+      DiagnosticLabels::POWER_STATUS.at(mcu_power_msg_.shore_power_connected));
+    stat.add("Battery Connected",
+      DiagnosticLabels::POWER_STATUS.at(mcu_power_msg_.battery_connected));
+    stat.add("Power 12V User Nominal",
+      DiagnosticLabels::POWER_STATUS.at(mcu_power_msg_.power_12v_user_nominal));
+    stat.add("Charger Connected",
+      DiagnosticLabels::POWER_STATUS.at(mcu_power_msg_.charger_connected));
+    stat.add("Charging Complete",
+      DiagnosticLabels::POWER_STATUS.at(mcu_power_msg_.charging_complete));
+  } catch(const std::out_of_range & e) {
+    RCLCPP_ERROR(this->get_logger(),
+                 "Unknown MCU Power message status value with no string description: %s", e.what());
+  }
+
+  try {
+    for (unsigned i = 0; i < mcu_power_msg_.measured_voltages.size(); i++) {
+      std::string name = "Measured Voltage: " +
+        DiagnosticLabels::MEASURED_VOLTAGES.at(platform_model_)[i] + " (V)";
+      stat.add(name, mcu_power_msg_.measured_voltages[i]);
+    }
+    for (unsigned i = 0; i < mcu_power_msg_.measured_currents.size(); i++) {
+      std::string name = "Measured Current: " +
+        DiagnosticLabels::MEASURED_CURRENTS.at(platform_model_)[i] + " (A)";
+      stat.add(name, mcu_power_msg_.measured_currents[i]);
+    }
+  } catch(const std::out_of_range & e) {
+    RCLCPP_ERROR(this->get_logger(),
+                 "No measured voltage or current labels for the given platform: %s", e.what());
+  }
+
+  mcu_power_freq_status_->run(stat);
+}
+
+/**
+ * @brief Save data from BMS State / BatteryState messages
+ */
+void ClearpathDiagnosticUpdater::bms_state_callback(const BatteryState & msg)
+{
+  bms_state_msg_ = msg;
+  bms_state_freq_status_->tick();
+}
+
+/**
+ * @brief Report BMS State / BatteryState message information to diagnostics
+ */
+void ClearpathDiagnosticUpdater::bms_state_diagnostic(DiagnosticStatusWrapper & stat)
+{
+  std::string power_supply_status = "undefined";
+  std::string power_supply_health = "undefined";
+  std::string power_supply_technology = "undefined";
+  try {
+    power_supply_status =
+      DiagnosticLabels::POWER_SUPPLY_STATUS.at(bms_state_msg_.power_supply_status);
+    power_supply_health =
+      DiagnosticLabels::POWER_SUPPLY_HEALTH.at(bms_state_msg_.power_supply_health);
+    power_supply_technology =
+      DiagnosticLabels::POWER_SUPPLY_TECHNOLOGY.at(bms_state_msg_.power_supply_technology);
+  } catch(const std::out_of_range & e) {
+    RCLCPP_ERROR(this->get_logger(),
+                 "Unknown Battery State enum with no string description: %s", e.what());
+  }
+
+  stat.add("Power Supply Status", power_supply_status);
+  stat.add("Power Supply Health", power_supply_health);
+  stat.add("Power Supply Technology", power_supply_technology);
+
+  stat.add("Voltage (V)", bms_state_msg_.voltage);
+  stat.add("Temperature (C)", bms_state_msg_.temperature);
+  stat.add("Current (A)", bms_state_msg_.current);
+  stat.add("Charge (Ah)", bms_state_msg_.charge);
+  stat.add("Capacity (Ah)", bms_state_msg_.capacity);
+  stat.add("Charge Percentage", bms_state_msg_.percentage * 100);
+
+  std::string voltages = "";
+  for (auto v : bms_state_msg_.cell_voltage) {
+    voltages.append(std::to_string(v));
+    voltages.append("; ");
+  }
+  stat.add("Cell Voltages (V)", voltages);
+
+  std::string temperatures = "";
+  for (auto t : bms_state_msg_.cell_temperature) {
+    temperatures.append(std::to_string(t));
+    temperatures.append("; ");
+  }
+  stat.add("Cell Temperature (C)", temperatures);
+
+  bms_state_freq_status_->run(stat);
+
+  // Diagnostic summaries based on charging activity / level
+  if (bms_state_msg_.header.stamp.sec != 0) {
+    if (bms_state_msg_.power_supply_status == BatteryState::POWER_SUPPLY_STATUS_CHARGING) {
+      stat.mergeSummaryf(DiagnosticStatus::OK,
+                          "Battery Charging (%.1f%%)",
+                          bms_state_msg_.percentage * 100);
+    } else if (bms_state_msg_.percentage >= 0.2) {
+      stat.mergeSummaryf(DiagnosticStatus::OK,
+                          "Battery level is %.1f%%",
+                          bms_state_msg_.percentage * 100);
+    } else if (bms_state_msg_.percentage >= 0.1) {
+      stat.mergeSummaryf(DiagnosticStatus::WARN,
+                          "Low Battery (%.1f%%)",
+                          bms_state_msg_.percentage * 100);
+    } else {
+      stat.mergeSummaryf(DiagnosticStatus::WARN,
+                          "Critically Low Battery (%.1f%%)",
+                          bms_state_msg_.percentage * 100);
+    }
+
+    // Error diagnostic summaries
+    if (bms_state_msg_.power_supply_health != BatteryState::POWER_SUPPLY_HEALTH_GOOD) {
+      stat.mergeSummaryf(DiagnosticStatus::ERROR,
+                          "Power Supply Health: %s", power_supply_health.c_str());
+    } else if (bms_state_msg_.power_supply_status == BatteryState::POWER_SUPPLY_STATUS_UNKNOWN) {
+      stat.mergeSummary(DiagnosticStatus::ERROR, "Power Supply Status Unknown");
+    }
+  }
+}
+
+/**
+ * @brief Save data from E-stop / Stop Status messages
+ */
+void ClearpathDiagnosticUpdater::stop_status_callback(
+  const clearpath_platform_msgs::msg::StopStatus & msg)
+{
+  stop_status_msg_ = msg;
+  stop_status_freq_status_->tick();
+}
+
+/**
+ * @brief Report E-stop / Stop Status message information to diagnostics
+ */
+void ClearpathDiagnosticUpdater::stop_status_diagnostic(DiagnosticStatusWrapper & stat)
+{
+  stat.add("E-stop loop is operational",
+    (stop_status_msg_.stop_power_status ? "True" : "False"));
+  stat.add("External E-stop has been plugged in",
+    (stop_status_msg_.external_stop_present ? "True" : "False"));
+  stat.add("Stop loop needs to be reset",
+    (stop_status_msg_.needs_reset ? "True" : "False"));
+
+  stop_status_freq_status_->run(stat);
+
+  if (stop_status_msg_.header.stamp.sec != 0) {
+    if (!stop_status_msg_.stop_power_status) {
+      stat.mergeSummary(DiagnosticStatus::ERROR, "E-stop loop is interrupted");
+    } else if (stop_status_msg_.needs_reset) {
+      stat.mergeSummary(DiagnosticStatus::ERROR, "E-stop needs to be reset");
+    }
+  }
+}
+
+/**
+ * @brief Process topics provided in the config yaml and add publish frequency monitoring for each
+ */
 void ClearpathDiagnosticUpdater::setup_topic_rate_diagnostics()
 {
   std::map<std::string, rclcpp::Parameter> topic_map_raw;
 
   // Get all parameters under the "topics" key in the yaml and store it in map format
-  if (!this->get_parameters("topics", topic_map_raw)) {
+  try {
+    if (!this->get_parameters("topics", topic_map_raw)) {
+      RCLCPP_WARN(this->get_logger(), "No topics found to monitor.");
+      return;
+    }
+  } catch (const std::exception & e) {
     RCLCPP_WARN(this->get_logger(), "No topics found to monitor.");
     return;
   }
@@ -253,6 +512,35 @@ void ClearpathDiagnosticUpdater::setup_topic_rate_diagnostics()
 
     RCLCPP_INFO(this->get_logger(), "Created subscription for %s", topic_name.c_str());
   }
+}
+
+/**
+ * @brief Template to add rate diagnostics for a given topic and rate
+ */
+template<class MsgType> void ClearpathDiagnosticUpdater::add_rate_diagnostic(
+  const std::string topic_name, const double rate)
+{
+  // Store the rate so that it can be accessed via a pointer and is not deleted
+  rates_.push_back(rate);
+
+  // Create the diagnostic task object that handles calculating and publishing rate statistics
+  auto topic_diagnostic =
+    std::make_shared<diagnostic_updater::HeaderlessTopicDiagnostic>(
+      topic_name,
+      updater_,
+      FrequencyStatusParam(&rates_.back(), &rates_.back(), 0.1, 5));
+
+  // Store the diagnostic task object so that it can be accessed via a pointer and is not deleted
+  topic_diagnostics_.push_back(topic_diagnostic);
+
+  auto sub = this->create_subscription<MsgType>(
+    topic_name,
+    rclcpp::SensorDataQoS(),
+    [this, topic_diagnostic]
+    ([[maybe_unused]] const MsgType & msg) {
+      topic_diagnostic->tick();
+    });
+  subscriptions_.push_back(std::static_pointer_cast<void>(sub));
 }
 }
 

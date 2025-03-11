@@ -29,13 +29,13 @@ std::string a300_cooling::thermalStatusToString(a300_cooling::ThermalStatus stat
     case a300_cooling::ThermalStatus::Normal:
       return "Normal";
     case a300_cooling::ThermalStatus::LowError:
-      return "LowError";
+      return "Low Error";
     case a300_cooling::ThermalStatus::LowWarning:
-      return "LowWarning";
+      return "Low Warning";
     case a300_cooling::ThermalStatus::HighWarning:
-      return "HighWarning";
+      return "High Warning";
     case a300_cooling::ThermalStatus::HighError:
-      return "HighError";
+      return "High Error";
     default:
       return "Unknown";
   }
@@ -49,6 +49,8 @@ a300_cooling::ThermalSensor::ThermalSensor()
 
 void a300_cooling::ThermalSensor::setValue(float value) { this->reading_ = value; }
 
+float a300_cooling::ThermalSensor::getValue() const { return this->reading_; }
+
 a300_cooling::ThermalStatus a300_cooling::ThermalSensor::getStatus() const
 {
   if (this->reading_ < this->low_error_) return a300_cooling::ThermalStatus::LowError;
@@ -56,6 +58,14 @@ a300_cooling::ThermalStatus a300_cooling::ThermalSensor::getStatus() const
   if (this->reading_ > this->high_error_) return a300_cooling::ThermalStatus::HighError;
   if (this->reading_ > this->high_warning_) return a300_cooling::ThermalStatus::HighWarning;
   return a300_cooling::ThermalStatus::Normal;
+}
+
+void a300_cooling::ThermalSensor::getThresholds(float & low_error, float & low_warning, float & high_warning, float & high_error) const
+{
+  low_error = low_error_;
+  low_warning = low_warning_;
+  high_warning = high_warning_;
+  high_error = high_error_;
 }
 
 a300_cooling::ThermalSensors::ThermalSensors()
@@ -83,6 +93,11 @@ a300_cooling::ThermalSensors::ThermalSensors()
   };
 }
 
+const std::map<std::string, a300_cooling::ThermalSensor> & a300_cooling::ThermalSensors::getSensors() const
+{
+  return sensors;
+}
+
 void a300_cooling::ThermalSensors::setSensorValue(const std::string &name, float value)
 {
   if (sensors.find(name) != sensors.end())
@@ -99,20 +114,22 @@ a300_cooling::ThermalStatus a300_cooling::ThermalSensors::getHighestStatus() con
 {
   a300_cooling::ThermalStatus highest_status = a300_cooling::ThermalStatus::Normal;
   for (const auto &sensor : sensors) {
+    if (sensor.second.getStatus() > a300_cooling::ThermalStatus::Normal)
+    {
+      RCLCPP_WARN(rclcpp::get_logger("a300_fan_controller"), "Thermal sensor %s has %s (Measured: %.1f C)",
+                  sensor.first.c_str(), thermalStatusToString(sensor.second.getStatus()).c_str(),
+                  sensor.second.getValue());
+    }
     if (sensor.second.getStatus() > highest_status)
     {
-      if (sensor.second.getStatus() >= a300_cooling::ThermalStatus::Normal)
-      {
-        RCLCPP_WARN(rclcpp::get_logger("a300_fan_controller"), "Thermal sensor %s has %s",
-        sensor.first.c_str(), thermalStatusToString(sensor.second.getStatus()).c_str());
-      }
       highest_status = sensor.second.getStatus();
     }
   }
   return highest_status;
 }
 
-a300_cooling::FanController::FanController() : Node("a300_fan_controller")
+a300_cooling::FanController::FanController() : Node("a300_fan_controller"),
+  updater_(this)
 {
   fan_publisher_ = create_publisher<clearpath_platform_msgs::msg::Fans>(FAN_CONTROL_TOPIC_NAME, rclcpp::SensorDataQoS());
 
@@ -131,6 +148,7 @@ a300_cooling::FanController::FanController() : Node("a300_fan_controller")
     this->thermal_sensors_.setSensorValue("main_gnd_lug", msg->temperatures[clearpath_platform_msgs::msg::Temperature::CC01_MAIN_GND_LUG]);
     this->thermal_sensors_.setSensorValue("dcdc_24v", msg->temperatures[clearpath_platform_msgs::msg::Temperature::CC01_24V_DCDC]);
     this->thermal_sensors_.setSensorValue("dcdc_12v", msg->temperatures[clearpath_platform_msgs::msg::Temperature::CC01_12V_DCDC]);
+    this->temperature_stale_ = 0;
   });
 
   motor_subscription_ = create_subscription<clearpath_motor_msgs::msg::LynxMultiStatus>(
@@ -139,14 +157,22 @@ a300_cooling::FanController::FanController() : Node("a300_fan_controller")
     [this](const clearpath_motor_msgs::msg::LynxMultiStatus::SharedPtr msg)
   {
     std::lock_guard<std::mutex> lock(update_mutex_);
-    this->thermal_sensors_.setSensorValue("pcb_motor1",  msg->drivers[0].pcb_temperature);
-    this->thermal_sensors_.setSensorValue("mcu_motor1",  msg->drivers[0].mcu_temperature);
-    this->thermal_sensors_.setSensorValue("pcb_motor2",  msg->drivers[1].pcb_temperature);
-    this->thermal_sensors_.setSensorValue("mcu_motor2",  msg->drivers[1].mcu_temperature);
-    this->thermal_sensors_.setSensorValue("pcb_motor3",  msg->drivers[2].pcb_temperature);
-    this->thermal_sensors_.setSensorValue("mcu_motor3",  msg->drivers[2].mcu_temperature);
-    this->thermal_sensors_.setSensorValue("pcb_motor4",  msg->drivers[3].pcb_temperature);
-    this->thermal_sensors_.setSensorValue("mcu_motor4",  msg->drivers[3].mcu_temperature);
+    try
+    {
+      this->thermal_sensors_.setSensorValue("pcb_motor1",  msg->drivers.at(0).pcb_temperature);
+      this->thermal_sensors_.setSensorValue("mcu_motor1",  msg->drivers.at(0).mcu_temperature);
+      this->thermal_sensors_.setSensorValue("pcb_motor2",  msg->drivers.at(1).pcb_temperature);
+      this->thermal_sensors_.setSensorValue("mcu_motor2",  msg->drivers.at(1).mcu_temperature);
+      this->thermal_sensors_.setSensorValue("pcb_motor3",  msg->drivers.at(2).pcb_temperature);
+      this->thermal_sensors_.setSensorValue("mcu_motor3",  msg->drivers.at(2).mcu_temperature);
+      this->thermal_sensors_.setSensorValue("pcb_motor4",  msg->drivers.at(3).pcb_temperature);
+      this->thermal_sensors_.setSensorValue("mcu_motor4",  msg->drivers.at(3).mcu_temperature);
+    }
+    catch (const std::out_of_range & e) {
+      RCLCPP_ERROR(this->get_logger(),
+                   "%s topic does not contain 4 drivers: %s", MOTOR_TEMPERATURE_TOPIC.c_str(), e.what());
+    }
+    this->lynx_status_stale_ = 0;
   });
 
   battery_subscription_ = create_subscription<sensor_msgs::msg::BatteryState>(
@@ -156,19 +182,29 @@ a300_cooling::FanController::FanController() : Node("a300_fan_controller")
   {
     std::lock_guard<std::mutex> lock(update_mutex_);
     this->thermal_sensors_.setSensorValue("battery", msg->temperature);
+    this->battery_stale_ = 0;
   });
 
+  temperature_stale_ = 0;
+  lynx_status_stale_ = 0;
+  battery_stale_ = 0;
+
   control_timer_ = create_wall_timer(std::chrono::seconds(1), std::bind(&FanController::timerCallback, this));
+
+  updater_.setHardwareID("a300");
+  updater_.add("Fan Controller", this, &FanController::fanDiagnostic);
 }
 
 void a300_cooling::FanController::timerCallback()
 {
   std::lock_guard<std::mutex> lock(update_mutex_);
   uint8_t fan_value = computeFanValue(thermal_sensors_.getHighestStatus());
-  clearpath_platform_msgs::msg::Fans fans_msg;
-  fans_msg.fans = {fan_value, fan_value, fan_value, fan_value, 0, 0, 0, 0};
-  fan_publisher_->publish(fans_msg);
+  fans_msg_.fans = {fan_value, fan_value, fan_value, fan_value, 0, 0, 0, 0};
+  fan_publisher_->publish(fans_msg_);
   RCLCPP_DEBUG(get_logger(), "Set all fans to: %d", fan_value);
+  temperature_stale_++;
+  lynx_status_stale_++;
+  battery_stale_++;
 }
 
 uint8_t a300_cooling::FanController::computeFanValue(a300_cooling::ThermalStatus status)
@@ -194,6 +230,57 @@ uint8_t a300_cooling::FanController::computeFanValue(a300_cooling::ThermalStatus
       break;
   }
   return static_cast<uint8_t>(fan_fraction * 255.0f);
+}
+
+void a300_cooling::FanController::fanDiagnostic(diagnostic_updater::DiagnosticStatusWrapper & stat)
+{
+  stat.summary(diagnostic_updater::DiagnosticStatusWrapper::OK, "OK"); // Is overwritten in mergeSummary by warn or error
+
+  // Set summary error if any topic is stale
+  if (temperature_stale_ >= STALE_SECS)
+  {
+    stat.mergeSummaryf(diagnostic_updater::DiagnosticStatusWrapper::ERROR,
+                  "No temperature data from %s", MCU_TEMPERATURE_TOPIC.c_str());
+  }
+  if (lynx_status_stale_ >= STALE_SECS)
+  {
+    stat.mergeSummaryf(diagnostic_updater::DiagnosticStatusWrapper::ERROR,
+                       "No temperature data from %s", MOTOR_TEMPERATURE_TOPIC.c_str());
+  }
+  if (battery_stale_ >= STALE_SECS)
+  {
+    stat.mergeSummaryf(diagnostic_updater::DiagnosticStatusWrapper::ERROR,
+                       "No temperature data from %s", BATTERY_TEMPERATURE_TOPIC.c_str());
+  }
+
+  // Report on fan control values
+  for (unsigned i = 0; i < fans_msg_.fans.size(); i++) {
+    stat.addf("Fan " + std::to_string(i + 1) + " Control (%)", "%.0f", fans_msg_.fans [i] * 100 / 255.0);
+  }
+
+  float low_error_thresh = 0, low_warning_thresh = 0, high_warning_thresh = 0, high_error_thresh = 0;
+
+  // Report all sensor temperatures and thresholds
+  for (const auto &sensor : thermal_sensors_.getSensors()) {
+    stat.addf(sensor.first + " Temperature (C)", "%.1f", sensor.second.getValue());
+
+    sensor.second.getThresholds(low_error_thresh, low_warning_thresh, high_warning_thresh, high_error_thresh);
+    stat.addf(sensor.first + " Thresholds (C)",
+              "Low Error: %.1f, Low Warning: %.1f, High Warning: %.1f, High Error: %.1f",
+              low_error_thresh, low_warning_thresh, high_warning_thresh, high_error_thresh);
+
+    auto status = sensor.second.getStatus();
+    if (status == a300_cooling::ThermalStatus::HighWarning || status == a300_cooling::ThermalStatus::LowWarning)
+    {
+      stat.mergeSummaryf(diagnostic_updater::DiagnosticStatusWrapper::WARN, "%s on %s thermal sensor",
+      thermalStatusToString(status).c_str(), sensor.first.c_str());
+    }
+    else if (status == a300_cooling::ThermalStatus::HighError || status == a300_cooling::ThermalStatus::LowError)
+    {
+      stat.mergeSummaryf(diagnostic_updater::DiagnosticStatusWrapper::ERROR, "%s on %s thermal sensor",
+      thermalStatusToString(status).c_str(), sensor.first.c_str());
+    }
+  }
 }
 
 int main(int argc, char **argv) {

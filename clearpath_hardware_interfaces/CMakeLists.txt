@@ -18,6 +18,7 @@ find_package(controller_manager REQUIRED)
 find_package(controller_manager_msgs REQUIRED)
 find_package(clearpath_motor_msgs REQUIRED)
 find_package(clearpath_platform_msgs REQUIRED)
+find_package(diagnostic_updater REQUIRED)
 find_package(hardware_interface REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -39,6 +40,7 @@ set(LIGHTING_LIB clearpath_platform_lighting)
 set(LIGHTING_DEPENDENCIES
   clearpath_motor_msgs
   clearpath_platform_msgs
+  diagnostic_updater
   sensor_msgs
   rclcpp
 )
@@ -74,6 +76,7 @@ set(FAN_CONTROL_EXECUTABLE fan_control_node)
 set(FAN_CONTROL_DEPENDENCIES
   clearpath_motor_msgs
   clearpath_platform_msgs
+  diagnostic_updater
   sensor_msgs
   rclcpp
 )
