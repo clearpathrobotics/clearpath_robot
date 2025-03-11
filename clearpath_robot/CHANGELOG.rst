@@ -2,6 +2,9 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.1.1 (2025-03-05)
 ------------------
 * Turn off clearing of SHM on log out (`#152 <https://github.com/clearpathrobotics/clearpath_robot/issues/152>`_) (`#156 <https://github.com/clearpathrobotics/clearpath_robot/issues/156>`_)
