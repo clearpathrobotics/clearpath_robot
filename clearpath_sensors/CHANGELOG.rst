@@ -5,8 +5,8 @@ Changelog for package clearpath_sensors
 1.1.0 (2025-01-15)
 ------------------
 
-Forthcoming
------------
+2.2.0 (2025-03-11)
+------------------
 * Feature Jazzy Ouster (`#155 <https://github.com/clearpathrobotics/clearpath_robot/issues/155>`_)
   * Add Ouster launch files
   * Add ouster dependency

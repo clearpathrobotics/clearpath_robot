@@ -2,8 +2,8 @@
 Changelog for package clearpath_diagnostics
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.2.0 (2025-03-11)
+------------------
 * Feature/generated agg yaml (`#158 <https://github.com/clearpathrobotics/clearpath_robot/issues/158>`_)
   * Clear out sensor categories that will be generated
   * Improve logging and error handling

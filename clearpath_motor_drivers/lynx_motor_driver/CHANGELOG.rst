@@ -2,8 +2,8 @@
 Changelog for package lynx_motor_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.2.0 (2025-03-11)
+------------------
 * Lynx Warning flags (`#151 <https://github.com/clearpathrobotics/clearpath_robot/issues/151>`_)
   * Added warning flags
   * Updated diagnostics for warning flags

@@ -2,8 +2,8 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.2.0 (2025-03-11)
+------------------
 * Apply serial, IP address, MX ID to OAK-D cameras (`#159 <https://github.com/clearpathrobotics/clearpath_robot/issues/159>`_)
 * [clearpath_generator_robot] Added inventus_bmu as exec dependency.
 * Added Lynx motor driver diagnostics (`#149 <https://github.com/clearpathrobotics/clearpath_robot/issues/149>`_)
