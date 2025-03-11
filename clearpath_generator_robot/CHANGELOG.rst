@@ -1,8 +1,8 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Forthcoming
------------
+1.1.2 (2025-03-11)
+------------------
 * Fix: Change path to imu_filter to platform config
 * Change path to imu_filter to platform config
 * Contributors: Luis Camero, Tony Baltovski

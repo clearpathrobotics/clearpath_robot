@@ -2,8 +2,8 @@
 Changelog for package puma_motor_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.2 (2025-03-11)
+------------------
 * Fix: Robust puma initialization
 * Contributors: Stephen Phillips, Tony Baltovski
 
