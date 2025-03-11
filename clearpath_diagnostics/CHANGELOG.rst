@@ -2,6 +2,29 @@
 Changelog for package clearpath_diagnostics
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Feature/generated agg yaml (`#158 <https://github.com/clearpathrobotics/clearpath_robot/issues/158>`_)
+  * Clear out sensor categories that will be generated
+  * Improve logging and error handling
+  * Correction to dependencies
+* Fix BMS frequency diagnostic (`#157 <https://github.com/clearpathrobotics/clearpath_robot/issues/157>`_)
+* Added Lynx motor driver diagnostics (`#149 <https://github.com/clearpathrobotics/clearpath_robot/issues/149>`_)
+  * Removed trailing spaces
+  * Added Lynx motor diagnostics
+* Feature/lighting diagnostics (`#144 <https://github.com/clearpathrobotics/clearpath_robot/issues/144>`_)
+  * Add lighting diagnostics
+  * Remap lighting diagnostic topic
+  * Set diagnostic updater hardware id to platform since serial isn't locally available
+  * Improve clarity of diagnostic summary text
+* Feature/battery diagnostics (`#142 <https://github.com/clearpathrobotics/clearpath_robot/issues/142>`_)
+  * Add missing DiagnosticStatus dependency
+  * Monitor BatteryState, Power and StopStatus messages
+  * Declare methods before member variables
+  * Move the template function to the cpp since it is private
+  * Only display error summaries if a message has been received
+* Contributors: Hilary Luo
+
 2.1.2 (2025-02-28)
 ------------------
 

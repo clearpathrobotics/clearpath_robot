@@ -2,6 +2,17 @@
 Changelog for package lynx_motor_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Lynx Warning flags (`#151 <https://github.com/clearpathrobotics/clearpath_robot/issues/151>`_)
+  * Added warning flags
+  * Updated diagnostics for warning flags
+  * Updated binary
+* Added Lynx motor driver diagnostics (`#149 <https://github.com/clearpathrobotics/clearpath_robot/issues/149>`_)
+  * Removed trailing spaces
+  * Added Lynx motor diagnostics
+* Contributors: Hilary Luo, Roni Kreinin
+
 2.1.2 (2025-02-28)
 ------------------
 

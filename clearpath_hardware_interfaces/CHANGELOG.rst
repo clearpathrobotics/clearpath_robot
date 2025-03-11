@@ -8,6 +8,21 @@ Changelog for package clearpath_platform
   * Add support for the HE2410 and HE2411 batteries
 * Contributors: Chris Iverach-Brereton
 
+Forthcoming
+-----------
+* Feature/fan diagnostics (`#150 <https://github.com/clearpathrobotics/clearpath_robot/issues/150>`_)
+  * Remove trailing spaces
+  * Add fan diagnostics
+  * Catch accessing indexes beyond the vector size
+  * Ensure that abnormal temperatures are always logged with measurement
+* Use status full to indicate fully charged batteries (`#148 <https://github.com/clearpathrobotics/clearpath_robot/issues/148>`_)
+* Feature/lighting diagnostics (`#144 <https://github.com/clearpathrobotics/clearpath_robot/issues/144>`_)
+  * Add lighting diagnostics
+  * Remap lighting diagnostic topic
+  * Set diagnostic updater hardware id to platform since serial isn't locally available
+  * Improve clarity of diagnostic summary text
+* Contributors: Hilary Luo, Roni Kreinin
+
 2.1.2 (2025-02-28)
 ------------------
 

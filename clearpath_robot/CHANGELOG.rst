@@ -9,6 +9,11 @@ Changelog for package clearpath_robot
   * Alphabetical dependencies
 * Contributors: luis-camero
 
+Forthcoming
+-----------
+* Graceful shutdown service (`#147 <https://github.com/clearpathrobotics/clearpath_robot/issues/147>`_)
+* Contributors: Roni Kreinin
+
 2.1.2 (2025-02-28)
 ------------------
 * Turn off clearing of SHM on log out (`#152 <https://github.com/clearpathrobotics/clearpath_robot/issues/152>`_)

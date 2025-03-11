@@ -5,6 +5,16 @@ Changelog for package clearpath_sensors
 1.1.0 (2025-01-15)
 ------------------
 
+Forthcoming
+-----------
+* Feature Jazzy Ouster (`#155 <https://github.com/clearpathrobotics/clearpath_robot/issues/155>`_)
+  * Add Ouster launch files
+  * Add ouster dependency
+  * Lint
+  * Fix config file in launch
+* Apply serial, IP address, MX ID to OAK-D cameras (`#159 <https://github.com/clearpathrobotics/clearpath_robot/issues/159>`_)
+* Contributors: Chris Iverach-Brereton, luis-camero
+
 2.1.2 (2025-02-28)
 ------------------
 
