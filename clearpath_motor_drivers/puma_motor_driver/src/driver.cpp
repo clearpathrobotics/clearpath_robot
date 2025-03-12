@@ -409,7 +409,9 @@ void Driver::configureParams()
     case ConfigurationState::Initializing:
       break;
     case ConfigurationState::PowerFlag:
+      // Continue to check last power flag until it has been cleared
       if (lastPower() == 1) {
+        // Send request every second
         if ((now - last_power_clear_ts_) > 1.0) {
           sendUint8((LM_API_STATUS_POWER | device_number_), 1);
           last_power_clear_ts_ = now;
