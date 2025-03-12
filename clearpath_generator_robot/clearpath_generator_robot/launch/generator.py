@@ -247,6 +247,7 @@ class RobotLaunchGenerator(LaunchGenerator):
                 remappings=[
                     ('bms/battery_state', 'platform/bms/state'),
                     ('modules', 'platform/bms/modules'),
+                    ('bms/soc', 'platform/bms/soc'),
                     ('/diagnostics', 'diagnostics')
                 ]
             )
