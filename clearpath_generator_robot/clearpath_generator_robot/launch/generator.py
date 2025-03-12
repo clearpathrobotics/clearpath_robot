@@ -67,7 +67,7 @@ class RobotLaunchGenerator(LaunchGenerator):
 
         self.imu_0_filter_config = LaunchFile.LaunchArg(
             'imu_filter',
-            default_value=os.path.join(self.sensors_params_path, 'imu_filter.yaml'),
+            default_value=os.path.join(self.platform_params_path, 'imu_filter.yaml'),
         )
 
         # Configure MCU namespace and domain ID
