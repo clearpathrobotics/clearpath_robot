@@ -2,6 +2,12 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix: Change path to imu_filter to platform config (`#167 <https://github.com/clearpathrobotics/clearpath_robot/issues/167>`_)
+  Co-authored-by: Luis Camero <lcamero@clearpathrobotics.com>
+* Contributors: Tony Baltovski
+
 2.2.0 (2025-03-11)
 ------------------
 * Apply serial, IP address, MX ID to OAK-D cameras (`#159 <https://github.com/clearpathrobotics/clearpath_robot/issues/159>`_)
