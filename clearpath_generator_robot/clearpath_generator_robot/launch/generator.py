@@ -234,10 +234,10 @@ class RobotLaunchGenerator(LaunchGenerator):
                     can_dev = launch_args['can_device']
 
             self.bms_node = LaunchFile.Node(
-                'inventus_bmu',
-                'inventus_bmu',
-                'inventus_bmu_driver',
-                self.namespace,
+                name='inventus_bmu',
+                package='inventus_bmu',
+                executable='inventus_bmu_driver',
+                namespace=self.namespace,
                 parameters=[
                     inventus_bmu_params,
                     {'can_device': can_dev},
