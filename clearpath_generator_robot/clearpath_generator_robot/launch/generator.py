@@ -130,6 +130,7 @@ class RobotLaunchGenerator(LaunchGenerator):
                     'connection_topic': 'platform/wifi_status',
                 }
             ],
+            remappings=[('/diagnostics', 'diagnostics'),],
         )
 
         # Diagnostics launch args
