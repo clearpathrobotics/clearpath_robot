@@ -321,6 +321,7 @@ class RobotLaunchGenerator(LaunchGenerator):
           executable='fan_control_node',
           name='a300_fan_control',
           namespace=self.namespace,
+          remappings=[('/diagnostics', 'diagnostics')],
         )
 
         # Components required for each platform
