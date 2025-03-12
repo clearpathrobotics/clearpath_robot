@@ -1,7 +1,6 @@
 inventus_bmu_node:
   ros__parameters:
     can_device: can0
-    eds_file: Enhanced_7623-301-Inventus-Power-Battery-ATSAMC21J18A-RevB2-02-02092022.eds
     module_ids: [49, 50]
 
     # List of module IDs that are connected in series in string format
