@@ -76,16 +76,16 @@ MultiPumaNode::MultiPumaNode(const std::string node_name)
 
   // Subsciber
   cmd_sub_ = this->create_subscription<sensor_msgs::msg::JointState>(
-    "platform/puma/cmd",
+    "platform/motors/cmd",
     rclcpp::SensorDataQoS(),
     std::bind(&MultiPumaNode::cmdCallback, this, std::placeholders::_1));
 
   // Publishers
   feedback_pub_ = this->create_publisher<clearpath_motor_msgs::msg::PumaMultiFeedback>(
-    "platform/puma/feedback",
+    "platform/motors/feedback",
     rclcpp::SensorDataQoS());
   status_pub_ = this->create_publisher<clearpath_motor_msgs::msg::PumaMultiStatus>(
-    "platform/puma/status",
+    "platform/motors/status",
     rclcpp::SensorDataQoS());
 
   node_handle_ = std::shared_ptr<rclcpp::Node>(this, [](rclcpp::Node *){});
