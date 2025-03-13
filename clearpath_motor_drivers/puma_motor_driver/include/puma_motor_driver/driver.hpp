@@ -468,6 +468,7 @@ private:
 
   bool configured_;
   uint8_t state_;
+  double last_power_clear_ts_;
 
   uint8_t control_mode_;
   double gain_p_;
