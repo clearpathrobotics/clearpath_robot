@@ -143,7 +143,7 @@ void LynxMotorNode::executeCalibrateAction(const std::shared_ptr<GoalHandleCalib
     }
 
     goal_handle->publish_feedback(feedback);
-    RCLCPP_INFO(this->get_logger(), "Publish feedback");
+    RCLCPP_DEBUG(this->get_logger(), "Publish calibration feedback");
 
     loop_rate.sleep();
   }
