@@ -2,6 +2,12 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Feature Humble Ouster (`#143 <https://github.com/clearpathrobotics/clearpath_robot/issues/143>`_)
+  * Add Ouster launch and configuration file
+* Contributors: luis-camero
+
 1.1.2 (2025-03-11)
 ------------------
 
