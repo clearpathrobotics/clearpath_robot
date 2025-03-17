@@ -2,6 +2,13 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix/diag remap (`#168 <https://github.com/clearpathrobotics/clearpath_robot/issues/168>`_)
+  * Remap diagnostics topic in fan control node
+  * Remap diagnostics topic in wireless watcher node
+* Contributors: Hilary Luo
+
 2.2.1 (2025-03-12)
 ------------------
 * Fix: Change path to imu_filter to platform config (`#167 <https://github.com/clearpathrobotics/clearpath_robot/issues/167>`_)
