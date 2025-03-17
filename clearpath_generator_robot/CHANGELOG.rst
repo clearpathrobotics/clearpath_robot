@@ -2,8 +2,8 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.2.2 (2025-03-17)
+------------------
 * Fix/diag remap (`#168 <https://github.com/clearpathrobotics/clearpath_robot/issues/168>`_)
   * Remap diagnostics topic in fan control node
   * Remap diagnostics topic in wireless watcher node
