@@ -63,7 +63,7 @@ ClearpathDiagnosticUpdater::ClearpathDiagnosticUpdater()
   mcu_status_rate_ = get_double_param("mcu_status_rate");
   mcu_status_rate_ = (std::isnan(mcu_status_rate_)) ? 1.0 : mcu_status_rate_;
   mcu_power_rate_ = get_double_param("mcu_power_rate");
-  mcu_power_rate_ = (std::isnan(mcu_power_rate_)) ? 1.0 : mcu_power_rate_;
+  mcu_power_rate_ = (std::isnan(mcu_power_rate_)) ? 10.0 : mcu_power_rate_;
   bms_state_rate_ = get_double_param("bms_state_rate");
   bms_state_rate_ = (std::isnan(bms_state_rate_)) ? 1.0 : bms_state_rate_;
   stop_status_rate_ = get_double_param("stop_status_rate");
