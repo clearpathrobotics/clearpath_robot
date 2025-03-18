@@ -88,7 +88,7 @@ ClearpathDiagnosticUpdater::ClearpathDiagnosticUpdater()
 
     // Create MCU Frequency Status tracking objects
     mcu_status_freq_status_ = std::make_shared<FrequencyStatus>(
-      FrequencyStatusParam(&mcu_status_rate_, &mcu_status_rate_, 0.1, 5));
+      FrequencyStatusParam(&mcu_status_rate_, &mcu_status_rate_, 0.1, 10));
 
     // Add diagnostic tasks for MCU data
     updater_.add("MCU Status", this, &ClearpathDiagnosticUpdater::mcu_status_diagnostic);
@@ -118,9 +118,9 @@ ClearpathDiagnosticUpdater::ClearpathDiagnosticUpdater()
   mcu_power_freq_status_ = std::make_shared<FrequencyStatus>(
     FrequencyStatusParam(&mcu_power_rate_, &mcu_power_rate_, 0.1, 5));
   bms_state_freq_status_ = std::make_shared<FrequencyStatus>(
-    FrequencyStatusParam(&bms_state_rate_, &bms_state_rate_, 0.1, 5));
+    FrequencyStatusParam(&bms_state_rate_, &bms_state_rate_, 0.1, 10));
   stop_status_freq_status_ = std::make_shared<FrequencyStatus>(
-    FrequencyStatusParam(&stop_status_rate_, &stop_status_rate_, 0.1, 5));
+    FrequencyStatusParam(&stop_status_rate_, &stop_status_rate_, 0.1, 10));
 
   // Add diagnostic tasks
   updater_.add("Power Status", this, &ClearpathDiagnosticUpdater::mcu_power_diagnostic);
