@@ -235,10 +235,10 @@ class RobotLaunchGenerator(LaunchGenerator):
                     can_dev = launch_args['can_device']
 
             self.bms_node = LaunchFile.Node(
-                'inventus_bmu',
-                'inventus_bmu',
-                'inventus_bmu_driver',
-                self.namespace,
+                name='inventus_bmu',
+                package='inventus_bmu',
+                executable='inventus_bmu_driver',
+                namespace=self.namespace,
                 parameters=[
                     inventus_bmu_params,
                     {'can_device': can_dev},
@@ -248,8 +248,8 @@ class RobotLaunchGenerator(LaunchGenerator):
                 remappings=[
                     ('bms/battery_state', 'platform/bms/state'),
                     ('modules', 'platform/bms/modules'),
-                    ('bms/low_soc_alarm', 'platform/bms/low_soc_alarm'),
-                    ('bms/soc_difference_alarm', 'platform/bms/soc_difference_alarm')
+                    ('bms/soc', 'platform/bms/soc'),
+                    ('/diagnostics', 'diagnostics')
                 ]
             )
 
