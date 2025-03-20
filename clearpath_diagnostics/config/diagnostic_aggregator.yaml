@@ -32,6 +32,8 @@ diagnostic_aggregator:
           ]
           contains: [
             'lynx',
+            'puma',
+            'sevcon',
             'controller_manager',
             'twist_mux',
             'joy_node'
