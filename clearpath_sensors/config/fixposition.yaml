@@ -1,6 +1,6 @@
 fixposition:
   ros__parameters:
-    xvn:
+    fixposition_driver:
       fp_output:
         formats:
           - ODOMETRY
