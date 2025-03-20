@@ -18,14 +18,6 @@ diagnostic_aggregator:
           path: E-stop Status
           expected: [ 'clearpath_diagnostic_updater: E-stop Status' ]
           contains: [ 'E-stop' ]
-        mcu:
-          type: diagnostic_aggregator/GenericAnalyzer
-          path: MCU
-          expected: [
-            'clearpath_diagnostic_updater: MCU Firmware Version',
-            'clearpath_diagnostic_updater: MCU Status'
-          ]
-          contains: [ 'MCU' ]
         lighting:
           type: diagnostic_aggregator/GenericAnalyzer
           path: Lighting
