@@ -218,8 +218,6 @@ void ClearpathDiagnosticUpdater::mcu_status_diagnostic(DiagnosticStatusWrapper &
   stat.add("Platform Model", mcu_status_msg_.hardware_id);
   stat.add("MCU Uptime (sec)", mcu_status_msg_.mcu_uptime.sec);
   stat.add("Connection Uptime (sec)", mcu_status_msg_.connection_uptime.sec);
-  stat.add("MCU Temperature (C)", mcu_status_msg_.mcu_temperature);
-  stat.add("PCB Temperature (C)", mcu_status_msg_.pcb_temperature);
 
   mcu_status_freq_status_->run(stat);
 }
