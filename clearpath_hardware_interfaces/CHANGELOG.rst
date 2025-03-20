@@ -8,8 +8,8 @@ Changelog for package clearpath_platform
   * Add support for the HE2410 and HE2411 batteries
 * Contributors: Chris Iverach-Brereton
 
-Forthcoming
------------
+2.2.3 (2025-03-20)
+------------------
 
 2.2.2 (2025-03-17)
 ------------------
