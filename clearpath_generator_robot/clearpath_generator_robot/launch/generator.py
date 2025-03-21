@@ -34,6 +34,7 @@
 import os
 
 from clearpath_config.common.types.platform import Platform
+from clearpath_config.manipulators.types.arms import UniversalRobots
 from clearpath_config.platform.battery import BatteryConfig
 from clearpath_generator_common.common import LaunchFile, Package
 from clearpath_generator_common.launch.generator import LaunchGenerator
@@ -340,6 +341,25 @@ class RobotLaunchGenerator(LaunchGenerator):
 
     def generate_manipulators(self) -> None:
         manipulator_service_launch_writer = LaunchWriter(self.manipulators_service_launch_file)
+        # Universal Robots Tool Communication
+        for arm in self.clearpath_config.manipulators.get_all_arms():
+            if arm.MANIPULATOR_MODEL == UniversalRobots.MANIPULATOR_MODEL:
+                node = LaunchFile.Node(
+                    name=f'{arm.name}_ur_tool_comm',
+                    package='ur_robot_driver',
+                    executable='tool_communication.py',
+                    namespace=self.namespace,
+                    parameters=[{
+                        'robot_ip': arm.ip,
+                        'tcp_port': 54321,
+                        'device_name': f'/tmp/{arm.name}_gripper'
+                    }],
+                )
+                manipulator_service_launch_writer.add_node(node)
+                # Delay controllers
+                self.manipulators_launch_file.args.append(
+                    ('control_delay', '1.0')
+                )
         if self.clearpath_config.manipulators.get_all_manipulators():
             manipulator_service_launch_writer.add(self.manipulators_launch_file)
         manipulator_service_launch_writer.generate_file()
