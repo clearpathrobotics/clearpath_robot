@@ -55,7 +55,7 @@ def generate_launch_description():
         ]))
 
     fixposition_node = Node(
-        package='fixpostiofixposition_driver_ros2',
+        package='fixposition_driver_ros2',
         executable='fixposition_driver_ros2_exec',
         name='fixposition_driver',
         namespace=namespace,
