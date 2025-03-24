@@ -1,4 +1,4 @@
-fixposition_driver::
+fixposition_driver:
   ros__parameters:
     fp_output:
       formats:
