@@ -118,7 +118,7 @@ ClearpathDiagnosticUpdater::ClearpathDiagnosticUpdater()
   mcu_power_freq_status_ = std::make_shared<FrequencyStatus>(
     FrequencyStatusParam(&mcu_power_rate_, &mcu_power_rate_, 0.1, 5));
   bms_state_freq_status_ = std::make_shared<FrequencyStatus>(
-    FrequencyStatusParam(&bms_state_rate_, &bms_state_rate_, 0.1, 10));
+    FrequencyStatusParam(&bms_state_rate_, &bms_state_rate_, 0.15, 10));
   stop_status_freq_status_ = std::make_shared<FrequencyStatus>(
     FrequencyStatusParam(&stop_status_rate_, &stop_status_rate_, 0.1, 10));
 

@@ -268,6 +268,7 @@ class RobotLaunchGenerator(LaunchGenerator):
           executable='sevcon_traction_node',
           name='sevcon_traction_node',
           namespace=self.namespace,
+          remappings=[('/diagnostics', 'diagnostics')],
         )
 
         # Puma Multi-Drive Node
@@ -277,6 +278,7 @@ class RobotLaunchGenerator(LaunchGenerator):
           parameters=[os.path.join(self.platform_params_path, 'control.yaml')],
           name='puma_control',
           namespace=self.namespace,
+          remappings=[('/diagnostics', 'diagnostics')],
         )
 
         # BLDC Multi-Drive Node

@@ -8,23 +8,53 @@ diagnostic_aggregator:
         power:
           type: diagnostic_aggregator/GenericAnalyzer
           path: Power
+          expected: [
+            'clearpath_diagnostic_updater: Battery Management System',
+            'clearpath_diagnostic_updater: Power Status'
+          ]
           contains: [ 'Battery', 'Power' ]
         stop_status:
           type: diagnostic_aggregator/GenericAnalyzer
           path: E-stop Status
+          expected: [ 'clearpath_diagnostic_updater: E-stop Status' ]
           contains: [ 'E-stop' ]
-        mcu:
-          type: diagnostic_aggregator/GenericAnalyzer
-          path: MCU
-          contains: [ 'MCU' ]
         lighting:
           type: diagnostic_aggregator/GenericAnalyzer
           path: Lighting
           contains: [ 'Light' ]
-        motor_drivers:
+        drive:
           type: diagnostic_aggregator/GenericAnalyzer
-          path: Motor Drivers
-          contains: [ 'Lynx' ]
+          path: Drive System
+          expected: [
+            'controller_manager: Controller Manager Activity',
+            'controller_manager: Controllers Activity',
+            'controller_manager: Hardware Components Activity',
+          ]
+          contains: [
+            'lynx',
+            'puma',
+            'sevcon',
+            'controller_manager',
+            'twist_mux',
+            'joy_node'
+          ]
+        odometry:
+          type: diagnostic_aggregator/GenericAnalyzer
+          path: Odometry
+          expected: [
+            'ekf_node: Filter diagnostic updater',
+            'ekf_node: odometry/filtered topic status',
+          ]
+          contains: [ 'odometry', 'ekf_node' ]
+        cooling:
+          type: diagnostic_aggregator/GenericAnalyzer
+          path: Cooling
+          contains: [ 'Fan', 'Thermal' ]
+        networking:
+          type: diagnostic_aggregator/GenericAnalyzer
+          path: Networking
+          expected: [ 'wireless_watcher: Wi-Fi Monitor' ]
+          contains: [ 'Wi-Fi' ]
     # sensors:
     #   type: diagnostic_aggregator/AnalyzerGroup
     #   path: Sensors
