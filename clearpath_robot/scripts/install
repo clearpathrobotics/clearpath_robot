@@ -363,8 +363,12 @@ platform = robot_upstart.Job(
 
 platform.symlink = True
 platform.add(filename=platform_service_launch)
-platform.install(Provider=PlatformProvider)
+platform.install()
 
+platform_provider_files = robot_upstart.Job(workspace_setup=workspace_setup)
+platform_provider_files.install(Provider=PlatformProvider)
+
+# Platform extras
 platform_extras = robot_upstart.Job(
     name='clearpath-platform-extras',
     rmw=rmw,
@@ -372,7 +376,10 @@ platform_extras = robot_upstart.Job(
     ros_domain_id=domain_id)
 platform_extras.symlink = True
 platform_extras.add(filename=platform_extras_service_launch)
-platform_extras.install(Provider=PlatformExtrasProvider)
+platform_extras.install()
+
+platform_extras_provider_files = robot_upstart.Job(workspace_setup=workspace_setup)
+platform_extras_provider_files.install(Provider=PlatformExtrasProvider)
 
 # Sensors
 sensors = robot_upstart.Job(
@@ -385,8 +392,8 @@ sensors.symlink = True
 sensors.add(filename=sensors_service_launch)
 sensors.install()
 
-sensors_extras = robot_upstart.Job(workspace_setup=workspace_setup)
-sensors_extras.install(Provider=SensorsProvider)
+sensors_provider_files = robot_upstart.Job(workspace_setup=workspace_setup)
+sensors_provider_files.install(Provider=SensorsProvider)
 
 # Manipulators
 manipulators = robot_upstart.Job(
@@ -399,8 +406,8 @@ manipulators.symlink = True
 manipulators.add(filename=manipulators_service_launch)
 manipulators.install()
 
-manipulators_extras = robot_upstart.Job(workspace_setup=workspace_setup)
-manipulators_extras.install(Provider=ManipulatorsProvider)
+manipulators_provider_files = robot_upstart.Job(workspace_setup=workspace_setup)
+manipulators_provider_files.install(Provider=ManipulatorsProvider)
 
 # Discovery Server
 discovery_server = robot_upstart.Job(workspace_setup=workspace_setup)
