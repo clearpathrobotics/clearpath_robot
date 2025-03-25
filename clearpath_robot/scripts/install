@@ -333,7 +333,7 @@ domain_id = clearpath_config.system.domain_id
 # Check that user exists
 try:
     pwd.getpwnam(clearpath_config.system.username)
-except:
+except:  # noqa: E722
     print(
         f'Error. User "{clearpath_config.system.username}" does not exist.\n'
         f'Modify the "robot.yaml" system.username entry to match an existing user.'
