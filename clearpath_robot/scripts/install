@@ -99,6 +99,33 @@ class PlatformProvider(robot_upstart.providers.Generic):
         }
 
 
+class PlatformExtrasProvider(robot_upstart.providers.Generic):
+    def post_install(self):
+        pass
+
+    def generate_install(self):
+        platform_extras_service_path = os.path.join(
+            get_package_share_directory('clearpath_robot'),
+            'services/clearpath-platform-extras.service')
+        with open(platform_extras_service_path) as f:
+            platform_extras_service_contents: str = ''
+            platform_extras_service_lines = f.readlines()
+            for line in platform_extras_service_lines:
+                # Replace User with username from config
+                if 'User=' in line:
+                    line = 'User={0}\n'.format(clearpath_config.system.username)
+                platform_extras_service_contents += line
+        return {
+            '/lib/systemd/system/clearpath-platform-extras.service': {
+                'content': platform_extras_service_contents,
+                'mode': 0o644
+            },
+            '/etc/systemd/system/clearpath-robot.service.wants/clearpath-platform-extras.service': {  # noqa: E501
+                'symlink': '/lib/systemd/system/clearpath-platform-extras.service'
+            }
+        }
+
+
 class SensorsProvider(robot_upstart.providers.Generic):
     def post_install(self):
         pass
@@ -286,6 +313,9 @@ config_path = os.path.join(setup_path, 'robot.yaml')
 platform_service_launch = os.path.join(
     setup_path,
     'platform/launch/platform-service.launch.py')
+platform_extras_service_launch = os.path.join(
+    setup_path,
+    'platform-extras/launch/platform-extras-service.launch.py')
 sensors_service_launch = os.path.join(
     setup_path,
     'sensors/launch/sensors-service.launch.py')
@@ -314,6 +344,9 @@ except:
 if not os.path.isfile(platform_service_launch):
     os.makedirs(os.path.dirname(platform_service_launch), exist_ok=True)
     open(platform_service_launch, 'w+').close()
+if not os.path.isfile(platform_extras_service_launch):
+    os.makedirs(os.path.dirname(platform_extras_service_launch), exist_ok=True)
+    open(platform_extras_service_launch, 'w+').close()
 if not os.path.isfile(sensors_service_launch):
     os.makedirs(os.path.dirname(sensors_service_launch), exist_ok=True)
     open(sensors_service_launch, 'w+').close()
@@ -330,10 +363,16 @@ platform = robot_upstart.Job(
 
 platform.symlink = True
 platform.add(filename=platform_service_launch)
-platform.install()
+platform.install(Provider=PlatformProvider)
 
-platform_extras = robot_upstart.Job(workspace_setup=workspace_setup)
-platform_extras.install(Provider=PlatformProvider)
+platform_extras = robot_upstart.Job(
+    name='clearpath-platform-extras',
+    rmw=rmw,
+    workspace_setup=workspace_setup,
+    ros_domain_id=domain_id)
+platform_extras.symlink = True
+platform_extras.add(filename=platform_extras_service_launch)
+platform_extras.install(Provider=PlatformExtrasProvider)
 
 # Sensors
 sensors = robot_upstart.Job(
