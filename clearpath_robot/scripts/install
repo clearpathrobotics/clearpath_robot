@@ -374,6 +374,7 @@ platform_extras = robot_upstart.Job(
     rmw=rmw,
     workspace_setup=workspace_setup,
     ros_domain_id=domain_id)
+
 platform_extras.symlink = True
 platform_extras.add(filename=platform_extras_service_launch)
 platform_extras.install()
