@@ -109,12 +109,15 @@ if [ "${type}" == "physical" ]; then
   ip link set can0 type can bitrate ${baud}
 fi
 
-# Increase Tx queue length
-ip link set $can_dev txqueuelen 100
-sleep 1
+# All
+if [ "${type}" ==  "virtual" ] || [ "${type}" == "serial" ] || [ "${type}" == "physical" ]; then
+  # Increase Tx queue length
+  ip link set $can_dev txqueuelen 100
+  sleep 1
 
-# Bring vcan interface up
-ip link set $can_dev up
+  # Bring vcan interface up
+  ip link set $can_dev up
 
-# Send a message to the virtual CAN interface to enable echoing on the serial device
-cangen $can_dev -n 1 -L 0 -I 0
+  # Send a message to the virtual CAN interface to enable echoing on the serial device
+  cangen $can_dev -n 1 -L 0 -I 0
+fi
