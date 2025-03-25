@@ -113,7 +113,8 @@ void a300_cooling::ThermalSensors::setSensorValue(const std::string &name, float
 a300_cooling::ThermalStatus a300_cooling::ThermalSensors::getHighestStatus() const
 {
   a300_cooling::ThermalStatus highest_status = a300_cooling::ThermalStatus::Normal;
-  for (const auto &sensor : sensors) {
+  for (const auto &sensor : sensors) 
+  {
     if (sensor.second.getStatus() > a300_cooling::ThermalStatus::Normal)
     {
       RCLCPP_WARN(rclcpp::get_logger("a300_fan_controller"), "Thermal sensor %s has %s (Measured: %.1f C)",
@@ -168,7 +169,8 @@ a300_cooling::FanController::FanController() : Node("a300_fan_controller"),
       this->thermal_sensors_.setSensorValue("pcb_motor4",  msg->drivers.at(3).pcb_temperature);
       this->thermal_sensors_.setSensorValue("mcu_motor4",  msg->drivers.at(3).mcu_temperature);
     }
-    catch (const std::out_of_range & e) {
+    catch (const std::out_of_range & e) 
+    {
       RCLCPP_ERROR(this->get_logger(),
                    "%s topic does not contain 4 drivers: %s", MOTOR_TEMPERATURE_TOPIC.c_str(), e.what());
     }
@@ -185,11 +187,31 @@ a300_cooling::FanController::FanController() : Node("a300_fan_controller"),
     this->battery_stale_ = 0;
   });
 
-  temperature_stale_ = 0;
-  lynx_status_stale_ = 0;
-  battery_stale_ = 0;
+  user_fan_cmd_subscription_ = create_subscription<clearpath_platform_msgs::msg::Fans>(
+    USER_FAN_CONTROL_TOPIC_NAME,
+    rclcpp::SensorDataQoS(),
+    [this](const clearpath_platform_msgs::msg::Fans::SharedPtr msg)
+  {
+    if (msg->fans.size() != 8)
+    {
+      RCLCPP_ERROR(this->get_logger(),
+          "Received invalid fan command message, expected 8 values, received %ld", msg->fans.size());
+      return;
+    }
+    this->user_fans_cmd_msg_ = *msg;
+    this->user_fan_cmd_timeout_ = 0;
+  });
 
-  control_timer_ = create_wall_timer(std::chrono::seconds(1), std::bind(&FanController::timerCallback, this));
+
+  this->temperature_stale_ = 0;
+  this->lynx_status_stale_ = 0;
+  this->battery_stale_ = 0;
+  this->user_fan_cmd_timeout_ = 0;
+  this->active_control_status_timeout_ = 0;
+
+  this->user_control_active_ = false;
+
+  this->control_timer_ = create_wall_timer(std::chrono::seconds(1), std::bind(&FanController::timerCallback, this));
 
   updater_.setHardwareID("a300");
   updater_.add("Fan Controller", this, &FanController::fanDiagnostic);
@@ -198,18 +220,77 @@ a300_cooling::FanController::FanController() : Node("a300_fan_controller"),
 void a300_cooling::FanController::timerCallback()
 {
   std::lock_guard<std::mutex> lock(update_mutex_);
-  uint8_t fan_value = computeFanValue(thermal_sensors_.getHighestStatus());
-  fans_msg_.fans = {fan_value, fan_value, fan_value, fan_value, 0, 0, 0, 0};
-  fan_publisher_->publish(fans_msg_);
-  RCLCPP_DEBUG(get_logger(), "Set all fans to: %d", fan_value);
+  static auto current_status = a300_cooling::ThermalStatus::Normal;
+  static auto last_status = a300_cooling::ThermalStatus::Normal;
+  static uint8_t fan_command = computeFanValue(a300_cooling::ThermalStatus::Normal);
+
+  // Get the updated current status
+  current_status = thermal_sensors_.getHighestStatus();
+
+  // Under user control, send out the message received from the user
+  if ((current_status == a300_cooling::ThermalStatus::Normal)
+      && this->user_control_active_)
+  {
+    this->fans_cmd_msg_ = user_fans_cmd_msg_;
+    RCLCPP_DEBUG(get_logger(), "User control active, setting fans to user values");
+  }
+  // This when the user is not controlling the fans
+  else
+  {
+    // If the controller is active, send out the expected command
+    if (current_status != a300_cooling::ThermalStatus::Normal)
+    {
+      fan_command = computeFanValue(current_status);
+      RCLCPP_DEBUG(get_logger(), "Set all fans to: %d", fan_command);
+      last_status = current_status;
+      this->active_control_status_timeout_ = 0;
+    }
+    // Trying to do hysteresis only when the change is coming from a non-normal state to normal
+    else
+    {
+      // Is normal and was normal so send out the normal command
+      if (last_status == a300_cooling::ThermalStatus::Normal)
+      {
+        fan_command = computeFanValue(current_status);
+        RCLCPP_DEBUG(get_logger(), "Set all fans to: %d", fan_command);
+      }
+      else
+      {
+        fan_command = computeFanValue(last_status);
+        RCLCPP_DEBUG(get_logger(), "Set all fans to: %d", fan_command);
+        if (this->active_control_status_timeout_ >= ACTIVE_CONTROL_STATUS_TIMEOUT)
+        {
+          last_status = current_status;
+        }
+      }
+    }
+    this->fans_cmd_msg_.fans = {fan_command, fan_command, fan_command, fan_command, 0, 0, 0, 0};
+  }
+  
+  fan_publisher_->publish(fans_cmd_msg_);
+
+  if (user_fan_cmd_timeout_ >= USER_CMD_TIMEOUT)
+  {
+    this->user_control_active_ = false;
+    RCLCPP_INFO(get_logger(), "User fan control inactive, no user command received in %d seconds", USER_CMD_TIMEOUT);
+  }
+  else
+  {
+    this->user_control_active_ = true;
+    RCLCPP_INFO(get_logger(), "User fan control active");
+  }
+
   temperature_stale_++;
   lynx_status_stale_++;
   battery_stale_++;
+
+  this->user_fan_cmd_timeout_++;
+  this->active_control_status_timeout_++;
 }
 
 uint8_t a300_cooling::FanController::computeFanValue(a300_cooling::ThermalStatus status)
 {
-  float fan_fraction;
+  static float fan_fraction;
 
   switch (status)
   {
@@ -254,14 +335,16 @@ void a300_cooling::FanController::fanDiagnostic(diagnostic_updater::DiagnosticSt
   }
 
   // Report on fan control values
-  for (unsigned i = 0; i < fans_msg_.fans.size(); i++) {
-    stat.addf("Fan " + std::to_string(i + 1) + " Control (%)", "%.0f", fans_msg_.fans [i] * 100 / 255.0);
+  for (uint8_t i = 0; i < fans_cmd_msg_.fans.size(); i++)
+  {
+    stat.addf("Fan " + std::to_string(i + 1) + " Control (%)", "%.0f", fans_cmd_msg_.fans [i] * 100 / 255.0);
   }
 
   float low_error_thresh = 0, low_warning_thresh = 0, high_warning_thresh = 0, high_error_thresh = 0;
 
   // Report all sensor temperatures and thresholds
-  for (const auto &sensor : thermal_sensors_.getSensors()) {
+  for (const auto &sensor : thermal_sensors_.getSensors())
+  {
     stat.addf(sensor.first + " Temperature (C)", "%.1f", sensor.second.getValue());
 
     sensor.second.getThresholds(low_error_thresh, low_warning_thresh, high_warning_thresh, high_error_thresh);
@@ -281,9 +364,13 @@ void a300_cooling::FanController::fanDiagnostic(diagnostic_updater::DiagnosticSt
       thermalStatusToString(status).c_str(), sensor.first.c_str());
     }
   }
+
+  stat.add("User Control Allowed", ((thermal_sensors_.getHighestStatus() == a300_cooling::ThermalStatus::Normal) ? "True" : "False"));
+  stat.add("User Control Active", (user_control_active_ ? "True" : "False"));
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   rclcpp::init(argc, argv);
   rclcpp::spin(std::make_shared<a300_cooling::FanController>());
   rclcpp::shutdown();
