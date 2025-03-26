@@ -34,8 +34,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
 namespace a300_cooling
 {
-/// Fan control topic name
-const std::string FAN_CONTROL_TOPIC_NAME = "platform/mcu/cmd_fans";
+/// Fan control topic name which is supposed to be hidden
+const std::string FAN_CONTROL_TOPIC_NAME = "platform/mcu/_cmd_fans";
+
+/// User Fan control topic name
+const std::string USER_FAN_CONTROL_TOPIC_NAME = "platform/cmd_fans";
 
 /// MCU temperature topic name
 const std::string MCU_TEMPERATURE_TOPIC = "platform/mcu/status/temperature";
@@ -66,6 +69,12 @@ constexpr float INITIAL_READING = 30.0f;
 
 /// Timeout for temperature messages to be considered stale
 constexpr int STALE_SECS = 3;
+
+/// Timeout for user command msgs to be considered stale in seconds
+constexpr int USER_CMD_TIMEOUT = 10;
+
+/// Timeout for controller to be considered inactive in seconds
+constexpr int ACTIVE_CONTROL_STATUS_TIMEOUT = 10;
 
 /// Enumeration to represent thermal status
 enum class ThermalStatus
@@ -217,8 +226,11 @@ private:
 
   std::mutex update_mutex_;    ///< Mutex for updating thermal sensors
   ThermalSensors thermal_sensors_; ///< Thermal sensor data
-  clearpath_platform_msgs::msg::Fans fans_msg_;
+  clearpath_platform_msgs::msg::Fans fans_cmd_msg_; ///< Fan command message
+  clearpath_platform_msgs::msg::Fans user_fans_cmd_msg_; ///< User fan command message
+  bool user_control_active_; ///< If the user is controlling fans
   rclcpp::Publisher<clearpath_platform_msgs::msg::Fans>::SharedPtr fan_publisher_; ///< Fan control publisher
+  rclcpp::Subscription<clearpath_platform_msgs::msg::Fans>::SharedPtr user_fan_cmd_subscription_; ///< User fan command subscription
   rclcpp::Subscription<clearpath_platform_msgs::msg::Temperature>::SharedPtr temp_subscription_; ///< Temperature subscription
   rclcpp::Subscription<sensor_msgs::msg::BatteryState>::SharedPtr battery_subscription_; ///< Battery state subscription
   rclcpp::Subscription<clearpath_motor_msgs::msg::LynxMultiStatus>::SharedPtr motor_subscription_; ///< Motor status subscription
@@ -227,6 +239,8 @@ private:
   int temperature_stale_; ///< Track time since temperature message was last received
   int lynx_status_stale_; ///< Track time since Lynx multi-status message was last received
   int battery_stale_; ///< Track time since battery state message was last received
+  int user_fan_cmd_timeout_; ///< Track time since user fan command was last received
+  int active_control_status_timeout_; ///< Track time since controller was last active
 };
 
 }  // namespace a300_cooling
