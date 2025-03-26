@@ -73,6 +73,7 @@ def generate_launch_description():
             ('/fixposition/gnss1', 'gps_0/fix'),
             ('/fixposition/gnss2', 'gps_1/fix'),
             ('/fixposition/corrimu', 'imu_0/data'),
+            ('/fixposition/odometry_smooth', 'odom'),
 
             # XVN-specific topics
             # not part of the core INS API, so keep them contained in the 'xvn' namespace
@@ -101,7 +102,6 @@ def generate_launch_description():
             ('/fixposition/odometry_ecef', 'xvn/odometry_ecef'),
             ('/fixposition/odometry_enu', 'xvn/odometry_enu'),
             ('/fixposition/odometry_llh', 'xvn/odometry_llh'),
-            ('/fixposition/odometry_smooth', 'xvn/odometry_smooth'),
             ('/fixposition/poiimu', 'xvn/poiimu'),
             ('/fixposition/rawimu', 'xvn/rawimu'),
             ('/fixposition/ypr', 'xvn/ypr'),
