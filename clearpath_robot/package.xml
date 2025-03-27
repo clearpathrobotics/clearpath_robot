@@ -28,6 +28,7 @@
   <!-- Package dependencies-->
   <exec_depend version_gte="1.0.0">clearpath_config</exec_depend>
   <exec_depend version_gte="1.0.0">clearpath_common</exec_depend>
+  <exec_depend>clearpath_tests</exec_depend>
   <exec_depend>robot_upstart</exec_depend>
 
   <!-- Manipulator dependencies -->
