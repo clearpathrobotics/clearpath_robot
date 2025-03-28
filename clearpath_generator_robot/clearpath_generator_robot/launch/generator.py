@@ -426,16 +426,6 @@ class RobotLaunchGenerator(LaunchGenerator):
                 # Include sensor launch in top level sensors launch file
                 sensors_service_launch_writer.add(sensor_launch.launch_file)
 
-        if self.clearpath_config.platform.extras.launch:
-            extra_launch = LaunchFile(
-                name=(os.path.basename(
-                    self.clearpath_config.platform.extras.launch['path']
-                )).split('.')[0],
-                path=os.path.dirname(self.clearpath_config.platform.extras.launch['path']),
-                package=Package(self.clearpath_config.platform.extras.launch['package']),
-            )
-            sensors_service_launch_writer.add(extra_launch)
-
         sensors_service_launch_writer.generate_file()
 
     def generate_platform(self) -> None:
@@ -452,6 +442,22 @@ class RobotLaunchGenerator(LaunchGenerator):
             platform_service_launch_writer.add(self.bms_node)
 
         platform_service_launch_writer.generate_file()
+
+        platform_extras_service_launch_writer = LaunchWriter(
+            self.platform_extras_service_launch_file)
+        platform_extras_service_launch_writer.add(self.platform_extras_launch_file)
+
+        if self.clearpath_config.platform.extras.launch:
+            extra_launch = LaunchFile(
+                name=(os.path.basename(
+                    self.clearpath_config.platform.extras.launch['path']
+                )).split('.')[0],
+                path=os.path.dirname(self.clearpath_config.platform.extras.launch['path']),
+                package=Package(self.clearpath_config.platform.extras.launch['package']),
+            )
+            platform_extras_service_launch_writer.add(extra_launch)
+
+        platform_extras_service_launch_writer.generate_file()
 
     def generate_manipulators(self) -> None:
         manipulator_service_launch_writer = LaunchWriter(self.manipulators_service_launch_file)
