@@ -1,0 +1,12 @@
+[Unit]
+Description="Clearpath robot sub-service, launch all user-defined extra platform nodes"
+PartOf=clearpath-robot.service
+After=clearpath-robot.service
+
+[Service]
+User=administrator
+Type=simple
+ExecStart=/usr/sbin/clearpath-platform-extras-start
+
+[Install]
+WantedBy=clearpath-robot.service
