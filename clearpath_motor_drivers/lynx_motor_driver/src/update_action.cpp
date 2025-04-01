@@ -183,6 +183,7 @@ void LynxMotorNode::handleUpdateAccepted(const std::shared_ptr<GoalHandleUpdate>
 {
   // Set updating state
   updating_ = true;
+  update_started_ = true;
 
   // Execute update action in a new thread
   std::thread{std::bind(&LynxMotorNode::executeUpdateAction, this, std::placeholders::_1), goal_handle}.detach();
@@ -228,6 +229,8 @@ void LynxMotorNode::executeUpdateAction(const std::shared_ptr<GoalHandleUpdate> 
     last_progress = 0.0f;
     counter = 0;
 
+    firmware_update_status_ = "Updating drivers";
+
     RCLCPP_INFO(this->get_logger(), "Send alive check to %s", driver.getJointName().c_str());
     // Wait for Lynx Alive response
     do {
@@ -235,6 +238,8 @@ void LynxMotorNode::executeUpdateAction(const std::shared_ptr<GoalHandleUpdate> 
       if (goal_handle->is_canceling()) {
         goal_handle->canceled(result);
         RCLCPP_INFO(this->get_logger(), "Goal canceled while updating %s", driver.getJointName().c_str());
+        firmware_update_status_ = "Firmware update cancelled. Reboot required.";
+        driver.updateFailed();
         return;
       }
 
@@ -254,6 +259,8 @@ void LynxMotorNode::executeUpdateAction(const std::shared_ptr<GoalHandleUpdate> 
         if (goal_handle->is_canceling()) {
           goal_handle->canceled(result);
           RCLCPP_INFO(this->get_logger(), "Goal canceled while updating %s", driver.getJointName().c_str());
+          firmware_update_status_ = "Firmware update cancelled. Reboot required.";
+          driver.updateFailed();
           return;
         }
 
@@ -273,6 +280,7 @@ void LynxMotorNode::executeUpdateAction(const std::shared_ptr<GoalHandleUpdate> 
     else // Lynx did not respond in time
     {
       RCLCPP_INFO(this->get_logger(), "Driver %s is unresponsive, skipping", driver.getJointName().c_str());
+      driver.updateFailed();
       result->success.at(i) = false;
     }
 
@@ -282,6 +290,7 @@ void LynxMotorNode::executeUpdateAction(const std::shared_ptr<GoalHandleUpdate> 
 
     i++;
   }
+  firmware_update_status_ = "Firmware update completed, reboot required";
 
   // Check if goal is done
   if (rclcpp::ok()) {
