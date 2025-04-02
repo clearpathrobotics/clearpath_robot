@@ -417,7 +417,7 @@ void ClearpathDiagnosticUpdater::stop_status_diagnostic(DiagnosticStatusWrapper 
     // if status messages are being received then add the message details
     stat.add("E-stop Triggered",
       (estop_msg_.data ? "True" : "False"));
-    stat.add("E-stop loop is operational",
+    stat.add("E-stop loop is powered",
       (stop_status_msg_.stop_power_status ? "True" : "False"));
     stat.add("External E-stop has been plugged in",
       (stop_status_msg_.external_stop_present ? "True" : "False"));
@@ -426,7 +426,7 @@ void ClearpathDiagnosticUpdater::stop_status_diagnostic(DiagnosticStatusWrapper 
 
     if (stop_status_msg_.header.stamp.sec != 0) {
       if (!stop_status_msg_.stop_power_status) {
-        stat.mergeSummary(DiagnosticStatus::ERROR, "E-stop loop is interrupted");
+        stat.mergeSummary(DiagnosticStatus::ERROR, "E-stop loop power error");
       } else if (estop_msg_.data) {
         stat.mergeSummary(DiagnosticStatus::WARN, "E-stopped");
       } else if (stop_status_msg_.needs_reset) {
