@@ -246,16 +246,27 @@ void ClearpathDiagnosticUpdater::mcu_power_diagnostic(DiagnosticStatusWrapper & 
   if (stat.level != diagnostic_updater::DiagnosticStatusWrapper::ERROR) {
     // if messages are being received then add the message details
     try {
-      stat.add("Shore Power Connected",
-        DiagnosticLabels::POWER_STATUS.at(mcu_power_msg_.shore_power_connected));
-      stat.add("Battery Connected",
-        DiagnosticLabels::POWER_STATUS.at(mcu_power_msg_.battery_connected));
-      stat.add("Power 12V User Nominal",
-        DiagnosticLabels::POWER_STATUS.at(mcu_power_msg_.power_12v_user_nominal));
-      stat.add("Charger Connected",
-        DiagnosticLabels::POWER_STATUS.at(mcu_power_msg_.charger_connected));
-      stat.add("Charging Complete",
-        DiagnosticLabels::POWER_STATUS.at(mcu_power_msg_.charging_complete));
+      // check if each datapoint is applicable before displaying it
+      if (mcu_power_msg_.shore_power_connected >= 0) {
+        stat.add("Shore Power Connected",
+          DiagnosticLabels::POWER_STATUS.at(mcu_power_msg_.shore_power_connected));
+      }
+      if (mcu_power_msg_.battery_connected >= 0) {
+        stat.add("Battery Connected",
+          DiagnosticLabels::POWER_STATUS.at(mcu_power_msg_.battery_connected));
+      }
+      if (mcu_power_msg_.power_12v_user_nominal >= 0) {
+        stat.add("Power 12V User Nominal",
+          DiagnosticLabels::POWER_STATUS.at(mcu_power_msg_.power_12v_user_nominal));
+      }
+      if (mcu_power_msg_.charger_connected >= 0) {
+        stat.add("Charger Connected",
+          DiagnosticLabels::POWER_STATUS.at(mcu_power_msg_.charger_connected));
+      }
+      if (mcu_power_msg_.charging_complete >= 0) {
+        stat.add("Charging Complete",
+          DiagnosticLabels::POWER_STATUS.at(mcu_power_msg_.charging_complete));
+      }
     } catch(const std::out_of_range & e) {
       RCLCPP_ERROR(this->get_logger(),
                   "Unknown MCU Power message status value with no string description: %s", e.what());
