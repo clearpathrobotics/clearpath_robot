@@ -428,9 +428,9 @@ void ClearpathDiagnosticUpdater::stop_status_diagnostic(DiagnosticStatusWrapper 
       if (!stop_status_msg_.stop_power_status) {
         stat.mergeSummary(DiagnosticStatus::ERROR, "E-stop loop is interrupted");
       } else if (estop_msg_.data) {
-        stat.mergeSummary(DiagnosticStatus::ERROR, "E-stopped");
+        stat.mergeSummary(DiagnosticStatus::WARN, "E-stopped");
       } else if (stop_status_msg_.needs_reset) {
-        stat.mergeSummary(DiagnosticStatus::ERROR, "E-stop needs reset");
+        stat.mergeSummary(DiagnosticStatus::WARN, "E-stop needs reset");
       }
     }
   }
