@@ -377,7 +377,7 @@ platform = robot_upstart.Job(
 
 platform.symlink = True
 platform.add(filename=platform_service_launch)
-platform.install(provider=ClearpathRobotProvider)
+platform.install(Provider=ClearpathRobotProvider)
 
 platform_provider_files = robot_upstart.Job(workspace_setup=workspace_setup)
 platform_provider_files.install(Provider=PlatformProvider)
@@ -391,7 +391,7 @@ platform_extras = robot_upstart.Job(
 
 platform_extras.symlink = True
 platform_extras.add(filename=platform_extras_service_launch)
-platform_extras.install(provider=ClearpathRobotProvider)
+platform_extras.install(Provider=ClearpathRobotProvider)
 
 platform_extras_provider_files = robot_upstart.Job(workspace_setup=workspace_setup)
 platform_extras_provider_files.install(Provider=PlatformExtrasProvider)
@@ -405,7 +405,7 @@ sensors = robot_upstart.Job(
 
 sensors.symlink = True
 sensors.add(filename=sensors_service_launch)
-sensors.install(provider=ClearpathRobotProvider)
+sensors.install(Provider=ClearpathRobotProvider)
 
 sensors_provider_files = robot_upstart.Job(workspace_setup=workspace_setup)
 sensors_provider_files.install(Provider=SensorsProvider)
@@ -419,7 +419,7 @@ manipulators = robot_upstart.Job(
 
 manipulators.symlink = True
 manipulators.add(filename=manipulators_service_launch)
-manipulators.install(provider=ClearpathRobotProvider)
+manipulators.install(Provider=ClearpathRobotProvider)
 
 manipulators_provider_files = robot_upstart.Job(workspace_setup=workspace_setup)
 manipulators_provider_files.install(Provider=ManipulatorsProvider)
