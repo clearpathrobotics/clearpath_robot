@@ -273,6 +273,7 @@ void LynxMotorNode::executeUpdateAction(const std::shared_ptr<GoalHandleUpdate> 
           feedback->progress.at(i) = std::round(progress * 100);
           goal_handle->publish_feedback(feedback);
           last_progress = progress;
+          updater_.force_update();
         }
       } while (progress < 1.0f);
       result->success.at(i) = true;
