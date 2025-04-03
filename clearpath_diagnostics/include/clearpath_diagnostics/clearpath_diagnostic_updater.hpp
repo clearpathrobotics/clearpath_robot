@@ -39,6 +39,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include "sensor_msgs/msg/magnetic_field.hpp"
 #include "sensor_msgs/msg/nav_sat_fix.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
+#include "std_msgs/msg/bool.hpp"
 
 #include "clearpath_diagnostics/clearpath_diagnostic_labels.hpp"
 #include "clearpath_platform_msgs/msg/power.hpp"
@@ -65,6 +66,7 @@ private:
   void mcu_power_callback(const clearpath_platform_msgs::msg::Power & msg);
   void bms_state_callback(const BatteryState & msg);
   void stop_status_callback(const clearpath_platform_msgs::msg::StopStatus & msg);
+  void estop_callback(const std_msgs::msg::Bool & msg);
 
   // Diagnostic Tasks
   void firmware_diagnostic(DiagnosticStatusWrapper & stat);
@@ -94,6 +96,7 @@ private:
   std::string mcu_power_topic_;
   std::string bms_state_topic_;
   std::string stop_status_topic_;
+  std::string estop_topic_;
   double mcu_status_rate_;
   double mcu_power_rate_;
   double bms_state_rate_;
@@ -105,6 +108,7 @@ private:
   clearpath_platform_msgs::msg::Power mcu_power_msg_;
   BatteryState bms_state_msg_;
   clearpath_platform_msgs::msg::StopStatus stop_status_msg_;
+  std_msgs::msg::Bool estop_msg_;
 
   // Frequency statuses
   std::shared_ptr<FrequencyStatus> mcu_status_freq_status_;
@@ -117,6 +121,7 @@ private:
   rclcpp::Subscription<clearpath_platform_msgs::msg::Power>::SharedPtr sub_mcu_power_;
   rclcpp::Subscription<BatteryState>::SharedPtr sub_bms_state_;
   rclcpp::Subscription<clearpath_platform_msgs::msg::StopStatus>::SharedPtr sub_stop_status_;
+  rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr sub_estop_;
 
   // Diagnostic Updater
   diagnostic_updater::Updater updater_;

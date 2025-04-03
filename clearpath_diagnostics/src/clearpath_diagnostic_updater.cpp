@@ -60,6 +60,8 @@ ClearpathDiagnosticUpdater::ClearpathDiagnosticUpdater()
   stop_status_topic_ = get_string_param("stop_status_topic");
   stop_status_topic_ =
     (stop_status_topic_ == UNKNOWN) ? "platform/mcu/status/stop" : stop_status_topic_;
+  estop_topic_ = get_string_param("estop_topic");
+  estop_topic_ = (estop_topic_ == UNKNOWN) ? "platform/emergency_stop" : estop_topic_;
   mcu_status_rate_ = get_double_param("mcu_status_rate");
   mcu_status_rate_ = (std::isnan(mcu_status_rate_)) ? 1.0 : mcu_status_rate_;
   mcu_power_rate_ = get_double_param("mcu_power_rate");
@@ -113,6 +115,11 @@ ClearpathDiagnosticUpdater::ClearpathDiagnosticUpdater()
       stop_status_topic_,
       rclcpp::SensorDataQoS(),
       std::bind(&ClearpathDiagnosticUpdater::stop_status_callback, this, std::placeholders::_1));
+  sub_estop_ =
+    this->create_subscription<std_msgs::msg::Bool>(
+      estop_topic_,
+      rclcpp::SensorDataQoS(),
+      std::bind(&ClearpathDiagnosticUpdater::estop_callback, this, std::placeholders::_1));
 
   // Create Frequency Status tracking objects
   mcu_power_freq_status_ = std::make_shared<FrequencyStatus>(
@@ -380,13 +387,23 @@ void ClearpathDiagnosticUpdater::bms_state_diagnostic(DiagnosticStatusWrapper & 
 }
 
 /**
- * @brief Save data from E-stop / Stop Status messages
+ * @brief Save data from Stop Status messages
  */
 void ClearpathDiagnosticUpdater::stop_status_callback(
   const clearpath_platform_msgs::msg::StopStatus & msg)
 {
   stop_status_msg_ = msg;
   stop_status_freq_status_->tick();
+}
+
+
+/**
+ * @brief Save data from E-stop messages
+ */
+void ClearpathDiagnosticUpdater::estop_callback(
+  const std_msgs::msg::Bool & msg)
+{
+  estop_msg_ = msg;
 }
 
 /**
@@ -398,18 +415,22 @@ void ClearpathDiagnosticUpdater::stop_status_diagnostic(DiagnosticStatusWrapper 
 
   if (stat.level != diagnostic_updater::DiagnosticStatusWrapper::ERROR) {
     // if status messages are being received then add the message details
-    stat.add("E-stop loop is operational",
+    stat.add("E-stop Triggered",
+      (estop_msg_.data ? "True" : "False"));
+    stat.add("E-stop loop is powered",
       (stop_status_msg_.stop_power_status ? "True" : "False"));
     stat.add("External E-stop has been plugged in",
       (stop_status_msg_.external_stop_present ? "True" : "False"));
-    stat.add("Stop loop needs to be reset",
+    stat.add("Stop loop needs reset",
       (stop_status_msg_.needs_reset ? "True" : "False"));
 
     if (stop_status_msg_.header.stamp.sec != 0) {
       if (!stop_status_msg_.stop_power_status) {
-        stat.mergeSummary(DiagnosticStatus::ERROR, "E-stop loop is interrupted");
+        stat.mergeSummary(DiagnosticStatus::ERROR, "E-stop loop power error");
+      } else if (estop_msg_.data) {
+        stat.mergeSummary(DiagnosticStatus::WARN, "E-stopped");
       } else if (stop_status_msg_.needs_reset) {
-        stat.mergeSummary(DiagnosticStatus::ERROR, "E-stop needs to be reset");
+        stat.mergeSummary(DiagnosticStatus::WARN, "E-stop needs reset");
       }
     }
   }
