@@ -284,7 +284,7 @@ class RobotProvider(robot_upstart.providers.Generic):
                 'content': robot_service_exec_contents,
                 'mode': 0o755
             },
-            '/etc/systemd/system/multi-user.target.wants': {
+            '/etc/systemd/system/multi-user.target.wants/clearpath-robot.service': {
                 'symlink': '/lib/systemd/system/clearpath-robot.service'
             },
         }
@@ -448,8 +448,6 @@ print("""
 
 To finalize installation please run the following command:
 
-    sudo systemctl enable clearpath-robot.service && \\
-    sudo systemctl daemon-reload && \\
-    sudo systemctl start clearpath-robot
+    sudo systemctl daemon-reload && sudo systemctl start clearpath-robot
 
 """)
