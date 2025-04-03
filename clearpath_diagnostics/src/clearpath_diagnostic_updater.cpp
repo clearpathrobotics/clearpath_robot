@@ -214,14 +214,17 @@ void ClearpathDiagnosticUpdater::mcu_status_callback(
  */
 void ClearpathDiagnosticUpdater::mcu_status_diagnostic(DiagnosticStatusWrapper & stat)
 {
-  stat.add("Firmware Version", mcu_firmware_version_);
-  stat.add("Platform Model", mcu_status_msg_.hardware_id);
-  stat.add("MCU Uptime (sec)", mcu_status_msg_.mcu_uptime.sec);
-  stat.add("Connection Uptime (sec)", mcu_status_msg_.connection_uptime.sec);
-  stat.add("MCU Temperature (C)", mcu_status_msg_.mcu_temperature);
-  stat.add("PCB Temperature (C)", mcu_status_msg_.pcb_temperature);
-
   mcu_status_freq_status_->run(stat);
+
+  if (stat.level != diagnostic_updater::DiagnosticStatusWrapper::ERROR) {
+    // if status messages are being received then add the message details
+    stat.add("Firmware Version", mcu_firmware_version_);
+    stat.add("Platform Model", mcu_status_msg_.hardware_id);
+    stat.add("MCU Uptime (sec)", mcu_status_msg_.mcu_uptime.sec);
+    stat.add("Connection Uptime (sec)", mcu_status_msg_.connection_uptime.sec);
+    stat.add("MCU Temperature (C)", mcu_status_msg_.mcu_temperature);
+    stat.add("PCB Temperature (C)", mcu_status_msg_.pcb_temperature);
+  }
 }
 
 /**
@@ -238,39 +241,53 @@ void ClearpathDiagnosticUpdater::mcu_power_callback(const clearpath_platform_msg
  */
 void ClearpathDiagnosticUpdater::mcu_power_diagnostic(DiagnosticStatusWrapper & stat)
 {
-  try {
-    stat.add("Shore Power Connected",
-      DiagnosticLabels::POWER_STATUS.at(mcu_power_msg_.shore_power_connected));
-    stat.add("Battery Connected",
-      DiagnosticLabels::POWER_STATUS.at(mcu_power_msg_.battery_connected));
-    stat.add("Power 12V User Nominal",
-      DiagnosticLabels::POWER_STATUS.at(mcu_power_msg_.power_12v_user_nominal));
-    stat.add("Charger Connected",
-      DiagnosticLabels::POWER_STATUS.at(mcu_power_msg_.charger_connected));
-    stat.add("Charging Complete",
-      DiagnosticLabels::POWER_STATUS.at(mcu_power_msg_.charging_complete));
-  } catch(const std::out_of_range & e) {
-    RCLCPP_ERROR(this->get_logger(),
-                 "Unknown MCU Power message status value with no string description: %s", e.what());
-  }
-
-  try {
-    for (unsigned i = 0; i < mcu_power_msg_.measured_voltages.size(); i++) {
-      std::string name = "Measured Voltage: " +
-        DiagnosticLabels::MEASURED_VOLTAGES.at(platform_model_)[i] + " (V)";
-      stat.add(name, mcu_power_msg_.measured_voltages[i]);
-    }
-    for (unsigned i = 0; i < mcu_power_msg_.measured_currents.size(); i++) {
-      std::string name = "Measured Current: " +
-        DiagnosticLabels::MEASURED_CURRENTS.at(platform_model_)[i] + " (A)";
-      stat.add(name, mcu_power_msg_.measured_currents[i]);
-    }
-  } catch(const std::out_of_range & e) {
-    RCLCPP_ERROR(this->get_logger(),
-                 "No measured voltage or current labels for the given platform: %s", e.what());
-  }
-
   mcu_power_freq_status_->run(stat);
+
+  if (stat.level != diagnostic_updater::DiagnosticStatusWrapper::ERROR) {
+    // if messages are being received then add the message details
+    try {
+      // check if each datapoint is applicable before displaying it
+      if (mcu_power_msg_.shore_power_connected >= 0) {
+        stat.add("Shore Power Connected",
+          DiagnosticLabels::POWER_STATUS.at(mcu_power_msg_.shore_power_connected));
+      }
+      if (mcu_power_msg_.battery_connected >= 0) {
+        stat.add("Battery Connected",
+          DiagnosticLabels::POWER_STATUS.at(mcu_power_msg_.battery_connected));
+      }
+      if (mcu_power_msg_.power_12v_user_nominal >= 0) {
+        stat.add("Power 12V User Nominal",
+          DiagnosticLabels::POWER_STATUS.at(mcu_power_msg_.power_12v_user_nominal));
+      }
+      if (mcu_power_msg_.charger_connected >= 0) {
+        stat.add("Charger Connected",
+          DiagnosticLabels::POWER_STATUS.at(mcu_power_msg_.charger_connected));
+      }
+      if (mcu_power_msg_.charging_complete >= 0) {
+        stat.add("Charging Complete",
+          DiagnosticLabels::POWER_STATUS.at(mcu_power_msg_.charging_complete));
+      }
+    } catch(const std::out_of_range & e) {
+      RCLCPP_ERROR(this->get_logger(),
+                  "Unknown MCU Power message status value with no string description: %s", e.what());
+    }
+
+    try {
+      for (unsigned i = 0; i < mcu_power_msg_.measured_voltages.size(); i++) {
+        std::string name = "Measured Voltage: " +
+          DiagnosticLabels::MEASURED_VOLTAGES.at(platform_model_)[i] + " (V)";
+        stat.add(name, mcu_power_msg_.measured_voltages[i]);
+      }
+      for (unsigned i = 0; i < mcu_power_msg_.measured_currents.size(); i++) {
+        std::string name = "Measured Current: " +
+          DiagnosticLabels::MEASURED_CURRENTS.at(platform_model_)[i] + " (A)";
+        stat.add(name, mcu_power_msg_.measured_currents[i]);
+      }
+    } catch(const std::out_of_range & e) {
+      RCLCPP_ERROR(this->get_logger(),
+                  "No measured voltage or current labels for the given platform: %s", e.what());
+    }
+  }
 }
 
 /**
@@ -302,59 +319,62 @@ void ClearpathDiagnosticUpdater::bms_state_diagnostic(DiagnosticStatusWrapper & 
                  "Unknown Battery State enum with no string description: %s", e.what());
   }
 
-  stat.add("Power Supply Status", power_supply_status);
-  stat.add("Power Supply Health", power_supply_health);
-  stat.add("Power Supply Technology", power_supply_technology);
-
-  stat.add("Voltage (V)", bms_state_msg_.voltage);
-  stat.add("Temperature (C)", bms_state_msg_.temperature);
-  stat.add("Current (A)", bms_state_msg_.current);
-  stat.add("Charge (Ah)", bms_state_msg_.charge);
-  stat.add("Capacity (Ah)", bms_state_msg_.capacity);
-  stat.add("Charge Percentage", bms_state_msg_.percentage * 100);
-
-  std::string voltages = "";
-  for (auto v : bms_state_msg_.cell_voltage) {
-    voltages.append(std::to_string(v));
-    voltages.append("; ");
-  }
-  stat.add("Cell Voltages (V)", voltages);
-
-  std::string temperatures = "";
-  for (auto t : bms_state_msg_.cell_temperature) {
-    temperatures.append(std::to_string(t));
-    temperatures.append("; ");
-  }
-  stat.add("Cell Temperature (C)", temperatures);
-
   bms_state_freq_status_->run(stat);
 
-  // Diagnostic summaries based on charging activity / level
-  if (bms_state_msg_.header.stamp.sec != 0) {
-    if (bms_state_msg_.power_supply_status == BatteryState::POWER_SUPPLY_STATUS_CHARGING) {
-      stat.mergeSummaryf(DiagnosticStatus::OK,
-                          "Battery Charging (%.1f%%)",
-                          bms_state_msg_.percentage * 100);
-    } else if (bms_state_msg_.percentage >= 0.2) {
-      stat.mergeSummaryf(DiagnosticStatus::OK,
-                          "Battery level is %.1f%%",
-                          bms_state_msg_.percentage * 100);
-    } else if (bms_state_msg_.percentage >= 0.1) {
-      stat.mergeSummaryf(DiagnosticStatus::WARN,
-                          "Low Battery (%.1f%%)",
-                          bms_state_msg_.percentage * 100);
-    } else {
-      stat.mergeSummaryf(DiagnosticStatus::WARN,
-                          "Critically Low Battery (%.1f%%)",
-                          bms_state_msg_.percentage * 100);
-    }
+  if (stat.level != diagnostic_updater::DiagnosticStatusWrapper::ERROR) {
+    // if messages are being received then add the message details
+    stat.add("Power Supply Status", power_supply_status);
+    stat.add("Power Supply Health", power_supply_health);
+    stat.add("Power Supply Technology", power_supply_technology);
 
-    // Error diagnostic summaries
-    if (bms_state_msg_.power_supply_health != BatteryState::POWER_SUPPLY_HEALTH_GOOD) {
-      stat.mergeSummaryf(DiagnosticStatus::ERROR,
-                          "Power Supply Health: %s", power_supply_health.c_str());
-    } else if (bms_state_msg_.power_supply_status == BatteryState::POWER_SUPPLY_STATUS_UNKNOWN) {
-      stat.mergeSummary(DiagnosticStatus::ERROR, "Power Supply Status Unknown");
+    stat.add("Voltage (V)", bms_state_msg_.voltage);
+    stat.add("Temperature (C)", bms_state_msg_.temperature);
+    stat.add("Current (A)", bms_state_msg_.current);
+    stat.add("Charge (Ah)", bms_state_msg_.charge);
+    stat.add("Capacity (Ah)", bms_state_msg_.capacity);
+    stat.add("Charge Percentage", bms_state_msg_.percentage * 100);
+
+    std::string voltages = "";
+    for (auto v : bms_state_msg_.cell_voltage) {
+      voltages.append(std::to_string(v));
+      voltages.append("; ");
+    }
+    stat.add("Cell Voltages (V)", voltages);
+
+    std::string temperatures = "";
+    for (auto t : bms_state_msg_.cell_temperature) {
+      temperatures.append(std::to_string(t));
+      temperatures.append("; ");
+    }
+    stat.add("Cell Temperature (C)", temperatures);
+
+    // Diagnostic summaries based on charging activity / level
+    if (bms_state_msg_.header.stamp.sec != 0) {
+      if (bms_state_msg_.power_supply_status == BatteryState::POWER_SUPPLY_STATUS_CHARGING) {
+        stat.mergeSummaryf(DiagnosticStatus::OK,
+                            "Battery Charging (%.1f%%)",
+                            bms_state_msg_.percentage * 100);
+      } else if (bms_state_msg_.percentage >= 0.2) {
+        stat.mergeSummaryf(DiagnosticStatus::OK,
+                            "Battery level is %.1f%%",
+                            bms_state_msg_.percentage * 100);
+      } else if (bms_state_msg_.percentage >= 0.1) {
+        stat.mergeSummaryf(DiagnosticStatus::WARN,
+                            "Low Battery (%.1f%%)",
+                            bms_state_msg_.percentage * 100);
+      } else {
+        stat.mergeSummaryf(DiagnosticStatus::WARN,
+                            "Critically Low Battery (%.1f%%)",
+                            bms_state_msg_.percentage * 100);
+      }
+
+      // Error diagnostic summaries
+      if (bms_state_msg_.power_supply_health != BatteryState::POWER_SUPPLY_HEALTH_GOOD) {
+        stat.mergeSummaryf(DiagnosticStatus::ERROR,
+                            "Power Supply Health: %s", power_supply_health.c_str());
+      } else if (bms_state_msg_.power_supply_status == BatteryState::POWER_SUPPLY_STATUS_UNKNOWN) {
+        stat.mergeSummary(DiagnosticStatus::ERROR, "Power Supply Status Unknown");
+      }
     }
   }
 }
@@ -374,20 +394,23 @@ void ClearpathDiagnosticUpdater::stop_status_callback(
  */
 void ClearpathDiagnosticUpdater::stop_status_diagnostic(DiagnosticStatusWrapper & stat)
 {
-  stat.add("E-stop loop is operational",
-    (stop_status_msg_.stop_power_status ? "True" : "False"));
-  stat.add("External E-stop has been plugged in",
-    (stop_status_msg_.external_stop_present ? "True" : "False"));
-  stat.add("Stop loop needs to be reset",
-    (stop_status_msg_.needs_reset ? "True" : "False"));
-
   stop_status_freq_status_->run(stat);
 
-  if (stop_status_msg_.header.stamp.sec != 0) {
-    if (!stop_status_msg_.stop_power_status) {
-      stat.mergeSummary(DiagnosticStatus::ERROR, "E-stop loop is interrupted");
-    } else if (stop_status_msg_.needs_reset) {
-      stat.mergeSummary(DiagnosticStatus::ERROR, "E-stop needs to be reset");
+  if (stat.level != diagnostic_updater::DiagnosticStatusWrapper::ERROR) {
+    // if status messages are being received then add the message details
+    stat.add("E-stop loop is operational",
+      (stop_status_msg_.stop_power_status ? "True" : "False"));
+    stat.add("External E-stop has been plugged in",
+      (stop_status_msg_.external_stop_present ? "True" : "False"));
+    stat.add("Stop loop needs to be reset",
+      (stop_status_msg_.needs_reset ? "True" : "False"));
+
+    if (stop_status_msg_.header.stamp.sec != 0) {
+      if (!stop_status_msg_.stop_power_status) {
+        stat.mergeSummary(DiagnosticStatus::ERROR, "E-stop loop is interrupted");
+      } else if (stop_status_msg_.needs_reset) {
+        stat.mergeSummary(DiagnosticStatus::ERROR, "E-stop needs to be reset");
+      }
     }
   }
 }
