@@ -70,11 +70,11 @@ class ClearpathRobotProvider(robot_upstart.providers.Systemd):
     def generate_install(self):
         files = super().generate_install()
 
-        # replace the multi-user.target.wants items with clearpath-robot.target.wants
+        # replace the multi-user.target.wants items with clearpath-robot.service.wants
         multi_user_path = os.path.join(
             self.root, "etc/systemd/system/multi-user.target.wants", self.job.name + ".service")
         clearpath_robot_path = os.path.join(
-            self.root, "etc/systemd/system/clearpath-robot.target.wants", self.job.name + ".service")
+            self.root, "etc/systemd/system/clearpath-robot.service.wants", self.job.name + ".service")
         files[clearpath_robot_path] = files[multi_user_path]
         files.pop(multi_user_path)
         return files
