@@ -844,6 +844,10 @@ void LynxMotorDriver::driverUpdateDiagnostics(
                     "Updating firmware: %.1f%%", update_progress_*100);
     }
   }
+  else {
+    stat.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN,
+                 "Firmware update cancelled, reboot required");
+  }
 }
 
 }  // namespace lynx_motor_driver
