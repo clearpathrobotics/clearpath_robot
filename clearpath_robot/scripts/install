@@ -442,5 +442,14 @@ vcan_bridge.install(Provider=VirtualCANProvider)
 shutdown = robot_upstart.Job(workspace_setup=workspace_setup)
 shutdown.install(Provider=ShutdownProvider)
 
-print('** To complete installation please run the following command:')
-print('  sudo systemctl daemon-reload && sudo systemctl start clearpath-robot')
+print("""
+
+** INSTALLATION COMPLETE **
+
+To finalize installation please run the following command:
+
+    sudo systemctl enable clearpath-robot.service && \\
+    sudo systemctl daemon-reload && \\
+    sudo systemctl start clearpath-robot
+
+""")
