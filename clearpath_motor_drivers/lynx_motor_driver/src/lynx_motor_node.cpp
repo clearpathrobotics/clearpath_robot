@@ -386,17 +386,23 @@ void LynxMotorNode::startDebug()
  */
 void LynxMotorNode::driverDiagnostic(DiagnosticStatusWrapper & stat, int i)
 {
-  //Fimware update process
-  if (updating_) {
-    // ignore everything else if actively updating the firmware, messages are not valid
-    stat.summary(DiagnosticStatusWrapper::WARN, "Firmware Updating");
-    return;
+  bool display_data = false;
+  if (!updating_) {  // don't run frequency status if actively updating firmware
+    drivers_[i].runFreqStatus(stat);
+    // Error from the frequency status means that no messages are being received
+    display_data = (stat.level != DiagnosticStatusWrapper::ERROR);
   }
 
-  drivers_[i].runFreqStatus(stat);
+  // Display fimware update process diagnostics if update has been attempted this boot
+  if (update_started_) {
+    drivers_[i].driverUpdateDiagnostics(stat, updating_);  // Overwrites previous summary messages
+    if (updating_) {
+      return;  // If actively updating show nothing else
+    }
+  }
 
-  if (stat.level == DiagnosticStatusWrapper::ERROR) {
-    // Error from the frequency status means that no messages are being received
+
+  if (!display_data) {
     // therefore return instead of reporting on old data
     return;
   }
@@ -481,9 +487,9 @@ void LynxMotorNode::driverDiagnostic(DiagnosticStatusWrapper & stat, int i)
 void LynxMotorNode::protectionDiagnostic(DiagnosticStatusWrapper & stat)
 {
   // Fimware update process
-  if (updating_) {
+  if (update_started_) {
     // Ignore everything else if actively updating the firmware, messages are not valid
-    stat.summary(DiagnosticStatusWrapper::WARN, "Firmware Updating");
+    stat.summary(DiagnosticStatusWrapper::WARN, firmware_update_status_);
     return;
   }
 

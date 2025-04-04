@@ -85,6 +85,8 @@ LynxMotorDriver::LynxMotorDriver(const int64_t& can_id,
   status_msg_.can_id = getCanID();
   status_msg_.joint_name = getJointName();
 
+  update_failed_ = false;
+  update_progress_ = 0.0;
   can_feedback_rate_ = std::make_shared<double>(CAN_FEEDBACK_RATE);
   can_feedback_freq_status_ = std::make_shared<diagnostic_updater::FrequencyStatus>(
     diagnostic_updater::FrequencyStatusParam(can_feedback_rate_.get(), can_feedback_rate_.get(), 0.1, 5));
@@ -658,6 +660,8 @@ float LynxMotorDriver::updateApp()
 {
   uint16_t can_count;
   uint8_t frame_data[8];
+  update_failed_ = false;
+  update_progress_ = 0.0;
 
   if (update_app_queue_.size() >= 8)
   {
@@ -704,9 +708,17 @@ float LynxMotorDriver::updateApp()
   }
 
   // Calculate progress
-  float progress = 1.0f - static_cast<float>(update_app_queue_.size()) / static_cast<float>(update_app_size_);
+  update_progress_ = 1.0f - static_cast<float>(update_app_queue_.size()) / static_cast<float>(update_app_size_);
 
-  return progress;
+  return update_progress_;
+}
+
+/**
+ * @brief Record that the firmware update failed.
+ *
+ */
+void LynxMotorDriver::updateFailed() {
+  update_failed_ = true;
 }
 
 /**
@@ -807,6 +819,34 @@ void LynxMotorDriver::runFreqStatus(diagnostic_updater::DiagnosticStatusWrapper 
     stat.add("Current", current_filtered);
     stat.add("Voltage", voltage_filtered);
     stat.add("Velocity", velocity_filtered);
+  }
+}
+
+void LynxMotorDriver::driverUpdateDiagnostics(
+  diagnostic_updater::DiagnosticStatusWrapper & stat, bool updating)
+{
+  // If updating, report on the process
+  if (update_failed_) {
+    stat.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN,
+                 "Firmware update failed, reboot required");
+  }
+  else if (update_progress_ >= 1.0) {
+    stat.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN,
+                 "Update complete, reboot required");
+  }
+  else if (updating) {
+    if (update_progress_ == 0.0) {
+      stat.summary(diagnostic_msgs::msg::DiagnosticStatus::OK,
+                   "Queued for firmware update");
+    }
+    else if (update_progress_ < 1.0) {
+      stat.summaryf(diagnostic_msgs::msg::DiagnosticStatus::WARN,
+                    "Updating firmware: %.1f%%", update_progress_*100);
+    }
+  }
+  else {
+    stat.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN,
+                 "Firmware update cancelled, reboot required");
   }
 }
 

@@ -95,13 +95,14 @@ private:
   std::shared_ptr<clearpath_ros2_socketcan_interface::SocketCANInterface> can_interface_;
 
   // Variables
-  bool updating_, debugging_;
+  bool updating_, update_started_, debugging_;
   int feedback_hz_, status_hz_, debug_hz_;
   std::string can_bus_;
   std::vector<std::string> joint_names_;
   std::vector<int64_t> joint_can_ids_;
   std::vector<int64_t> joint_directions_;
   std::string firmware_version_expected_;
+  std::string firmware_update_status_;
 
   // Messages
   clearpath_motor_msgs::msg::LynxMultiStatus status_msg_;
