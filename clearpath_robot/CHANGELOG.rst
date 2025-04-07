@@ -9,8 +9,8 @@ Changelog for package clearpath_robot
   * Alphabetical dependencies
 * Contributors: luis-camero
 
-Forthcoming
------------
+2.2.4 (2025-04-07)
+------------------
 
 2.2.3 (2025-03-20)
 ------------------
