@@ -76,6 +76,7 @@ def generate_launch_description():
           ('/diagnostics', PathJoinSubstitution(['/', robot_namespace, 'diagnostics'])),
           ('/tf', PathJoinSubstitution(['/', robot_namespace, 'tf'])),
           ('/tf_static', PathJoinSubstitution(['/', robot_namespace, 'tf_static'])),
+          ('imu', 'imu/data_raw')
         ]
     )
 
