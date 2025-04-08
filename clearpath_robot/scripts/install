@@ -64,6 +64,22 @@ def replace_user_in_systemd_job(
     return file_contents
 
 
+class ClearpathRobotProvider(robot_upstart.providers.Systemd):
+    """Same a the standard systemd provider, but with symlinks in clearpath_robot.wants."""
+
+    def generate_install(self):
+        files = super().generate_install()
+
+        # replace the multi-user.target.wants items with clearpath-robot.service.wants
+        multi_user_path = os.path.join(
+            self.root, "etc/systemd/system/multi-user.target.wants", self.job.name + ".service")
+        clearpath_robot_path = os.path.join(
+            self.root, "etc/systemd/system/clearpath-robot.service.wants", self.job.name + ".service")
+        files[clearpath_robot_path] = files[multi_user_path]
+        files.pop(multi_user_path)
+        return files
+
+
 class VirtualCANProvider(robot_upstart.providers.Generic):
     def post_install(self):
         pass
@@ -267,7 +283,10 @@ class RobotProvider(robot_upstart.providers.Generic):
             '/usr/sbin/clearpath-robot-check': {
                 'content': robot_service_exec_contents,
                 'mode': 0o755
-            }
+            },
+            '/etc/systemd/system/multi-user.target.wants/clearpath-robot.service': {
+                'symlink': '/lib/systemd/system/clearpath-robot.service'
+            },
         }
 
 class ShutdownProvider(robot_upstart.providers.Generic):
@@ -346,6 +365,11 @@ if not os.path.isfile(manipulators_service_launch):
     os.makedirs(os.path.dirname(manipulators_service_launch), exist_ok=True)
     open(manipulators_service_launch, 'w+').close()
 
+# Robot
+# this should be first, as subsequent jobs are part of this service
+robot = robot_upstart.Job(workspace_setup=workspace_setup)
+robot.install(Provider=RobotProvider)
+
 # Platform
 platform = robot_upstart.Job(
     name='clearpath-platform',
@@ -355,7 +379,7 @@ platform = robot_upstart.Job(
 
 platform.symlink = True
 platform.add(filename=platform_service_launch)
-platform.install()
+platform.install(Provider=ClearpathRobotProvider)
 
 platform_provider_files = robot_upstart.Job(workspace_setup=workspace_setup)
 platform_provider_files.install(Provider=PlatformProvider)
@@ -369,7 +393,7 @@ platform_extras = robot_upstart.Job(
 
 platform_extras.symlink = True
 platform_extras.add(filename=platform_extras_service_launch)
-platform_extras.install()
+platform_extras.install(Provider=ClearpathRobotProvider)
 
 platform_extras_provider_files = robot_upstart.Job(workspace_setup=workspace_setup)
 platform_extras_provider_files.install(Provider=PlatformExtrasProvider)
@@ -383,7 +407,7 @@ sensors = robot_upstart.Job(
 
 sensors.symlink = True
 sensors.add(filename=sensors_service_launch)
-sensors.install()
+sensors.install(Provider=ClearpathRobotProvider)
 
 sensors_provider_files = robot_upstart.Job(workspace_setup=workspace_setup)
 sensors_provider_files.install(Provider=SensorsProvider)
@@ -397,7 +421,7 @@ manipulators = robot_upstart.Job(
 
 manipulators.symlink = True
 manipulators.add(filename=manipulators_service_launch)
-manipulators.install()
+manipulators.install(Provider=ClearpathRobotProvider)
 
 manipulators_provider_files = robot_upstart.Job(workspace_setup=workspace_setup)
 manipulators_provider_files.install(Provider=ManipulatorsProvider)
@@ -418,8 +442,12 @@ vcan_bridge.install(Provider=VirtualCANProvider)
 shutdown = robot_upstart.Job(workspace_setup=workspace_setup)
 shutdown.install(Provider=ShutdownProvider)
 
-# Robot
-robot = robot_upstart.Job(workspace_setup=workspace_setup)
-robot.install(Provider=RobotProvider)
-print('** To complete installation please run the following command:')
-print('  sudo systemctl daemon-reload && sudo systemctl start clearpath-robot')
+print("""
+
+** INSTALLATION COMPLETE **
+
+To finalize installation please run the following command:
+
+    sudo systemctl daemon-reload && sudo systemctl start clearpath-robot
+
+""")
