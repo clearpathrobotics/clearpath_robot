@@ -24,5 +24,11 @@ if [ -f /lib/systemd/system/clearpath-robot.service ];
 then
     username=$(get_user)
     echo "Detected previous installation of clearpath-robot.service. Updating services..."
-    setpriv --reuid $username ros2 run clearpath_robot install
+    setpriv --reuid $username ros2 run clearpath_robot install > /dev/null
+    systemctl daemon-reload
+
+    if ! [ -z "$(systemctl status clearpath-robot.service|grep running)" ];
+    then
+        systemctl restart clearpath-robot.service
+    fi
 fi
