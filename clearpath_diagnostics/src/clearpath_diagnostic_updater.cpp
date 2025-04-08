@@ -276,7 +276,8 @@ void ClearpathDiagnosticUpdater::mcu_power_diagnostic(DiagnosticStatusWrapper & 
       }
     } catch(const std::out_of_range & e) {
       RCLCPP_ERROR(this->get_logger(),
-                  "Unknown MCU Power message status value with no string description: %s", e.what());
+                  "Unknown MCU Power message status value with no string description: %s",
+                  e.what());
     }
 
     try {
