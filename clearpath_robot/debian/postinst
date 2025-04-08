@@ -1,0 +1,23 @@
+#!/bin/bash
+
+. /opt/ros/jazzy/setup.bash
+if [ -f /etc/clearpath/setup.bash ];
+then
+    . /etc/clearpath/setup.bash
+fi
+
+# if clearpath-robot.service already exists, reinstall it on an update
+if [ -f /lib/systemd/system/clearpath-robot.service ];
+then
+    echo "Detected previous installation of clearpath-robot.service. Updating services..."
+    ros2 run clearpath_robot install > /dev/null
+
+    echo "Reloading systemd configuration..."
+    systemctl daemon-reload > /dev/null
+
+    if ! [ -z "$(systemctl status clearpath-robot.service|grep running)" ];
+    then
+        echo "Restarting clearpath-robot.service..."
+        systemctl restart clearpath-robot.service > /dev/null
+    fi
+fi
