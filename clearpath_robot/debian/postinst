@@ -6,29 +6,18 @@ then
     . /etc/clearpath/setup.bash
 fi
 
-get_user() {
-    python3 -c '
-try:
-    from clearpath_config.clearpath_config import ClearpathConfig
-    from clearpath_config.common.utils.yaml import read_yaml
-    config = read_yaml("/etc/clearpath/robot.yaml")
-    clearpath_config = ClearpathConfig(config)
-    print(clearpath_config.system.username)
-except:
-    print("robot")
-'
-}
-
 # if clearpath-robot.service already exists, reinstall it on an update
 if [ -f /lib/systemd/system/clearpath-robot.service ];
 then
-    username=$(get_user)
     echo "Detected previous installation of clearpath-robot.service. Updating services..."
-    setpriv --reuid $username ros2 run clearpath_robot install
-    systemctl daemon-reload
+    ros2 run clearpath_robot install > /dev/null
+
+    echo "Reloading systemd configuration..."
+    systemctl daemon-reload > /dev/null
 
     if ! [ -z "$(systemctl status clearpath-robot.service|grep running)" ];
     then
-        systemctl restart clearpath-robot.service
+        echo "Restarting clearpath-robot.service..."
+        systemctl restart clearpath-robot.service > /dev/null
     fi
 fi
