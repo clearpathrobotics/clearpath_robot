@@ -1,13 +1,22 @@
 #!/bin/bash
 
 . /opt/ros/jazzy/setup.bash
+if [ -f /etc/clearpath/setup.bash ];
+then
+    . /etc/clearpath/setup.bash
+fi
 
 get_user() {
-    python3 -c 'from clearpath_config.clearpath_config import ClearpathConfig
-from clearpath_config.common.utils.yaml import read_yaml
-config = read_yaml("/etc/clearpath/robot.yaml")
-clearpath_config = ClearpathConfig(config)
-print(clearpath_config.system.username)'
+    python3 -c '
+try:
+    from clearpath_config.clearpath_config import ClearpathConfig
+    from clearpath_config.common.utils.yaml import read_yaml
+    config = read_yaml("/etc/clearpath/robot.yaml")
+    clearpath_config = ClearpathConfig(config)
+    print(clearpath_config.system.username)
+except:
+    print("robot")
+'
 }
 
 # if clearpath-robot.service already exists, reinstall it on an update
