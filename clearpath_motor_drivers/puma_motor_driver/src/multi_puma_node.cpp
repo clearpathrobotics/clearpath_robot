@@ -32,7 +32,7 @@ MultiPumaNode::MultiPumaNode(const std::string node_name)
   // Parameters
   this->declare_parameter("canbus_dev", "vcan0");
   this->declare_parameter("encoder_cpr", 1024);
-  this->declare_parameter("frequency", 25);
+  this->declare_parameter("frequency", 20);
   this->declare_parameter("gain.p", 0.1);
   this->declare_parameter("gain.i", 0.01);
   this->declare_parameter("gain.d", 0.0);
@@ -93,8 +93,6 @@ MultiPumaNode::MultiPumaNode(const std::string node_name)
   // Socket
   interface_.reset(new clearpath_ros2_socketcan_interface::SocketCANInterface(
     canbus_dev_, node_handle_));
-
-  interface_->startSendTimer(1);
 
   for (uint8_t i = 0; i < joint_names_.size(); i++) {
     drivers_.push_back(puma_motor_driver::Driver(
