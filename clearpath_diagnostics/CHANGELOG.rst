@@ -2,8 +2,8 @@
 Changelog for package clearpath_diagnostics
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.3.0 (2025-04-11)
+------------------
 * Lint: Diagnostic move log to new line (`#191 <https://github.com/clearpathrobotics/clearpath_robot/issues/191>`_)
 * Fix/estop diagnostics (`#184 <https://github.com/clearpathrobotics/clearpath_robot/issues/184>`_)
 * Feature/clear stale diagnostics (`#183 <https://github.com/clearpathrobotics/clearpath_robot/issues/183>`_)

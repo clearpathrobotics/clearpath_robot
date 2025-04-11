@@ -2,8 +2,8 @@
 Changelog for package clearpath_platform
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.3.0 (2025-04-11)
+------------------
 * [clearpath_hardware_interfaces] Added user fan control and hysteresis when leaving a warning/error state.
 * Jazzy dingo and ridgeback fixes (`#169 <https://github.com/clearpathrobotics/clearpath_robot/issues/169>`_)
 * Contributors: Roni Kreinin, Tony Baltovski

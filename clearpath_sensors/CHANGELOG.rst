@@ -2,8 +2,8 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.3.0 (2025-04-11)
+------------------
 * Feature: Wiferion Charger (`#194 <https://github.com/clearpathrobotics/clearpath_robot/issues/194>`_)
 * Remap IMU topic to imu/data_raw (per RPSW-2504) (`#188 <https://github.com/clearpathrobotics/clearpath_robot/issues/188>`_)
 * Add support for INS sensors + Fixposition XVN (`#176 <https://github.com/clearpathrobotics/clearpath_robot/issues/176>`_)

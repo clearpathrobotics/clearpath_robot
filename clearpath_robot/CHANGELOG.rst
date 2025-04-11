@@ -2,8 +2,8 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.3.0 (2025-04-11)
+------------------
 * Feature: Add CAN adapters (`#192 <https://github.com/clearpathrobotics/clearpath_robot/issues/192>`_)
 * Automatically rerun install script on package update (`#193 <https://github.com/clearpathrobotics/clearpath_robot/issues/193>`_)
 * Move symlinks into `clearpath-robot.service.wants` instead of `multi-user.target.wants` (`#187 <https://github.com/clearpathrobotics/clearpath_robot/issues/187>`_)
