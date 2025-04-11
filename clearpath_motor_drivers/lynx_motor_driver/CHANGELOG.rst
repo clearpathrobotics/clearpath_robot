@@ -2,6 +2,11 @@
 Changelog for package lynx_motor_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Feature/lynx firmware update process diagnostics (`#186 <https://github.com/clearpathrobotics/clearpath_robot/issues/186>`_)
+* Contributors: Hilary Luo
+
 2.2.4 (2025-04-07)
 ------------------
 

@@ -2,6 +2,16 @@
 Changelog for package clearpath_diagnostics
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Lint: Diagnostic move log to new line (`#191 <https://github.com/clearpathrobotics/clearpath_robot/issues/191>`_)
+* Fix/estop diagnostics (`#184 <https://github.com/clearpathrobotics/clearpath_robot/issues/184>`_)
+* Feature/clear stale diagnostics (`#183 <https://github.com/clearpathrobotics/clearpath_robot/issues/183>`_)
+* Feature/diagnostic categories (`#175 <https://github.com/clearpathrobotics/clearpath_robot/issues/175>`_)
+* Feature/inventus diagnostics (`#170 <https://github.com/clearpathrobotics/clearpath_robot/issues/170>`_)
+
+* Contributors: Hilary Luo, Tony Baltovski, Luis Camero
+
 2.2.4 (2025-04-07)
 ------------------
 

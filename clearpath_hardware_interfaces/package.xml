@@ -21,8 +21,8 @@
   <depend>controller_interface</depend>
   <depend>controller_manager</depend>
   <depend>controller_manager_msgs</depend>
-  <depend version_gte="2.1.0">clearpath_motor_msgs</depend>
-  <depend version_gte="2.1.0">clearpath_platform_msgs</depend>
+  <depend version_gte="2.3.0">clearpath_motor_msgs</depend>
+  <depend version_gte="2.3.0">clearpath_platform_msgs</depend>
   <depend>diagnostic_msgs</depend>
   <depend>diagnostic_updater</depend>
   <depend>hardware_interface</depend>
@@ -36,8 +36,8 @@
   <depend>tf2</depend>
   <depend>tf2_ros</depend>
 
-  <exec_depend version_gte="2.1.0">clearpath_control</exec_depend>
-  <exec_depend version_gte="2.1.0">clearpath_platform_description</exec_depend>
+  <exec_depend version_gte="2.3.0">clearpath_control</exec_depend>
+  <exec_depend version_gte="2.3.0">clearpath_platform_description</exec_depend>
   <exec_depend>xacro</exec_depend>
 
   <export>

@@ -2,11 +2,11 @@
 Changelog for package clearpath_platform
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.1.0 (2025-01-15)
-------------------
-* Add HE2411 battery support (`#119 <https://github.com/clearpathrobotics/clearpath_robot/issues/119>`_)
-  * Add support for the HE2410 and HE2411 batteries
-* Contributors: Chris Iverach-Brereton
+Forthcoming
+-----------
+* [clearpath_hardware_interfaces] Added user fan control and hysteresis when leaving a warning/error state.
+* Jazzy dingo and ridgeback fixes (`#169 <https://github.com/clearpathrobotics/clearpath_robot/issues/169>`_)
+* Contributors: Roni Kreinin, Tony Baltovski
 
 2.2.4 (2025-04-07)
 ------------------

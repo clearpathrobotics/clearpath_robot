@@ -35,7 +35,7 @@
 
   <!--
     ROS driver packages that are currently source-only
-    See appropriate repositories on GitHub for instalation instructions
+    See appropriate repositories on GitHub for installation instructions
 
     <exec_depend version_eq="7.0.6">fixposition_driver_ros2</exec_depend>
     <exec_depend>zed_wrapper</exec_depend>

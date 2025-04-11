@@ -2,6 +2,15 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Feature: Add UR socat tool communication script (`#174 <https://github.com/clearpathrobotics/clearpath_robot/issues/174>`_) (`#179 <https://github.com/clearpathrobotics/clearpath_robot/issues/179>`_)
+* Add exception handlers to the generators for Unsupported* exceptions (`#181 <https://github.com/clearpathrobotics/clearpath_robot/issues/181>`_)
+* Move extras launch into a new service (`#178 <https://github.com/clearpathrobotics/clearpath_robot/issues/178>`_)
+* Feature/diagnostic categories (`#175 <https://github.com/clearpathrobotics/clearpath_robot/issues/175>`_)
+* Feature/inventus diagnostics (`#170 <https://github.com/clearpathrobotics/clearpath_robot/issues/170>`_)
+* Contributors: Chris Iverach-Brereton, Hilary Luo, luis-camero
+
 2.2.4 (2025-04-07)
 ------------------
 * [clearpath_generator_robot] Added python3-apt as exec dep. (`#182 <https://github.com/clearpathrobotics/clearpath_robot/issues/182>`_)

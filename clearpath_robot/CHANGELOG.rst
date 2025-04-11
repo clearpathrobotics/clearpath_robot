@@ -2,12 +2,14 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.1.0 (2025-01-15)
-------------------
-* Add dependency for ewellix_driver (`#125 <https://github.com/clearpathrobotics/clearpath_robot/issues/125>`_)
-  * Add dependency for ewellix_driver
-  * Alphabetical dependencies
-* Contributors: luis-camero
+Forthcoming
+-----------
+* Feature: Add CAN adapters (`#192 <https://github.com/clearpathrobotics/clearpath_robot/issues/192>`_)
+* Automatically rerun install script on package update (`#193 <https://github.com/clearpathrobotics/clearpath_robot/issues/193>`_)
+* Move symlinks into `clearpath-robot.service.wants` instead of `multi-user.target.wants` (`#187 <https://github.com/clearpathrobotics/clearpath_robot/issues/187>`_)
+* Add `clearpath_tests` as dependency for metapackage (`#180 <https://github.com/clearpathrobotics/clearpath_robot/issues/180>`_)
+* Move extras launch into a new service (`#178 <https://github.com/clearpathrobotics/clearpath_robot/issues/178>`_)
+* Contributors: Chris Iverach-Brereton, Luis Camero
 
 2.2.4 (2025-04-07)
 ------------------
