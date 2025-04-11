@@ -153,6 +153,7 @@ public:
   void updateReset();
   void copyApplication(const std::queue<uint8_t> app);
   float updateApp();
+  void updateFailed();
 
   // Helpers to generate data for CAN messages.
   template <typename DataT>
@@ -162,6 +163,7 @@ public:
 
   // Diagnostics
   void runFreqStatus(diagnostic_updater::DiagnosticStatusWrapper & stat);
+  void driverUpdateDiagnostics(diagnostic_updater::DiagnosticStatusWrapper & stat, bool updating);
 
 private:
   // Driver variables
@@ -199,6 +201,10 @@ private:
   // Frequency Status for diagnostics
   std::shared_ptr<double> can_feedback_rate_; // Shared ptr prevents copy errors of FrequencyStatus
   std::shared_ptr<diagnostic_updater::FrequencyStatus> can_feedback_freq_status_;
+
+  // Track update for diagnostics
+  float update_progress_;
+  bool update_failed_;
 };
 
 }  // namespace lynx_motor_driver

@@ -30,49 +30,94 @@
 usage() { echo "Usage: $0 -p port -d device -v virtual -b baud" 1>&2; }
 help()
 {
+  echo "-t: type of can adapter [virtual, serial, can]";
   echo "-p: port to bind to [11412]";
-  echo "-d: device to create [ttycan0]";
-  echo "-v: virtual can device [vcan0]";
+  echo "-s: serial device to create [ttycan0]";
+  echo "-c: can device [vcan0]";
   echo "-b: baud level [s0 (10 Kbit/s), s1 (20 Kbit/s), s2 (50 Kbit/s), s3 (100 Kbit/s), s4 (125 Kbit/s), s5 (250 Kbit/s), s6 (500 Kbit/s), s7 (800 Kbit/s), s8 (1000 Kbit/s)]";
 }
 
-while getopts :p:d:v:b:h: o;
+# Default: Virtual CAN for motor controllers
+type="virtual"
+port="11412"
+serial_dev="ttycan0"
+can_dev="vcan0"
+baud="s8"
+
+while getopts :t:p:s:c:b:h: o;
 do
   case "${o}" in
+    t) type=${OPTARG};;
     p) port=${OPTARG};;
-    d) dev=${OPTARG};;
-    v) vcan=${OPTARG};;
+    s) serial_dev=${OPTARG};;
+    c) can_dev=${OPTARG};;
     b) baud=${OPTARG};;
     h | *) usage; help; exit 0;;
   esac
 done
 
-if [ -z "${port}" ] || [ -z "${dev}" ] || [ -z "${vcan}" ] || [ -z "${baud}" ]; then
-  echo "Missing required arguments.";
-  usage;
-  help;
-  exit 1;
+# Virtual CAN
+if [ "${type}" ==  "virtual" ]; then
+  echo "Port: $port";
+  echo "Device: $serial_dev";
+  echo "Virtual CAN: $can_dev";
+  echo "Baud Rate: $baud";
+  # Required Arguments
+  if [ -z "${port}" ] || [ -z "${serial_dev}" ] || [ -z "${can_dev}" ] || [ -z "${baud}" ]; then
+    echo "Missing required arguments.";
+    usage;
+    help;
+    exit 1;
+  fi
+  # Bind to UDP4 socket, create a new pty device and bridge them
+  socat udp4-datagram:192.168.131.2:$port,bind=:$port,range=192.168.131.1/24 pty,link=$serial_dev,echo=0 &
+  sleep 1
 fi
 
-echo "Port: $port";
-echo "Device: $dev";
-echo "Virtual CAN: $vcan";
-echo "Baud Rate: $baud";
+# Serial CAN
+if [ "${type}" == "serial" ]; then
+  echo "Serial Device: $serial_dev";
+  echo "CAN Device: $can_dev";
+  echo "Baud Rate: $baud";
+  # Required Arguments
+  if [ -z "${serial_dev}" ] || [ -z "${can_dev}" ] || [ -z "${baud}" ]; then
+    echo "Missing required arguments.";
+    usage;
+    help;
+    exit 1;
+  fi
+fi
 
-# Bind to UDP4 socket, create a new pty device and bridge them
-socat udp4-datagram:192.168.131.2:$port,bind=:$port,range=192.168.131.1/24 pty,link=$dev,echo=0 &
-sleep 1
+# Virtual and Serial
+if [ "${type}" ==  "virtual" ] || [ "${type}" == "serial" ]; then
+  # Create virtual serial CAN interface using the pty serial device
+  slcand -o -c -F -$baud $serial_dev $can_dev &
+  sleep 1
+fi
 
-# Create virtual serial CAN interface using the pty serial device
-slcand -o -c -F -$baud $dev $vcan &
-sleep 1
+# Physical CAN
+if [ "${type}" == "physical" ]; then
+  echo "CAN Device: $can_dev";
+  echo "Baud Rate: $baud";
+  # Required Arguments
+  if [ -z "${can_dev}" ] || [ -z "${baud}" ]; then
+    echo "Missing required arguments.";
+    usage;
+    help;
+    exit 1;
+  fi
+  ip link set can0 type can bitrate ${baud}
+fi
 
-# Increase Tx queue length
-ip link set $vcan txqueuelen 100
-sleep 1
+# All
+if [ "${type}" ==  "virtual" ] || [ "${type}" == "serial" ] || [ "${type}" == "physical" ]; then
+  # Increase Tx queue length
+  ip link set $can_dev txqueuelen 100
+  sleep 1
 
-# Bring vcan interface up
-ip link set $vcan up
+  # Bring vcan interface up
+  ip link set $can_dev up
 
-# Send a message to the virtual CAN interface to enable echoing on the serial device
-cangen $vcan -n 1 -L 0 -I 0
+  # Send a message to the virtual CAN interface to enable echoing on the serial device
+  cangen $can_dev -n 1 -L 0 -I 0
+fi

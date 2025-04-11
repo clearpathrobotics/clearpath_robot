@@ -42,6 +42,44 @@ import os
 import robot_upstart.providers
 
 
+def replace_user_in_systemd_job(
+    username: str,
+    service_path: str,
+) -> str:
+    """
+    Read a systemd job file, replace the username for jobs, and return the contents.
+
+    :param username: The desired username to use as the owner of the job
+    :param service_path: The path to the file to process
+    :return: The same contents as the provided file, but with the username replaced to
+        be the provided one
+    """
+    file_contents: str = ''
+    with open(service_path, 'r') as f:
+        for line in f.readlines():
+            # Replace User with username from config
+            if 'User=' in line:
+                line = f'User={username}\n'
+            file_contents += line
+    return file_contents
+
+
+class ClearpathRobotProvider(robot_upstart.providers.Systemd):
+    """Same a the standard systemd provider, but with symlinks in clearpath_robot.wants."""
+
+    def generate_install(self):
+        files = super().generate_install()
+
+        # replace the multi-user.target.wants items with clearpath-robot.service.wants
+        multi_user_path = os.path.join(
+            self.root, "etc/systemd/system/multi-user.target.wants", self.job.name + ".service")
+        clearpath_robot_path = os.path.join(
+            self.root, "etc/systemd/system/clearpath-robot.service.wants", self.job.name + ".service")
+        files[clearpath_robot_path] = files[multi_user_path]
+        files.pop(multi_user_path)
+        return files
+
+
 class VirtualCANProvider(robot_upstart.providers.Generic):
     def post_install(self):
         pass
@@ -80,14 +118,10 @@ class PlatformProvider(robot_upstart.providers.Generic):
         platform_service_path = os.path.join(
             get_package_share_directory('clearpath_robot'),
             'services/clearpath-platform.service')
-        with open(platform_service_path) as f:
-            platform_service_contents: str = ''
-            platform_service_lines = f.readlines()
-            for line in platform_service_lines:
-                # Replace User with username from config
-                if 'User=' in line:
-                    line = 'User={0}\n'.format(clearpath_config.system.username)
-                platform_service_contents += line
+        platform_service_contents = replace_user_in_systemd_job(
+            clearpath_config.system.username,
+            platform_service_path,
+        )
         return {
             '/lib/systemd/system/clearpath-platform.service': {
                 'content': platform_service_contents,
@@ -95,6 +129,29 @@ class PlatformProvider(robot_upstart.providers.Generic):
             },
             '/etc/systemd/system/clearpath-robot.service.wants/clearpath-platform.service': {
                 'symlink': '/lib/systemd/system/clearpath-platform.service'
+            }
+        }
+
+
+class PlatformExtrasProvider(robot_upstart.providers.Generic):
+    def post_install(self):
+        pass
+
+    def generate_install(self):
+        platform_extras_service_path = os.path.join(
+            get_package_share_directory('clearpath_robot'),
+            'services/clearpath-platform-extras.service')
+        platform_extras_service_contents = replace_user_in_systemd_job(
+            clearpath_config.system.username,
+            platform_extras_service_path,
+        )
+        return {
+            '/lib/systemd/system/clearpath-platform-extras.service': {
+                'content': platform_extras_service_contents,
+                'mode': 0o644
+            },
+            '/etc/systemd/system/clearpath-robot.service.wants/clearpath-platform-extras.service': {  # noqa: E501
+                'symlink': '/lib/systemd/system/clearpath-platform-extras.service'
             }
         }
 
@@ -107,14 +164,10 @@ class SensorsProvider(robot_upstart.providers.Generic):
         sensors_service_path = os.path.join(
             get_package_share_directory('clearpath_robot'),
             'services/clearpath-sensors.service')
-        with open(sensors_service_path) as f:
-            sensors_service_contents: str = ''
-            sensors_service_lines = f.readlines()
-            for line in sensors_service_lines:
-                # Replace User with username from config
-                if 'User=' in line:
-                    line = 'User={0}\n'.format(clearpath_config.system.username)
-                sensors_service_contents += line
+        sensors_service_contents = replace_user_in_systemd_job(
+            clearpath_config.system.username,
+            sensors_service_path,
+        )
         return {
             '/lib/systemd/system/clearpath-sensors.service': {
                 'content': sensors_service_contents,
@@ -134,14 +187,10 @@ class ManipulatorsProvider(robot_upstart.providers.Generic):
         manipulators_service_path = os.path.join(
             get_package_share_directory('clearpath_robot'),
             'services/clearpath-manipulators.service')
-        with open(manipulators_service_path) as f:
-            manipulators_service_contents: str = ''
-            manipulators_service_lines = f.readlines()
-            for line in manipulators_service_lines:
-                # Replace User with username from config
-                if 'User=' in line:
-                    line = 'User={0}\n'.format(clearpath_config.system.username)
-                manipulators_service_contents += line
+        manipulators_service_contents = replace_user_in_systemd_job(
+            clearpath_config.system.username,
+            manipulators_service_path,
+        )
         return {
             '/lib/systemd/system/clearpath-manipulators.service': {
                 'content': manipulators_service_contents,
@@ -161,15 +210,10 @@ class DiscoveryServerProvider(robot_upstart.providers.Generic):
         discovery_service_path = os.path.join(
             get_package_share_directory('clearpath_robot'),
             'services/clearpath-discovery.service')
-        with open(discovery_service_path) as f:
-            discovery_service_contents: str = ''
-            discovery_service_lines = f.readlines()
-            for line in discovery_service_lines:
-                # Replace User with username from config
-                if 'User=' in line:
-                    line = 'User={0}\n'.format(clearpath_config.system.username)
-                discovery_service_contents += line
-
+        discovery_service_contents = replace_user_in_systemd_job(
+            clearpath_config.system.username,
+            discovery_service_path,
+        )
         return {
             '/lib/systemd/system/clearpath-discovery.service': {
                 'content': discovery_service_contents,
@@ -189,15 +233,10 @@ class ZenohRouterServiceProvider(robot_upstart.providers.Generic):
         zenoh_router_service_path = os.path.join(
             get_package_share_directory('clearpath_robot'),
             'services/clearpath-zenoh-router.service')
-        with open(zenoh_router_service_path) as f:
-            zenoh_router_service_contents: str = ''
-            zenoh_router_lines = f.readlines()
-            for line in zenoh_router_lines:
-                # Replace User with username from config
-                if 'User=' in line:
-                    line = f'User={clearpath_config.system.username}\n'
-                zenoh_router_service_contents += line
-
+        zenoh_router_service_contents = replace_user_in_systemd_job(
+            clearpath_config.system.username,
+            zenoh_router_service_path,
+        )
         return {
                 '/lib/systemd/system/clearpath-zenoh-router.service': {
                     'content': zenoh_router_service_contents,
@@ -224,14 +263,10 @@ class RobotProvider(robot_upstart.providers.Generic):
             get_package_share_directory('clearpath_robot'),
             'scripts/check')
 
-        with open(robot_service_path) as f:
-            robot_service_contents: str = ''
-            robot_service_lines = f.readlines()
-            for line in robot_service_lines:
-                # Replace User with username from config
-                if 'User=' in line:
-                    line = 'User={0}\n'.format(clearpath_config.system.username)
-                robot_service_contents += line
+        robot_service_contents = replace_user_in_systemd_job(
+            clearpath_config.system.username,
+            robot_service_path
+        )
         with open(robot_service_execpre_contents_path) as f:
             robot_service_execpre_contents = f.read()
         with open(robot_service_exec_contents_path) as f:
@@ -248,7 +283,10 @@ class RobotProvider(robot_upstart.providers.Generic):
             '/usr/sbin/clearpath-robot-check': {
                 'content': robot_service_exec_contents,
                 'mode': 0o755
-            }
+            },
+            '/etc/systemd/system/multi-user.target.wants/clearpath-robot.service': {
+                'symlink': '/lib/systemd/system/clearpath-robot.service'
+            },
         }
 
 class ShutdownProvider(robot_upstart.providers.Generic):
@@ -286,6 +324,9 @@ config_path = os.path.join(setup_path, 'robot.yaml')
 platform_service_launch = os.path.join(
     setup_path,
     'platform/launch/platform-service.launch.py')
+platform_extras_service_launch = os.path.join(
+    setup_path,
+    'platform-extras/launch/platform-extras-service.launch.py')
 sensors_service_launch = os.path.join(
     setup_path,
     'sensors/launch/sensors-service.launch.py')
@@ -303,7 +344,7 @@ domain_id = clearpath_config.system.domain_id
 # Check that user exists
 try:
     pwd.getpwnam(clearpath_config.system.username)
-except:
+except:  # noqa: E722
     print(
         f'Error. User "{clearpath_config.system.username}" does not exist.\n'
         f'Modify the "robot.yaml" system.username entry to match an existing user.'
@@ -314,12 +355,20 @@ except:
 if not os.path.isfile(platform_service_launch):
     os.makedirs(os.path.dirname(platform_service_launch), exist_ok=True)
     open(platform_service_launch, 'w+').close()
+if not os.path.isfile(platform_extras_service_launch):
+    os.makedirs(os.path.dirname(platform_extras_service_launch), exist_ok=True)
+    open(platform_extras_service_launch, 'w+').close()
 if not os.path.isfile(sensors_service_launch):
     os.makedirs(os.path.dirname(sensors_service_launch), exist_ok=True)
     open(sensors_service_launch, 'w+').close()
 if not os.path.isfile(manipulators_service_launch):
     os.makedirs(os.path.dirname(manipulators_service_launch), exist_ok=True)
     open(manipulators_service_launch, 'w+').close()
+
+# Robot
+# this should be first, as subsequent jobs are part of this service
+robot = robot_upstart.Job(workspace_setup=workspace_setup)
+robot.install(Provider=RobotProvider)
 
 # Platform
 platform = robot_upstart.Job(
@@ -330,10 +379,24 @@ platform = robot_upstart.Job(
 
 platform.symlink = True
 platform.add(filename=platform_service_launch)
-platform.install()
+platform.install(Provider=ClearpathRobotProvider)
 
-platform_extras = robot_upstart.Job(workspace_setup=workspace_setup)
-platform_extras.install(Provider=PlatformProvider)
+platform_provider_files = robot_upstart.Job(workspace_setup=workspace_setup)
+platform_provider_files.install(Provider=PlatformProvider)
+
+# Platform extras
+platform_extras = robot_upstart.Job(
+    name='clearpath-platform-extras',
+    rmw=rmw,
+    workspace_setup=workspace_setup,
+    ros_domain_id=domain_id)
+
+platform_extras.symlink = True
+platform_extras.add(filename=platform_extras_service_launch)
+platform_extras.install(Provider=ClearpathRobotProvider)
+
+platform_extras_provider_files = robot_upstart.Job(workspace_setup=workspace_setup)
+platform_extras_provider_files.install(Provider=PlatformExtrasProvider)
 
 # Sensors
 sensors = robot_upstart.Job(
@@ -344,10 +407,10 @@ sensors = robot_upstart.Job(
 
 sensors.symlink = True
 sensors.add(filename=sensors_service_launch)
-sensors.install()
+sensors.install(Provider=ClearpathRobotProvider)
 
-sensors_extras = robot_upstart.Job(workspace_setup=workspace_setup)
-sensors_extras.install(Provider=SensorsProvider)
+sensors_provider_files = robot_upstart.Job(workspace_setup=workspace_setup)
+sensors_provider_files.install(Provider=SensorsProvider)
 
 # Manipulators
 manipulators = robot_upstart.Job(
@@ -358,10 +421,10 @@ manipulators = robot_upstart.Job(
 
 manipulators.symlink = True
 manipulators.add(filename=manipulators_service_launch)
-manipulators.install()
+manipulators.install(Provider=ClearpathRobotProvider)
 
-manipulators_extras = robot_upstart.Job(workspace_setup=workspace_setup)
-manipulators_extras.install(Provider=ManipulatorsProvider)
+manipulators_provider_files = robot_upstart.Job(workspace_setup=workspace_setup)
+manipulators_provider_files.install(Provider=ManipulatorsProvider)
 
 # Discovery Server
 discovery_server = robot_upstart.Job(workspace_setup=workspace_setup)
@@ -379,8 +442,12 @@ vcan_bridge.install(Provider=VirtualCANProvider)
 shutdown = robot_upstart.Job(workspace_setup=workspace_setup)
 shutdown.install(Provider=ShutdownProvider)
 
-# Robot
-robot = robot_upstart.Job(workspace_setup=workspace_setup)
-robot.install(Provider=RobotProvider)
-print('** To complete installation please run the following command:')
-print('  sudo systemctl daemon-reload && sudo systemctl start clearpath-robot')
+print("""
+
+** INSTALLATION COMPLETE **
+
+To finalize installation please run the following command:
+
+    sudo systemctl daemon-reload && sudo systemctl start clearpath-robot
+
+""")

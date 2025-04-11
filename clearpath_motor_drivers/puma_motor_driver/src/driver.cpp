@@ -66,6 +66,7 @@ Driver::Driver(
   device_name_(device_name),
   configured_(false),
   state_(ConfigurationState::Initializing),
+  last_power_clear_ts_(0.0),
   control_mode_(clearpath_motor_msgs::msg::PumaStatus::MODE_SPEED),
   gain_p_(1),
   gain_i_(0),
@@ -111,7 +112,7 @@ void Driver::processMessage(const can_msgs::msg::Frame::SharedPtr received_msg)
 
   // Copy the received data and mark that field as received.
   std::copy_n(std::begin(received_msg->data), Field::FIELD_STRUCT_DATA_SIZE,
-      std::begin(field->data));
+    std::begin(field->data));
   field->received = true;
 }
 
@@ -123,7 +124,7 @@ double Driver::radPerSecToRpm() const
 void Driver::sendId(const uint32_t id)
 {
   can_msgs::msg::Frame msg = getMsg(id);
-  interface_->queue(msg);
+  interface_->send(msg);
 }
 
 void Driver::sendUint8(const uint32_t id, const uint8_t value)
@@ -134,7 +135,7 @@ void Driver::sendUint8(const uint32_t id, const uint8_t value)
   std::memcpy(data, &value, sizeof(uint8_t));
   std::copy(std::begin(data), std::end(data), std::begin(msg.data));
 
-  interface_->queue(msg);
+  interface_->send(msg);
 }
 
 void Driver::sendUint16(const uint32_t id, const uint16_t value)
@@ -145,7 +146,7 @@ void Driver::sendUint16(const uint32_t id, const uint16_t value)
   std::memcpy(data, &value, sizeof(uint16_t));
   std::copy(std::begin(data), std::end(data), std::begin(msg.data));
 
-  interface_->queue(msg);
+  interface_->send(msg);
 }
 
 void Driver::sendFixed8x8(const uint32_t id, const float value)
@@ -158,7 +159,7 @@ void Driver::sendFixed8x8(const uint32_t id, const float value)
   std::memcpy(data, &output_value, sizeof(int16_t));
   std::copy(std::begin(data), std::end(data), std::begin(msg.data));
 
-  interface_->queue(msg);
+  interface_->send(msg);
 }
 
 void Driver::sendFixed16x16(const uint32_t id, const double value)
@@ -171,7 +172,7 @@ void Driver::sendFixed16x16(const uint32_t id, const double value)
   std::memcpy(data, &output_value, sizeof(int32_t));
   std::copy(std::begin(data), std::end(data), std::begin(msg.data));
 
-  interface_->queue(msg);
+  interface_->send(msg);
 }
 
 can_msgs::msg::Frame Driver::getMsg(const uint32_t id)
@@ -248,17 +249,21 @@ void Driver::verifyParams()
 {
   switch (state_) {
     case ConfigurationState::Initializing:
-      RCLCPP_INFO(rclcpp::get_logger("rclcpp"),
-        "Puma Motor Controller on %s (%i): starting to verify parameters.",
-        device_name_.c_str(), device_number_);
-      state_ = ConfigurationState::PowerFlag;
+      // Don't advance state until we receive LM_API_STATUS_POWER msg
+      if (receivedPower()) {
+        state_ = ConfigurationState::PowerFlag;
+      } else {
+        sendId(LM_API_STATUS_POWER | device_number_);
+      }
       break;
     case ConfigurationState::PowerFlag:
-      if (lastPower() == 0) {
-        state_ = ConfigurationState::EncoderPosRef;
+      if (receivedPower() && (lastPower() == 0)) {
+        // Only advance state when we have a new LM_API_STATUS_POWER msg
+        // with the power flag cleared
         RCLCPP_INFO(rclcpp::get_logger("rclcpp"),
           "Puma Motor Controller on %s (%i): cleared power flag.",
           device_name_.c_str(), device_number_);
+        state_ = ConfigurationState::EncoderPosRef;
       } else {
         sendId(LM_API_STATUS_POWER | device_number_);
       }
@@ -399,9 +404,19 @@ void Driver::verifyParams()
 
 void Driver::configureParams()
 {
+  const double now = nh_->get_clock()->now().seconds();
   switch (state_) {
+    case ConfigurationState::Initializing:
+      break;
     case ConfigurationState::PowerFlag:
-      sendUint8((LM_API_STATUS_POWER | device_number_), 1);
+      // Continue to check last power flag until it has been cleared
+      if (lastPower() == 1) {
+        // Send request every second
+        if ((now - last_power_clear_ts_) > 1.0) {
+          sendUint8((LM_API_STATUS_POWER | device_number_), 1);
+          last_power_clear_ts_ = now;
+        }
+      }
       break;
     case ConfigurationState::EncoderPosRef:
       sendUint8((LM_API_POS_REF | device_number_), LM_REF_ENCODER);

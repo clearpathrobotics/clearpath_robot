@@ -34,6 +34,7 @@
 import os
 
 from clearpath_config.common.types.platform import Platform
+from clearpath_config.manipulators.types.arms import UniversalRobots
 from clearpath_config.platform.battery import BatteryConfig
 from clearpath_generator_common.common import LaunchFile, Package, ParamFile
 from clearpath_generator_common.launch.generator import LaunchGenerator
@@ -235,10 +236,10 @@ class RobotLaunchGenerator(LaunchGenerator):
                     can_dev = launch_args['can_device']
 
             self.bms_node = LaunchFile.Node(
-                'inventus_bmu',
-                'inventus_bmu',
-                'inventus_bmu_driver',
-                self.namespace,
+                name='inventus_bmu',
+                package='inventus_bmu',
+                executable='inventus_bmu_driver',
+                namespace=self.namespace,
                 parameters=[
                     inventus_bmu_params,
                     {'can_device': can_dev},
@@ -248,8 +249,8 @@ class RobotLaunchGenerator(LaunchGenerator):
                 remappings=[
                     ('bms/battery_state', 'platform/bms/state'),
                     ('modules', 'platform/bms/modules'),
-                    ('bms/low_soc_alarm', 'platform/bms/low_soc_alarm'),
-                    ('bms/soc_difference_alarm', 'platform/bms/soc_difference_alarm')
+                    ('bms/soc', 'platform/bms/soc'),
+                    ('/diagnostics', 'diagnostics')
                 ]
             )
 
@@ -269,6 +270,7 @@ class RobotLaunchGenerator(LaunchGenerator):
           executable='sevcon_traction_node',
           name='sevcon_traction_node',
           namespace=self.namespace,
+          remappings=[('/diagnostics', 'diagnostics')],
         )
 
         # Puma Multi-Drive Node
@@ -278,6 +280,7 @@ class RobotLaunchGenerator(LaunchGenerator):
           parameters=[os.path.join(self.platform_params_path, 'control.yaml')],
           name='puma_control',
           namespace=self.namespace,
+          remappings=[('/diagnostics', 'diagnostics')],
         )
 
         # BLDC Multi-Drive Node
@@ -424,16 +427,6 @@ class RobotLaunchGenerator(LaunchGenerator):
                 # Include sensor launch in top level sensors launch file
                 sensors_service_launch_writer.add(sensor_launch.launch_file)
 
-        if self.clearpath_config.platform.extras.launch:
-            extra_launch = LaunchFile(
-                name=(os.path.basename(
-                    self.clearpath_config.platform.extras.launch['path']
-                )).split('.')[0],
-                path=os.path.dirname(self.clearpath_config.platform.extras.launch['path']),
-                package=Package(self.clearpath_config.platform.extras.launch['package']),
-            )
-            sensors_service_launch_writer.add(extra_launch)
-
         sensors_service_launch_writer.generate_file()
 
     def generate_platform(self) -> None:
@@ -451,8 +444,43 @@ class RobotLaunchGenerator(LaunchGenerator):
 
         platform_service_launch_writer.generate_file()
 
+        platform_extras_service_launch_writer = LaunchWriter(
+            self.platform_extras_service_launch_file)
+        platform_extras_service_launch_writer.add(self.platform_extras_launch_file)
+
+        if self.clearpath_config.platform.extras.launch:
+            extra_launch = LaunchFile(
+                name=(os.path.basename(
+                    self.clearpath_config.platform.extras.launch['path']
+                )).split('.')[0],
+                path=os.path.dirname(self.clearpath_config.platform.extras.launch['path']),
+                package=Package(self.clearpath_config.platform.extras.launch['package']),
+            )
+            platform_extras_service_launch_writer.add(extra_launch)
+
+        platform_extras_service_launch_writer.generate_file()
+
     def generate_manipulators(self) -> None:
         manipulator_service_launch_writer = LaunchWriter(self.manipulators_service_launch_file)
+        # Universal Robots Tool Communication
+        for arm in self.clearpath_config.manipulators.get_all_arms():
+            if arm.MANIPULATOR_MODEL == UniversalRobots.MANIPULATOR_MODEL:
+                node = LaunchFile.Node(
+                    name=f'{arm.name}_ur_tool_comm',
+                    package='ur_robot_driver',
+                    executable='tool_communication.py',
+                    namespace=self.namespace,
+                    parameters=[{
+                        'robot_ip': arm.ip,
+                        'tcp_port': 54321,
+                        'device_name': f'/tmp/{arm.name}_gripper'
+                    }],
+                )
+                manipulator_service_launch_writer.add_node(node)
+                # Delay controllers
+                self.manipulators_launch_file.args.append(
+                    ('control_delay', '1.0')
+                )
         if self.clearpath_config.manipulators.get_all_manipulators():
             manipulator_service_launch_writer.add(self.manipulators_launch_file)
         manipulator_service_launch_writer.generate_file()

@@ -1,9 +1,7 @@
-#!/usr/bin/env python3
-
 # Software License Agreement (BSD)
 #
-# @author    Roni Kreinin <rkreinin@clearpathrobotics.com>
-# @copyright (c) 2023, Clearpath Robotics, Inc., All rights reserved.
+# @author    Luis Camero <lcamero@clearpathrobotics.com>
+# @copyright (c) 2025, Clearpath Robotics, Inc., All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -27,32 +25,41 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 
-# Redistribution and use in source and binary forms, with or without
-# modification, is not permitted without the express permission
-# of Clearpath Robotics.
-
-from clearpath_config.common.types.exception import (
-    UnsupportedAccessoryException,
-    UnsupportedMiddlewareException,
-    UnsupportedPlatformException,
-)
-from clearpath_generator_common.common import BaseGenerator
-from clearpath_generator_robot.launch.generator import RobotLaunchGenerator
+from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
 
 
-def main():
-    try:
-        setup_path = BaseGenerator.get_args()
-        rlg = RobotLaunchGenerator(setup_path)
-        rlg.generate()
-    except UnsupportedAccessoryException as err:
-        print(f'[ERROR] Unable to generate robot launch: {err}')
-    except UnsupportedMiddlewareException as err:
-        print(f'[ERROR] Unable to generate robot launch: {err}')
-    except UnsupportedPlatformException as err:
-        print(f'[ERROR] Unable to generate robot launch: {err}')
+def generate_launch_description():
+    parameters = LaunchConfiguration('parameters')
+    namespace = LaunchConfiguration('namespace')
 
+    arg_namespace = DeclareLaunchArgument(
+        'namespace',
+        default_value='')
 
-if __name__ == '__main__':
-    main()
+    arg_parameters = DeclareLaunchArgument(
+        'parameters',
+        default_value=PathJoinSubstitution([
+          FindPackageShare('clearpath_sensors'),
+          'config',
+          'wiferion.yaml'
+        ]))
+
+    wiferion_node = Node(
+        name='wiferion',
+        package='wiferion_charger',
+        namespace=namespace,
+        executable='wiferion_node',
+        parameters=[parameters],
+        output='screen',
+    )
+
+    ld = LaunchDescription()
+    ld.add_action(arg_namespace)
+    ld.add_action(arg_parameters)
+    ld.add_action(wiferion_node)
+    return ld

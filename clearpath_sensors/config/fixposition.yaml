@@ -1,0 +1,16 @@
+fixposition_driver:
+  ros__parameters:
+    fp_output:
+      formats:
+        - ODOMETRY
+        - LLH
+        - RAWIMU
+        - CORRIMU
+      port: "21001"
+      ip: 192.168.131.35
+      rate: 200
+      type: tcp
+      reconnect: 5
+    customer_input:
+      speed_topic: "xvn/speed"
+      rtcm_topic: "xvn/rtcm"
