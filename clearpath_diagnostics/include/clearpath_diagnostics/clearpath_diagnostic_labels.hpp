@@ -78,18 +78,18 @@ public:
   // Common Core Measured Voltage Labels
   inline static const std::vector<std::string> CC01_MEASURED_VOLTAGES = {
     "Battery",
-    "User Battery Voltage",
+    "User Battery",
     "User 24V",
     "User 12V",
     "System 12V",
-    "Expansion Voltage",
-    "Breakout 24V Aux Voltage",
-    "Breakout 12V Aux Voltage",
-    "Breakout User 12VA Voltage",
-    "Breakout Lynx1 Voltage",
-    "Breakout Lynx2 Voltage",
-    "Breakout Lynx3 Voltage",
-    "Breakout Lynx4 Voltage"
+    "Expansion",
+    "Breakout 24V Aux",
+    "Breakout 12V Aux",
+    "Breakout User 12VA",
+    "Breakout Lynx1",
+    "Breakout Lynx2",
+    "Breakout Lynx3",
+    "Breakout Lynx4"
   };
 
   // Common Core Measured Currents Labels
@@ -103,10 +103,10 @@ public:
     "Breakout User 24V",
     "Breakout User 12VA",
     "Breakout User 12VB",
-    "Breakout Lynx1 Voltage",
-    "Breakout Lynx2 Voltage",
-    "Breakout Lynx3 Voltage",
-    "Breakout Lynx4 Voltage"
+    "Breakout Lynx1",
+    "Breakout Lynx2",
+    "Breakout Lynx3",
+    "Breakout Lynx4"
   };
 
   inline static const std::map<std::string, std::vector<std::string>> MEASURED_VOLTAGES = {
