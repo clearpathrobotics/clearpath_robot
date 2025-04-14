@@ -2,6 +2,9 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.3.0 (2025-04-11)
 ------------------
 * Feature: Add CAN adapters (`#192 <https://github.com/clearpathrobotics/clearpath_robot/issues/192>`_)

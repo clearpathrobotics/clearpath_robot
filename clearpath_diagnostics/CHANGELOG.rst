@@ -2,6 +2,12 @@
 Changelog for package clearpath_diagnostics
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Remove duplicate and incorrect current / voltage labels (`#197 <https://github.com/clearpathrobotics/clearpath_robot/issues/197>`_)
+  The terms "measured voltage" or "measured current" are prepended to these labels where they are used.
+* Contributors: Hilary Luo
+
 2.3.0 (2025-04-11)
 ------------------
 * Lint: Diagnostic move log to new line (`#191 <https://github.com/clearpathrobotics/clearpath_robot/issues/191>`_)

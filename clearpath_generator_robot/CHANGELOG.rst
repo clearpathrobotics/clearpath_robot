@@ -2,6 +2,9 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.3.0 (2025-04-11)
 ------------------
 * Feature: Add UR socat tool communication script (`#174 <https://github.com/clearpathrobotics/clearpath_robot/issues/174>`_) (`#179 <https://github.com/clearpathrobotics/clearpath_robot/issues/179>`_)

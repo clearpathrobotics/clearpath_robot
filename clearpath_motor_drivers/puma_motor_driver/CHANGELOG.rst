@@ -5,6 +5,9 @@ Changelog for package puma_motor_driver
 1.1.0 (2025-01-15)
 ------------------
 
+Forthcoming
+-----------
+
 2.3.0 (2025-04-11)
 ------------------
 * Reduced feedback frequency to 20hz (`#195 <https://github.com/clearpathrobotics/clearpath_robot/issues/195>`_)
