@@ -93,6 +93,25 @@ target_link_libraries(${FAN_CONTROL_EXECUTABLE})
 ament_target_dependencies(${FAN_CONTROL_EXECUTABLE} ${FAN_CONTROL_DEPENDENCIES})
 
 
+# SW LVC
+set(SW_LVC_EXECUTABLE sw_lvc_node)
+set(SW_LVC_DEPENDENCIES
+  sensor_msgs
+  std_srvs
+  rclcpp
+)
+
+add_executable(${SW_LVC_EXECUTABLE} src/a300/software_lvc.cpp)
+
+target_include_directories(
+  ${SW_LVC_EXECUTABLE}
+  PRIVATE
+  include
+)
+
+target_link_libraries(${SW_LVC_EXECUTABLE})
+ament_target_dependencies(${SW_LVC_EXECUTABLE} ${SW_LVC_DEPENDENCIES})
+
 # A200 Hardware
 add_library(
   a200_hardware
@@ -234,6 +253,7 @@ install(
           ${FAN_CONTROL_EXECUTABLE}
           ${LIGHTING_EXECUTABLE}
           ${LIGHTING_LIB}
+          ${SW_LVC_EXECUTABLE}
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
