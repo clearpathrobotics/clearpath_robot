@@ -10,13 +10,13 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <exec_depend version_gte="1.0.0">clearpath_config</exec_depend>
-  <exec_depend version_gte="1.0.0">clearpath_diagnostics</exec_depend>
-  <exec_depend version_gte="1.0.0">clearpath_generator_common</exec_depend>
-  <exec_depend version_gte="1.0.0">clearpath_sensors</exec_depend>
+  <exec_depend version_gte="1.3.0">clearpath_config</exec_depend>
+  <exec_depend version_gte="1.3.0">clearpath_diagnostics</exec_depend>
+  <exec_depend version_gte="1.3.0">clearpath_generator_common</exec_depend>
+  <exec_depend version_gte="1.3.0">clearpath_sensors</exec_depend>
   <exec_depend>imu_filter_madgwick</exec_depend>
   <exec_depend>micro_ros_agent</exec_depend>
-  <exec_depend version_gte="1.0.0">puma_motor_driver</exec_depend>
+  <exec_depend version_gte="1.3.0">puma_motor_driver</exec_depend>
   <exec_depend>sevcon_traction</exec_depend>
   <exec_depend>valence_bms_driver</exec_depend>
   <exec_depend>wireless_watcher</exec_depend>

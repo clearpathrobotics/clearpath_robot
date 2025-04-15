@@ -8,6 +8,9 @@ Changelog for package clearpath_platform
 0.3.3 (2024-10-04)
 ------------------
 
+Forthcoming
+-----------
+
 1.2.0 (2025-03-14)
 ------------------
 
