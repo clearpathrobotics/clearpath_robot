@@ -92,6 +92,25 @@ target_include_directories(
 target_link_libraries(${FAN_CONTROL_EXECUTABLE})
 ament_target_dependencies(${FAN_CONTROL_EXECUTABLE} ${FAN_CONTROL_DEPENDENCIES})
 
+# Pinout
+set(PINOUT_CONTROL_EXECUTABLE pinout_control_node)
+set(PINOUT_CONTROL_DEPENDENCIES
+  clearpath_platform_msgs
+  std_msgs
+  std_srvs
+  rclcpp
+)
+
+add_executable(${PINOUT_CONTROL_EXECUTABLE} src/pinout/pinout_control.cpp)
+
+target_include_directories(
+  ${PINOUT_CONTROL_EXECUTABLE}
+  PRIVATE
+  include
+)
+
+target_link_libraries(${PINOUT_CONTROL_EXECUTABLE})
+ament_target_dependencies(${PINOUT_CONTROL_EXECUTABLE} ${PINOUT_CONTROL_DEPENDENCIES})
 
 # A200 Hardware
 add_library(
@@ -232,6 +251,7 @@ install(
           puma_hardware
           lynx_hardware
           ${FAN_CONTROL_EXECUTABLE}
+          ${PINOUT_CONTROL_EXECUTABLE}
           ${LIGHTING_EXECUTABLE}
           ${LIGHTING_LIB}
   LIBRARY DESTINATION lib
