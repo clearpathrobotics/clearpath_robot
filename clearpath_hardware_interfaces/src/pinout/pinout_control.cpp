@@ -142,7 +142,7 @@ void PinoutControlNode::railServiceCallback(
   if (state == pinout_state_msg_.rails.at(index))
   {
     response->success = true;
-    response->message = "Rail is already " + state ? "enabled" : "disabled";
+    response->message = std::string("Rail is already ") + (std::string)(state ? "enabled" : "disabled");
   }
   else
   {
@@ -212,7 +212,7 @@ void PinoutControlNode::outputServiceCallback(
     state == pinout_state_msg_.outputs.at(index))
   {
     response->success = true;
-    response->message = "Output state is already " + state ? "enabled" : "disabled";
+    response->message = std::string("Output state is already ") + (std::string)(state ? "enabled" : "disabled");
   }
   else
   {
@@ -236,7 +236,7 @@ void PinoutControlNode::outputServiceCallback(
     {
       // Pinout state received and output state and period have been updated
       if (
-        period == 0 && pinout_state_future.get().outputs[index] == state ||
+        (period == 0 && pinout_state_future.get().outputs[index] == state) ||
         (period != 0 && pinout_state_future.get().output_periods[index] == period))
       {
         response->success = true;
