@@ -2,6 +2,9 @@
 Changelog for package clearpath_diagnostics
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.3.1 (2025-04-14)
 ------------------
 * Remove duplicate and incorrect current / voltage labels (`#197 <https://github.com/clearpathrobotics/clearpath_robot/issues/197>`_)

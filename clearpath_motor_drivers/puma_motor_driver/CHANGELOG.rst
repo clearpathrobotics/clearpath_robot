@@ -5,6 +5,11 @@ Changelog for package puma_motor_driver
 1.1.0 (2025-01-15)
 ------------------
 
+Forthcoming
+-----------
+* Fixed depend version.
+* Contributors: Tony Baltovski
+
 2.3.1 (2025-04-14)
 ------------------
 
