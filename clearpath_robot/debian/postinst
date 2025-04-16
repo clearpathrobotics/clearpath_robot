@@ -1,5 +1,18 @@
 #!/bin/bash
 
+get_user() {
+    python3 -c '
+try:
+    from clearpath_config.clearpath_config import ClearpathConfig
+    from clearpath_config.common.utils.yaml import read_yaml
+    config = read_yaml("/etc/clearpath/robot.yaml")
+    clearpath_config = ClearpathConfig(config)
+    print(clearpath_config.system.username)
+except:
+    print("robot")
+'
+}
+
 . /opt/ros/jazzy/setup.bash
 if [ -f /etc/clearpath/setup.bash ];
 then
