@@ -12,7 +12,7 @@
 
   <depend>can_msgs</depend>
   <depend version_gte="2.3.0">clearpath_motor_msgs</depend>
-  <depend version_gte="2.3.0">clearpath_ros2_socketcan_interface</depend>
+  <depend version_gte="2.1.1">clearpath_ros2_socketcan_interface</depend>
   <depend>rclcpp</depend>
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
