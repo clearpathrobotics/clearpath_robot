@@ -1,5 +1,18 @@
 #!/bin/bash
 
+get_user() {
+    python3 -c '
+try:
+    from clearpath_config.clearpath_config import ClearpathConfig
+    from clearpath_config.common.utils.yaml import read_yaml
+    config = read_yaml("/etc/clearpath/robot.yaml")
+    clearpath_config = ClearpathConfig(config)
+    print(clearpath_config.system.username)
+except:
+    print("robot")
+'
+}
+
 . /opt/ros/jazzy/setup.bash
 if [ -f /etc/clearpath/setup.bash ];
 then
@@ -11,6 +24,16 @@ if [ -f /lib/systemd/system/clearpath-robot.service ];
 then
     echo "Detected previous installation of clearpath-robot.service. Updating services..."
     ros2 run clearpath_robot install > /dev/null
+
+    # Fix the user in all clearpath-*-start and clearpath-*-stop scripts
+    for script in $(ls /usr/sbin/clearpath-*-start);
+    do
+        sed -i "s/setpriv --reuid root/setpriv --reuid $(get_user)/" $script
+    done
+    for script in $(ls /usr/sbin/clearpath-*-stop);
+    do
+        sed -i "s/setpriv --reuid root/setpriv --reuid $(get_user)/" $script
+    done
 
     echo "Reloading systemd configuration..."
     systemctl daemon-reload > /dev/null
