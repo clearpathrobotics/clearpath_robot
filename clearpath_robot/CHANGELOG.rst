@@ -2,6 +2,12 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Use sed to fix the start/stop scripts
+* Run the ros2 command as a de-escalated user
+* Contributors: Chris Iverach-Brereton
+
 2.3.2 (2025-04-16)
 ------------------
 
