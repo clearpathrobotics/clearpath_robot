@@ -1,0 +1,44 @@
+seyond_driver:
+  ros__parameters:
+    common:
+      log_level: info                                     #Log level: info, warn, error
+      fusion_enable: false                                #Multi-lidar fusion enable
+      fusion_topic: /iv_points_fusion                     #Multi-lidar fusion topic
+    lidars:
+      - lidar:
+          replay_rosbag: false                            #Replay rosbag
+          packet_mode: false                              #Packet mode (true: packets + pointcloud, false: direct pointcloud)
+          aggregate_num: 20                               #Aggregate number
+
+          frame_id: seyond                                #Frame id
+          packet_topic: packets                           #Packet topic
+          frame_topic: points                             #Frame topic
+
+          lidar_name: seyond                              #Lidar name
+          lidar_ip: 172.168.1.10                          #Lidar ip
+          port: 8010                                      #Lidar port
+          udp_port: 8010                                  #Udp port
+          reflectance_mode: true                          #Reflectance mode
+          multiple_return: 1                              #Multiple return
+
+          continue_live: false                            #Continue live
+
+          pcap_file: ''                                   #Pcap file
+          hv_table_file: ''                               #HV table file, for generic lidar's pcap file
+          packet_rate: 10000                              #Packet rate
+          file_rewind: 0                                  #File rewind
+
+          max_range: 2000.0                               #Max range, unit: m
+          min_range: 0.4                                  #Min range, unit: m
+          name_value_pairs: ''                            #Extra string config
+          coordinate_mode: 3                              #Coordinate mode, x/y/z, 0:up/right/forward 3:forward/left/up
+
+          transform_enable: false                         #Transform enable
+          x: 0.0                                          #X     unit: m
+          y: 0.0                                          #Y     unit: m
+          z: 0.0                                          #Z     unit: m
+          pitch: 0.0                                      #Pitch unit: rad (-2pi, 2pi)
+          yaw: 0.0                                        #Yaw   unit: rad (-2pi, 2pi)
+          roll: 0.0                                       #Roll  unit: rad (-2pi, 2pi)
+
+          transform_matrix: ''                            #Transformation matrix string
