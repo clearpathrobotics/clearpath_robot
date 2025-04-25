@@ -2,8 +2,8 @@
 Changelog for package clearpath_tests
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.3.3 (2025-04-24)
+------------------
 * Re-implement rotation test, add linear acceleration test, add motor-cutoff tests for dingo & jackal (`#7 <https://github.com/clearpathrobotics/clearpath_tests/issues/7>`_)
   * Re-implement the rotation test to be an IMU check instead of odometry
   * Re-enable rotation tests for all platforms with an integrated IMU. Add IMU tilt test to Dingo variants
@@ -13,6 +13,9 @@ Forthcoming
   * Add motor-cutoff tests for Jackal, Dingo
 * Fixed topic of fans test. (`#6 <https://github.com/clearpathrobotics/clearpath_tests/issues/6>`_)
 * Contributors: Chris Iverach-Brereton, Tony Baltovski
+
+2.3.2
+-----
 
 2.3.1 (2025-04-10)
 ------------------
