@@ -80,7 +80,7 @@ allowed_errors_by_platform = {
 
     },
     Platform.GENERIC: {
-
+        # no generic-specific exceptions
     },
     Platform.J100: {
         'clearpath_diagnostic_updater: Battery Management System': [
@@ -99,7 +99,7 @@ allowed_errors_by_platform = {
         ],
     },
     Platform.W200: {
-
+        # not yet supported
     },
 }
 
