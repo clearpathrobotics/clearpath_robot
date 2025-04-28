@@ -68,16 +68,36 @@ allowed_errors_by_platform = {
         # no A300-specific exceptions
     },
     Platform.DD100: {
-
+        'clearpath_diagnostic_updater: MCU Status': [
+            'No events recorded',
+        ],
+        'clearpath_diagnostic_updater: MCU Firmware Version': [
+            'No firmware version received from MCU',
+        ],
     },
     Platform.DD150: {
-
+        'clearpath_diagnostic_updater: MCU Status': [
+            'No events recorded',
+        ],
+        'clearpath_diagnostic_updater: MCU Firmware Version': [
+            'No firmware version received from MCU',
+        ],
     },
     Platform.DO100: {
-
+        'clearpath_diagnostic_updater: MCU Status': [
+            'No events recorded',
+        ],
+        'clearpath_diagnostic_updater: MCU Firmware Version': [
+            'No firmware version received from MCU',
+        ],
     },
     Platform.DO150: {
-
+        'clearpath_diagnostic_updater: MCU Status': [
+            'No events recorded',
+        ],
+        'clearpath_diagnostic_updater: MCU Firmware Version': [
+            'No firmware version received from MCU',
+        ],
     },
     Platform.GENERIC: {
         # no generic-specific exceptions
