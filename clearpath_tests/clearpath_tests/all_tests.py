@@ -183,6 +183,7 @@ class TestingNode(Node):
                     default_speed_x=0.0,
                     default_speed_y=0.1,
                     direction='Left',
+                    default_distance=2.0,
                 )
             )
         elif self.platform == Platform.GENERIC:
@@ -228,6 +229,7 @@ class TestingNode(Node):
                     default_speed_x=0.0,
                     default_speed_y=0.1,
                     direction='Left',
+                    default_distance=2.0,
                 )
             )
         elif self.platform == Platform.W200:
