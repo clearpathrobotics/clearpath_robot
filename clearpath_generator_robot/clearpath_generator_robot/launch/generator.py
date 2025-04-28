@@ -376,7 +376,7 @@ class RobotLaunchGenerator(LaunchGenerator):
                 self.lighting_node,
                 self.lynx_node,
                 self.a300_fan_control,
-                self.a300_sw_lvc
+                self.a300_sw_lvc,
                 self.pinout_node,
             ],
             Platform.W200: common_platform_components + [
