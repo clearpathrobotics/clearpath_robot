@@ -227,7 +227,7 @@ class TestingNode(Node):
                 drive_test.DriveTestNode(
                     setup_path=self.setup_path,
                     default_speed_x=0.0,
-                    default_speed_y=0.1,
+                    default_speed_y=0.2,
                     direction='Left',
                     default_distance=2.0,
                 )
