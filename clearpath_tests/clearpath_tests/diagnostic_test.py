@@ -94,7 +94,9 @@ allowed_errors_by_platform = {
         ],
     },
     Platform.R100: {
-
+        'clearpath_diagnostic_updater: Battery Management System': [
+            'Frequency too high',
+        ],
     },
     Platform.W200: {
 
