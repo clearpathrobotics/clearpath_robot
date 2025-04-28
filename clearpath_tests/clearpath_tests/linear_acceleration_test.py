@@ -27,7 +27,6 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from clearpath_config.common.types.platform import Platform
 from clearpath_generator_common.common import BaseGenerator
 from clearpath_tests.mobility_test import MobilityTestNode
 from clearpath_tests.test_node import ClearpathTestResult

@@ -28,6 +28,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 import re
 
+from clearpath_config.common.types.platform import Platform
 from clearpath_generator_common.common import BaseGenerator
 from clearpath_tests.test_node import ClearpathTestNode, ClearpathTestResult
 
@@ -38,15 +39,100 @@ from rclpy.qos import qos_profile_system_default
 from rclpy.time import Duration
 
 
-# Allowed warnings & errors that we can silently drop
-# Key is status.name, value is an array of regexes
-allowed_errors = {
-    'joy_node: Joystick Driver Status': [
-        re.compile(r'.*Joystick not open.*'),
-    ],
-    'controller_manager: Controller Manager Activity': [
-        re.compile(r'Controller Manager has bad periodicity'),
-    ],
+PLATFORM_ANY = '*'
+
+
+# Allowed warnings & errors that we can silently drop on each platform
+# Key is status.name, value is an array of regexes or strings we match against
+allowed_errors_by_platform = {
+    PLATFORM_ANY: {
+        'joy_node: Joystick Driver Status': [
+            re.compile(r'.*Joystick not open.*'),
+        ],
+        'controller_manager: Controller Manager Activity': [
+            'Controller Manager has bad periodicity',
+        ],
+    },
+    Platform.A200: {
+        'clearpath_diagnostic_updater: E-stop Status': [
+            'No events recorded',
+        ],
+        'clearpath_diagnostic_updater: Power Status': [
+            'Frequency too low',
+        ],
+        'clearpath_diagnostic_updater: Battery Management System': [
+            'Frequency too high',
+        ],
+    },
+    Platform.A300: {
+        # no A300-specific exceptions
+    },
+    Platform.DD100: {
+        'clearpath_diagnostic_updater: Battery Management System': [
+            'Frequency too high',
+        ],
+        'clearpath_diagnostic_updater: MCU Status': [
+            'No events recorded',
+        ],
+        'clearpath_diagnostic_updater: MCU Firmware Version': [
+            'No firmware version received from MCU',
+        ],
+    },
+    Platform.DD150: {
+        'clearpath_diagnostic_updater: Battery Management System': [
+            'Frequency too high',
+        ],
+        'clearpath_diagnostic_updater: MCU Status': [
+            'No events recorded',
+        ],
+        'clearpath_diagnostic_updater: MCU Firmware Version': [
+            'No firmware version received from MCU',
+        ],
+    },
+    Platform.DO100: {
+        'clearpath_diagnostic_updater: Battery Management System': [
+            'Frequency too high',
+        ],
+        'clearpath_diagnostic_updater: MCU Status': [
+            'No events recorded',
+        ],
+        'clearpath_diagnostic_updater: MCU Firmware Version': [
+            'No firmware version received from MCU',
+        ],
+    },
+    Platform.DO150: {
+        'clearpath_diagnostic_updater: Battery Management System': [
+            'Frequency too high',
+        ],
+        'clearpath_diagnostic_updater: MCU Status': [
+            'No events recorded',
+        ],
+        'clearpath_diagnostic_updater: MCU Firmware Version': [
+            'No firmware version received from MCU',
+        ],
+    },
+    Platform.GENERIC: {
+        # no generic-specific exceptions
+    },
+    Platform.J100: {
+        'clearpath_diagnostic_updater: Battery Management System': [
+            'Frequency too high',
+        ],
+        'clearpath_diagnostic_updater: MCU Status': [
+            'No events recorded',
+        ],
+        'clearpath_diagnostic_updater: MCU Firmware Version': [
+            'No firmware version received from MCU',
+        ],
+    },
+    Platform.R100: {
+        'clearpath_diagnostic_updater: Battery Management System': [
+            'Frequency too high',
+        ],
+    },
+    Platform.W200: {
+        # not yet supported
+    },
 }
 
 
@@ -65,10 +151,17 @@ class DiagnosticTestNode(ClearpathTestNode):
 
         if key not in pool.keys():
             allowed = False
-            patterns = allowed_errors.get(status.name, [])
+            patterns = (
+                allowed_errors_by_platform[PLATFORM_ANY].get(status.name, []) +
+                allowed_errors_by_platform[self.clearpath_config.get_platform_model()].get(status.name, [])  # noqa: E501
+            )
             for p in patterns:
-                if re.match(p, status.message):
+                if (
+                    (type(p) is str and p in status.message)
+                    or (type(p) is re.Pattern and re.match(p, status.message))
+                ):
                     allowed = True
+                    break
 
             if not allowed:
                 pool[key] = status
