@@ -68,6 +68,9 @@ allowed_errors_by_platform = {
         # no A300-specific exceptions
     },
     Platform.DD100: {
+        'clearpath_diagnostic_updater: Battery Management System': [
+            'Frequency too high',
+        ],
         'clearpath_diagnostic_updater: MCU Status': [
             'No events recorded',
         ],
@@ -76,6 +79,9 @@ allowed_errors_by_platform = {
         ],
     },
     Platform.DD150: {
+        'clearpath_diagnostic_updater: Battery Management System': [
+            'Frequency too high',
+        ],
         'clearpath_diagnostic_updater: MCU Status': [
             'No events recorded',
         ],
@@ -84,6 +90,9 @@ allowed_errors_by_platform = {
         ],
     },
     Platform.DO100: {
+        'clearpath_diagnostic_updater: Battery Management System': [
+            'Frequency too high',
+        ],
         'clearpath_diagnostic_updater: MCU Status': [
             'No events recorded',
         ],
@@ -92,6 +101,9 @@ allowed_errors_by_platform = {
         ],
     },
     Platform.DO150: {
+        'clearpath_diagnostic_updater: Battery Management System': [
+            'Frequency too high',
+        ],
         'clearpath_diagnostic_updater: MCU Status': [
             'No events recorded',
         ],
