@@ -54,6 +54,7 @@ class DriveTestNode(MobilityTestNode):
         direction='Forwards',
         default_speed_x=0.1,  # 10cm/s; nice and safe
         default_speed_y=0.0,
+        default_distance=5.0,
     ):
         super().__init__(
             f'Drive Fixed Distance ({direction})',
@@ -61,7 +62,7 @@ class DriveTestNode(MobilityTestNode):
             setup_path,
         )
 
-        self.goal_distance = self.get_parameter_or('distance', 5.0)
+        self.goal_distance = self.get_parameter_or('distance', default_distance)
         self.max_speed_x = self.get_parameter_or('max_speed_x', default_speed_x)
         self.max_speed_y = self.get_parameter_or('max_speed_y', default_speed_y)
         self.error_margin = self.get_parameter_or('error_margin', 0.05)  # +/-5%
