@@ -26,14 +26,13 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-
 from clearpath_generator_common.common import BaseGenerator
 from clearpath_platform_msgs.msg import Fans, Status
 from clearpath_tests.test_node import ClearpathTestNode, ClearpathTestResult
 
 import rclpy
 from rclpy.duration import Duration
-from rclpy.qos import qos_profile_sensor_data, qos_profile_system_default
+from rclpy.qos import qos_profile_sensor_data
 
 
 class FanTestNode(ClearpathTestNode):
@@ -44,17 +43,18 @@ class FanTestNode(ClearpathTestNode):
         # Params
         self.n_fans = self.get_parameter_or('num_fans', n_fans)
         self.fans_topic = self.get_parameter_or('fans_topic', 'platform/cmd_fans')
-        self.publish_rate = self.get_parameter_or('publish_rate', 2)
 
-        self.publisher = self.create_publisher(Fans, self.fans_topic, qos_profile_system_default)
-        self.value = 255
+        self.fan_msg = Fans()
+        for _ in range(8):  # Common Core has 8 fan ports, but only 4 are currently used
+            self.fan_msg.fans.append(255)
 
-    def publish_callback(self):
-        # Define the message to be sent
+        if not self.fans_topic.startswith('/'):
+            self.fans_topic = f'/{self.namespace}/{self.fans_topic}'
+
+    def fan_timer_callback(self):
         msg = Fans()
-        for _ in range(self.n_fans):
-            msg.fans.append(self.value)
-        # Publish the message
+        for f in self.fan_msg.fans:
+            msg.fans.append(f)
         self.publisher.publish(msg)
 
     def check_firmware_version(self):
@@ -65,21 +65,10 @@ class FanTestNode(ClearpathTestNode):
         """
         self.mcu_status = None
 
-        def mcu_callback(status):
-            self.mcu_status = status
-
-        mcu_sub = self.create_subscription(
-            Status,
-            f'/{self.namespace}/platform/mcu/status',
-            mcu_callback,
-            qos_profile_sensor_data,
-        )
-
         start_at = self.get_clock().now()
         timeout_duration = Duration(seconds=10)
         while self.get_clock().now() - start_at <= timeout_duration and self.mcu_status is None:
             rclpy.spin_once(self)
-        mcu_sub.destroy()
 
         if self.mcu_status is None:
             return (None, False)
@@ -101,10 +90,22 @@ class FanTestNode(ClearpathTestNode):
                 ok
             )
 
+    def mcu_status_callback(self, status):
+        self.mcu_status = status
+
     def start(self):
-        self.publish_timer = self.create_timer(1 / self.publish_rate, self.publish_callback)
+        self.dummy_sub = self.create_subscription(
+            Status,
+            f'/{self.namespace}/platform/mcu/status',
+            self.mcu_status_callback,
+            qos_profile_sensor_data,
+        )
+        self.publisher = self.create_publisher(Fans, self.fans_topic, qos_profile_sensor_data)
+        self.publish_timer = self.create_timer(0.1, self.fan_timer_callback)
 
     def run_test(self):
+        self.start()
+
         results = []
 
         # kick out if the lights are in an uncontrolled state
@@ -131,13 +132,17 @@ class FanTestNode(ClearpathTestNode):
                 f'Firmware {version} is sufficient for fan control',
             ))
 
-        self.start()
+        def wait_3s():
+            self.get_logger().info('Waiting for fans to spin up/down...')
+            start = self.get_clock().now()
+            sleep_time = Duration(seconds=3)
+            while self.get_clock().now() - start < sleep_time:
+                rclpy.spin_once(self)
 
-        msg = Fans()
-        for _ in range(self.n_fans):
-            msg.fans.append(0)
+        for i in range(self.n_fans):
+            self.fan_msg.fans[i] = 0
+        wait_3s()
 
-        self.publisher.publish(msg)
         user_input = self.promptYN('Are all fans stopped?')
         if user_input == 'Y':
             results.append(ClearpathTestResult(True, 'Fans (all off)', None))
@@ -146,9 +151,9 @@ class FanTestNode(ClearpathTestNode):
 
         for i in range(self.n_fans):
             for j in range(self.n_fans):
-                msg.fans[j] = 0
-            msg.fans[i] = 255
-            self.publisher.publish(msg)
+                self.fan_msg.fans[j] = 0
+            self.fan_msg.fans[i] = 255
+            wait_3s()
 
             user_input = self.promptYN(f'Is ONLY fan {i+1} on?')
             if user_input == 'Y':
@@ -156,9 +161,9 @@ class FanTestNode(ClearpathTestNode):
             else:
                 results.append(ClearpathTestResult(False, f'Fans ({i+1} only)', None))
 
-        for _ in range(self.n_fans):
-            msg.fans[i] = 255
-        self.publisher.publish(msg)
+        for i in range(self.n_fans):
+            self.fan_msg.fans[i] = 255
+        wait_3s()
 
         user_input = self.promptYN('Are all fans running?')
         if user_input == 'Y':
