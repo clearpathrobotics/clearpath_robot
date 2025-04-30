@@ -2,6 +2,14 @@
 Changelog for package clearpath_tests
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix A300 fans test (`#204 <https://github.com/clearpathrobotics/clearpath_robot/issues/204>`_)
+* Add additional allowed warnings/errors for specific platforms (`#202 <https://github.com/clearpathrobotics/clearpath_robot/issues/202>`_)
+* Reduce strafe distance, increase strafe speed (`#203 <https://github.com/clearpathrobotics/clearpath_robot/issues/203>`_)
+* Move clearpath_tests into clearpath_robot (`#201 <https://github.com/clearpathrobotics/clearpath_robot/issues/201>`_)
+* Contributors: Chris Iverach-Brereton
+
 2.3.3 (2025-04-24)
 ------------------
 * Re-implement rotation test, add linear acceleration test, add motor-cutoff tests for dingo & jackal (`#7 <https://github.com/clearpathrobotics/clearpath_tests/issues/7>`_)

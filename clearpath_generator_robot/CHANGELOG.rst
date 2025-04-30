@@ -2,6 +2,12 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Added a software based low voltage cut-off for the A300. (`#185 <https://github.com/clearpathrobotics/clearpath_robot/issues/185>`_)
+* Pinout control node (`#198 <https://github.com/clearpathrobotics/clearpath_robot/issues/198>`_)
+* Contributors: Roni Kreinin, Tony Baltovski
+
 2.3.3 (2025-04-17)
 ------------------
 
