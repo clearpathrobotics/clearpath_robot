@@ -264,6 +264,15 @@ class RobotLaunchGenerator(LaunchGenerator):
           remappings=[('/diagnostics', 'diagnostics'),],
         )
 
+        # Pinout
+        self.pinout_node = LaunchFile.Node(
+          package='clearpath_hardware_interfaces',
+          executable='pinout_control_node',
+          name='pinout_control_node',
+          namespace=self.namespace,
+          parameters=[{'platform': self.platform_model}],
+        )
+
         # Sevcon
         self.sevcon_node = LaunchFile.Node(
           package='sevcon_traction',
@@ -328,6 +337,14 @@ class RobotLaunchGenerator(LaunchGenerator):
           remappings=[('/diagnostics', 'diagnostics')],
         )
 
+        # A300 SW LVC Noode
+        self.a300_sw_lvc = LaunchFile.Node(
+          package='clearpath_hardware_interfaces',
+          executable='sw_lvc_node',
+          name='a300_sw_lvc',
+          namespace=self.namespace,
+        )
+
         # Components required for each platform
         common_platform_components = [
             self.wireless_watcher_node,
@@ -359,6 +376,8 @@ class RobotLaunchGenerator(LaunchGenerator):
                 self.lighting_node,
                 self.lynx_node,
                 self.a300_fan_control,
+                self.a300_sw_lvc,
+                self.pinout_node,
             ],
             Platform.W200: common_platform_components + [
                 self.imu_0_filter_node,
@@ -375,6 +394,7 @@ class RobotLaunchGenerator(LaunchGenerator):
                 self.configure_mcu,
                 self.lighting_node,
                 self.puma_node,
+                self.pinout_node,
             ],
             Platform.DO100: common_platform_components + [
                 self.imu_0_filter_node,
@@ -383,6 +403,7 @@ class RobotLaunchGenerator(LaunchGenerator):
                 self.configure_mcu,
                 self.lighting_node,
                 self.puma_node,
+                self.pinout_node,
             ],
             Platform.DD150: common_platform_components + [
                 self.imu_0_filter_node,
@@ -391,6 +412,7 @@ class RobotLaunchGenerator(LaunchGenerator):
                 self.configure_mcu,
                 self.lighting_node,
                 self.puma_node,
+                self.pinout_node,
             ],
             Platform.DO150: common_platform_components + [
                 self.imu_0_filter_node,
@@ -399,6 +421,7 @@ class RobotLaunchGenerator(LaunchGenerator):
                 self.configure_mcu,
                 self.lighting_node,
                 self.puma_node,
+                self.pinout_node,
             ],
             Platform.R100: common_platform_components + [
                 self.imu_0_filter_node,
