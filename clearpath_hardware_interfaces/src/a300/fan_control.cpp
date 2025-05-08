@@ -113,7 +113,7 @@ void a300_cooling::ThermalSensors::setSensorValue(const std::string &name, float
 a300_cooling::ThermalStatus a300_cooling::ThermalSensors::getHighestStatus() const
 {
   a300_cooling::ThermalStatus highest_status = a300_cooling::ThermalStatus::Normal;
-  for (const auto &sensor : sensors) 
+  for (const auto &sensor : sensors)
   {
     if (sensor.second.getStatus() > a300_cooling::ThermalStatus::Normal)
     {
@@ -169,7 +169,7 @@ a300_cooling::FanController::FanController() : Node("a300_fan_controller"),
       this->thermal_sensors_.setSensorValue("pcb_motor4",  msg->drivers.at(3).pcb_temperature);
       this->thermal_sensors_.setSensorValue("mcu_motor4",  msg->drivers.at(3).mcu_temperature);
     }
-    catch (const std::out_of_range & e) 
+    catch (const std::out_of_range & e)
     {
       RCLCPP_ERROR(this->get_logger(),
                    "%s topic does not contain 4 drivers: %s", MOTOR_TEMPERATURE_TOPIC.c_str(), e.what());
@@ -266,18 +266,18 @@ void a300_cooling::FanController::timerCallback()
     }
     this->fans_cmd_msg_.fans = {fan_command, fan_command, fan_command, fan_command, 0, 0, 0, 0};
   }
-  
+
   fan_publisher_->publish(fans_cmd_msg_);
 
   if (user_fan_cmd_timeout_ >= USER_CMD_TIMEOUT)
   {
     this->user_control_active_ = false;
-    RCLCPP_INFO(get_logger(), "User fan control inactive, no user command received in %d seconds", USER_CMD_TIMEOUT);
+    RCLCPP_DEBUG(get_logger(), "User fan control inactive, no user command received in %d seconds", USER_CMD_TIMEOUT);
   }
   else
   {
     this->user_control_active_ = true;
-    RCLCPP_INFO(get_logger(), "User fan control active");
+    RCLCPP_DEBUG(get_logger(), "User fan control active");
   }
 
   temperature_stale_++;
