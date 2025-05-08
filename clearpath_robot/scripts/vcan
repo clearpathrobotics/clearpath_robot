@@ -112,7 +112,7 @@ fi
 # All
 if [ "${type}" ==  "virtual" ] || [ "${type}" == "serial" ] || [ "${type}" == "physical" ]; then
   # Increase Tx queue length
-  ip link set $can_dev txqueuelen 100
+  ip link set $can_dev txqueuelen 1000
   sleep 1
 
   # Bring vcan interface up
