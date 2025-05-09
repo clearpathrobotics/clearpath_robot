@@ -210,48 +210,40 @@ class RobotLaunchGenerator(LaunchGenerator):
 
             launch_args = self.clearpath_config.platform.battery.launch_args
 
-            inventus_bmu_params_file = ParamFile(
-                'inventus_bmu',
-                package=self.pkg_clearpath_sensors)
-            inventus_bmu_params = inventus_bmu_params_file.full_path
-
-            module_ids = []
+            battery_count = 1
 
             match(self.clearpath_config.platform.battery.configuration):
                 case BatteryConfig.S1P2:
-                    module_ids = [49, 50]
+                    battery_count = 2
                 case BatteryConfig.S1P4:
-                    module_ids = [49, 50, 51, 52]
+                    battery_count = 4
                 case BatteryConfig.S1P6:
-                    module_ids = [49, 50, 51, 52, 53, 54]
+                    battery_count = 6
 
-            module_series = str([module_ids])
+            inventus_launch_args = [
+                    ('namespace', f'{self.namespace}/platform/bms'),
+                    ('interface', 'vcan1'),
+                    ('battery_count', str(battery_count)),
+                    ('master_id', '49'),
+                    ('battery_0_id', '49'),
+                    ('battery_1_id', '50'),
+                    ('battery_2_id', '51'),
+                    ('battery_3_id', '52'),
+                    ('battery_4_id', '53'),
+                    ('battery_5_id', '54'),
+            ]
 
-            can_dev = 'vcan1'
+            for i in range(len(inventus_launch_args)):
+                key = inventus_launch_args[i][0]
+                if key in launch_args:
+                    val = launch_args[key]
+                    inventus_launch_args[i] = (key, str(val))
 
-            if launch_args:
-                if 'params' in launch_args:
-                    inventus_bmu_params = launch_args['params']
-                if 'can_device' in launch_args:
-                    can_dev = launch_args['can_device']
-
-            self.bms_node = LaunchFile.Node(
-                name='inventus_bmu',
-                package='inventus_bmu',
-                executable='inventus_bmu_driver',
-                namespace=self.namespace,
-                parameters=[
-                    inventus_bmu_params,
-                    {'can_device': can_dev},
-                    {'module_ids': module_ids},
-                    {'module_series': module_series}
-                ],
-                remappings=[
-                    ('bms/battery_state', 'platform/bms/state'),
-                    ('modules', 'platform/bms/modules'),
-                    ('bms/soc', 'platform/bms/soc'),
-                    ('/diagnostics', 'diagnostics')
-                ]
+            self.bms_node = LaunchFile(
+                'canopen_inventus',
+                filename='inventus',
+                package=Package('canopen_inventus_bringup'),
+                args=inventus_launch_args
             )
 
         # Lighting
