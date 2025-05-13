@@ -16,3 +16,8 @@ SUBSYSTEM=="tty", KERNEL=="ttyUSB[0-9]*", ATTRS{idProduct}=="6001", ATTRS{idVend
 # CAN rule for PCI CANBUS card
 SUBSYSTEM=="net", KERNEL == "can0", RUN+="/bin/sh -c 'ip link set can0 type can bitrate 1000000; ip link set can0 up'"
 SUBSYSTEM=="net", KERNEL == "can1", RUN+="/bin/sh -c 'ip link set can1 type can bitrate 500000;  ip link set can1 up'"
+
+# Rule to catch FTDI CANUSB adapters
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{product}=="CANUSB", SYMLINK="usbcan", MODE="0666"
+
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{product}=="CANUSB", PROGRAM="/bin/sh -c 'echo %s{serial} | sed s/^0000.*/main/g | sed s/^2-00.*/aux/g | sed -e s/[[:space:]]/_/g | tr -s _'", SYMLINK+="usbcan_%c", MODE="0666"
