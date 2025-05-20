@@ -2,6 +2,9 @@
 Changelog for package clearpath_tests
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.4.0 (2025-04-30)
 ------------------
 * Fix A300 fans test (`#204 <https://github.com/clearpathrobotics/clearpath_robot/issues/204>`_)

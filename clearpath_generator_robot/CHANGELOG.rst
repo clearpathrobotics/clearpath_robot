@@ -2,6 +2,9 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.4.0 (2025-04-30)
 ------------------
 * Added a software based low voltage cut-off for the A300. (`#185 <https://github.com/clearpathrobotics/clearpath_robot/issues/185>`_)

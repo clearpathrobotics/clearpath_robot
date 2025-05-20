@@ -2,6 +2,11 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix: Increase queue length (`#206 <https://github.com/clearpathrobotics/clearpath_robot/issues/206>`_)
+* Contributors: luis-camero
+
 2.4.0 (2025-04-30)
 ------------------
 

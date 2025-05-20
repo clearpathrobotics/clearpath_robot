@@ -2,6 +2,11 @@
 Changelog for package clearpath_platform
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Muted fan control logs being spammed (`#205 <https://github.com/clearpathrobotics/clearpath_robot/issues/205>`_)
+* Contributors: Roni Kreinin
+
 2.4.0 (2025-04-30)
 ------------------
 * Added a software based low voltage cut-off for the A300. (`#185 <https://github.com/clearpathrobotics/clearpath_robot/issues/185>`_)
