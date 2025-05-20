@@ -2,8 +2,8 @@
 Changelog for package clearpath_platform
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.4.1 (2025-05-20)
+------------------
 * Muted fan control logs being spammed (`#205 <https://github.com/clearpathrobotics/clearpath_robot/issues/205>`_)
 * Contributors: Roni Kreinin
 
