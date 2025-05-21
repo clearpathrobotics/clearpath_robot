@@ -314,6 +314,14 @@ class RobotLaunchGenerator(LaunchGenerator):
                     ('namespace', self.namespace),
                     ('interface', can_bridge.interface),
                     ('from_can_bus_topic', can_bridge.topic_rx),
+                    ('enable_can_fd', str(can_bridge.enaled_can_fd).lower()),
+                    ('interval_sec', str(can_bridge.interval)),
+                    ('use_bus_time', str(can_bridge.use_bus_time).lower()),
+                    ('filters', str(can_bridge.filters)),
+                    ('auto_configure', str(can_bridge.auto_configure).lower()),
+                    ('auto_activate', str(can_bridge.auto_activate).lower()),
+                    ('timeout', str(can_bridge.timeout)),
+                    ('transition_attempts', str(can_bridge.transition_attempts)),
                 ]
             ))
 
@@ -325,6 +333,12 @@ class RobotLaunchGenerator(LaunchGenerator):
                     ('namespace', self.namespace),
                     ('interface', can_bridge.interface),
                     ('to_can_bus_topic', can_bridge.topic_tx),
+                    ('enable_can_fd', str(can_bridge.enaled_can_fd).lower()),
+                    ('interval_sec', str(can_bridge.interval)),
+                    ('auto_configure', str(can_bridge.auto_configure).lower()),
+                    ('auto_activate', str(can_bridge.auto_activate).lower()),
+                    ('timeout', str(can_bridge.timeout)),
+                    ('transition_attempts', str(can_bridge.transition_attempts)),
                 ]
             ))
 
