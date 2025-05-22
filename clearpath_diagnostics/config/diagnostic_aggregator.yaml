@@ -1,3 +1,5 @@
+# Note that this file is the default configuration but some elements are appended or overridden
+# in clearpath_generator_common
 diagnostic_aggregator:
   ros__parameters:
     path: Clearpath Diagnostics
@@ -41,19 +43,10 @@ diagnostic_aggregator:
         odometry:
           type: diagnostic_aggregator/GenericAnalyzer
           path: Odometry
-          expected: [
-            'ekf_node: Filter diagnostic updater',
-            'ekf_node: odometry/filtered topic status',
-          ]
           contains: [ 'odometry', 'ekf_node' ]
-        cooling:
-          type: diagnostic_aggregator/GenericAnalyzer
-          path: Cooling
-          contains: [ 'Fan', 'Thermal' ]
         networking:
           type: diagnostic_aggregator/GenericAnalyzer
           path: Networking
-          expected: [ 'wireless_watcher: Wi-Fi Monitor' ]
           contains: [ 'Wi-Fi' ]
     # sensors:
     #   type: diagnostic_aggregator/AnalyzerGroup
