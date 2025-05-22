@@ -1,3 +1,5 @@
+# Note that this file is the default configuration but some elements are appended or overridden
+# in clearpath_generator_common
 diagnostic_aggregator:
   ros__parameters:
     path: Clearpath Diagnostics
