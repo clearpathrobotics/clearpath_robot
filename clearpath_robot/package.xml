@@ -18,7 +18,6 @@
   <exec_depend>socat</exec_depend>
 
   <!-- Metapackage dependencies-->
-  <exec_depend version_gte="2.3.0">clearpath_diagnostics</exec_depend>
   <exec_depend version_gte="2.3.0">clearpath_generator_robot</exec_depend>
   <exec_depend version_gte="2.3.0">clearpath_hardware_interfaces</exec_depend>
   <exec_depend version_gte="2.3.0">clearpath_sensors</exec_depend>
