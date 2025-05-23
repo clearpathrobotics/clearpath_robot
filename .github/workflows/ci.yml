@@ -39,7 +39,6 @@ jobs:
         with:
           target-ros2-distro: jazzy
           package-name: |
-            clearpath_diagnostics
             clearpath_generator_robot
             clearpath_robot
             clearpath_sensors
@@ -56,7 +55,6 @@ jobs:
         with:
           target-ros2-distro: jazzy
           package-name: |
-            clearpath_diagnostics
             clearpath_generator_robot
             clearpath_robot
             clearpath_sensors
@@ -92,7 +90,6 @@ jobs:
         with:
           target-ros2-distro: jazzy
           package-name: |
-            clearpath_diagnostics
             clearpath_generator_robot
             clearpath_robot
             clearpath_sensors
@@ -125,7 +122,6 @@ jobs:
         with:
           target-ros2-distro: jazzy
           package-name: |
-            clearpath_diagnostics
             clearpath_generator_robot
             clearpath_robot
             clearpath_sensors
