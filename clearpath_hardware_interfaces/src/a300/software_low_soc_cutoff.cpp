@@ -1,6 +1,6 @@
 /**
 Software License Agreement (BSD)
-\file      software_lvc.hpp
+\file      software_low_soc_cutoff.cpp
 \authors   Tony Baltovski <tbaltovski@clearpathrobotics.com>
 \copyright Copyright (c) 2025, Clearpath Robotics, Inc., All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that
@@ -20,19 +20,21 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCL
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "clearpath_hardware_interfaces/a300/software_lvc.hpp"
+#include "clearpath_hardware_interfaces/a300/software_low_soc_cutoff.hpp"
 
 
-a300_slvc::SoftwareLowVoltageCutoff::SoftwareLowVoltageCutoff() : Node("software_low_voltage_cutoff")
+a300_sw_low_soc_cutoff::SoftwareLowSocCutoff::SoftwareLowSocCutoff() : 
+    Node("software_low_voltage_cutoff")
 {
   battery_subscriber_ = this->create_subscription<sensor_msgs::msg::BatteryState>(
       BATTERY_STATE_TOPIC, 10,
-      std::bind(&SoftwareLowVoltageCutoff::battery_callback, this, std::placeholders::_1));
+      std::bind(&SoftwareLowSocCutoff::battery_callback, this, std::placeholders::_1));
   
-  client_ = this->create_client<std_srvs::srv::Empty>("low_battery_service");
+  client_ = this->create_client<std_srvs::srv::Empty>(SW_LOW_SOC_CUTOFF_SERVICE_NAME);
 }
 
-void a300_slvc::SoftwareLowVoltageCutoff::battery_callback(const sensor_msgs::msg::BatteryState::SharedPtr msg)
+void a300_sw_low_soc_cutoff::SoftwareLowSocCutoff::battery_callback(
+    const sensor_msgs::msg::BatteryState::SharedPtr msg)
 {
   if (!msg->present)
   {
@@ -51,7 +53,8 @@ void a300_slvc::SoftwareLowVoltageCutoff::battery_callback(const sensor_msgs::ms
   else if (charge_percentage <= CRITICAL_THRESHOLD)
   {
     RCLCPP_ERROR_THROTTLE(
-      this->get_logger(), *this->get_clock(), 1000, "Battery critically low: %.2f%%", charge_percentage);
+      this->get_logger(), *this->get_clock(), 1000, 
+      "Battery critically low: %.2f%%", charge_percentage);
     this->consecutive_low_readings_++;
     
     // Gather many readings before calling the service
@@ -68,7 +71,7 @@ void a300_slvc::SoftwareLowVoltageCutoff::battery_callback(const sensor_msgs::ms
   }
 }
 
-void a300_slvc::SoftwareLowVoltageCutoff::call_low_battery_service() 
+void a300_sw_low_soc_cutoff::SoftwareLowSocCutoff::call_low_battery_service() 
 {
   if (!client_->wait_for_service(std::chrono::seconds(1)))
   {
@@ -83,7 +86,7 @@ void a300_slvc::SoftwareLowVoltageCutoff::call_low_battery_service()
 int main(int argc, char **argv)
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<a300_slvc::SoftwareLowVoltageCutoff>());
+  rclcpp::spin(std::make_shared<a300_sw_low_soc_cutoff::SoftwareLowSocCutoff>());
   rclcpp::shutdown();
   return 0;
 }

@@ -337,11 +337,11 @@ class RobotLaunchGenerator(LaunchGenerator):
           remappings=[('/diagnostics', 'diagnostics')],
         )
 
-        # A300 SW LVC Noode
-        self.a300_sw_lvc = LaunchFile.Node(
+        # A300 SW Low SOC cutoff Node
+        self.a300_sw_low_soc_cutoff = LaunchFile.Node(
           package='clearpath_hardware_interfaces',
-          executable='sw_lvc_node',
-          name='a300_sw_lvc',
+          executable='sw_low_soc_cutoff_node',
+          name='a300_sw_low_soc_cutoff',
           namespace=self.namespace,
         )
 
