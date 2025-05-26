@@ -1,6 +1,6 @@
 /**
 Software License Agreement (BSD)
-\file      software_lvc.hpp
+\file      software_low_soc_cutoff.hpp
 \authors   Tony Baltovski <tbaltovski@clearpathrobotics.com>
 \copyright Copyright (c) 2025, Clearpath Robotics, Inc., All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that
@@ -20,24 +20,24 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCL
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef CLEARPATH_HARDWARE_INTERFACES_A300_SOFTWARE_LOW_VOLTAGE_CUTOFF_HPP_
-#define CLEARPATH_HARDWARE_INTERFACES_A300_SOFTWARE_LOW_VOLTAGE_CUTOFF_HPP_
+#ifndef CLEARPATH_HARDWARE_INTERFACES_A300_SOFTWARE_LOW_SOC_CUTOFF_HPP_
+#define CLEARPATH_HARDWARE_INTERFACES_A300_SOFTWARE_LOW_SOC_CUTOFF_HPP_
 
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/battery_state.hpp"
 #include "std_srvs/srv/empty.hpp"
 
-namespace a300_slvc
+namespace a300_sw_low_soc_cutoff
 {
 
 /**
- * @class SoftwareLowVoltageCutoff
+ * @class SoftwareLowSocCutoff
  * @brief Monitors battery state and issues warnings based on charge level.
  *
  * This node subscribes to the "battery_state" topic and checks the battery charge percentage.
  * It logs warnings at 12% and calls a service when the charge drops to 8% or below.
  */
-class SoftwareLowVoltageCutoff : public rclcpp::Node
+class SoftwareLowSocCutoff : public rclcpp::Node
 {
 public:
   static constexpr float WARNING_THRESHOLD = 12.0; ///< Warning threshold percentage
@@ -48,15 +48,15 @@ public:
   /// Battery state topic name
   const std::string BATTERY_STATE_TOPIC = "platform/bms/state";
 
-  /// LVC service name
-  const std::string SW_LVC_SERVICE_NAME = "platform/mcu/cmd_shutdown";
+  /// Low SOC cuttoff service name
+  const std::string SW_LOW_SOC_CUTOFF_SERVICE_NAME = "platform/mcu/cmd_shutdown";
 
   /**
-   * @brief Constructor for SoftwareLowVoltageCutoff node.
+   * @brief Constructor for SoftwareLowSocCutoff node.
    *
    * Initializes the subscriber to "battery_state" and the service client for low battery handling.
    */
-  SoftwareLowVoltageCutoff();
+  SoftwareLowSocCutoff();
 
 private:
   /**
@@ -72,7 +72,7 @@ private:
   /**
    * @brief Calls the low battery service when charge reaches the critical level.
    *
-   * Attempts to call the "low_battery_service" if available.
+   * Attempts to call the SW_LOW_SOC_CUTOFF_SERVICE_NAME if available.
    */
   void call_low_battery_service();
 
@@ -81,6 +81,6 @@ private:
   int consecutive_low_readings_; ///< Counter for consecutive low readings
 };
 
-}  // namespace a300_slvc
+}  // namespace a300_sw_low_soc_cutoff
 
-#endif  // CLEARPATH_HARDWARE_INTERFACES_A300_SOFTWARE_LOW_VOLTAGE_CUTOFF_HPP_
+#endif  // CLEARPATH_HARDWARE_INTERFACES_A300_SOFTWARE_LOW_SOC_CUTOFF_HPP_

@@ -112,24 +112,24 @@ target_include_directories(
 target_link_libraries(${PINOUT_CONTROL_EXECUTABLE})
 ament_target_dependencies(${PINOUT_CONTROL_EXECUTABLE} ${PINOUT_CONTROL_DEPENDENCIES})
 
-# SW LVC
-set(SW_LVC_EXECUTABLE sw_lvc_node)
-set(SW_LVC_DEPENDENCIES
+# SW Low SOC cutoff
+set(SW_LOW_SOC_EXECUTABLE sw_low_soc_cutoff_node)
+set(SW_LOW_SOC_DEPENDENCIES
   sensor_msgs
   std_srvs
   rclcpp
 )
 
-add_executable(${SW_LVC_EXECUTABLE} src/a300/software_lvc.cpp)
+add_executable(${SW_LOW_SOC_EXECUTABLE} src/a300/software_low_soc_cutoff.cpp)
 
 target_include_directories(
-  ${SW_LVC_EXECUTABLE}
+  ${SW_LOW_SOC_EXECUTABLE}
   PRIVATE
   include
 )
 
-target_link_libraries(${SW_LVC_EXECUTABLE})
-ament_target_dependencies(${SW_LVC_EXECUTABLE} ${SW_LVC_DEPENDENCIES})
+target_link_libraries(${SW_LOW_SOC_EXECUTABLE})
+ament_target_dependencies(${SW_LOW_SOC_EXECUTABLE} ${SW_LOW_SOC_DEPENDENCIES})
 
 # A200 Hardware
 add_library(
@@ -273,7 +273,7 @@ install(
           ${PINOUT_CONTROL_EXECUTABLE}
           ${LIGHTING_EXECUTABLE}
           ${LIGHTING_LIB}
-          ${SW_LVC_EXECUTABLE}
+          ${SW_LOW_SOC_EXECUTABLE}
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
