@@ -361,7 +361,6 @@ class RobotLaunchGenerator(LaunchGenerator):
 
         # Components required for each platform
         common_platform_components = [
-            self.wireless_watcher_node,
             self.diag_updater_params,
             self.diag_aggregator_params,
             self.diagnostics_launch,
@@ -371,6 +370,9 @@ class RobotLaunchGenerator(LaunchGenerator):
         # Only add estimator when no BMS is present
         if self.bms_launch_file is None and self.bms_node is None:
             common_platform_components.append(self.battery_state_estimator)
+
+        if self.clearpath_config.platform.enable_wireless_watcher:
+            common_platform_components.append(self.wireless_watcher_node)
 
         if len(self.can_bridges) > 0:
             common_platform_components.extend(self.can_bridges)
