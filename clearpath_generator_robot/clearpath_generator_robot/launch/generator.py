@@ -157,6 +157,26 @@ class RobotLaunchGenerator(LaunchGenerator):
             package=clearpath_diagnostics_package,
             args=self.diagnostic_args)
 
+        # Foxglove bridge
+        self.foxglove_bridge_params = LaunchFile.LaunchArg(
+            'foxglove_bridge_parameters',
+            default_value=os.path.join(
+                self.platform_params_path,
+                'foxglove_bridge.yaml')
+        )
+
+        self.foxglove_bridge_args = [
+            ('namespace', self.namespace),
+            ('parameters', LaunchFile.Variable(
+                'foxglove_bridge_parameters'))
+        ]
+
+        self.foxglove_bridge_launch = LaunchFile(
+            'foxglove_bridge',
+            package=clearpath_diagnostics_package,
+            args=self.foxglove_bridge_args
+        )
+
         # Battery state
         self.battery_state_estimator = LaunchFile.Node(
             package='clearpath_hardware_interfaces',
@@ -366,6 +386,10 @@ class RobotLaunchGenerator(LaunchGenerator):
             self.diagnostics_launch,
             self.battery_state_control,
         ]
+
+        if self.clearpath_config.platform.enable_foxglove_bridge:
+            common_platform_components.append(self.foxglove_bridge_params)
+            common_platform_components.append(self.foxglove_bridge_launch)
 
         # Only add estimator when no BMS is present
         if self.bms_launch_file is None and self.bms_node is None:
