@@ -36,7 +36,7 @@ import os
 from clearpath_config.common.types.platform import Platform
 from clearpath_config.manipulators.types.arms import UniversalRobots
 from clearpath_config.platform.battery import BatteryConfig
-from clearpath_generator_common.common import LaunchFile, Package, ParamFile
+from clearpath_generator_common.common import LaunchFile, Package
 from clearpath_generator_common.launch.generator import LaunchGenerator
 from clearpath_generator_common.launch.writer import LaunchWriter
 from clearpath_generator_robot.launch.sensors import SensorLaunch
