@@ -2,6 +2,18 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix: Wiferion Charger Dependency (`#221 <https://github.com/clearpathrobotics/clearpath_robot/issues/221>`_)
+  Add wiferion_charger dependency to clearpath_sensors
+* Feature: ros2_canopen Inventus driver switch  (`#216 <https://github.com/clearpathrobotics/clearpath_robot/issues/216>`_)
+  * Add canopen_inventus launch to generator
+  * Add canopen_inventus_bringup dependency
+  * Add canopen_inventus_bringup to CI rosdep key ignore
+  * Remove inventus_bmu config and launch
+  * Remove unused import
+* Contributors: luis-camero
+
 2.4.1 (2025-05-20)
 ------------------
 

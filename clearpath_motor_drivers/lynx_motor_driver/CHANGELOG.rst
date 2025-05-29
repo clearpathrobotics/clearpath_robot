@@ -2,6 +2,9 @@
 Changelog for package lynx_motor_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.4.1 (2025-05-20)
 ------------------
 

@@ -2,6 +2,13 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix: Post-Install Permissions (`#219 <https://github.com/clearpathrobotics/clearpath_robot/issues/219>`_)
+* Move clearpath_diagnostics to clearpath_common (`#213 <https://github.com/clearpathrobotics/clearpath_robot/issues/213>`_)
+* Feature: Add udev entry to catch usbcan adapters (`#207 <https://github.com/clearpathrobotics/clearpath_robot/issues/207>`_)
+* Contributors: Hilary Luo, luis-camero
+
 2.4.1 (2025-05-20)
 ------------------
 * Fix: Increase queue length (`#206 <https://github.com/clearpathrobotics/clearpath_robot/issues/206>`_)

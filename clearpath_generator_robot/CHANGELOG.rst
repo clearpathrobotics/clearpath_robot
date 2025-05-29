@@ -2,6 +2,22 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Feature: ros2_canopen Inventus driver switch  (`#216 <https://github.com/clearpathrobotics/clearpath_robot/issues/216>`_)
+  * Add canopen_inventus launch to generator
+  * Add canopen_inventus_bringup dependency
+  * Add canopen_inventus_bringup to CI rosdep key ignore
+  * Remove inventus_bmu config and launch
+  * Remove unused import
+* Add foxglove bridge launch to platform service launch (`#217 <https://github.com/clearpathrobotics/clearpath_robot/issues/217>`_)
+* Add wireless watcher based on enable flag (`#218 <https://github.com/clearpathrobotics/clearpath_robot/issues/218>`_)
+* Feature: CAN Bridge Parameters (`#210 <https://github.com/clearpathrobotics/clearpath_robot/issues/210>`_)
+* Renamed to low soc cutoff from low voltage cutoff and fixed service client name.
+  * Renamed to low soc cutoff from low voltage cutoff and fixed service client name.
+  * Fixed generator member.
+* Contributors: Hilary Luo, Tony Baltovski, luis-camero
+
 2.4.1 (2025-05-20)
 ------------------
 
