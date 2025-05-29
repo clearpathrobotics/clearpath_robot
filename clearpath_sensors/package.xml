@@ -32,6 +32,7 @@
   <exec_depend>velodyne_driver</exec_depend>
   <exec_depend>velodyne_pointcloud</exec_depend>
   <exec_depend>velodyne_laserscan</exec_depend>
+  <exec_depend>wiferion_charger</exec_depend>
 
   <!--
     ROS driver packages that are currently source-only
