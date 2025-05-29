@@ -36,7 +36,7 @@ import os
 from clearpath_config.common.types.platform import Platform
 from clearpath_config.manipulators.types.arms import UniversalRobots
 from clearpath_config.platform.battery import BatteryConfig
-from clearpath_generator_common.common import LaunchFile, Package, ParamFile
+from clearpath_generator_common.common import LaunchFile, Package
 from clearpath_generator_common.launch.generator import LaunchGenerator
 from clearpath_generator_common.launch.writer import LaunchWriter
 from clearpath_generator_robot.launch.sensors import SensorLaunch
@@ -157,6 +157,26 @@ class RobotLaunchGenerator(LaunchGenerator):
             package=clearpath_diagnostics_package,
             args=self.diagnostic_args)
 
+        # Foxglove bridge
+        self.foxglove_bridge_params = LaunchFile.LaunchArg(
+            'foxglove_bridge_parameters',
+            default_value=os.path.join(
+                self.platform_params_path,
+                'foxglove_bridge.yaml')
+        )
+
+        self.foxglove_bridge_args = [
+            ('namespace', self.namespace),
+            ('parameters', LaunchFile.Variable(
+                'foxglove_bridge_parameters'))
+        ]
+
+        self.foxglove_bridge_launch = LaunchFile(
+            'foxglove_bridge',
+            package=clearpath_diagnostics_package,
+            args=self.foxglove_bridge_args
+        )
+
         # Battery state
         self.battery_state_estimator = LaunchFile.Node(
             package='clearpath_hardware_interfaces',
@@ -210,48 +230,40 @@ class RobotLaunchGenerator(LaunchGenerator):
 
             launch_args = self.clearpath_config.platform.battery.launch_args
 
-            inventus_bmu_params_file = ParamFile(
-                'inventus_bmu',
-                package=self.pkg_clearpath_sensors)
-            inventus_bmu_params = inventus_bmu_params_file.full_path
-
-            module_ids = []
+            battery_count = 1
 
             match(self.clearpath_config.platform.battery.configuration):
                 case BatteryConfig.S1P2:
-                    module_ids = [49, 50]
+                    battery_count = 2
                 case BatteryConfig.S1P4:
-                    module_ids = [49, 50, 51, 52]
+                    battery_count = 4
                 case BatteryConfig.S1P6:
-                    module_ids = [49, 50, 51, 52, 53, 54]
+                    battery_count = 6
 
-            module_series = str([module_ids])
+            inventus_launch_args = [
+                    ('namespace', f'{self.namespace}/platform/bms'),
+                    ('interface', 'vcan1'),
+                    ('battery_count', str(battery_count)),
+                    ('master_id', '49'),
+                    ('battery_0_id', '49'),
+                    ('battery_1_id', '50'),
+                    ('battery_2_id', '51'),
+                    ('battery_3_id', '52'),
+                    ('battery_4_id', '53'),
+                    ('battery_5_id', '54'),
+            ]
 
-            can_dev = 'vcan1'
+            for i in range(len(inventus_launch_args)):
+                key = inventus_launch_args[i][0]
+                if key in launch_args:
+                    val = launch_args[key]
+                    inventus_launch_args[i] = (key, str(val))
 
-            if launch_args:
-                if 'params' in launch_args:
-                    inventus_bmu_params = launch_args['params']
-                if 'can_device' in launch_args:
-                    can_dev = launch_args['can_device']
-
-            self.bms_node = LaunchFile.Node(
-                name='inventus_bmu',
-                package='inventus_bmu',
-                executable='inventus_bmu_driver',
-                namespace=self.namespace,
-                parameters=[
-                    inventus_bmu_params,
-                    {'can_device': can_dev},
-                    {'module_ids': module_ids},
-                    {'module_series': module_series}
-                ],
-                remappings=[
-                    ('bms/battery_state', 'platform/bms/state'),
-                    ('modules', 'platform/bms/modules'),
-                    ('bms/soc', 'platform/bms/soc'),
-                    ('/diagnostics', 'diagnostics')
-                ]
+            self.bms_node = LaunchFile(
+                'canopen_inventus',
+                filename='inventus',
+                package=Package('canopen_inventus_bringup'),
+                args=inventus_launch_args
             )
 
         # Lighting
@@ -314,6 +326,14 @@ class RobotLaunchGenerator(LaunchGenerator):
                     ('namespace', self.namespace),
                     ('interface', can_bridge.interface),
                     ('from_can_bus_topic', can_bridge.topic_rx),
+                    ('enable_can_fd', str(can_bridge.enaled_can_fd).lower()),
+                    ('interval_sec', str(can_bridge.interval)),
+                    ('use_bus_time', str(can_bridge.use_bus_time).lower()),
+                    ('filters', str(can_bridge.filters)),
+                    ('auto_configure', str(can_bridge.auto_configure).lower()),
+                    ('auto_activate', str(can_bridge.auto_activate).lower()),
+                    ('timeout', str(can_bridge.timeout)),
+                    ('transition_attempts', str(can_bridge.transition_attempts)),
                 ]
             ))
 
@@ -325,6 +345,12 @@ class RobotLaunchGenerator(LaunchGenerator):
                     ('namespace', self.namespace),
                     ('interface', can_bridge.interface),
                     ('to_can_bus_topic', can_bridge.topic_tx),
+                    ('enable_can_fd', str(can_bridge.enaled_can_fd).lower()),
+                    ('interval_sec', str(can_bridge.interval)),
+                    ('auto_configure', str(can_bridge.auto_configure).lower()),
+                    ('auto_activate', str(can_bridge.auto_activate).lower()),
+                    ('timeout', str(can_bridge.timeout)),
+                    ('transition_attempts', str(can_bridge.transition_attempts)),
                 ]
             ))
 
@@ -347,16 +373,22 @@ class RobotLaunchGenerator(LaunchGenerator):
 
         # Components required for each platform
         common_platform_components = [
-            self.wireless_watcher_node,
             self.diag_updater_params,
             self.diag_aggregator_params,
             self.diagnostics_launch,
             self.battery_state_control,
         ]
 
+        if self.clearpath_config.platform.enable_foxglove_bridge:
+            common_platform_components.append(self.foxglove_bridge_params)
+            common_platform_components.append(self.foxglove_bridge_launch)
+
         # Only add estimator when no BMS is present
         if self.bms_launch_file is None and self.bms_node is None:
             common_platform_components.append(self.battery_state_estimator)
+
+        if self.clearpath_config.platform.enable_wireless_watcher:
+            common_platform_components.append(self.wireless_watcher_node)
 
         if len(self.can_bridges) > 0:
             common_platform_components.extend(self.can_bridges)
