@@ -2,8 +2,8 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.5.0 (2025-05-29)
+------------------
 * Fix: Post-Install Permissions (`#219 <https://github.com/clearpathrobotics/clearpath_robot/issues/219>`_)
 * Move clearpath_diagnostics to clearpath_common (`#213 <https://github.com/clearpathrobotics/clearpath_robot/issues/213>`_)
 * Feature: Add udev entry to catch usbcan adapters (`#207 <https://github.com/clearpathrobotics/clearpath_robot/issues/207>`_)

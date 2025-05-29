@@ -2,8 +2,8 @@
 Changelog for package clearpath_platform
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.5.0 (2025-05-29)
+------------------
 * Renamed to low soc cutoff from low voltage cutoff and fixed service client name.
   * Renamed to low soc cutoff from low voltage cutoff and fixed service client name.
   * Fixed generator member.
