@@ -29,10 +29,7 @@
 import re
 import subprocess
 
-from clearpath_generator_common.common import BaseGenerator
 from clearpath_tests.test_node import ClearpathTestNode, ClearpathTestResult
-
-import rclpy
 
 
 class CanbusTestNode(ClearpathTestNode):
@@ -67,15 +64,6 @@ class CanbusTestNode(ClearpathTestNode):
             self.get_logger().warning('Permissive message length; all messages will be accepted')
 
         self.test_name = f'CAN {self.can_interface}'
-
-    def start(self):
-        while True:
-            result = self.read_can_log()
-
-            if result.success:
-                self.get_logger().info(result.message)
-            else:
-                self.get_logger().warning(result.message)
 
     def run_test(self):
         self.get_logger().info(f'Collecting CAN messages on {self.can_interface}...')
