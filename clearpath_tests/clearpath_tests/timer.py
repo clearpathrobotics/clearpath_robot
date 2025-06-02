@@ -45,21 +45,21 @@ class Timeout:
         self.time_thread = threading.Thread(
             target=self.run_timer
         )
+        self.time_thread.start()
 
-        self.is_elapsed = False
+        self.__is_elapsed = False
 
     @property
     def elapsed(self):
         self.lock.acquire()
-        elapsed = self.is_elapsed
+        elapsed = self.__is_elapsed
         self.lock.release()
         return elapsed
 
     def run_timer(self):
         start_time = self.node.get_clock().now()
-        while self.node.get_clock().now() - start_time >= self.duration:
+        while self.node.get_clock().now() - start_time < self.duration:
             time.sleep(0.01)
-
         self.lock.acquire()
-        self.is_elapsed = True
+        self.__is_elapsed = True
         self.lock.release()
