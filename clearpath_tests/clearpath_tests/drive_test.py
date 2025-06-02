@@ -28,8 +28,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 import math
 
-from clearpath_generator_common.common import BaseGenerator
-
 from clearpath_tests.mobility_test import MobilityTestNode
 from clearpath_tests.test_node import ClearpathTestResult
 

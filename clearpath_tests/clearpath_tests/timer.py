@@ -40,26 +40,26 @@ class Timeout:
     """
     def __init__(self, node: Node, duration: float):
         self.node = node
-        self.lock = threading.Lock()
         self.duration = Duration(seconds=duration)
+        self.__abort_signal = False
+        self.__is_elapsed = False
         self.time_thread = threading.Thread(
             target=self.run_timer
         )
         self.time_thread.start()
 
-        self.__is_elapsed = False
-
     @property
     def elapsed(self):
-        self.lock.acquire()
-        elapsed = self.__is_elapsed
-        self.lock.release()
-        return elapsed
+        return self.__is_elapsed
+
+    def abort(self):
+        self.__abort_signal = True
 
     def run_timer(self):
         start_time = self.node.get_clock().now()
-        while self.node.get_clock().now() - start_time < self.duration:
+        while (
+            self.node.get_clock().now() - start_time < self.duration
+            and not self.__abort_signal
+        ):
             time.sleep(0.01)
-        self.lock.acquire()
         self.__is_elapsed = True
-        self.lock.release()
