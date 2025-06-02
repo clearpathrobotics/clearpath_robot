@@ -34,7 +34,6 @@ from clearpath_tests.timer import Timeout
 
 from geometry_msgs.msg import TwistStamped
 import rclpy
-from rclpy.duration import Duration
 from rclpy.qos import qos_profile_sensor_data, qos_profile_system_default
 from std_msgs.msg import Bool
 
