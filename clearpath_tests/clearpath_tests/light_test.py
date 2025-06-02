@@ -29,7 +29,6 @@
 import threading
 
 from clearpath_config.common.types.platform import Platform
-from clearpath_generator_common.common import BaseGenerator
 from clearpath_platform_msgs.msg import Lights, RGB
 from clearpath_tests.test_node import ClearpathTestNode, ClearpathTestResult
 
