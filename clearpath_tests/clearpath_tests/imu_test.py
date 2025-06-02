@@ -28,16 +28,15 @@
 # POSSIBILITY OF SUCH DAMAGE.
 import math
 
-from clearpath_generator_common.common import BaseGenerator
 from clearpath_tests.test_node import (
     ClearpathTestNode,
     ClearpathTestResult,
 )
 from clearpath_tests.tf import ConfigurableTransformListener
+from clearpath_tests.timer import Timeout
 
 from geometry_msgs.msg import Vector3Stamped
 import rclpy
-from rclpy.duration import Duration
 from rclpy.qos import qos_profile_sensor_data
 from sensor_msgs.msg import Imu
 from tf2_geometry_msgs import do_transform_vector3
@@ -104,27 +103,24 @@ class ImuTestNode(ClearpathTestNode):
             self.accel_samples.append(transformed_accel)
             self.gyro_samples.append(transformed_gyro)
 
-    def start(self):
+    def run_test(self):
+        def gather_samples():
+            print('Gathering 10s worth of IMU data...')
+            timeout = Timeout(self, 10.0)
+            self.record_data = True
+            while not timeout.elapsed:
+                rclpy.spin_once(self, timeout_sec=1.0)
+            self.record_data = False
+
+        self.record_data = False
+        self.test_in_progress = True
+
         self.imu_sub = self.create_subscription(
             Imu,
             f'/{self.namespace}/sensors/imu_0/data_raw',
             self.imu_raw_callback,
             qos_profile=qos_profile_sensor_data,
         )
-
-    def run_test(self):
-        def gather_samples():
-            sample_duration = Duration(seconds=10)
-            print('Gathering 10s worth of IMU data...')
-            start_time = self.get_clock().now()
-            self.record_data = True
-            while self.get_clock().now() - start_time < sample_duration:
-                rclpy.spin_once(self)
-            self.record_data = False
-
-        self.record_data = False
-        self.test_in_progress = True
-        self.start()
 
         results = []
 
