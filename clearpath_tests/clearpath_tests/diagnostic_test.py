@@ -29,14 +29,13 @@
 import re
 
 from clearpath_config.common.types.platform import Platform
-from clearpath_generator_common.common import BaseGenerator
 from clearpath_tests.test_node import ClearpathTestNode, ClearpathTestResult
+from clearpath_tests.timer import Timeout
 
 from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus
 
 import rclpy
 from rclpy.qos import qos_profile_system_default
-from rclpy.time import Duration
 
 
 PLATFORM_ANY = '*'
@@ -188,27 +187,21 @@ class DiagnosticTestNode(ClearpathTestNode):
             elif status.level == DiagnosticStatus.STALE:
                 pass
 
-    def start(self):
+    def run_test(self):
+        results = []
+        self.test_in_progress = True
+
+        # collect 30s worth of data
+        self.get_logger().info('Collecting 30 seconds of diagnostic data...')
         self.diagnostc_sub = self.create_subscription(
             DiagnosticArray,
             f'/{self.namespace}/diagnostics',
             self.diagnostic_callback,
             qos_profile_system_default
         )
-
-    def run_test(self):
-        results = []
-
-        self.test_in_progress = True
-        self.start()
-
-        # collect 30s worth of data
-        start_time = self.get_clock().now()
-        end_time = start_time + Duration(seconds=30.0)
-
-        self.get_logger().info('Collecting 30 seconds of diagnostic data...')
-        while self.get_clock().now() < end_time:
-            rclpy.spin_once(self)
+        timeout = Timeout(self, 30)
+        while not timeout.elapsed:
+            rclpy.spin_once(self, timeout_sec=1.0)
 
         if len(self.warnings) == 0 and len(self.errors) == 0 and len(self.allowed_errors) == 0:
             results.append(ClearpathTestResult(True, 'Diagnostics', 'No errors, no warnings'))
