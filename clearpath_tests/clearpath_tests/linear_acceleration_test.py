@@ -27,13 +27,13 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from clearpath_generator_common.common import BaseGenerator
 from clearpath_tests.mobility_test import MobilityTestNode
 from clearpath_tests.test_node import ClearpathTestResult
 from clearpath_tests.tf import ConfigurableTransformListener
+from clearpath_tests.timer import Timeout
+
 from geometry_msgs.msg import Vector3Stamped
 import rclpy
-from rclpy.duration import Duration
 from rclpy.qos import qos_profile_sensor_data
 from sensor_msgs.msg import Imu
 from tf2_geometry_msgs import do_transform_vector3
@@ -104,19 +104,6 @@ class LinearAccelerationTestNode(MobilityTestNode):
         if self.record_data:
             self.accel_samples.append(transformed_accel)
 
-    def start(self):
-        super().start()
-
-        # Subscribe to our default IMU
-        imu_topic = f'/{self.namespace}/sensors/imu_{self.imu_num}/data'
-        self.get_logger().info(f'Subscribing to IMU data on {imu_topic}...')
-        self.imu_sub = self.create_subscription(
-            Imu,
-            imu_topic,
-            self.imu_callback,
-            qos_profile=qos_profile_sensor_data,
-        )
-
     def run_test(self):
         self.cmd_vel.twist.linear.x = 0.0
         self.cmd_vel.twist.linear.y = 0.0
@@ -139,17 +126,26 @@ Are all these conditions met?""")
             return [ClearpathTestResult(False, self.test_name, 'User skipped')]
 
         self.get_logger().info('Starting acceleration test')
-        self.start()
+
+        # Subscribe to our default IMU
+        imu_topic = f'/{self.namespace}/sensors/imu_{self.imu_num}/data'
+        self.get_logger().info(f'Subscribing to IMU data on {imu_topic}...')
+        self.imu_sub = self.create_subscription(
+            Imu,
+            imu_topic,
+            self.imu_callback,
+            qos_profile=qos_profile_sensor_data,
+        )
 
         # wait until we get the first IMU message or 10s passes
-        start_time = self.get_clock().now()
-        timeout_duration = Duration(seconds=10)
+        timeout = Timeout(self, 10.0)
         while (
             self.latest_imu is None
-            and self.get_clock().now() - start_time <= timeout_duration
+            and not timeout.elapsed
             and not self.test_error
         ):
-            rclpy.spin_once(self)
+            rclpy.spin_once(self, timeout_sec=1.0)
+        timeout.abort()
 
         if self.test_error:
             self.get_logger().warning(f'Test aborted due to an error: {self.test_error_msg}')
@@ -163,35 +159,37 @@ Are all these conditions met?""")
             )]
 
         # accelerate & decelerate over 5s
-        accel_duration = Duration(seconds=self.acceleration_time)
+        timeout = Timeout(self, 5.0)
         start_time = self.get_clock().now()
         while (
             not self.test_error
-            and self.get_clock().now() - start_time <= accel_duration
+            and not timeout.elapsed
         ):
             dt = (self.get_clock().now() - start_time).nanoseconds / 1_000_000_000
             self.cmd_vel.twist.linear.x = self.acceleration * dt
             self.record_data = True
-            rclpy.spin_once(self)
+            rclpy.spin_once(self, timeout_sec=1.0)
         self.record_data = False
+        timeout.abort()
 
         # smoothly decelerate, but stop don't record any more data
+        timeout = Timeout(self, 5.0)
         start_time = self.get_clock().now()
         while (
             not self.test_error
-            and self.get_clock().now() - start_time <= accel_duration
+            and not timeout.elapsed
         ):
             dt = (self.get_clock().now() - start_time).nanoseconds / 1_000_000_000
             self.cmd_vel.twist.linear.x = self.acceleration * (self.acceleration_time - dt)
-            rclpy.spin_once(self)
+            rclpy.spin_once(self, timeout_sec=1.0)
+        timeout.abort()
 
         # stop driving
         # wait 1s to ensure we publish the command
         self.cmd_vel.twist.linear.x = 0.0
-        test_wait = Duration(seconds=1)
-        start_time = self.get_clock().now()
-        while self.get_clock().now() - start_time <= test_wait:
-            rclpy.spin_once(self)
+        timeout = Timeout(self, 1.0)
+        while not timeout.elapsed:
+            rclpy.spin_once(self, timeout_sec=1.0)
 
         # process the results
         results = self.test_results
