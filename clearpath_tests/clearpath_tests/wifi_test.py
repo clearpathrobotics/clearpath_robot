@@ -31,9 +31,8 @@ import re
 import subprocess
 import time
 
-from clearpath_generator_common.common import BaseGenerator
 from clearpath_tests.test_node import ClearpathTestNode, ClearpathTestResult
-import rclpy
+
 from wireless_msgs.msg import Connection
 
 

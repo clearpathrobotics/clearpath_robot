@@ -29,7 +29,6 @@
 import os
 import re
 import subprocess
-import time
 
 from clearpath_config.common.types.platform import Platform
 from clearpath_platform_msgs.msg import Status

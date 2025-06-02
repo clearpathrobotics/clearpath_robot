@@ -32,12 +32,14 @@ import time
 from rclpy.duration import Duration
 from rclpy.node import Node
 
+
 class Timeout:
     """
     Reusable class for implementing basic timeouts during ROS operation.
 
     Starts a background thread that spins until the time has elapsed.
     """
+
     def __init__(self, node: Node, duration: float):
         self.node = node
         self.duration = Duration(seconds=duration)
