@@ -71,14 +71,6 @@ class EstopTestNode(ClearpathTestNode):
                 state = 'clear'
             self.get_logger().info(f'{self.estop_type} state: {state}')
 
-    def start(self):
-        self.estop_sub = self.create_subscription(
-            Bool,
-            f'/{self.namespace}/platform/emergency_stop',
-            self.estop_callback,
-            qos_profile_sensor_data
-        )
-
     def run_test(self):
         if self.optional:
             user_input = self.promptYN(
@@ -89,7 +81,13 @@ class EstopTestNode(ClearpathTestNode):
                 return [ClearpathTestResult(None, self.test_name, 'Skipped; component not installed')]  # noqa: E501
 
         self.test_in_progress = True
-        self.start()
+
+        self.estop_sub = self.create_subscription(
+            Bool,
+            f'/{self.namespace}/platform/emergency_stop',
+            self.estop_callback,
+            qos_profile_sensor_data
+        )
 
         self.cmd_vel_pub = self.create_publisher(
             TwistStamped,
