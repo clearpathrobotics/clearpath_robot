@@ -172,22 +172,3 @@ class FanTestNode(ClearpathTestNode):
             results.append(ClearpathTestResult(False, 'Fans (all on)', None))
 
         return results
-
-
-def main():
-    setup_path = BaseGenerator.get_args()
-    rclpy.init()
-
-    fan_test = FanTestNode(setup_path)
-
-    try:
-        rclpy.spin(fan_test)
-    except KeyboardInterrupt:
-        pass
-
-    fan_test.destroy_node()
-    rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()

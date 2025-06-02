@@ -257,23 +257,3 @@ class DiagnosticTestNode(ClearpathTestNode):
                 details += f'* {warn.name}: {warn.message}\n'
 
         return details
-
-
-def main():
-    setup_path = BaseGenerator.get_args()
-    rclpy.init()
-
-    dt = DiagnosticTestNode(setup_path)
-
-    try:
-        dt.start()
-        rclpy.spin(dt)
-    except KeyboardInterrupt:
-        pass
-
-    dt.destroy_node()
-    rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()

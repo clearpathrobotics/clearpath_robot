@@ -184,23 +184,3 @@ class WifiTestNode(ClearpathTestNode):
                 ))
 
         return results
-
-
-def main():
-    setup_path = BaseGenerator.get_args()
-    rclpy.init()
-
-    wt = WifiTestNode(setup_path)
-
-    try:
-        wt.start()
-        rclpy.spin(wt)
-    except KeyboardInterrupt:
-        pass
-
-    wt.destroy_node()
-    rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()

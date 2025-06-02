@@ -266,23 +266,3 @@ Safe to continue?"""
             now = self.get_clock().now()
 
         return self.estop_engaged == state
-
-
-def main():
-    setup_path = BaseGenerator.get_args()
-    rclpy.init()
-
-    st = EstopTestNode('', setup_path=setup_path)
-
-    try:
-        st.start()
-        rclpy.spin(st)
-    except KeyboardInterrupt:
-        pass
-
-    st.destroy_node()
-    rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()

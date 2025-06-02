@@ -246,23 +246,3 @@ class ImuTestNode(ClearpathTestNode):
                 f'{self.test_name} ({label})',
                 f'Measured gravity vector: ({avg_x:0.2f}, {avg_y:0.2f}, {avg_z:0.2f}) Expected: ({expected_x:0.2f}, {expected_y:0.2f}, {expected_z:0.2f})'  # noqa: E501
             )
-
-
-def main():
-    setup_path = BaseGenerator.get_args()
-    rclpy.init()
-
-    it = ImuTestNode(imu_num=0, setup_path=setup_path)
-
-    try:
-        it.start()
-        rclpy.spin(it)
-    except KeyboardInterrupt:
-        pass
-
-    it.destroy_node()
-    rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()

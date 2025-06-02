@@ -222,27 +222,3 @@ Are all these conditions met?""")
             ))
 
         return results
-
-
-def main():
-    setup_path = BaseGenerator.get_args()
-    rclpy.init()
-
-    try:
-        rt = LinearAccelerationTestNode(setup_path)
-        rt.start()
-        try:
-            while not rt.test_done:
-                rclpy.spin_once(rt)
-            rt.get_logger().info('Test complete')
-        except KeyboardInterrupt:
-            rt.get_logger().info('User aborted! Cleaning up & exiting...')
-        rt.destroy_node()
-    except TimeoutError:
-        # This error is already logged when it's raised
-        pass
-    rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()

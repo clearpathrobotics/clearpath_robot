@@ -185,28 +185,3 @@ Are all these conditions met?""")  # noqa: E501
                 ))
 
         return results
-
-
-def main():
-    setup_path = BaseGenerator.get_args()
-    rclpy.init()
-
-    try:
-        dt = DriveTestNode(setup_path)
-        dt.start()
-        try:
-            while not dt.test_done:
-                rclpy.spin_once(dt)
-            dt.get_logger().info('Test complete')
-        except KeyboardInterrupt:
-            dt.get_logger().info('User aborted! Cleaning up & exiting...')
-        dt.destroy_node()
-    except TimeoutError:
-        # This error is already logged when it's raised
-        pass
-
-    rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()

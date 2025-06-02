@@ -178,23 +178,3 @@ class CanbusTestNode(ClearpathTestNode):
 
         details += '\nDevices that do not use CANopen may be incorrectly identified in the list above'  # noqa: E501
         return details
-
-
-def main():
-    setup_path = BaseGenerator.get_args()
-    rclpy.init()
-
-    ct = CanbusTestNode(setup_path=setup_path)
-
-    try:
-        ct.start()
-        rclpy.spin(ct)
-    except KeyboardInterrupt:
-        pass
-
-    ct.destroy_node()
-    rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()

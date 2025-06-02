@@ -78,14 +78,6 @@ class ClearpathTestNode(Node):
         """
         return None
 
-    def start(self):
-        """
-        Run this node normally as a standard ROS node without any user interaction.
-
-        This function must be implemented by all children
-        """
-        raise NotImplementedError()
-
     @staticmethod
     def promptYN(message: str, default: str = 'Y'):
         """

@@ -272,23 +272,3 @@ class McuTestNode(ClearpathTestNode):
 * Version: {'unknown' if not firmware_version else firmware_version}
 
 """
-
-
-def main():
-    setup_path = BaseGenerator.get_args()
-    rclpy.init()
-
-    mt = McuTestNode(setup_path=setup_path)
-
-    try:
-        mt.start()
-        rclpy.spin(mt)
-    except KeyboardInterrupt:
-        pass
-
-    mt.destroy_node()
-    rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()
