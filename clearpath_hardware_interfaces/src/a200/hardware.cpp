@@ -232,7 +232,9 @@ namespace clearpath_hardware_interfaces
       horizon_legacy::Channel<clearpath::DataSystemStatus>::requestData(polling_timeout_);
     if (system_status)
     {
-      status_msg_.mcu_uptime = system_status->getUptime();
+      int uptime_ms = system_status->getUptime();  // returns milliseconds!
+      status_msg_.mcu_uptime.sec = uptime_ms / 1000;
+      status_msg_.mcu_uptime.nanosec = (uptime_ms - status_msg_.mcu_uptime.sec * 1000) * 1000000;
 
       power_msg_.shore_power_connected = clearpath_platform_msgs::msg::Power::NOT_APPLICABLE;
       power_msg_.power_12v_user_nominal = clearpath_platform_msgs::msg::Power::NOT_APPLICABLE;
