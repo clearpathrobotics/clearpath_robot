@@ -232,7 +232,7 @@ namespace clearpath_hardware_interfaces
       horizon_legacy::Channel<clearpath::DataSystemStatus>::requestData(polling_timeout_);
     if (system_status)
     {
-      // status_msg_.mcu_uptime = system_status->getUptime();
+      status_msg_.mcu_uptime = system_status->getUptime();
 
       power_msg_.shore_power_connected = clearpath_platform_msgs::msg::Power::NOT_APPLICABLE;
       power_msg_.power_12v_user_nominal = clearpath_platform_msgs::msg::Power::NOT_APPLICABLE;
@@ -256,6 +256,10 @@ namespace clearpath_hardware_interfaces
       RCLCPP_ERROR(
         rclcpp::get_logger(HW_NAME), "Could not get system_status");
     }
+
+    status_msg_.header.frame_id = "base_link";
+    status_msg_.header.stamp = status_node_->get_clock()->now();
+    status_msg_.hardware_id = "A200";
 
     status_node_->publish_status(status_msg_);
     status_node_->publish_power(power_msg_);
