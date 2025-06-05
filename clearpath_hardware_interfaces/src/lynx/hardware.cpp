@@ -89,7 +89,7 @@ void LynxHardware::updateJointsFromHardware(const rclcpp::Duration & period)
         if (lynx.joint_name == info_.joints[i].name)
         {
           hw_states_velocity_[i] = lynx.velocity;
-          hw_states_position_[i] += lynx.velocity * period.seconds();
+          hw_states_position_[i] = lynx.travel;
         }
       }
     }

@@ -143,6 +143,12 @@ bool LynxMotorDriver::processMessage(const Message& received_msg)
                             (feedback_msg_.velocity * (1-DIAGNOSTICS_LOW_PASS));
           break;
         }
+
+        case Feedback::Fields::Travel:
+        {
+          feedback_msg_.travel = data;
+          break;
+        }
       }
 
       feedback_mutexes_[index]->unlock();

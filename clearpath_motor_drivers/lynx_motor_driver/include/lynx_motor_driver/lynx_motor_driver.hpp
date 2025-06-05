@@ -52,6 +52,7 @@ namespace Feedback
     Current,
     Voltage,
     Velocity,
+    Travel,
     Count
   } Fields;
 }
