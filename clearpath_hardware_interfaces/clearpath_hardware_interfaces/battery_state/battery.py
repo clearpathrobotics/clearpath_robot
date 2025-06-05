@@ -341,7 +341,7 @@ class Battery:
         ]
 
     class VALENCE_U24(LiION):
-        CAPACITY = 110
+        CAPACITY = 110.0
         LUT = [
             [10.0, 0.00],
             [11.5, 0.05],
@@ -367,7 +367,7 @@ class Battery:
         ]
 
     class VALENCE_U27(VALENCE_U24):
-        CAPACITY = 138
+        CAPACITY = 138.0
 
     # Match battery name to class
     BATTERIES = {
