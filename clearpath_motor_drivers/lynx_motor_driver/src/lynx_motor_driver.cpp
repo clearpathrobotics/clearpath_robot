@@ -146,7 +146,7 @@ bool LynxMotorDriver::processMessage(const Message& received_msg)
 
         case Feedback::Fields::Travel:
         {
-          feedback_msg_.travel = data;
+          feedback_msg_.travel = data * direction_;
           break;
         }
       }
