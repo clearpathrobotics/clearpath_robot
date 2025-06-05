@@ -23,7 +23,7 @@ fi
 if [ -f /lib/systemd/system/clearpath-robot.service ];
 then
     echo "Detected previous installation of clearpath-robot.service. Updating services..."
-    setpriv --reuid $(get_user) --regid $(get_user) --keep-groups ros2 run clearpath_robot install &
+    ros2 run clearpath_robot install
 
 
     # Fix the user in all clearpath-*-start and clearpath-*-stop scripts
