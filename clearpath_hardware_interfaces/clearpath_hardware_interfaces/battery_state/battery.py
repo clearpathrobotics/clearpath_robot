@@ -340,6 +340,35 @@ class Battery:
             [25.4, 1.00],
         ]
 
+    class VALENCE_U24(LiION):
+        CAPACITY = 110
+        LUT = [
+            [10.0, 0.00],
+            [11.5, 0.05],
+            [12.1, 0.10],
+            [12.3, 0.15],
+            [12.5, 0.20],
+            [12.6, 0.25],
+            [12.7, 0.30],
+            [12.75, 0.35],
+            [12.8, 0.40],
+            [12.818, 0.45],
+            [12.836, 0.50],
+            [12.854, 0.55],
+            [12.872, 0.60],
+            [12.890, 0.65],
+            [12.909, 0.70],
+            [12.927, 0.75],
+            [12.945, 0.80],
+            [12.963, 0.85],
+            [12.981, 0.90],
+            [13.0, 0.95],
+            [13.5, 1.00]
+        ]
+
+    class VALENCE_U27(VALENCE_U24):
+        CAPACITY = 138
+
     # Match battery name to class
     BATTERIES = {
         BatteryConfig.HE2613: HE2613,
@@ -350,6 +379,8 @@ class Battery:
         BatteryConfig.TLV1222: TLV1222,
         BatteryConfig.RB20: RB20,
         BatteryConfig.DTM8A31: DTM8A31,
+        BatteryConfig.VALENCE_U24_12XP: VALENCE_U24,
+        BatteryConfig.VALENCE_U27_12XP: VALENCE_U27
     }
 
     def __new__(cls,
