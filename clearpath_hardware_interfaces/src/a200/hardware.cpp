@@ -238,8 +238,8 @@ namespace clearpath_hardware_interfaces
       status_msg_.connection_uptime.sec = status_msg_.mcu_uptime.sec;
       status_msg_.connection_uptime.nanosec = status_msg_.mcu_uptime.nanosec;
       // temperature data isn't supported
-      status_msg_.pcb_temperature = NAN;
-      status_msg_.mcu_temperature = NAN;
+      status_msg_.pcb_temperature = std::numeric_limits<double>::quiet_NaN();
+      status_msg_.mcu_temperature = std::numeric_limits<double>::quiet_NaN();
 
       power_msg_.shore_power_connected = clearpath_platform_msgs::msg::Power::NOT_APPLICABLE;
       power_msg_.power_12v_user_nominal = clearpath_platform_msgs::msg::Power::NOT_APPLICABLE;
