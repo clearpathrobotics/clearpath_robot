@@ -31,7 +31,6 @@ import pwd
 import robot_upstart
 
 from clearpath_config.clearpath_config import ClearpathConfig
-from clearpath_config.common.types.platform import Platform
 from clearpath_config.common.utils.yaml import read_yaml
 from clearpath_generator_common.common import BaseGenerator
 
@@ -72,9 +71,13 @@ class ClearpathRobotProvider(robot_upstart.providers.Systemd):
 
         # replace the multi-user.target.wants items with clearpath-robot.service.wants
         multi_user_path = os.path.join(
-            self.root, "etc/systemd/system/multi-user.target.wants", self.job.name + ".service")
+            self.root,
+            "etc/systemd/system/multi-user.target.wants",
+            self.job.name + ".service")
         clearpath_robot_path = os.path.join(
-            self.root, "etc/systemd/system/clearpath-robot.service.wants", self.job.name + ".service")
+            self.root,
+            "etc/systemd/system/clearpath-robot.service.wants",
+            self.job.name + ".service")
         files[clearpath_robot_path] = files[multi_user_path]
         files.pop(multi_user_path)
         return files
@@ -238,14 +241,14 @@ class ZenohRouterServiceProvider(robot_upstart.providers.Generic):
             zenoh_router_service_path,
         )
         return {
-                '/lib/systemd/system/clearpath-zenoh-router.service': {
-                    'content': zenoh_router_service_contents,
-                    'mode': 0o644
-                },
-                '/etc/systemd/system/clearpath-robot.service.wants/clearpath-zenoh-router.service': {
-                    'symlink': '/lib/systemd/system/clearpath-zenoh-router.service'
-                }
+            '/lib/systemd/system/clearpath-zenoh-router.service': {
+                'content': zenoh_router_service_contents,
+                'mode': 0o644
+            },
+            '/etc/systemd/system/clearpath-robot.service.wants/clearpath-zenoh-router.service': {
+                'symlink': '/lib/systemd/system/clearpath-zenoh-router.service'
             }
+        }
 
 
 class RobotProvider(robot_upstart.providers.Generic):
@@ -289,6 +292,7 @@ class RobotProvider(robot_upstart.providers.Generic):
             },
         }
 
+
 class ShutdownProvider(robot_upstart.providers.Generic):
     def post_install(self):
         pass
@@ -317,6 +321,7 @@ class ShutdownProvider(robot_upstart.providers.Generic):
                 'symlink': '/lib/systemd/system/clearpath-shutdown.service'
             },
         }
+
 
 setup_path = BaseGenerator.get_args()
 workspace_setup = os.path.join(setup_path, 'setup.bash')
@@ -350,20 +355,6 @@ except:  # noqa: E722
         f'Modify the "robot.yaml" system.username entry to match an existing user.'
     )
     exit(1)
-
-# Create Dummy Launch
-if not os.path.isfile(platform_service_launch):
-    os.makedirs(os.path.dirname(platform_service_launch), exist_ok=True)
-    open(platform_service_launch, 'w+').close()
-if not os.path.isfile(platform_extras_service_launch):
-    os.makedirs(os.path.dirname(platform_extras_service_launch), exist_ok=True)
-    open(platform_extras_service_launch, 'w+').close()
-if not os.path.isfile(sensors_service_launch):
-    os.makedirs(os.path.dirname(sensors_service_launch), exist_ok=True)
-    open(sensors_service_launch, 'w+').close()
-if not os.path.isfile(manipulators_service_launch):
-    os.makedirs(os.path.dirname(manipulators_service_launch), exist_ok=True)
-    open(manipulators_service_launch, 'w+').close()
 
 # Robot
 # this should be first, as subsequent jobs are part of this service
