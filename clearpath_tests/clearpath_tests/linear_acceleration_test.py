@@ -105,6 +105,8 @@ class LinearAccelerationTestNode(MobilityTestNode):
             self.accel_samples.append(transformed_accel)
 
     def run_test(self):
+        self.start()
+
         self.cmd_vel.twist.linear.x = 0.0
         self.cmd_vel.twist.linear.y = 0.0
         self.cmd_vel.twist.linear.z = 0.0
