@@ -175,12 +175,6 @@ class RobotLaunchGenerator(LaunchGenerator):
                 args=valence_launch_args
             )
 
-            self.bms_launch_file = LaunchFile(
-                'bms',
-                package=Package('valence_bms_driver'),
-                args=valence_launch_args
-            )
-
         # Lighting
         self.lighting_node = LaunchFile.Node(
           package='clearpath_hardware_interfaces',
