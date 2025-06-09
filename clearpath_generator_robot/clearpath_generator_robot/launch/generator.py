@@ -170,8 +170,7 @@ class RobotLaunchGenerator(LaunchGenerator):
                     valence_launch_args[i] = (key, str(val))
 
             self.bms_launch_file = LaunchFile(
-                'valence_bms',
-                filename='bms',
+                'bms',
                 package=Package('valence_bms_driver'),
                 args=valence_launch_args
             )
