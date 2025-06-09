@@ -210,8 +210,8 @@ class ImuTestNode(ClearpathTestNode):
         g_err = min(measured_g, g) / max(measured_g, g)
         results.append(ClearpathTestResult(
             g_err > 0.75,
-            f'{self.test_name} (g magnitude)',
-            f'Measured gravity: {measured_g:0.2f}m/s^2. Err {g_err:0.2f}',
+            f'{self.test_name} {label} (g magnitude)',
+            f'Measured gravity: {measured_g:0.2f}m/s^2. Accuracy {g_err:0.2f}',
         ))
 
         # estimate our actual inclination based on the IMU data
@@ -225,7 +225,7 @@ class ImuTestNode(ClearpathTestNode):
                     x_angle - angle_slop <= calculated_inclination_x
                     and calculated_inclination_x + angle_slop <= x_angle
                 ),
-                f'{self.test_name} (x inclination)',
+                f'{self.test_name} {label}',
                 f'Measured inclination: {calculated_inclination_x * 180.0 / math.pi :0.2f}. Expected: {x_angle * 180 / math.pi:0.2f}',  # noqa:E501
             ))
 
@@ -235,7 +235,7 @@ class ImuTestNode(ClearpathTestNode):
                     y_angle - angle_slop <= calculated_inclination_y
                     and calculated_inclination_y + angle_slop <= y_angle
                 ),
-                f'{self.test_name} (y inclination)',
+                f'{self.test_name} {label}',
                 f'Measured inclination: {calculated_inclination_y * 180.0 / math.pi :0.2f}. Expected: {y_angle * 180 / math.pi:0.2f}',  # noqa:E501
             ))
 
