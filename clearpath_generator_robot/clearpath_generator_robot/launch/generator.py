@@ -158,6 +158,7 @@ class RobotLaunchGenerator(LaunchGenerator):
             launch_args = self.clearpath_config.platform.battery.launch_args
 
             valence_launch_args = [
+                ('robot_namespace', self.namespace),
                 ('namespace', f'{self.namespace}/platform/bms'),
                 ('interface', 'can1'),
                 ('bms_id', '0')
