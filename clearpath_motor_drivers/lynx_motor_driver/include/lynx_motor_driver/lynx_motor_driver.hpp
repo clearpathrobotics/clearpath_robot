@@ -179,7 +179,7 @@ private:
   float offset_;
   uint16_t iteration_;
   float current_filtered, voltage_filtered, velocity_filtered;
-  float travel_offset_;
+  float travel_offset_, last_travel_;
   bool first_travel_received_;
 
   // CAN interface
