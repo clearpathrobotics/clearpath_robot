@@ -219,13 +219,13 @@ Are all these conditions met?""")
                 results.append(ClearpathTestResult(
                     True,
                     self.test_name,
-                    f'Acceleration oriented correctly ({avg_accel:0.2f})m/s^2)'
+                    f'Acceleration oriented correctly ({avg_accel:0.2f}m/s^2)'
                 ))
             else:
                 results.append(ClearpathTestResult(
                     False,
                     self.test_name,
-                    f'Acceleration oriented incorrectly ({avg_accel:0.2f})m/s^2)'
+                    f'Acceleration oriented incorrectly ({avg_accel:0.2f}m/s^2)'
                 ))
 
         return results

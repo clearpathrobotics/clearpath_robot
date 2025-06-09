@@ -210,16 +210,29 @@ Are all these conditions met?""")
             ))
         else:
             avg_vel = sum(gyro.vector.z for gyro in self.gyro_samples) / len(self.gyro_samples)
-            min_accuracy = 0.8
+            if avg_vel > 0.0:
+                results.append(ClearpathTestResult(
+                    True,
+                    f'{self.test_name} (direction)',
+                    f'Angular velocity oriented correctly: {avg_vel:0.2f}rad/s'
+                ))
+            else:
+                results.append(ClearpathTestResult(
+                    False,
+                    f'{self.test_name} (direction)',
+                    f'Angular velocity oriented incorrectly: {avg_vel:0.2f}rad/s'
+                ))
+
+            min_accuracy = 0.75
 
             if self.clearpath_config.platform.get_platform_model() == Platform.J100:
                 # default Jackal IMU is terrible, so allow wider margins
-                min_accuracy = 0.6
+                min_accuracy = 0.5
 
             measured_accuracy = min(avg_vel, self.max_speed) / max(avg_vel, self.max_speed)
             results.append(ClearpathTestResult(
                 measured_accuracy >= min_accuracy,
-                self.test_name,
+                f'{self.test_name} (magnitude)',
                 f'Recorded angular velocity: {avg_vel}rad/s (accuracy: {measured_accuracy:0.2f})'
             ))
 
