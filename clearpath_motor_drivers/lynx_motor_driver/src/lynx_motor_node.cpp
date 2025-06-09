@@ -148,9 +148,9 @@ LynxMotorNode::LynxMotorNode(const std::string node_name) :
     std::bind(&LynxMotorNode::handleUpdateAccepted, this, std::placeholders::_1));
 
   // Services
-  odom_reset_service_ = this->create_service<Empty>(
-    "platform/motors/reset_odom",
-    std::bind(&LynxMotorNode::odomResetServiceCallback, this, std::placeholders::_1, std::placeholders::_2));
+  travel_reset_service_ = this->create_service<Empty>(
+    "platform/motors/reset_travel",
+    std::bind(&LynxMotorNode::travelResetServiceCallback, this, std::placeholders::_1, std::placeholders::_2));
 
   // Resize message vectors
   feedback_msg_.drivers.resize(drivers_.size());
@@ -540,7 +540,7 @@ std::string LynxMotorNode::parseFirmwareVersion(std::string filename)
   return version;
 }
 
-void LynxMotorNode::odomResetServiceCallback(
+void LynxMotorNode::travelResetServiceCallback(
   const std::shared_ptr<Empty::Request> request,
   std::shared_ptr<Empty::Response> response)
 {
@@ -549,6 +549,6 @@ void LynxMotorNode::odomResetServiceCallback(
 
   for (auto & driver : drivers_)
   {
-    driver.resetOdom();
+    driver.resetTravel();
   }
 }

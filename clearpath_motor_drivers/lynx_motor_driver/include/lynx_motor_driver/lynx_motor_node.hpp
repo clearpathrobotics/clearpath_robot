@@ -118,7 +118,7 @@ private:
 
   // Services
 
-  rclcpp::Service<Empty>::SharedPtr odom_reset_service_;
+  rclcpp::Service<Empty>::SharedPtr travel_reset_service_;
 
   // Publishers
   rclcpp::Publisher<clearpath_motor_msgs::msg::LynxMultiStatus>::SharedPtr status_pub_;
@@ -224,8 +224,8 @@ private:
   // Fimware version check
   std::string parseFirmwareVersion(std::string filename);
 
-  // Odom reset service
-  void odomResetServiceCallback(const std::shared_ptr<Empty::Request> request,
+  // Travel reset service
+  void travelResetServiceCallback(const std::shared_ptr<Empty::Request> request,
     std::shared_ptr<Empty::Response> response);
 };
 

@@ -166,8 +166,8 @@ public:
   void runFreqStatus(diagnostic_updater::DiagnosticStatusWrapper & stat);
   void driverUpdateDiagnostics(diagnostic_updater::DiagnosticStatusWrapper & stat, bool updating);
 
-  // Reset odometry
-  void resetOdom();
+  // Reset travel
+  void resetTravel();
 
 private:
   // Driver variables

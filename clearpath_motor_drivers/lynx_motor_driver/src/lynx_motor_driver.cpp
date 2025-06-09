@@ -864,7 +864,7 @@ void LynxMotorDriver::driverUpdateDiagnostics(
   }
 }
 
-void LynxMotorDriver::resetOdom()
+void LynxMotorDriver::resetTravel()
 {
   travel_offset_ = last_travel_;
 }
