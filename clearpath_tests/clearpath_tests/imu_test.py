@@ -223,7 +223,7 @@ class ImuTestNode(ClearpathTestNode):
             results.append(ClearpathTestResult(
                 (
                     x_angle - angle_slop <= calculated_inclination_x
-                    and calculated_inclination_x + angle_slop <= x_angle
+                    and calculated_inclination_x <= x_angle + angle_slop
                 ),
                 f'{self.test_name} {label}',
                 f'Measured inclination: {calculated_inclination_x * 180.0 / math.pi :0.2f}. Expected: {x_angle * 180 / math.pi:0.2f}',  # noqa:E501
@@ -233,7 +233,7 @@ class ImuTestNode(ClearpathTestNode):
             results.append(ClearpathTestResult(
                 (
                     y_angle - angle_slop <= calculated_inclination_y
-                    and calculated_inclination_y + angle_slop <= y_angle
+                    and calculated_inclination_y <= y_angle + angle_slop
                 ),
                 f'{self.test_name} {label}',
                 f'Measured inclination: {calculated_inclination_y * 180.0 / math.pi :0.2f}. Expected: {y_angle * 180 / math.pi:0.2f}',  # noqa:E501
