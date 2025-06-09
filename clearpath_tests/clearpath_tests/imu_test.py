@@ -133,7 +133,9 @@ class ImuTestNode(ClearpathTestNode):
             ))
         else:
             gather_samples()
-            results.append(self.check_gravity('level', 0, 0))
+            new_results = self.check_gravity('level', 0, 0)
+            for r in new_results:
+                results.append(r)
             self.accel_samples.clear()
             self.gyro_samples.clear()
 
@@ -146,7 +148,9 @@ class ImuTestNode(ClearpathTestNode):
             ))
         else:
             gather_samples()
-            results.append(self.check_gravity('rear raised', math.radians(-20), 0))
+            new_results = self.check_gravity('rear raised', math.radians(-20), 0)
+            for r in new_results:
+                results.append(r)
             self.accel_samples.clear()
             self.gyro_samples.clear()
 
@@ -159,7 +163,9 @@ class ImuTestNode(ClearpathTestNode):
             ))
         else:
             gather_samples()
-            results.append(self.check_gravity('left raised', 0, math.radians(20)))
+            new_results = self.check_gravity('left raised', 0, math.radians(20))
+            for r in new_results:
+                results.append(r)
             self.accel_samples.clear()
             self.gyro_samples.clear()
 
@@ -175,7 +181,7 @@ class ImuTestNode(ClearpathTestNode):
         @param x_angle  The robot's front/back inclination
         @param y_angle  The robot's left/right inclination
 
-        @return A ClearpathTestResult indicating if gravity is OK
+        @return A list of ClearpathTestResults indicating if gravity is OK
         """
         if len(self.accel_samples) < 10:
             return ClearpathTestResult(
