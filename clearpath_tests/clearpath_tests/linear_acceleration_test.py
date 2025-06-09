@@ -215,10 +215,17 @@ Are all these conditions met?""")
             #     self.test_name,
             #     f'Recorded linear acceleration: {avg_accel:0.2f}m/s^2 (accuracy: {measured_accuracy:0.2f})'  # noqa: E501
             # ))
-            results.append(ClearpathTestResult(
-                avg_accel > 0,
-                self.test_name,
-                'Acceleration oriented correctly'
-            ))
+            if avg_accel > 0:
+                results.append(ClearpathTestResult(
+                    True,
+                    self.test_name,
+                    f'Acceleration oriented correctly ({avg_accel:0.2f})m/s^2)'
+                ))
+            else:
+                results.append(ClearpathTestResult(
+                    False,
+                    self.test_name,
+                    f'Acceleration oriented incorrectly ({avg_accel:0.2f})m/s^2)'
+                ))
 
         return results
