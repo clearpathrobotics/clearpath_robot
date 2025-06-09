@@ -146,15 +146,15 @@ bool LynxMotorDriver::processMessage(const Message& received_msg)
 
         case Feedback::Fields::Travel:
         {
-          feedback_msg_.travel = data * direction_;
+          last_travel_ = data * direction_;
 
           if (!first_travel_received_)
           {
             first_travel_received_ = true;
-            travel_offset_ = feedback_msg_.travel;
+            travel_offset_ = last_travel_;
           }
 
-          feedback_msg_.travel -= travel_offset_;
+          feedback_msg_.travel = last_travel_ - travel_offset_;
           break;
         }
       }
@@ -866,7 +866,7 @@ void LynxMotorDriver::driverUpdateDiagnostics(
 
 void LynxMotorDriver::resetOdom()
 {
-  travel_offset_ = feedback_msg_.travel;
+  travel_offset_ = last_travel_;
 }
 
 }  // namespace lynx_motor_driver
