@@ -147,6 +147,14 @@ bool LynxMotorDriver::processMessage(const Message& received_msg)
         case Feedback::Fields::Travel:
         {
           feedback_msg_.travel = data * direction_;
+
+          if (!first_travel_received_)
+          {
+            first_travel_received_ = true;
+            travel_offset_ = feedback_msg_.travel;
+          }
+
+          feedback_msg_.travel -= travel_offset_;
           break;
         }
       }
@@ -854,6 +862,11 @@ void LynxMotorDriver::driverUpdateDiagnostics(
     stat.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN,
                  "Firmware update cancelled, reboot required");
   }
+}
+
+void LynxMotorDriver::resetOdom()
+{
+  travel_offset_ = feedback_msg_.travel;
 }
 
 }  // namespace lynx_motor_driver
