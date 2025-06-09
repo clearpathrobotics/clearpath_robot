@@ -155,28 +155,32 @@ class RobotLaunchGenerator(LaunchGenerator):
         if (self.clearpath_config.platform.battery.model in
                 [BatteryConfig.VALENCE_U24_12XP, BatteryConfig.VALENCE_U27_12XP]):
 
-            can_dev = 'can1'
-            bms_id = '0'
-
             launch_args = self.clearpath_config.platform.battery.launch_args
 
-            if launch_args:
-                if 'can_device' in launch_args:
-                    can_dev = launch_args['can_device']
-                if 'bms_id' in launch_args:
-                    bms_id = launch_args['bms_id']
-
-            bms_launch_args = [
-                ('namespace', self.namespace),
-                ('can_device', can_dev),
-                ('bms_id', bms_id),
+            valence_launch_args = [
+                ('namespace', f'{self.namespace}/platform/bms'),
+                ('interface', 'can1'),
+                ('bms_id', '0')
             ]
+
+            for i in range(len(valence_launch_args)):
+                key = valence_launch_args[i][0]
+                if key in launch_args:
+                    val = launch_args[key]
+                    valence_launch_args[i] = (key, str(val))
+
+            self.bms_launch_file = LaunchFile(
+                'valence_bms',
+                filename='bms',
+                package=Package('valence_bms_driver'),
+                args=valence_launch_args
+            )
 
             self.bms_launch_file = LaunchFile(
                 'bms',
                 package=Package('valence_bms_driver'),
-                args=bms_launch_args
-                )
+                args=valence_launch_args
+            )
 
         # Lighting
         self.lighting_node = LaunchFile.Node(
