@@ -233,7 +233,7 @@ Are all these conditions met?""")
             results.append(ClearpathTestResult(
                 measured_accuracy >= min_accuracy,
                 f'{self.test_name} (magnitude)',
-                f'Recorded angular velocity: {avg_vel}rad/s (accuracy: {measured_accuracy:0.2f})'
+                f'Recorded angular velocity: {avg_vel:0.2f}rad/s (accuracy: {measured_accuracy:0.2f})'  # noqa: E501
             ))
 
         return results
