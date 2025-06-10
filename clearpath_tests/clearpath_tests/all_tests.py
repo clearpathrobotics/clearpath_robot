@@ -240,6 +240,7 @@ class TestingNode(Node):
             self.tests_for_platform.append(estop_test.EstopTestNode('Front Right', self.setup_path))  # noqa: E501
             self.tests_for_platform.append(estop_test.EstopTestNode('Rear Left', self.setup_path))
             self.tests_for_platform.append(estop_test.EstopTestNode('Rear Right', self.setup_path))
+            self.tests_for_platform.append(estop_test.EstopTestNode('Wireless', self.setup_path))
 
             # Dynamic IMU tests
             self.driving_tests.insert(0, rotation_test.RotationTestNode(
