@@ -1,6 +1,16 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Forthcoming
+-----------
+* Fix/Feature: Valence Battery Update/Fix (`#227 <https://github.com/clearpathrobotics/clearpath_robot/issues/227>`_)
+  * Only add battery estimator when no battery driver
+  * Update valence arguments
+  * Fix valence launch filename
+  * Remove duplicate definition
+  * Add robot namespace argument
+* Contributors: luis-camero
+
 1.3.1 (2025-05-20)
 ------------------
 
