@@ -43,13 +43,18 @@ LynxHardwareInterface::LynxHardwareInterface(std::string node_name)
     rclcpp::SensorDataQoS(),
     std::bind(&LynxHardwareInterface::feedback_callback, this, std::placeholders::_1));
 
+  sub_protection_ = create_subscription<clearpath_motor_msgs::msg::LynxSystemProtection>(
+    "platform/motors/system_protection",
+    rclcpp::SensorDataQoS(),
+    std::bind(&LynxHardwareInterface::protection_callback, this, std::placeholders::_1));
+
   pub_cmd_ = create_publisher<sensor_msgs::msg::JointState>(
     "platform/motors/cmd",
     rclcpp::SensorDataQoS());
 }
 
 /**
- * @brief Callback for feedback
+ * @brief Callback for feedback subscriber
  *
  * @param msg
 */
@@ -57,6 +62,16 @@ void LynxHardwareInterface::feedback_callback(const clearpath_motor_msgs::msg::L
 {
   feedback_ = *msg;
   has_feedback_ = true;
+}
+
+/**
+ * @brief Callback for protection subscriber
+ *
+ * @param msg
+*/
+void LynxHardwareInterface::protection_callback(const clearpath_motor_msgs::msg::LynxSystemProtection::SharedPtr msg)
+{
+  protection_ = *msg;
 }
 
 /**
@@ -90,4 +105,14 @@ clearpath_motor_msgs::msg::LynxMultiFeedback LynxHardwareInterface::get_feedback
 {
   has_feedback_ = false;
   return feedback_;
+}
+
+/**
+ * @brief Get protection message
+ *
+ * @return clearpath_motor_msgs::msg::LynxSystemProtection
+ */
+clearpath_motor_msgs::msg::LynxSystemProtection LynxHardwareInterface::get_protection()
+{
+  return protection_;
 }

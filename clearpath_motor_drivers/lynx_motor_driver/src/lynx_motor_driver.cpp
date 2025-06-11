@@ -90,6 +90,10 @@ LynxMotorDriver::LynxMotorDriver(const int64_t& can_id,
   can_feedback_rate_ = std::make_shared<double>(CAN_FEEDBACK_RATE);
   can_feedback_freq_status_ = std::make_shared<diagnostic_updater::FrequencyStatus>(
     diagnostic_updater::FrequencyStatusParam(can_feedback_rate_.get(), can_feedback_rate_.get(), 0.1, 5));
+
+  last_travel_ = 0.0f;
+  travel_offset_ = 0.0f;
+  first_travel_received_ = false;
 }
 
 /**
