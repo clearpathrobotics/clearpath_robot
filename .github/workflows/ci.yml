@@ -12,8 +12,8 @@ jobs:
     strategy:
       matrix:
         env:
-          - {ROS_REPO: testing, ROS_DISTRO: jazzy, ROSDEP_SKIP_KEYS: "canopen_inventus_bringup micro_ros_agent sevcon_traction umx_driver valence_bms_driver"}
-          - {ROS_REPO: main, ROS_DISTRO: jazzy, ROSDEP_SKIP_KEYS: "canopen_inventus_bringup micro_ros_agent sevcon_traction umx_driver valence_bms_driver"}
+          - {ROS_REPO: testing, ROS_DISTRO: jazzy, ROSDEP_SKIP_KEYS: "canopen_inventus_bringup micro_ros_agent sevcon_traction umx_driver valence_bms_driver wiferion_charger"}
+          - {ROS_REPO: main, ROS_DISTRO: jazzy, ROSDEP_SKIP_KEYS: "canopen_inventus_bringup micro_ros_agent sevcon_traction umx_driver valence_bms_driver wiferion_charger"}
       fail-fast: false
     runs-on: ubuntu-24.04
     steps:
