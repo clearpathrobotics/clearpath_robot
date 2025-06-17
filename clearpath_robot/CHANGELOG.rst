@@ -2,8 +2,8 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.5.1 (2025-06-17)
+------------------
 * Fix: Post Install  (`#225 <https://github.com/clearpathrobotics/clearpath_robot/issues/225>`_)
   * Do not create any dummy directories on launch files
   * Run install script as root

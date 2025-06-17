@@ -2,8 +2,8 @@
 Changelog for package clearpath_platform
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.5.1 (2025-06-17)
+------------------
 * Populate the A200 MCU status messages (`#224 <https://github.com/clearpathrobotics/clearpath_robot/issues/224>`_)
 * Contributors: Chris Iverach-Brereton
 
