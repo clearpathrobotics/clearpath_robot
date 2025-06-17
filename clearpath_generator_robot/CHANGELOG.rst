@@ -2,6 +2,9 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.5.0 (2025-05-29)
 ------------------
 * Feature: ros2_canopen Inventus driver switch  (`#216 <https://github.com/clearpathrobotics/clearpath_robot/issues/216>`_)

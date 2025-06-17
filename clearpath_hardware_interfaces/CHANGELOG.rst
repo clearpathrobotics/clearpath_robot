@@ -2,6 +2,11 @@
 Changelog for package clearpath_platform
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Populate the A200 MCU status messages (`#224 <https://github.com/clearpathrobotics/clearpath_robot/issues/224>`_)
+* Contributors: Chris Iverach-Brereton
+
 2.5.0 (2025-05-29)
 ------------------
 * Renamed to low soc cutoff from low voltage cutoff and fixed service client name.

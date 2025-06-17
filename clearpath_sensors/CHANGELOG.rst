@@ -2,6 +2,9 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.5.0 (2025-05-29)
 ------------------
 * Fix: Wiferion Charger Dependency (`#221 <https://github.com/clearpathrobotics/clearpath_robot/issues/221>`_)
