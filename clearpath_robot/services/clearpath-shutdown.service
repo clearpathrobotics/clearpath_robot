@@ -8,6 +8,7 @@ Restart=on-failure
 User=root
 Type=idle
 ExecStart=/bin/bash -c 'python3 /usr/sbin/clearpath-shutdown'
+TimeoutStopSec=2
 
 [Install]
 WantedBy=clearpath-robot.service
