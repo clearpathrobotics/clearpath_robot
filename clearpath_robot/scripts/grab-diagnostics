@@ -30,19 +30,33 @@
 # Create a temporary folder
 temp_folder=$(mktemp -d)
 
-# Run journalctl command and save output to log file
+# CPR service logs
 sudo journalctl -b 0 -u clearpath-platform >> $temp_folder/platform.log
 sudo journalctl -b 0 -u clearpath-sensors >> $temp_folder/sensors.log
 sudo journalctl -b 0 -u clearpath-robot >> $temp_folder/robot.log
+sudo journalctl -b 0 -u clearpath-discovery >> $temp_folder/discovery.log
+sudo journalctl -b 0 -u clearpath-manipulators >> $temp_folder/manipulators.log
+sudo journalctl -b 0 -u clearpath-vcan >> $temp_folder/vcan.log
 
+# ROS 2 diagnostics
+ros2 doctor --report >> $temp_folder/doctor.log
+ros2 topic list >> $temp_folder/topics.log
+ros2 node list >> $temp_folder/nodes.log
+env | grep 'ROS\|RMW' >> $temp_folder/env.log
+
+# System diagnostics
 sudo dmesg -T >> $temp_folder/dmesg.log
 lsusb -t -v >> $temp_folder/usb.log
 ls -lisah /dev/ >> $temp_folder/dev.log
-env | grep 'ROS\|RMW' >> $temp_folder/env.log
-ip a >> $temp_folder/ip.log
+cat /proc/cpuinfo >> $temp_folder/cpu-info.log
+lshw >> $temp_folder/hw.log
+cat /proc/meminfo | grep -E "MemTotal|MemFree|MemAvailable" >> $temp_folder/mem.log
+cat /proc/loadavg >> $temp_folder/cpu-load.log
 
+# Network diagnostics
+ip a >> $temp_folder/ip.log
 mkdir -p $temp_folder/netplan
-cp -r /etc/netplan/ "$temp_folder/netplan/"
+sudo cp -r /etc/netplan/ "$temp_folder/netplan/"
 
 # Get hostname
 hostname=$(hostname)
