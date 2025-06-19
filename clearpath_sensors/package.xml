@@ -21,6 +21,7 @@
   <exec_depend>flir_camera_msgs</exec_depend>
   <exec_depend>image_proc</exec_depend>
   <exec_depend>image_transport_plugins</exec_depend>
+  <exec_depend>lms1xx</exec_depend>
   <exec_depend>microstrain_inertial_driver</exec_depend>
   <exec_depend>nmea_navsat_driver</exec_depend>
   <exec_depend>phidgets_spatial</exec_depend>
