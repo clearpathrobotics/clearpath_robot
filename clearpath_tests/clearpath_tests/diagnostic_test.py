@@ -96,6 +96,7 @@ class DiagnosticTestNode(ClearpathTestNode):
         self.test_in_progress = False
         self.warnings = {}
         self.errors = {}
+        self.stale = {}
         self.allowed_errors = {}
 
     def log_error(self, status, pool):
@@ -140,6 +141,16 @@ class DiagnosticTestNode(ClearpathTestNode):
             elif status.level == DiagnosticStatus.STALE:
                 pass
 
+    def diagnostic_agg_callback(self, diagnostic_array):
+        """
+        Check the statuses in the array for warnings & errors.
+
+        @param diagnostic_array  The message received on the diagnostic topic
+        """
+        for status in diagnostic_array.status:
+            if status.level == DiagnosticStatus.STALE:
+                self.log_error(status, self.stale)
+
     def run_test(self):
         results = []
         self.test_in_progress = True
@@ -152,35 +163,48 @@ class DiagnosticTestNode(ClearpathTestNode):
             self.diagnostic_callback,
             qos_profile_system_default
         )
+        self.diagnostc_agg_sub = self.create_subscription(
+            DiagnosticArray,
+            f'/{self.namespace}/diagnostics_agg',
+            self.diagnostic_agg_callback,
+            qos_profile_system_default
+        )
         timeout = Timeout(self, 30)
         while not timeout.elapsed:
             rclpy.spin_once(self, timeout_sec=1.0)
 
-        if len(self.warnings) == 0 and len(self.errors) == 0 and len(self.allowed_errors) == 0:
+        if (len(self.stale) == 0 and len(self.warnings) == 0 and
+                len(self.errors) == 0 and len(self.allowed_errors) == 0):
             results.append(ClearpathTestResult(True, 'Diagnostics', 'No errors, no warnings'))
-        elif len(self.warnings) == 0 and len(self.errors) == 0:
+        elif len(self.stale) == 0 and len(self.warnings) == 0 and len(self.errors) == 0:
             results.append(ClearpathTestResult(
                 True,
                 'Diagnostics',
                 f'{len(self.allowed_errors)} allowed errors/warnings',
             ))
-        elif len(self.errors) == 0:
+        elif len(self.stale) == 0 and len(self.errors) == 0:
             results.append(ClearpathTestResult(
                 False,
                 'Diagnostics',
-                f'No errors, {len(self.warnings)} warnings, {len(self.allowed_errors)} allowed errors/warnings',  # noqa: E501
+                f'No stale, no errors, {len(self.warnings)} warnings, {len(self.allowed_errors)} allowed errors/warnings',  # noqa: E501
             ))
         else:
             results.append(ClearpathTestResult(
                 False,
                 'Diagnostics',
-                f'{len(self.errors)} errors, {len(self.warnings)} warnings, {len(self.allowed_errors)} allowed errors/warnings',  # noqa: E501
+                f'{len(self.stale)} stale, {len(self.errors)} errors, {len(self.warnings)} warnings, {len(self.allowed_errors)} allowed errors/warnings',  # noqa: E501
             ))
 
         return results
 
     def get_test_result_details(self):
         details = None
+
+        if len(self.stale) > 0:
+            details = ''
+            details += '\n#### Stale diagnostics recorded\n\n'
+            for err in self.stale.values():
+                details += f'* {err.name}\n'
 
         if len(self.errors) > 0:
             details = ''
