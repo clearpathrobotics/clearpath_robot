@@ -48,89 +48,42 @@ allowed_errors_by_platform = {
         'joy_node: Joystick Driver Status': [
             re.compile(r'.*Joystick not open.*'),
         ],
-        'controller_manager: Controller Manager Activity': [
-            'Controller Manager has bad periodicity',
+        'controller_manager: Hardware Components Activity': [
+            'High execution jitter or mean error',
+        ],
+        'controller_manager: Controllers Activity': [
+            'High execution jitter or mean error',
         ],
     },
     Platform.A200: {
-        'clearpath_diagnostic_updater: E-stop Status': [
-            'No events recorded',
-        ],
-        'clearpath_diagnostic_updater: Power Status': [
-            'Frequency too low',
-        ],
-        'clearpath_diagnostic_updater: Battery Management System': [
-            'Frequency too high',
-        ],
+        # no A200-specific exceptions
     },
     Platform.A300: {
         # no A300-specific exceptions
     },
     Platform.DD100: {
-        'clearpath_diagnostic_updater: Battery Management System': [
-            'Frequency too high',
-        ],
-        'clearpath_diagnostic_updater: MCU Status': [
-            'No events recorded',
-        ],
-        'clearpath_diagnostic_updater: MCU Firmware Version': [
-            'No firmware version received from MCU',
-        ],
+        # no DD100-specific exceptions
     },
     Platform.DD150: {
-        'clearpath_diagnostic_updater: Battery Management System': [
-            'Frequency too high',
-        ],
-        'clearpath_diagnostic_updater: MCU Status': [
-            'No events recorded',
-        ],
-        'clearpath_diagnostic_updater: MCU Firmware Version': [
-            'No firmware version received from MCU',
-        ],
+        # no DD150-specific exceptions
     },
     Platform.DO100: {
-        'clearpath_diagnostic_updater: Battery Management System': [
-            'Frequency too high',
-        ],
-        'clearpath_diagnostic_updater: MCU Status': [
-            'No events recorded',
-        ],
-        'clearpath_diagnostic_updater: MCU Firmware Version': [
-            'No firmware version received from MCU',
-        ],
+        # no DO100-specific exceptions
     },
     Platform.DO150: {
-        'clearpath_diagnostic_updater: Battery Management System': [
-            'Frequency too high',
-        ],
-        'clearpath_diagnostic_updater: MCU Status': [
-            'No events recorded',
-        ],
-        'clearpath_diagnostic_updater: MCU Firmware Version': [
-            'No firmware version received from MCU',
-        ],
+        # no DO150-specific exceptions
     },
     Platform.GENERIC: {
         # no generic-specific exceptions
     },
     Platform.J100: {
-        'clearpath_diagnostic_updater: Battery Management System': [
-            'Frequency too high',
-        ],
-        'clearpath_diagnostic_updater: MCU Status': [
-            'No events recorded',
-        ],
-        'clearpath_diagnostic_updater: MCU Firmware Version': [
-            'No firmware version received from MCU',
-        ],
+        # no J100-specific exceptions
     },
     Platform.R100: {
-        'clearpath_diagnostic_updater: Battery Management System': [
-            'Frequency too high',
-        ],
+        # no R100-specific exceptions
     },
     Platform.W200: {
-        # not yet supported
+        # no W200-specific exceptions
     },
 }
 
