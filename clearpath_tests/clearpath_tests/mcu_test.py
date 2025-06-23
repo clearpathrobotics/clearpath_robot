@@ -29,17 +29,14 @@
 import os
 import re
 import subprocess
-import time
 
 from clearpath_config.common.types.platform import Platform
-from clearpath_generator_common.common import BaseGenerator
 from clearpath_platform_msgs.msg import Status
 from clearpath_tests.test_node import ClearpathTestNode, ClearpathTestResult
+from clearpath_tests.timer import Timeout
 
 import rclpy
 from rclpy.qos import qos_profile_sensor_data
-from rclpy.time import Duration
-
 
 MCU_IP = 1
 MCU_SERIAL = 2
@@ -192,40 +189,22 @@ class McuTestNode(ClearpathTestNode):
         def mcu_callback(status):
             self.mcu_status = status
 
-        mcu_sub = self.create_subscription(
+        self.mcu_sub = self.create_subscription(
             Status,
             f'/{self.namespace}/platform/mcu/status',
             mcu_callback,
             qos_profile_sensor_data,
         )
 
-        start_at = self.get_clock().now()
-        timeout_duration = Duration(seconds=10)
-        while self.get_clock().now() - start_at <= timeout_duration and self.mcu_status is None:
-            rclpy.spin_once(self)
-        mcu_sub.destroy()
+        timeout = Timeout(self, 5)
+        while not timeout.elapsed and self.mcu_status is None:
+            rclpy.spin_once(self, timeout_sec=1)
+        timeout.abort()
 
         if self.mcu_status is None:
             return (None, None)
         else:
             return (self.mcu_status.hardware_id, self.mcu_status.firmware_version)
-
-    def start(self):
-        while True:
-            if self.mode == MCU_IP:
-                if self.ping_ip(self.address):
-                    self.get_logger().info(f'MCU is responded to ping {self.address}')
-                else:
-                    self.get_logger().warning(f'MCU did not respond to ping {self.address}')
-            elif self.mode == MCU_SERIAL:
-                if self.check_serial_exists(self.address):
-                    if self.check_serial_permissions(self.address):
-                        self.get_logger().info(f'MCU handle {self.address} exists with RW permissions')  # noqa: E501
-                    else:
-                        self.get_logger().warning(f'Invalid permissions for MCU handle {self.address}')  # noqa: E501
-                else:
-                    self.get_logger().warning(f'MCU handle {self.address} does not exist')
-                time.sleep(5)
 
     def run_test(self):
         if self.mode == MCU_IP:
@@ -272,23 +251,3 @@ class McuTestNode(ClearpathTestNode):
 * Version: {'unknown' if not firmware_version else firmware_version}
 
 """
-
-
-def main():
-    setup_path = BaseGenerator.get_args()
-    rclpy.init()
-
-    mt = McuTestNode(setup_path=setup_path)
-
-    try:
-        mt.start()
-        rclpy.spin(mt)
-    except KeyboardInterrupt:
-        pass
-
-    mt.destroy_node()
-    rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()

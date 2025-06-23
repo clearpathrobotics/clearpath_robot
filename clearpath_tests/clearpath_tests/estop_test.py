@@ -29,12 +29,11 @@
 import threading
 import time
 
-from clearpath_generator_common.common import BaseGenerator
 from clearpath_tests.test_node import ClearpathTestNode, ClearpathTestResult
+from clearpath_tests.timer import Timeout
 
 from geometry_msgs.msg import TwistStamped
 import rclpy
-from rclpy.duration import Duration
 from rclpy.qos import qos_profile_sensor_data, qos_profile_system_default
 from std_msgs.msg import Bool
 
@@ -72,14 +71,6 @@ class EstopTestNode(ClearpathTestNode):
                 state = 'clear'
             self.get_logger().info(f'{self.estop_type} state: {state}')
 
-    def start(self):
-        self.estop_sub = self.create_subscription(
-            Bool,
-            f'/{self.namespace}/platform/emergency_stop',
-            self.estop_callback,
-            qos_profile_sensor_data
-        )
-
     def run_test(self):
         if self.optional:
             user_input = self.promptYN(
@@ -90,7 +81,13 @@ class EstopTestNode(ClearpathTestNode):
                 return [ClearpathTestResult(None, self.test_name, 'Skipped; component not installed')]  # noqa: E501
 
         self.test_in_progress = True
-        self.start()
+
+        self.estop_sub = self.create_subscription(
+            Bool,
+            f'/{self.namespace}/platform/emergency_stop',
+            self.estop_callback,
+            qos_profile_sensor_data
+        )
 
         self.cmd_vel_pub = self.create_publisher(
             TwistStamped,
@@ -105,7 +102,7 @@ class EstopTestNode(ClearpathTestNode):
         ui_thread = threading.Thread(target=self.run_ui)
         ui_thread.start()
         while not self.test_done:
-            rclpy.spin_once(self)
+            rclpy.spin_once(self, timeout_sec=1.0)
         ui_thread.join()
         return self.results
 
@@ -133,14 +130,14 @@ Safe to continue?"""
             return
 
         # wait until we know the state of the e-stop
-        start_time = self.get_clock().now()
-        timeout = Duration(seconds=10)
+        timeout = Timeout(self, 10.0)
         print(f'Getting {self.estop_type} status...')
         while (
-            self.estop_engaged is None and
-            (self.get_clock().now() - start_time) < timeout
+            self.estop_engaged is None
+            and not timeout.elapsed
         ):
             time.sleep(0.1)
+        timeout.abort()
 
         if self.estop_engaged is None:
             results.append(ClearpathTestResult(
@@ -240,9 +237,8 @@ Safe to continue?"""
     def command_wheels(self):
         self.cmd_vel.twist.linear.x = 0.1
 
-        start_time = self.get_clock().now()
-        duration = Duration(seconds=2)
-        while (self.get_clock().now() - start_time) < duration:
+        timeout = Timeout(self, 2.0)
+        while not timeout.elapsed:
             pass
 
         self.cmd_vel.twist.linear.x = 0.0
@@ -256,33 +252,12 @@ Safe to continue?"""
 
         @return  True if the e-stop state is in the desired state, otherwise False
         """
-        start_time = self.get_clock().now()
-        now = self.get_clock().now()
-        timeout = Duration(seconds=timeout_seconds)
+        timeout = Timeout(self, timeout_seconds)
         while (
-            self.estop_engaged != state and
-            (now - start_time) < timeout
+            self.estop_engaged != state
+            and not timeout.elapsed
         ):
-            now = self.get_clock().now()
+            pass
+        timeout.abort()
 
         return self.estop_engaged == state
-
-
-def main():
-    setup_path = BaseGenerator.get_args()
-    rclpy.init()
-
-    st = EstopTestNode('', setup_path=setup_path)
-
-    try:
-        st.start()
-        rclpy.spin(st)
-    except KeyboardInterrupt:
-        pass
-
-    st.destroy_node()
-    rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()

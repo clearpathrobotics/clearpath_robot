@@ -26,12 +26,11 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-from clearpath_generator_common.common import BaseGenerator
 from clearpath_platform_msgs.msg import Fans, Status
 from clearpath_tests.test_node import ClearpathTestNode, ClearpathTestResult
+from clearpath_tests.timer import Timeout
 
 import rclpy
-from rclpy.duration import Duration
 from rclpy.qos import qos_profile_sensor_data
 
 
@@ -65,10 +64,10 @@ class FanTestNode(ClearpathTestNode):
         """
         self.mcu_status = None
 
-        start_at = self.get_clock().now()
-        timeout_duration = Duration(seconds=10)
-        while self.get_clock().now() - start_at <= timeout_duration and self.mcu_status is None:
-            rclpy.spin_once(self)
+        timeout = Timeout(self, 10.0)
+        while not timeout.elapsed and self.mcu_status is None:
+            rclpy.spin_once(self, timeout_sec=1.0)
+        timeout.abort()
 
         if self.mcu_status is None:
             return (None, False)
@@ -134,10 +133,9 @@ class FanTestNode(ClearpathTestNode):
 
         def wait_3s():
             self.get_logger().info('Waiting for fans to spin up/down...')
-            start = self.get_clock().now()
-            sleep_time = Duration(seconds=3)
-            while self.get_clock().now() - start < sleep_time:
-                rclpy.spin_once(self)
+            timeout = Timeout(self, 3.0)
+            while not timeout.elapsed:
+                rclpy.spin_once(self, timeout_sec=1.0)
 
         for i in range(self.n_fans):
             self.fan_msg.fans[i] = 0
@@ -172,22 +170,3 @@ class FanTestNode(ClearpathTestNode):
             results.append(ClearpathTestResult(False, 'Fans (all on)', None))
 
         return results
-
-
-def main():
-    setup_path = BaseGenerator.get_args()
-    rclpy.init()
-
-    fan_test = FanTestNode(setup_path)
-
-    try:
-        rclpy.spin(fan_test)
-    except KeyboardInterrupt:
-        pass
-
-    fan_test.destroy_node()
-    rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()

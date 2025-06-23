@@ -29,7 +29,6 @@
 import threading
 
 from clearpath_config.common.types.platform import Platform
-from clearpath_generator_common.common import BaseGenerator
 from clearpath_platform_msgs.msg import Lights, RGB
 from clearpath_tests.test_node import ClearpathTestNode, ClearpathTestResult
 
@@ -386,23 +385,3 @@ class LightTestNode(ClearpathTestNode):
                 results.append(ClearpathTestResult(True, 'Bottom row white', None))
 
         self.test_done = True
-
-
-def main():
-    setup_path = BaseGenerator.get_args()
-    rclpy.init()
-
-    lt = LightTestNode(setup_path=setup_path)
-
-    try:
-        lt.start()
-        rclpy.spin(lt)
-    except KeyboardInterrupt:
-        pass
-
-    lt.destroy_node()
-    rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()

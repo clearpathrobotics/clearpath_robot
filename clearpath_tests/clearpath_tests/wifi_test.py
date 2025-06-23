@@ -31,9 +31,8 @@ import re
 import subprocess
 import time
 
-from clearpath_generator_common.common import BaseGenerator
 from clearpath_tests.test_node import ClearpathTestNode, ClearpathTestResult
-import rclpy
+
 from wireless_msgs.msg import Connection
 
 
@@ -92,7 +91,11 @@ class WifiTestNode(ClearpathTestNode):
                     if key == 'ESSID':
                         c.essid = value.lstrip('"').rstrip('"')
                     elif key == 'Tx-Power':
-                        c.txpower = int(re.split(all_whitespace, value)[0])
+                        power = re.split(all_whitespace, value)[0]
+                        if power == 'off':
+                            c.txpower = 0
+                        else:
+                            c.txpower = int(power)
                     elif key == 'Bit Rate':
                         unit = re.split(all_whitespace, value)[-1]
                         multiplier = 1.0
@@ -184,23 +187,3 @@ class WifiTestNode(ClearpathTestNode):
                 ))
 
         return results
-
-
-def main():
-    setup_path = BaseGenerator.get_args()
-    rclpy.init()
-
-    wt = WifiTestNode(setup_path)
-
-    try:
-        wt.start()
-        rclpy.spin(wt)
-    except KeyboardInterrupt:
-        pass
-
-    wt.destroy_node()
-    rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()
