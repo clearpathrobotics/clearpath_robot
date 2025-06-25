@@ -68,10 +68,16 @@ allowed_errors_by_platform = {
         # no DD150-specific exceptions
     },
     Platform.DO100: {
-        # no DO100-specific exceptions
+        # required until ros2_controllers PR 1772 is fully released
+        'ekf_node: Filter diagnostic updater': [
+            'Potentially erroneous data or settings detected for a robot_localization state',
+        ]
     },
     Platform.DO150: {
-        # no DO150-specific exceptions
+        # required until ros2_controllers PR 1772 is fully released
+        'ekf_node: Filter diagnostic updater': [
+            'Potentially erroneous data or settings detected for a robot_localization state',
+        ]
     },
     Platform.GENERIC: {
         # no generic-specific exceptions
@@ -80,7 +86,10 @@ allowed_errors_by_platform = {
         # no J100-specific exceptions
     },
     Platform.R100: {
-        # no R100-specific exceptions
+        # required until ros2_controllers PR 1772 is fully released
+        'ekf_node: Filter diagnostic updater': [
+            'Potentially erroneous data or settings detected for a robot_localization state',
+        ]
     },
     Platform.W200: {
         # no W200-specific exceptions
