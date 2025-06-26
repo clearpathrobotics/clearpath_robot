@@ -35,7 +35,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 // Binary files will have 15 reserved bytes that should be ignored
 static constexpr uint8_t BINARY_FILE_RESERVED_BYTE_START_INDEX = 3;
 static constexpr uint8_t BINARY_FILE_RESERVED_BYTE_END_INDEX = 18;
-static constexpr uint8_t ALIVE_CHECK_ATTEMPTS = 100;
+static constexpr uint8_t ALIVE_CHECK_ATTEMPTS = 10;
+static constexpr uint8_t BOOT_REQUEST_ATTEMPTS = 5;
 
 /**
  * @brief Read
@@ -217,7 +218,12 @@ void LynxMotorNode::executeUpdateAction(const std::shared_ptr<GoalHandleUpdate> 
 
     // Send Boot request
     RCLCPP_INFO(this->get_logger(), "Send boot request to %s", driver.getJointName().c_str());
-    driver.sendBootRequest();
+
+    for (uint8_t j = 0; j < BOOT_REQUEST_ATTEMPTS; j++)
+    {
+      driver.sendBootRequest();
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
   }
 
   // Allow time for Lynx to enter bootloader
@@ -246,7 +252,7 @@ void LynxMotorNode::executeUpdateAction(const std::shared_ptr<GoalHandleUpdate> 
       // Send alive check
       driver.sendBootAliveCheck();
 
-      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
     } while (!driver.tryGetUpdateAlive() && counter++ < ALIVE_CHECK_ATTEMPTS);
 
     // Lynx responded

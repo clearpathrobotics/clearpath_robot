@@ -39,6 +39,7 @@
 
 #include "clearpath_motor_msgs/msg/lynx_feedback.hpp"
 #include "clearpath_motor_msgs/msg/lynx_multi_feedback.hpp"
+#include "clearpath_motor_msgs/msg/lynx_system_protection.hpp"
 
 namespace clearpath_hardware_interfaces
 {
@@ -55,12 +56,18 @@ class LynxHardwareInterface
   void feedback_callback(const clearpath_motor_msgs::msg::LynxMultiFeedback::SharedPtr msg);
   clearpath_motor_msgs::msg::LynxMultiFeedback get_feedback();
 
+  void protection_callback(const clearpath_motor_msgs::msg::LynxSystemProtection::SharedPtr msg);
+  clearpath_motor_msgs::msg::LynxSystemProtection get_protection();
+
   private:
   rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr pub_cmd_;
   rclcpp::Subscription<clearpath_motor_msgs::msg::LynxMultiFeedback>::SharedPtr sub_feedback_;
+  rclcpp::Subscription<clearpath_motor_msgs::msg::LynxSystemProtection>::SharedPtr sub_protection_;
 
   clearpath_motor_msgs::msg::LynxMultiFeedback feedback_;
   std::atomic_bool has_feedback_;
+
+  clearpath_motor_msgs::msg::LynxSystemProtection protection_;
 };
 
 } // namespace clearpath_hardware_interfaces

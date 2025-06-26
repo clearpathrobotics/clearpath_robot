@@ -32,6 +32,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include "std_msgs/msg/float64.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
 #include "can_msgs/msg/frame.hpp"
+#include "std_srvs/srv/empty.hpp"
 
 #include "clearpath_ros2_socketcan_interface/socketcan_interface.hpp"
 
@@ -84,6 +85,7 @@ private:
   using LynxStatus = clearpath_motor_msgs::msg::LynxStatus;
   using LynxSystemProtection = clearpath_motor_msgs::msg::LynxSystemProtection;
   using DiagnosticStatusWrapper = diagnostic_updater::DiagnosticStatusWrapper;
+  using Empty = std_srvs::srv::Empty;
 
   // Drivers
   std::vector<lynx_motor_driver::LynxMotorDriver> drivers_;
@@ -113,6 +115,10 @@ private:
   // Action servers
   rclcpp_action::Server<Calibrate>::SharedPtr calibrate_action_server_;
   rclcpp_action::Server<Update>::SharedPtr update_action_server_;
+
+  // Services
+
+  rclcpp::Service<Empty>::SharedPtr travel_reset_service_;
 
   // Publishers
   rclcpp::Publisher<clearpath_motor_msgs::msg::LynxMultiStatus>::SharedPtr status_pub_;
@@ -217,6 +223,10 @@ private:
 
   // Fimware version check
   std::string parseFirmwareVersion(std::string filename);
+
+  // Travel reset service
+  void travelResetServiceCallback(const std::shared_ptr<Empty::Request> request,
+    std::shared_ptr<Empty::Response> response);
 };
 
 #endif // LYNX_MOTOR_DRIVER__LYNX_MOTOR_NODE_H

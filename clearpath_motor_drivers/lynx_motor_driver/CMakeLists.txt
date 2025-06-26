@@ -24,6 +24,7 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(std_srvs REQUIRED)
 
 ################################################################################
 # Build
@@ -46,6 +47,7 @@ set(DEPENDENCIES
   rclcpp_action
   sensor_msgs
   std_msgs
+  std_srvs
 )
 
 add_executable(lynx_motor_driver src/main.cpp

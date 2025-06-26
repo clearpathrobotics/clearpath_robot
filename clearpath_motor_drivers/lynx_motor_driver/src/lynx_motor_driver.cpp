@@ -90,6 +90,10 @@ LynxMotorDriver::LynxMotorDriver(const int64_t& can_id,
   can_feedback_rate_ = std::make_shared<double>(CAN_FEEDBACK_RATE);
   can_feedback_freq_status_ = std::make_shared<diagnostic_updater::FrequencyStatus>(
     diagnostic_updater::FrequencyStatusParam(can_feedback_rate_.get(), can_feedback_rate_.get(), 0.1, 5));
+
+  last_travel_ = 0.0f;
+  travel_offset_ = 0.0f;
+  first_travel_received_ = false;
 }
 
 /**
@@ -141,6 +145,20 @@ bool LynxMotorDriver::processMessage(const Message& received_msg)
           feedback_msg_.velocity = data * direction_;
           velocity_filtered = (velocity_filtered * DIAGNOSTICS_LOW_PASS) +
                             (feedback_msg_.velocity * (1-DIAGNOSTICS_LOW_PASS));
+          break;
+        }
+
+        case Feedback::Fields::Travel:
+        {
+          last_travel_ = data * direction_;
+
+          if (!first_travel_received_)
+          {
+            first_travel_received_ = true;
+            travel_offset_ = last_travel_;
+          }
+
+          feedback_msg_.travel = last_travel_ - travel_offset_;
           break;
         }
       }
@@ -848,6 +866,11 @@ void LynxMotorDriver::driverUpdateDiagnostics(
     stat.summary(diagnostic_msgs::msg::DiagnosticStatus::WARN,
                  "Firmware update cancelled, reboot required");
   }
+}
+
+void LynxMotorDriver::resetTravel()
+{
+  travel_offset_ = last_travel_;
 }
 
 }  // namespace lynx_motor_driver
