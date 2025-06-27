@@ -371,12 +371,31 @@ class RobotLaunchGenerator(LaunchGenerator):
           namespace=self.namespace,
         )
 
+        # ROS Bag Recorder
+        self.recorder_params = LaunchFile.LaunchArg(
+            'recorder_params',
+            default_value=os.path.join(self.platform_params_path, 'recorder.yaml'),
+        )
+
+        self.recorder_args = [
+            ('parameters', LaunchFile.Variable('recorder_params')),
+            ('namespace', self.namespace),
+            ('enable_recorder', str(self.clearpath_config.platform.enable_recorder).lower())
+        ]
+
+        self.recorder_launch = LaunchFile(
+            'recorder',
+            package=clearpath_diagnostics_package,
+            args=self.recorder_args)
+
         # Components required for each platform
         common_platform_components = [
             self.diag_updater_params,
             self.diag_aggregator_params,
             self.diagnostics_launch,
             self.battery_state_control,
+            self.recorder_params,
+            self.recorder_launch,
         ]
 
         if self.clearpath_config.platform.enable_foxglove_bridge:
