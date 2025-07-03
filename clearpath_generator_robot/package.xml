@@ -21,8 +21,8 @@
   <exec_depend>canopen_inventus_bringup</exec_depend>
   <exec_depend>micro_ros_agent</exec_depend>
   <exec_depend>python3-apt</exec_depend>
-  <!--<exec_depend>sevcon_traction</exec_depend>-->
-  <!-- <exec_depend>valence_bms_driver</exec_depend> -->
+  <exec_depend>sevcon_traction</exec_depend>
+  <exec_depend>valence_bms_driver</exec_depend>
   <exec_depend>wireless_msgs</exec_depend>
   <exec_depend>wireless_watcher</exec_depend>
 
