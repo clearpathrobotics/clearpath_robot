@@ -234,7 +234,7 @@ class TestingNode(Node):
             )
         elif self.platform == Platform.W200:
             self.tests_for_platform.append(light_test.LightTestNode(4))
-            self.tests_for_platform.append(canbus_test.CanbusTestNode('can0', 4, 0, self.setup_path))  # noqa: E501
+            self.tests_for_platform.append(canbus_test.CanbusTestNode('can0', 6, 0, self.setup_path))  # noqa: E501
 
             self.tests_for_platform.append(estop_test.EstopTestNode('Front Left', self.setup_path))
             self.tests_for_platform.append(estop_test.EstopTestNode('Front Right', self.setup_path))  # noqa: E501
