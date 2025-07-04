@@ -2,6 +2,31 @@
 Changelog for package clearpath_tests
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix expected number of CAN devices for W200 tests (`#241 <https://github.com/clearpathrobotics/clearpath_robot/issues/241>`_)
+* Add wireless e-stop test to W200 tests (`#240 <https://github.com/clearpathrobotics/clearpath_robot/issues/240>`_)
+* Feature/expand diagnostic test (`#236 <https://github.com/clearpathrobotics/clearpath_robot/issues/236>`_)
+  * Remove diagnostic exceptions
+  * Check for stale diagnostics
+  * Ignore mecanum drive bug for now
+* Enable wireless e-stop test on W200 (`#226 <https://github.com/clearpathrobotics/clearpath_robot/issues/226>`_)
+  W200 includes a wireless e-stop (non-optional) that should be included in the tests.
+* Fix clearpath_tests so they don't crash/hang under certain conditions, remove unnecessary code (`#220 <https://github.com/clearpathrobotics/clearpath_robot/issues/220>`_)
+  * Add a new class to handle timeouts to reduce duplication
+  * Remove node-specific mains, remove .start() from the TestNode class
+  * Implement timeout in MCU test so it doesn't hang forever
+  * Remove unnecessary functions from canbus test
+  * Implement the new timeout for estop tests. Add an abort() method to kill long-running threads so we don't block for too long. Remove unused import
+  * Implement new timeout in linear acceleration test
+  * Implement new timeout in rotation test
+  * Fix a parser error that occurs if wifi is turned off
+  * Move motor currents initialization to constructor, call .start() in the linear acceleration test
+  * Change how we calculate the IMU inclination; calculate the inclination and calculate the error based on that, rather than percentage error bars based on the vector
+  * Fix the logging for the linear acceleration test
+  * Test the direction & magnitude of the angular velocity separately. Fix some extra parentheses in the results
+* Contributors: Chris Iverach-Brereton, Hilary Luo
+
 2.5.1 (2025-06-17)
 ------------------
 

@@ -2,6 +2,21 @@
 Changelog for package clearpath_platform
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Lynx 1.0.0 (`#235 <https://github.com/clearpathrobotics/clearpath_robot/issues/235>`_)
+  * Multiple boot request attempts
+  * Added travel field to feedback
+  Use travel for odometry
+  * Apply direction to travel
+  * Added odometry reset to lynx_motor_driver
+  * Record last travel data
+  * Last travel in header
+  * Renamed service to reset_travel
+  * Limit wheel velocity based on system protection max speed
+  * Added 1.0.0 bin
+* Contributors: Roni Kreinin
+
 2.5.1 (2025-06-17)
 ------------------
 * Populate the A200 MCU status messages (`#224 <https://github.com/clearpathrobotics/clearpath_robot/issues/224>`_)

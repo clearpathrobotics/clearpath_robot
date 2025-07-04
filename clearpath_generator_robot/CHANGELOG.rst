@@ -2,6 +2,11 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Enable dependency on sevcon and valence bms
+* Contributors: Luis Camero
+
 2.5.1 (2025-06-17)
 ------------------
 
