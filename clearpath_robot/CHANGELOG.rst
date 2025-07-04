@@ -2,8 +2,8 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.3.3 (2025-07-03)
+------------------
 * [clearpath_robot] Updated grab-diagnostics to latest. (`#232 <https://github.com/clearpathrobotics/clearpath_robot/issues/232>`_)
 * Contributors: Tony Baltovski
 
