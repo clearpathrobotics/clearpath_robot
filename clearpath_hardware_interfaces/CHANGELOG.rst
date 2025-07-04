@@ -2,8 +2,8 @@
 Changelog for package clearpath_platform
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.6.0 (2025-07-04)
+------------------
 * Lynx 1.0.0 (`#235 <https://github.com/clearpathrobotics/clearpath_robot/issues/235>`_)
   * Multiple boot request attempts
   * Added travel field to feedback

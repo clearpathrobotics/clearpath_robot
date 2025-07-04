@@ -2,8 +2,8 @@
 Changelog for package lynx_motor_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.6.0 (2025-07-04)
+------------------
 * Updated lynx bin to 1.0.1 (`#237 <https://github.com/clearpathrobotics/clearpath_robot/issues/237>`_)
 * Lynx 1.0.0 (`#235 <https://github.com/clearpathrobotics/clearpath_robot/issues/235>`_)
   * Multiple boot request attempts

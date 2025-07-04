@@ -2,8 +2,8 @@
 Changelog for package clearpath_tests
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.6.0 (2025-07-04)
+------------------
 * Fix expected number of CAN devices for W200 tests (`#241 <https://github.com/clearpathrobotics/clearpath_robot/issues/241>`_)
 * Add wireless e-stop test to W200 tests (`#240 <https://github.com/clearpathrobotics/clearpath_robot/issues/240>`_)
 * Feature/expand diagnostic test (`#236 <https://github.com/clearpathrobotics/clearpath_robot/issues/236>`_)

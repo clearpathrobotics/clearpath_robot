@@ -2,8 +2,8 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.6.0 (2025-07-04)
+------------------
 * [clearpath_sensors] Fixed missing dependency lms1xx. (`#233 <https://github.com/clearpathrobotics/clearpath_robot/issues/233>`_)
 * Contributors: Tony Baltovski
 
