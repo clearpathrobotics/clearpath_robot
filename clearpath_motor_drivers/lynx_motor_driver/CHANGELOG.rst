@@ -2,8 +2,8 @@
 Changelog for package lynx_motor_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.6.1 (2025-07-04)
+------------------
 * [clearpath_motor_drivers] Added missing deps of lynx_motor_driver.
 * Contributors: Tony Baltovski
 
