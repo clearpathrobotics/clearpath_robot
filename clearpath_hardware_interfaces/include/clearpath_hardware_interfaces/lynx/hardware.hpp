@@ -53,8 +53,10 @@ namespace clearpath_hardware_interfaces
 {
 
 static constexpr uint8_t DIFF_DRIVE_FOUR_JOINTS = 4;
-static constexpr double MINIMUM_VELOCITY = 0.01f;
-
+static constexpr double MINIMUM_VELOCITY_RADS = 0.01f;
+static constexpr double MAXIMUM_VELOCITY_NORMAL_RADS = 12.307f;
+static constexpr double MAXIMUM_VELOCITY_THROTTLED_RADS = 6.1535f;
+static constexpr double MAXIMUM_VELOCITY_OVERHEATED_RADS = 1.2307f;
 
 class LynxHardware : public hardware_interface::SystemInterface
 {

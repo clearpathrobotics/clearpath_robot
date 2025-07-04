@@ -29,10 +29,7 @@
 import re
 import subprocess
 
-from clearpath_generator_common.common import BaseGenerator
 from clearpath_tests.test_node import ClearpathTestNode, ClearpathTestResult
-
-import rclpy
 
 
 class CanbusTestNode(ClearpathTestNode):
@@ -67,15 +64,6 @@ class CanbusTestNode(ClearpathTestNode):
             self.get_logger().warning('Permissive message length; all messages will be accepted')
 
         self.test_name = f'CAN {self.can_interface}'
-
-    def start(self):
-        while True:
-            result = self.read_can_log()
-
-            if result.success:
-                self.get_logger().info(result.message)
-            else:
-                self.get_logger().warning(result.message)
 
     def run_test(self):
         self.get_logger().info(f'Collecting CAN messages on {self.can_interface}...')
@@ -178,23 +166,3 @@ class CanbusTestNode(ClearpathTestNode):
 
         details += '\nDevices that do not use CANopen may be incorrectly identified in the list above'  # noqa: E501
         return details
-
-
-def main():
-    setup_path = BaseGenerator.get_args()
-    rclpy.init()
-
-    ct = CanbusTestNode(setup_path=setup_path)
-
-    try:
-        ct.start()
-        rclpy.spin(ct)
-    except KeyboardInterrupt:
-        pass
-
-    ct.destroy_node()
-    rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()

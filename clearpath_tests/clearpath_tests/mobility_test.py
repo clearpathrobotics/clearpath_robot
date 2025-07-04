@@ -58,6 +58,9 @@ class MobilityTestNode(ClearpathTestNode):
         # is the current test finished?
         self.ne = False
 
+        # motor currents sampled during the test
+        self.motor_currents = []
+
         # the results of the test, possibly collected from multiple sources
         self.test_results = []
 
@@ -81,7 +84,6 @@ class MobilityTestNode(ClearpathTestNode):
             self.drive_topic = f'/{self.namespace}/{self.drive_topic}'
 
     def start(self):
-        self.motor_currents = []
         if self.platform == Platform.A300:
             self.motor_fb_sub = self.create_subscription(
                 LynxMultiFeedback,
@@ -158,9 +160,12 @@ class MobilityTestNode(ClearpathTestNode):
     def get_test_result_details(self):
         details = ''
         details += '\n#### Average motor current draw during test\n\n'
-        avg = self.calculate_average_motor_currents()
-        for amps in avg:
-            details += f'* {amps:0.3f}A\n'
+        if len(self.motor_currents) == 0:
+            details += 'No motor current data recorded\n'
+        else:
+            avg = self.calculate_average_motor_currents()
+            for amps in avg:
+                details += f'* {amps:0.3f}A\n'
         return details
 
     def odom_callback(self, odom_msg):

@@ -26,6 +26,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
 #include <stdint.h>
 #include <string>
+#include <memory>
 #include <mutex>
 
 #include "clearpath_ros2_socketcan_interface/socketcan_interface.hpp"
@@ -37,7 +38,6 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include "clearpath_motor_msgs/msg/lynx_feedback.hpp"
 #include "clearpath_motor_msgs/msg/lynx_status.hpp"
 #include "clearpath_motor_msgs/msg/lynx_system_protection.hpp"
-#include <memory>
 
 // Used to smooth out voltage/current/velocity data for diagnostics since it is infrequently updated
 #define DIAGNOSTICS_LOW_PASS 0.9
@@ -52,6 +52,7 @@ namespace Feedback
     Current,
     Voltage,
     Velocity,
+    Travel,
     Count
   } Fields;
 }
@@ -165,6 +166,9 @@ public:
   void runFreqStatus(diagnostic_updater::DiagnosticStatusWrapper & stat);
   void driverUpdateDiagnostics(diagnostic_updater::DiagnosticStatusWrapper & stat, bool updating);
 
+  // Reset travel
+  void resetTravel();
+
 private:
   // Driver variables
   int64_t can_id_;
@@ -175,6 +179,8 @@ private:
   float offset_;
   uint16_t iteration_;
   float current_filtered, voltage_filtered, velocity_filtered;
+  float travel_offset_, last_travel_;
+  bool first_travel_received_;
 
   // CAN interface
   std::shared_ptr<clearpath_ros2_socketcan_interface::SocketCANInterface> can_interface_;

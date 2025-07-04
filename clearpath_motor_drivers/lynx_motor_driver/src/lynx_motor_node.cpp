@@ -147,6 +147,11 @@ LynxMotorNode::LynxMotorNode(const std::string node_name) :
     std::bind(&LynxMotorNode::handleUpdateCancel, this, std::placeholders::_1),
     std::bind(&LynxMotorNode::handleUpdateAccepted, this, std::placeholders::_1));
 
+  // Services
+  travel_reset_service_ = this->create_service<Empty>(
+    "platform/motors/reset_travel",
+    std::bind(&LynxMotorNode::travelResetServiceCallback, this, std::placeholders::_1, std::placeholders::_2));
+
   // Resize message vectors
   feedback_msg_.drivers.resize(drivers_.size());
   status_msg_.drivers.resize(drivers_.size());
@@ -533,4 +538,17 @@ std::string LynxMotorNode::parseFirmwareVersion(std::string filename)
     version = match[2]; // Capture the 2nd subgroup which contains the version number string
   }
   return version;
+}
+
+void LynxMotorNode::travelResetServiceCallback(
+  const std::shared_ptr<Empty::Request> request,
+  std::shared_ptr<Empty::Response> response)
+{
+  RCL_UNUSED(request);
+  RCL_UNUSED(response);
+
+  for (auto & driver : drivers_)
+  {
+    driver.resetTravel();
+  }
 }

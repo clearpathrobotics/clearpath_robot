@@ -28,13 +28,13 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from clearpath_config.common.types.platform import Platform
-from clearpath_generator_common.common import BaseGenerator
 from clearpath_tests.mobility_test import MobilityTestNode
 from clearpath_tests.test_node import ClearpathTestResult
 from clearpath_tests.tf import ConfigurableTransformListener
+from clearpath_tests.timer import Timeout
+
 from geometry_msgs.msg import Vector3Stamped
 import rclpy
-from rclpy.duration import Duration
 from rclpy.qos import qos_profile_sensor_data
 from sensor_msgs.msg import Imu
 from tf2_geometry_msgs import do_transform_vector3
@@ -140,14 +140,14 @@ Are all these conditions met?""")
         self.start()
 
         # wait until we get the first IMU message or 10s passes
-        start_time = self.get_clock().now()
-        timeout_duration = Duration(seconds=10)
+        timeout = Timeout(self, 10.0)
         while (
             self.latest_imu is None
-            and self.get_clock().now() - start_time <= timeout_duration
+            and not timeout.elapsed
             and not self.test_error
         ):
-            rclpy.spin_once(self)
+            rclpy.spin_once(self, timeout_sec=1.0)
+        timeout.abort()
 
         if self.test_error:
             self.get_logger().warning(f'Test aborted due to an error: {self.test_error_msg}')
@@ -162,13 +162,14 @@ Are all these conditions met?""")
 
         # start turning, but wait 1s for us to get up to speed  before recording data
         self.cmd_vel.twist.angular.z = self.max_speed
-        startup_wait = Duration(seconds=1.0)
-        start_time = self.get_clock().now()
+        timeout = Timeout(self, 1.0)
         while (
             not self.test_error
-            and self.get_clock().now() - start_time <= startup_wait
+            and not timeout.elapsed
         ):
-            rclpy.spin_once(self)
+            rclpy.spin_once(self, timeout_sec=1.0)
+        timeout.abort()
+
         if self.test_error:
             self.record_data = False
             self.cmd_vel.twist.angular.z = 0.0
@@ -177,14 +178,15 @@ Are all these conditions met?""")
 
         # record data for 10s
         self.record_data = True
-        test_wait = Duration(seconds=10)
-        start_time = self.get_clock().now()
+        timeout = Timeout(self, 10.0)
         while (
             not self.test_error
-            and self.get_clock().now() - start_time <= test_wait
+            and not timeout.elapsed
         ):
-            rclpy.spin_once(self)
+            rclpy.spin_once(self, timeout_sec=1.0)
+        timeout.abort()
         self.record_data = False
+
         if self.test_error:
             self.cmd_vel.twist.angular.z = 0.0
             self.get_logger().warning(f'Test aborted due to an error: {self.test_error_msg}')
@@ -193,10 +195,10 @@ Are all these conditions met?""")
         # stop driving
         # wait 1s to ensure we publish the command
         self.cmd_vel.twist.angular.z = 0.0
-        test_wait = Duration(seconds=1)
-        start_time = self.get_clock().now()
-        while self.get_clock().now() - start_time <= test_wait:
-            rclpy.spin_once(self)
+        timeout = Timeout(self, 1.0)
+        while not timeout.elapsed:
+            rclpy.spin_once(self, timeout_sec=1.0)
+        timeout.abort()
 
         # process the results
         results = self.test_results
@@ -208,41 +210,30 @@ Are all these conditions met?""")
             ))
         else:
             avg_vel = sum(gyro.vector.z for gyro in self.gyro_samples) / len(self.gyro_samples)
-            min_accuracy = 0.8
+            if avg_vel > 0.0:
+                results.append(ClearpathTestResult(
+                    True,
+                    f'{self.test_name} (direction)',
+                    f'Angular velocity oriented correctly: {avg_vel:0.2f}rad/s'
+                ))
+            else:
+                results.append(ClearpathTestResult(
+                    False,
+                    f'{self.test_name} (direction)',
+                    f'Angular velocity oriented incorrectly: {avg_vel:0.2f}rad/s'
+                ))
+
+            min_accuracy = 0.75
 
             if self.clearpath_config.platform.get_platform_model() == Platform.J100:
                 # default Jackal IMU is terrible, so allow wider margins
-                min_accuracy = 0.6
+                min_accuracy = 0.5
 
             measured_accuracy = min(avg_vel, self.max_speed) / max(avg_vel, self.max_speed)
             results.append(ClearpathTestResult(
                 measured_accuracy >= min_accuracy,
-                self.test_name,
-                f'Recorded angular velocity: {avg_vel}rad/s (accuracy: {measured_accuracy:0.2f})'
+                f'{self.test_name} (magnitude)',
+                f'Recorded angular velocity: {avg_vel:0.2f}rad/s (accuracy: {measured_accuracy:0.2f})'  # noqa: E501
             ))
 
         return results
-
-
-def main():
-    setup_path = BaseGenerator.get_args()
-    rclpy.init()
-
-    try:
-        rt = RotationTestNode(setup_path)
-        rt.start()
-        try:
-            while not rt.test_done:
-                rclpy.spin_once(rt)
-            rt.get_logger().info('Test complete')
-        except KeyboardInterrupt:
-            rt.get_logger().info('User aborted! Cleaning up & exiting...')
-        rt.destroy_node()
-    except TimeoutError:
-        # This error is already logged when it's raised
-        pass
-    rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()

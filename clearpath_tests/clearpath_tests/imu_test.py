@@ -28,16 +28,15 @@
 # POSSIBILITY OF SUCH DAMAGE.
 import math
 
-from clearpath_generator_common.common import BaseGenerator
 from clearpath_tests.test_node import (
     ClearpathTestNode,
     ClearpathTestResult,
 )
 from clearpath_tests.tf import ConfigurableTransformListener
+from clearpath_tests.timer import Timeout
 
 from geometry_msgs.msg import Vector3Stamped
 import rclpy
-from rclpy.duration import Duration
 from rclpy.qos import qos_profile_sensor_data
 from sensor_msgs.msg import Imu
 from tf2_geometry_msgs import do_transform_vector3
@@ -104,27 +103,24 @@ class ImuTestNode(ClearpathTestNode):
             self.accel_samples.append(transformed_accel)
             self.gyro_samples.append(transformed_gyro)
 
-    def start(self):
+    def run_test(self):
+        def gather_samples():
+            print('Gathering 10s worth of IMU data...')
+            timeout = Timeout(self, 10.0)
+            self.record_data = True
+            while not timeout.elapsed:
+                rclpy.spin_once(self, timeout_sec=1.0)
+            self.record_data = False
+
+        self.record_data = False
+        self.test_in_progress = True
+
         self.imu_sub = self.create_subscription(
             Imu,
             f'/{self.namespace}/sensors/imu_0/data_raw',
             self.imu_raw_callback,
             qos_profile=qos_profile_sensor_data,
         )
-
-    def run_test(self):
-        def gather_samples():
-            sample_duration = Duration(seconds=10)
-            print('Gathering 10s worth of IMU data...')
-            start_time = self.get_clock().now()
-            self.record_data = True
-            while self.get_clock().now() - start_time < sample_duration:
-                rclpy.spin_once(self)
-            self.record_data = False
-
-        self.record_data = False
-        self.test_in_progress = True
-        self.start()
 
         results = []
 
@@ -137,7 +133,9 @@ class ImuTestNode(ClearpathTestNode):
             ))
         else:
             gather_samples()
-            results.append(self.check_gravity('level', 0, 0))
+            new_results = self.check_gravity('level', 0, 0)
+            for r in new_results:
+                results.append(r)
             self.accel_samples.clear()
             self.gyro_samples.clear()
 
@@ -150,7 +148,9 @@ class ImuTestNode(ClearpathTestNode):
             ))
         else:
             gather_samples()
-            results.append(self.check_gravity('rear raised', math.radians(-20), 0))
+            new_results = self.check_gravity('rear raised', math.radians(-20), 0)
+            for r in new_results:
+                results.append(r)
             self.accel_samples.clear()
             self.gyro_samples.clear()
 
@@ -163,7 +163,9 @@ class ImuTestNode(ClearpathTestNode):
             ))
         else:
             gather_samples()
-            results.append(self.check_gravity('left raised', 0, math.radians(20)))
+            new_results = self.check_gravity('left raised', 0, math.radians(20))
+            for r in new_results:
+                results.append(r)
             self.accel_samples.clear()
             self.gyro_samples.clear()
 
@@ -179,7 +181,7 @@ class ImuTestNode(ClearpathTestNode):
         @param x_angle  The robot's front/back inclination
         @param y_angle  The robot's left/right inclination
 
-        @return A ClearpathTestResult indicating if gravity is OK
+        @return A list of ClearpathTestResults indicating if gravity is OK
         """
         if len(self.accel_samples) < 10:
             return ClearpathTestResult(
@@ -188,13 +190,9 @@ class ImuTestNode(ClearpathTestNode):
                 f'{len(self.accel_samples)} samples collected; is IMU publishing at the right rate?',  # noqa: E501
             )
 
+        results = []
+
         g = 9.807
-        expected_x = g * math.sin(x_angle)
-        expected_y = g * math.sin(y_angle)
-        if abs(x_angle) > abs(y_angle):
-            expected_z = g * math.cos(x_angle)
-        else:
-            expected_z = g * math.cos(y_angle)
 
         avg_x = 0
         avg_y = 0
@@ -207,62 +205,38 @@ class ImuTestNode(ClearpathTestNode):
         avg_y /= len(self.accel_samples)
         avg_z /= len(self.accel_samples)
 
-        # allow 20% error on the IMU since the ground may never be completely level
-        # and the calibration may not be super accurate for some models
-        test_tolerance = 0.2
+        # ensure the magnitude of the vector is about g
+        measured_g = math.sqrt(avg_x ** 2 + avg_y ** 2 + avg_z ** 2)
+        g_err = min(measured_g, g) / max(measured_g, g)
+        results.append(ClearpathTestResult(
+            g_err > 0.75,
+            f'{self.test_name} {label} (g magnitude)',
+            f'Measured gravity: {measured_g:0.2f}m/s^2. Accuracy {g_err:0.2f}',
+        ))
 
-        x_lower_limit = expected_x - g * test_tolerance
-        x_upper_limit = expected_x + g * test_tolerance
+        # estimate our actual inclination based on the IMU data
+        angle_slop = 10 * math.pi / 180.0  # allow +/- 10 degree measurement error
+        calculated_inclination_x = math.asin(avg_x / measured_g)
+        calculated_inclination_y = math.asin(avg_y / measured_g)
 
-        y_lower_limit = expected_y - g * test_tolerance
-        y_upper_limit = expected_y + g * test_tolerance
+        if x_angle != 0:
+            results.append(ClearpathTestResult(
+                (
+                    x_angle - angle_slop <= calculated_inclination_x
+                    and calculated_inclination_x <= x_angle + angle_slop
+                ),
+                f'{self.test_name} {label}',
+                f'Measured inclination: {calculated_inclination_x * 180.0 / math.pi:0.2f}. Expected: {x_angle * 180 / math.pi:0.2f}',  # noqa:E501
+            ))
 
-        z_lower_limit = expected_z - g * test_tolerance
-        z_upper_limit = expected_z + g * test_tolerance
-        if (
-            # check that the measurements are witin our error bars
-            avg_x >= x_lower_limit and avg_x <= x_upper_limit and
-            avg_y >= y_lower_limit and avg_y <= y_upper_limit and
-            avg_z >= z_lower_limit and avg_z <= z_upper_limit and
+        if y_angle != 0:
+            results.append(ClearpathTestResult(
+                (
+                    y_angle - angle_slop <= calculated_inclination_y
+                    and calculated_inclination_y <= y_angle + angle_slop
+                ),
+                f'{self.test_name} {label}',
+                f'Measured inclination: {calculated_inclination_y * 180.0 / math.pi:0.2f}. Expected: {y_angle * 180 / math.pi:0.2f}',  # noqa:E501
+            ))
 
-            # ensure gravity is mainly +Z
-            avg_z > 5.0 and
-
-            # check our inclination is the right way
-            (
-                (avg_x > 0 and x_angle > 0) or
-                (avg_y > 0 and y_angle > 0) or
-                (x_angle == 0 and y_angle == 0)
-            )
-        ):
-            return ClearpathTestResult(
-                True,
-                f'{self.test_name} ({label})',
-                f'Measured gravity vector: ({avg_x:0.2f}, {avg_y:0.2f}, {avg_z:0.2f}) Expected: ({expected_x:0.2f}, {expected_y:0.2f}, {expected_z:0.2f})'  # noqa: E501
-            )
-        else:
-            return ClearpathTestResult(
-                False,
-                f'{self.test_name} ({label})',
-                f'Measured gravity vector: ({avg_x:0.2f}, {avg_y:0.2f}, {avg_z:0.2f}) Expected: ({expected_x:0.2f}, {expected_y:0.2f}, {expected_z:0.2f})'  # noqa: E501
-            )
-
-
-def main():
-    setup_path = BaseGenerator.get_args()
-    rclpy.init()
-
-    it = ImuTestNode(imu_num=0, setup_path=setup_path)
-
-    try:
-        it.start()
-        rclpy.spin(it)
-    except KeyboardInterrupt:
-        pass
-
-    it.destroy_node()
-    rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()
+        return results

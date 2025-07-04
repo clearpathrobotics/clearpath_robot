@@ -54,16 +54,44 @@ hardware_interface::CallbackReturn LynxHardware::initHardwareInterface()
 void LynxHardware::writeCommandsToHardware()
 {
   sensor_msgs::msg::JointState joint_state;
+  double highest_velocity = 0.0f;
+  double max_velocity = MAXIMUM_VELOCITY_NORMAL_RADS;
 
   for (auto i = 0u; i < num_joints_; i++)
   {
     joint_state.name.push_back(info_.joints[i].name);
     double speed = hw_commands_[i];
-    if (std::abs(speed) < MINIMUM_VELOCITY)
+    if (std::abs(speed) < MINIMUM_VELOCITY_RADS)
     {
       speed = 0.0;
     }
+
+    if (std::abs(speed) > highest_velocity)
+    {
+      highest_velocity = std::abs(speed);
+    }
     joint_state.velocity.push_back(speed);
+  }
+
+  switch(node_->get_protection().system_state)
+  {
+    case clearpath_motor_msgs::msg::LynxSystemProtection::THROTTLED:
+      max_velocity = MAXIMUM_VELOCITY_THROTTLED_RADS;
+      break;
+
+    case clearpath_motor_msgs::msg::LynxSystemProtection::OVERHEATED:
+      max_velocity = MAXIMUM_VELOCITY_OVERHEATED_RADS;
+      break;
+  }
+
+  if (highest_velocity > max_velocity)
+  {
+    double scale = max_velocity / highest_velocity;
+
+    for (auto i = 0u; i < num_joints_; i++)
+    {
+      joint_state.velocity.at(i) *= scale;
+    }
   }
 
   node_->drive_command(joint_state);
@@ -89,7 +117,7 @@ void LynxHardware::updateJointsFromHardware(const rclcpp::Duration & period)
         if (lynx.joint_name == info_.joints[i].name)
         {
           hw_states_velocity_[i] = lynx.velocity;
-          hw_states_position_[i] += lynx.velocity * period.seconds();
+          hw_states_position_[i] = lynx.travel;
         }
       }
     }

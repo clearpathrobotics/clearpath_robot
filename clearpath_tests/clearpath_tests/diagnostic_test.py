@@ -29,14 +29,13 @@
 import re
 
 from clearpath_config.common.types.platform import Platform
-from clearpath_generator_common.common import BaseGenerator
 from clearpath_tests.test_node import ClearpathTestNode, ClearpathTestResult
+from clearpath_tests.timer import Timeout
 
 from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus
 
 import rclpy
 from rclpy.qos import qos_profile_system_default
-from rclpy.time import Duration
 
 
 PLATFORM_ANY = '*'
@@ -49,89 +48,51 @@ allowed_errors_by_platform = {
         'joy_node: Joystick Driver Status': [
             re.compile(r'.*Joystick not open.*'),
         ],
-        'controller_manager: Controller Manager Activity': [
-            'Controller Manager has bad periodicity',
+        'controller_manager: Hardware Components Activity': [
+            'High execution jitter or mean error',
+        ],
+        'controller_manager: Controllers Activity': [
+            'High execution jitter or mean error',
         ],
     },
     Platform.A200: {
-        'clearpath_diagnostic_updater: E-stop Status': [
-            'No events recorded',
-        ],
-        'clearpath_diagnostic_updater: Power Status': [
-            'Frequency too low',
-        ],
-        'clearpath_diagnostic_updater: Battery Management System': [
-            'Frequency too high',
-        ],
+        # no A200-specific exceptions
     },
     Platform.A300: {
         # no A300-specific exceptions
     },
     Platform.DD100: {
-        'clearpath_diagnostic_updater: Battery Management System': [
-            'Frequency too high',
-        ],
-        'clearpath_diagnostic_updater: MCU Status': [
-            'No events recorded',
-        ],
-        'clearpath_diagnostic_updater: MCU Firmware Version': [
-            'No firmware version received from MCU',
-        ],
+        # no DD100-specific exceptions
     },
     Platform.DD150: {
-        'clearpath_diagnostic_updater: Battery Management System': [
-            'Frequency too high',
-        ],
-        'clearpath_diagnostic_updater: MCU Status': [
-            'No events recorded',
-        ],
-        'clearpath_diagnostic_updater: MCU Firmware Version': [
-            'No firmware version received from MCU',
-        ],
+        # no DD150-specific exceptions
     },
     Platform.DO100: {
-        'clearpath_diagnostic_updater: Battery Management System': [
-            'Frequency too high',
-        ],
-        'clearpath_diagnostic_updater: MCU Status': [
-            'No events recorded',
-        ],
-        'clearpath_diagnostic_updater: MCU Firmware Version': [
-            'No firmware version received from MCU',
-        ],
+        # required until ros2_controllers PR 1772 is fully released
+        'ekf_node: Filter diagnostic updater': [
+            'Potentially erroneous data or settings detected for a robot_localization state',
+        ]
     },
     Platform.DO150: {
-        'clearpath_diagnostic_updater: Battery Management System': [
-            'Frequency too high',
-        ],
-        'clearpath_diagnostic_updater: MCU Status': [
-            'No events recorded',
-        ],
-        'clearpath_diagnostic_updater: MCU Firmware Version': [
-            'No firmware version received from MCU',
-        ],
+        # required until ros2_controllers PR 1772 is fully released
+        'ekf_node: Filter diagnostic updater': [
+            'Potentially erroneous data or settings detected for a robot_localization state',
+        ]
     },
     Platform.GENERIC: {
         # no generic-specific exceptions
     },
     Platform.J100: {
-        'clearpath_diagnostic_updater: Battery Management System': [
-            'Frequency too high',
-        ],
-        'clearpath_diagnostic_updater: MCU Status': [
-            'No events recorded',
-        ],
-        'clearpath_diagnostic_updater: MCU Firmware Version': [
-            'No firmware version received from MCU',
-        ],
+        # no J100-specific exceptions
     },
     Platform.R100: {
-        'clearpath_diagnostic_updater: Battery Management System': [
-            'Frequency too high',
-        ],
+        # required until ros2_controllers PR 1772 is fully released
+        'ekf_node: Filter diagnostic updater': [
+            'Potentially erroneous data or settings detected for a robot_localization state',
+        ]
     },
     Platform.W200: {
-        # not yet supported
+        # no W200-specific exceptions
     },
 }
 
@@ -144,6 +105,7 @@ class DiagnosticTestNode(ClearpathTestNode):
         self.test_in_progress = False
         self.warnings = {}
         self.errors = {}
+        self.stale = {}
         self.allowed_errors = {}
 
     def log_error(self, status, pool):
@@ -188,53 +150,70 @@ class DiagnosticTestNode(ClearpathTestNode):
             elif status.level == DiagnosticStatus.STALE:
                 pass
 
-    def start(self):
+    def diagnostic_agg_callback(self, diagnostic_array):
+        """
+        Check the statuses in the array for warnings & errors.
+
+        @param diagnostic_array  The message received on the diagnostic topic
+        """
+        for status in diagnostic_array.status:
+            if status.level == DiagnosticStatus.STALE:
+                self.log_error(status, self.stale)
+
+    def run_test(self):
+        results = []
+        self.test_in_progress = True
+
+        # collect 30s worth of data
+        self.get_logger().info('Collecting 30 seconds of diagnostic data...')
         self.diagnostc_sub = self.create_subscription(
             DiagnosticArray,
             f'/{self.namespace}/diagnostics',
             self.diagnostic_callback,
             qos_profile_system_default
         )
+        self.diagnostc_agg_sub = self.create_subscription(
+            DiagnosticArray,
+            f'/{self.namespace}/diagnostics_agg',
+            self.diagnostic_agg_callback,
+            qos_profile_system_default
+        )
+        timeout = Timeout(self, 30)
+        while not timeout.elapsed:
+            rclpy.spin_once(self, timeout_sec=1.0)
 
-    def run_test(self):
-        results = []
-
-        self.test_in_progress = True
-        self.start()
-
-        # collect 30s worth of data
-        start_time = self.get_clock().now()
-        end_time = start_time + Duration(seconds=30.0)
-
-        self.get_logger().info('Collecting 30 seconds of diagnostic data...')
-        while self.get_clock().now() < end_time:
-            rclpy.spin_once(self)
-
-        if len(self.warnings) == 0 and len(self.errors) == 0 and len(self.allowed_errors) == 0:
+        if (len(self.stale) == 0 and len(self.warnings) == 0 and
+                len(self.errors) == 0 and len(self.allowed_errors) == 0):
             results.append(ClearpathTestResult(True, 'Diagnostics', 'No errors, no warnings'))
-        elif len(self.warnings) == 0 and len(self.errors) == 0:
+        elif len(self.stale) == 0 and len(self.warnings) == 0 and len(self.errors) == 0:
             results.append(ClearpathTestResult(
                 True,
                 'Diagnostics',
                 f'{len(self.allowed_errors)} allowed errors/warnings',
             ))
-        elif len(self.errors) == 0:
+        elif len(self.stale) == 0 and len(self.errors) == 0:
             results.append(ClearpathTestResult(
                 False,
                 'Diagnostics',
-                f'No errors, {len(self.warnings)} warnings, {len(self.allowed_errors)} allowed errors/warnings',  # noqa: E501
+                f'No stale, no errors, {len(self.warnings)} warnings, {len(self.allowed_errors)} allowed errors/warnings',  # noqa: E501
             ))
         else:
             results.append(ClearpathTestResult(
                 False,
                 'Diagnostics',
-                f'{len(self.errors)} errors, {len(self.warnings)} warnings, {len(self.allowed_errors)} allowed errors/warnings',  # noqa: E501
+                f'{len(self.stale)} stale, {len(self.errors)} errors, {len(self.warnings)} warnings, {len(self.allowed_errors)} allowed errors/warnings',  # noqa: E501
             ))
 
         return results
 
     def get_test_result_details(self):
         details = None
+
+        if len(self.stale) > 0:
+            details = ''
+            details += '\n#### Stale diagnostics recorded\n\n'
+            for err in self.stale.values():
+                details += f'* {err.name}\n'
 
         if len(self.errors) > 0:
             details = ''
@@ -257,23 +236,3 @@ class DiagnosticTestNode(ClearpathTestNode):
                 details += f'* {warn.name}: {warn.message}\n'
 
         return details
-
-
-def main():
-    setup_path = BaseGenerator.get_args()
-    rclpy.init()
-
-    dt = DiagnosticTestNode(setup_path)
-
-    try:
-        dt.start()
-        rclpy.spin(dt)
-    except KeyboardInterrupt:
-        pass
-
-    dt.destroy_node()
-    rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()
