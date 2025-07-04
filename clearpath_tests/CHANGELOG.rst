@@ -2,6 +2,9 @@
 Changelog for package clearpath_tests
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.6.0 (2025-07-04)
 ------------------
 * Fix expected number of CAN devices for W200 tests (`#241 <https://github.com/clearpathrobotics/clearpath_robot/issues/241>`_)
