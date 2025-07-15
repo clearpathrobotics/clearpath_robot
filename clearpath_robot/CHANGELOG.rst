@@ -2,6 +2,11 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* [clearpath_robot] Added getting the robot.yaml file to the grab-diagnostics script.
+* Contributors: Tony Baltovski
+
 2.6.1 (2025-07-04)
 ------------------
 
