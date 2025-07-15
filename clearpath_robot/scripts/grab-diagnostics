@@ -30,6 +30,12 @@
 # Create a temporary folder
 temp_folder=$(mktemp -d)
 
+# Get robot yaml file
+if [ -e /etc/clearpath/robot.yaml ]; then
+ sudo cp /etc/clearpath/robot.yaml "$temp_folder/robot.yaml"
+fi
+
+
 # CPR service logs
 sudo journalctl -b 0 -u clearpath-platform >> $temp_folder/platform.log
 sudo journalctl -b 0 -u clearpath-sensors >> $temp_folder/sensors.log
