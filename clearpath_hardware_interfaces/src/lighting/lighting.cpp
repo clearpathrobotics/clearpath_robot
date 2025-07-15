@@ -424,7 +424,7 @@ void Lighting::updateState()
   }
 
   // Lynx motor errors
-  if (system_protection_msg_.system_state == clearpath_motor_msgs::msg::LynxSystemProtection::ERROR)
+  if (system_protection_msg_.system_state == clearpath_motor_msgs::msg::LynxMotorProtection::ERROR)
   {
     setState(State::MotorFault);
     LightingState off_1 = LightingState(4, COLOR_RED);
@@ -434,44 +434,17 @@ void Lighting::updateState()
 
     diagnostic_qualifier_ = "";
 
-    if (system_protection_msg_.motor_states.at(
-      clearpath_motor_msgs::msg::LynxSystemProtection::A300_MOTOR_REAR_LEFT) == clearpath_motor_msgs::msg::LynxSystemProtection::ERROR)
+    for (auto motor_state : system_protection_msg_.motor_states)
     {
-      diagnostic_qualifier_ += "Rear Left ";
-      off_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_LEFT) = COLOR_BLACK;
-      on_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_LEFT) = COLOR_RED;
-      off_2.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_LEFT) = COLOR_BLACK;
-      on_2.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_LEFT) = COLOR_RED;
-    }
-
-    if (system_protection_msg_.motor_states.at(
-      clearpath_motor_msgs::msg::LynxSystemProtection::A300_MOTOR_FRONT_LEFT) == clearpath_motor_msgs::msg::LynxSystemProtection::ERROR)
-    {
-      diagnostic_qualifier_ += "Front Left ";
-      off_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_LEFT) = COLOR_BLACK;
-      on_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_LEFT) = COLOR_RED;
-      off_2.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_LEFT) = COLOR_BLACK;
-      on_2.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_LEFT) = COLOR_RED;
-    }
-
-    if (system_protection_msg_.motor_states.at(
-      clearpath_motor_msgs::msg::LynxSystemProtection::A300_MOTOR_REAR_RIGHT) == clearpath_motor_msgs::msg::LynxSystemProtection::ERROR)
-    {
-      diagnostic_qualifier_ += "Rear Right ";
-      off_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_RIGHT) = COLOR_BLACK;
-      on_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_RIGHT) = COLOR_RED;
-      off_2.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_RIGHT) = COLOR_BLACK;
-      on_2.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_RIGHT) = COLOR_RED;
-    }
-
-    if (system_protection_msg_.motor_states.at(
-      clearpath_motor_msgs::msg::LynxSystemProtection::A300_MOTOR_FRONT_RIGHT) == clearpath_motor_msgs::msg::LynxSystemProtection::ERROR)
-    {
-      diagnostic_qualifier_ += "Front Right ";
-      off_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_RIGHT) = COLOR_BLACK;
-      on_1.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_RIGHT) = COLOR_RED;
-      off_2.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_RIGHT) = COLOR_BLACK;
-      on_2.at(clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_RIGHT) = COLOR_RED;
+      if (motor_state.state == clearpath_motor_msgs::msg::LynxMotorProtection::ERROR)
+      {
+        diagnostic_qualifier_ += LYNX_MOTOR_TO_DIAGNOSTIC_QUALIFIER_MAP.at(motor_state.joint_name);
+        auto light = LYNX_MOTOR_TO_LIGHTS_MAP.at(motor_state.joint_name);
+        off_1.at(light) = COLOR_BLACK;
+        on_1.at(light) = COLOR_RED;
+        off_2.at(light) = COLOR_BLACK;
+        on_2.at(light) = COLOR_RED;
+      }
     }
 
     lighting_sequence_.at(State::MotorFault) =
@@ -484,11 +457,11 @@ void Lighting::updateState()
         on_2,
         MS_TO_STEPS(200), 0.5);
   }
-  else if (system_protection_msg_.system_state == clearpath_motor_msgs::msg::LynxSystemProtection::OVERHEATED)
+  else if (system_protection_msg_.system_state == clearpath_motor_msgs::msg::LynxMotorProtection::OVERHEATED)
   {
     setState(State::MotorOverheated);
   }
-  else if (system_protection_msg_.system_state == clearpath_motor_msgs::msg::LynxSystemProtection::THROTTLED)
+  else if (system_protection_msg_.system_state == clearpath_motor_msgs::msg::LynxMotorProtection::THROTTLED)
   {
     setState(State::MotorThrottled);
   }

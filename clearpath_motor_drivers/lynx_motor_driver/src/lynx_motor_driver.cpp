@@ -47,7 +47,7 @@ LynxMotorDriver::LynxMotorDriver(const int64_t& can_id,
                const int64_t direction,
                std::shared_ptr<clearpath_ros2_socketcan_interface::SocketCANInterface> can_interface)
   : can_id_(can_id), joint_name_(joint_name), direction_(direction),
-    protection_state_(clearpath_motor_msgs::msg::LynxSystemProtection::NORMAL), debug_(false),
+    protection_state_(clearpath_motor_msgs::msg::LynxMotorProtection::NORMAL), debug_(false),
     can_interface_(can_interface)
 {
   for (auto & m : debug_mutexes_)

@@ -75,11 +75,11 @@ void LynxHardware::writeCommandsToHardware()
 
   switch(node_->get_protection().system_state)
   {
-    case clearpath_motor_msgs::msg::LynxSystemProtection::THROTTLED:
+    case clearpath_motor_msgs::msg::LynxMotorProtection::THROTTLED:
       max_velocity = MAXIMUM_VELOCITY_THROTTLED_RADS;
       break;
 
-    case clearpath_motor_msgs::msg::LynxSystemProtection::OVERHEATED:
+    case clearpath_motor_msgs::msg::LynxMotorProtection::OVERHEATED:
       max_velocity = MAXIMUM_VELOCITY_OVERHEATED_RADS;
       break;
   }

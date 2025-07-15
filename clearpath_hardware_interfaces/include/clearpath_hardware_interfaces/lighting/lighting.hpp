@@ -123,6 +123,20 @@ public:
     {Platform::W200, {"Front Left", "Front Right", "Rear Left", "Rear Right"}},
   };
 
+  const std::map<std::string, uint8_t> LYNX_MOTOR_TO_LIGHTS_MAP = {
+    {"front_left_wheel_joint", clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_LEFT},
+    {"front_right_wheel_joint", clearpath_platform_msgs::msg::Lights::A300_LIGHTS_FRONT_RIGHT},
+    {"rear_left_wheel_joint", clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_LEFT},
+    {"rear_right_wheel_joint", clearpath_platform_msgs::msg::Lights::A300_LIGHTS_REAR_RIGHT},
+  };
+
+  const std::map<std::string, std::string> LYNX_MOTOR_TO_DIAGNOSTIC_QUALIFIER_MAP = {
+    {"front_left_wheel_joint", "Front Left "},
+    {"front_right_wheel_joint", "Front Right "},
+    {"rear_left_wheel_joint", "Rear Left "},
+    {"rear_right_wheel_joint", "Rear Right "},
+  };
+
   std::map<State, Sequence> lighting_sequence_;
 
   Lighting();
