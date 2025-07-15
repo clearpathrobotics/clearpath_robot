@@ -158,14 +158,14 @@ a300_cooling::FanController::FanController() : Node("a300_fan_controller"),
     [this](const clearpath_motor_msgs::msg::LynxMultiStatus::SharedPtr msg)
   {
     std::lock_guard<std::mutex> lock(update_mutex_);
-    if (msg->drivers.size() != 2 || msg->drivers.size() != 4)
+    if (msg->drivers.size() != 2 && msg->drivers.size() != 4)
     {
       RCLCPP_ERROR(this->get_logger(),
                    "%s topic contains an invalid number of drivers: %ld", MOTOR_TEMPERATURE_TOPIC.c_str(), msg->drivers.size());
       return;
     }
 
-    for (auto i = 0; i < msg->drivers.size(); i++)
+    for (size_t i = 0; i < msg->drivers.size(); i++)
     {
       this->thermal_sensors_.setSensorValue("pcb_motor" + std::to_string(i+1),  msg->drivers.at(i).pcb_temperature);
       this->thermal_sensors_.setSensorValue("mcu_motor" + std::to_string(i+1),  msg->drivers.at(i).mcu_temperature);
