@@ -7,6 +7,8 @@ After=clearpath-robot.service
 User=administrator
 Type=simple
 ExecStart=/usr/sbin/clearpath-platform-extras-start
+LimitRTPRIO=infinity
+LimitMEMLOCK=infinity
 
 [Install]
 WantedBy=clearpath-robot.service
