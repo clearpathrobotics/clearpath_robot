@@ -3,7 +3,7 @@ Description="Clearpath robot main generation and bringup service"
 After=network-online.target
 
 [Service]
-User=administrator
+User=robot
 Type=simple
 ExecStartPre=/usr/sbin/clearpath-robot-generate
 ExecStart=/usr/sbin/clearpath-robot-check
