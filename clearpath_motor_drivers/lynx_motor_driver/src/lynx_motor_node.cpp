@@ -158,7 +158,12 @@ LynxMotorNode::LynxMotorNode(const std::string node_name) :
   debug_msg_.drivers.resize(drivers_.size());
   system_protection_msg_.header.frame_id = "base_link";
   system_protection_msg_.motor_states.resize(drivers_.size());
-  system_protection_msg_.system_state = clearpath_motor_msgs::msg::LynxSystemProtection::NORMAL;
+  system_protection_msg_.system_state = clearpath_motor_msgs::msg::LynxMotorProtection::NORMAL;
+  for (auto i = 0; i < system_protection_msg_.motor_states.size(); i++)
+  {
+    system_protection_msg_.motor_states.at(i).can_id = drivers_.at(i).getCanID();
+    system_protection_msg_.motor_states.at(i).joint_name = drivers_.at(i).getJointName();
+  }
 
   // Start timers
   feedback_timer_ = this->create_wall_timer(
@@ -422,10 +427,10 @@ void LynxMotorNode::driverDiagnostic(DiagnosticStatusWrapper & stat, int i)
 
   try {
     // Set message to warn if motor is in overheated or throttled states
-    if ((system_protection_msg_.motor_states[i] == LynxSystemProtection::THROTTLED) ||
-        (system_protection_msg_.motor_states[i] == LynxSystemProtection::OVERHEATED)) {
+    if ((system_protection_msg_.motor_states.at(i).state == LynxMotorProtection::THROTTLED) ||
+        (system_protection_msg_.motor_states.at(i).state == LynxMotorProtection::OVERHEATED)) {
       stat.mergeSummary(DiagnosticStatusWrapper::WARN,
-                        LYNX_PROTECTION_LABELS_.at(system_protection_msg_.motor_states[i]));
+                        LYNX_PROTECTION_LABELS_.at(system_protection_msg_.motor_states.at(i).state));
     }
   } catch(const std::out_of_range & e) {
     RCLCPP_ERROR(this->get_logger(),
@@ -500,10 +505,10 @@ void LynxMotorNode::protectionDiagnostic(DiagnosticStatusWrapper & stat)
 
   try {
     // Interpret system protection message
-    if (system_protection_msg_.system_state == LynxSystemProtection::NORMAL) {
+    if (system_protection_msg_.system_state == LynxMotorProtection::NORMAL) {
       stat.summary(DiagnosticStatusWrapper::OK,
                   LYNX_PROTECTION_LABELS_.at(system_protection_msg_.system_state));
-    } else if (system_protection_msg_.system_state == LynxSystemProtection::ERROR) {
+    } else if (system_protection_msg_.system_state == LynxMotorProtection::ERROR) {
       stat.summary(DiagnosticStatusWrapper::ERROR,
                   LYNX_PROTECTION_LABELS_.at(system_protection_msg_.system_state));
     } else {
@@ -518,8 +523,8 @@ void LynxMotorNode::protectionDiagnostic(DiagnosticStatusWrapper & stat)
 
   try {
     for (unsigned i = 0; i < system_protection_msg_.motor_states.size(); i++) {
-      stat.add(LYNX_MOTOR_LABELS_.at(i) + " Motor State",
-              LYNX_PROTECTION_LABELS_.at(system_protection_msg_.motor_states[i]));
+      stat.add(LYNX_MOTOR_LABELS_.at(system_protection_msg_.motor_states.at(i).joint_name) + " Motor State",
+              LYNX_PROTECTION_LABELS_.at(system_protection_msg_.motor_states.at(i).state));
     }
   } catch(const std::out_of_range & e) {
     RCLCPP_ERROR(this->get_logger(),

@@ -29,11 +29,11 @@ using namespace lynx_motor_driver;
 
 /**
  * @brief Update system level proctection state
- * 
+ *
  */
 void LynxMotorNode::updateSystemState()
 {
-  uint8_t system_state = clearpath_motor_msgs::msg::LynxSystemProtection::NORMAL;
+  uint8_t system_state = clearpath_motor_msgs::msg::LynxMotorProtection::NORMAL;
 
   // Set system level protection state to max of all driver protection states
   for (auto & driver : drivers_)
@@ -54,14 +54,14 @@ void LynxMotorNode::updateSystemState()
 
 /**
  * @brief Send system protection state to each driver and publish to topic
- * 
+ *
  */
 void LynxMotorNode::sendSystemState()
 {
   int i = 0;
   for (auto & driver : drivers_)
   {
-    system_protection_msg_.motor_states.at(i++) = driver.getProtectionState();
+    system_protection_msg_.motor_states.at(i++).state = driver.getProtectionState();
     if (!updating_)
     {
       driver.sendProtectionState(system_protection_msg_.system_state);
@@ -73,7 +73,7 @@ void LynxMotorNode::sendSystemState()
 
 /**
  * @brief Stamp and publish system protection state
- * 
+ *
  */
 void LynxMotorNode::publishSystemState()
 {

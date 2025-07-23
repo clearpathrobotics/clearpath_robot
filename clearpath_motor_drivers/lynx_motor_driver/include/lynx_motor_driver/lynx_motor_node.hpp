@@ -47,6 +47,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include "clearpath_motor_msgs/msg/lynx_status.hpp"
 #include "clearpath_motor_msgs/msg/lynx_multi_feedback.hpp"
 #include "clearpath_motor_msgs/msg/lynx_feedback.hpp"
+#include "clearpath_motor_msgs/msg/lynx_motor_protection.hpp"
 #include "clearpath_motor_msgs/msg/lynx_system_protection.hpp"
 
 
@@ -83,6 +84,7 @@ private:
   using Update = clearpath_motor_msgs::action::LynxUpdate;
   using GoalHandleUpdate = rclcpp_action::ServerGoalHandle<Update>;
   using LynxStatus = clearpath_motor_msgs::msg::LynxStatus;
+  using LynxMotorProtection = clearpath_motor_msgs::msg::LynxMotorProtection;
   using LynxSystemProtection = clearpath_motor_msgs::msg::LynxSystemProtection;
   using DiagnosticStatusWrapper = diagnostic_updater::DiagnosticStatusWrapper;
   using Empty = std_srvs::srv::Empty;
@@ -176,17 +178,17 @@ private:
   };
 
   const std::map<uint8_t, std::string> LYNX_PROTECTION_LABELS_ = {
-    {LynxSystemProtection::NORMAL, "Normal"},
-    {LynxSystemProtection::THROTTLED, "Throttled"},
-    {LynxSystemProtection::OVERHEATED, "Overheated"},
-    {LynxSystemProtection::ERROR, "Error"},
+    {LynxMotorProtection::NORMAL, "Normal"},
+    {LynxMotorProtection::THROTTLED, "Throttled"},
+    {LynxMotorProtection::OVERHEATED, "Overheated"},
+    {LynxMotorProtection::ERROR, "Error"},
   };
 
-  const std::map<uint8_t, std::string> LYNX_MOTOR_LABELS_ = {
-    {LynxSystemProtection::A300_MOTOR_FRONT_LEFT, "Front Left"},
-    {LynxSystemProtection::A300_MOTOR_FRONT_RIGHT, "Front Right"},
-    {LynxSystemProtection::A300_MOTOR_REAR_LEFT, "Rear Left"},
-    {LynxSystemProtection::A300_MOTOR_REAR_RIGHT, "Rear Right"},
+  const std::map<std::string, std::string> LYNX_MOTOR_LABELS_ = {
+    {"front_left_wheel_joint", "Front Left"},
+    {"front_right_wheel_joint", "Front Right"},
+    {"rear_left_wheel_joint", "Rear Left"},
+    {"rear_right_wheel_joint", "Rear Right"},
   };
 
   // System Protection

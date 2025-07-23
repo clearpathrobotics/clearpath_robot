@@ -52,6 +52,7 @@
 namespace clearpath_hardware_interfaces
 {
 
+static constexpr uint8_t DIFF_DRIVE_TWO_JOINTS = 2;
 static constexpr uint8_t DIFF_DRIVE_FOUR_JOINTS = 4;
 static constexpr double MINIMUM_VELOCITY_RADS = 0.01f;
 static constexpr double MAXIMUM_VELOCITY_NORMAL_RADS = 12.307f;
