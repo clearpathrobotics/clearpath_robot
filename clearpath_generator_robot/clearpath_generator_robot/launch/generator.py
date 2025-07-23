@@ -370,7 +370,7 @@ class RobotLaunchGenerator(LaunchGenerator):
                             name=f'{arm.gripper.name}_node',
                             package='franka_gripper',
                             executable='franka_gripper_node',
-                            namespace=self.namespace,
+                            namespace=f'{self.namespace}/manipulators',
                             parameters=[{
                                 'robot_ip': arm.ip,
                                 'joint_names': [
