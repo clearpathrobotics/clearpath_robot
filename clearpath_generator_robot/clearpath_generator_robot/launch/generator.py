@@ -384,7 +384,10 @@ class RobotLaunchGenerator(LaunchGenerator):
                                     'inner': 0.005,  # [m]
                                     'outer': 0.005  # [m]
                                 }
-                            }]
+                            }],
+                            remappings=[
+                                ('~/joint_states', f'/{self.namespace}/platform/joint_states')
+                            ]
                         )
                         manipulator_service_launch_writer.add_node(node)
         if self.clearpath_config.manipulators.get_all_manipulators():
