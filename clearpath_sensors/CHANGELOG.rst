@@ -2,6 +2,12 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Remap `navsatfix` to `fix` (`#128 <https://github.com/clearpathrobotics/clearpath_robot/issues/128>`_) (`#251 <https://github.com/clearpathrobotics/clearpath_robot/issues/251>`_)
+  Co-authored-by: Chris Iverach-Brereton <59611394+civerachb-cpr@users.noreply.github.com>
+* Contributors: Tony Baltovski
+
 1.3.3 (2025-07-03)
 ------------------
 * [clearpath_sensors] Fixed missing dependency lms1xx. (`#234 <https://github.com/clearpathrobotics/clearpath_robot/issues/234>`_)
