@@ -7,6 +7,8 @@ After=clearpath-robot.service
 User=robot
 Type=simple
 ExecStart=/usr/sbin/clearpath-platform-start
+CPUSchedulingPolicy=fifo
+CPUSchedulingPriority=50
 
 [Install]
 WantedBy=clearpath-robot.service
