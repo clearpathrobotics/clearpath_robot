@@ -34,7 +34,8 @@
 import os
 
 from clearpath_config.common.types.platform import Platform
-from clearpath_config.manipulators.types.arms import UniversalRobots
+from clearpath_config.manipulators.types.arms import Franka, UniversalRobots
+from clearpath_config.manipulators.types.grippers import FrankaGripper
 from clearpath_config.platform.battery import BatteryConfig
 from clearpath_generator_common.common import LaunchFile, Package
 from clearpath_generator_common.launch.generator import LaunchGenerator
@@ -342,8 +343,8 @@ class RobotLaunchGenerator(LaunchGenerator):
 
     def generate_manipulators(self) -> None:
         manipulator_service_launch_writer = LaunchWriter(self.manipulators_service_launch_file)
-        # Universal Robots Tool Communication
         for arm in self.clearpath_config.manipulators.get_all_arms():
+            # Universal Robots Tool Communication
             if arm.MANIPULATOR_MODEL == UniversalRobots.MANIPULATOR_MODEL:
                 node = LaunchFile.Node(
                     name=f'{arm.name}_ur_tool_comm',
@@ -361,6 +362,34 @@ class RobotLaunchGenerator(LaunchGenerator):
                 self.manipulators_launch_file.args.append(
                     ('control_delay', '1.0')
                 )
+            # Franka Hand Communication
+            if arm.MANIPULATOR_MODEL == Franka.MANIPULATOR_MODEL:
+                if arm.gripper:
+                    if arm.gripper.MANIPULATOR_MODEL == FrankaGripper.MANIPULATOR_MODEL:
+                        node = LaunchFile.Node(
+                            name=f'{arm.gripper.name}_node',
+                            package='franka_gripper',
+                            executable='franka_gripper_node',
+                            namespace=f'{self.namespace}/manipulators',
+                            parameters=[{
+                                'robot_ip': arm.ip,
+                                'joint_names': [
+                                    f'{arm.gripper.name}_finger_joint1',
+                                    f'{arm.gripper.name}_finger_joint2'
+                                ],
+                                'state_publish_rate': 15,  # [Hz]
+                                'feedback_publish_rate': 30,  # [Hz]
+                                'default_speed': 0.1,  # [m/s]
+                                'default_grasp_epsilon': {
+                                    'inner': 0.005,  # [m]
+                                    'outer': 0.005  # [m]
+                                }
+                            }],
+                            remappings=[
+                                ('~/joint_states', f'/{self.namespace}/platform/joint_states')
+                            ]
+                        )
+                        manipulator_service_launch_writer.add_node(node)
         if self.clearpath_config.manipulators.get_all_manipulators():
             manipulator_service_launch_writer.add(self.manipulators_launch_file)
         manipulator_service_launch_writer.generate_file()
