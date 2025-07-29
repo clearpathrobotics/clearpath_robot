@@ -2,6 +2,9 @@
 Changelog for package puma_motor_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.3.4 (2025-07-24)
 ------------------
 

@@ -1,6 +1,15 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Forthcoming
+-----------
+* Feature: Franka Hand (`#252 <https://github.com/clearpathrobotics/clearpath_robot/issues/252>`_)
+  * Add frank gripper launch
+  * Add manipulators to namespace
+  * Add remapping of joint states
+  * Fix joint names
+* Contributors: luis-camero
+
 1.3.4 (2025-07-24)
 ------------------
 
