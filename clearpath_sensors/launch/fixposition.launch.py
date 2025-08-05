@@ -69,16 +69,18 @@ def generate_launch_description():
             ('/tf_static', PathJoinSubstitution(['/', robot_namespace, 'tf_static'])),
 
             # Core API sensor topics
-            # they get their own numbered sensor API namespace
+            # they get their own numbered sensor API namespace where appropriate
             ('/fixposition/gnss1', 'gps_0/fix'),
             ('/fixposition/gnss2', 'gps_1/fix'),
             ('/fixposition/fpa/corrimu', 'imu_0/data'),
-            ('/fixposition/fpa/rawimu', 'imu_0/data_raw'),
             ('/fixposition/odometry_enu', 'odom'),
             ('/odometry', PathJoinSubstitution(['/', robot_namespace, 'platform/odometry'])),
 
+            # not technically part of the INS API, but adjacent to it
+            ('/fixposition/fpa/rawimu', 'imu_0/data_raw'),
+
             # Fixposition-specific topics
-            # not part of the core INS API, so keep them contained in the 'xvn' namespace
+            # not part of the core INS API, so keep them contained in the 'fixposition' namespace
             ('/fixposition/fpa/eoe', 'fixposition/fpa/eoe'),
             ('/fixposition/fpa/gnssant', 'fixposition/fpa/gnssant'),
             ('/fixposition/fpa/gnsscorr', 'fixposition/fpa/gnsscorr'),
@@ -111,7 +113,6 @@ def generate_launch_description():
             ('/fixposition/rawimu', 'fixposition/rawimu'),
             ('/fixposition/speed', 'fixposition/speed'),
             ('/fixposition/ypr', 'fixposition/ypr'),
-
             ('/rtcm', 'rtcm'),
         ]
     )
