@@ -106,7 +106,7 @@ def generate_launch_description():
         default_value=PathJoinSubstitution([
           FindPackageShare('clearpath_sensors'),
           'config',
-          'intel_realsense.yaml'
+          'luxonis_oakd.yaml'
         ]))
 
     arg_namespace = DeclareLaunchArgument(
