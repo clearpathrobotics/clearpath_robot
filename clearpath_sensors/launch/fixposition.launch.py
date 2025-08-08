@@ -76,9 +76,6 @@ def generate_launch_description():
             ('/fixposition/odometry_enu', 'odom'),
             ('/odometry', PathJoinSubstitution(['/', robot_namespace, 'platform/odometry'])),
 
-            # not technically part of the INS API, but adjacent to it
-            ('/fixposition/fpa/rawimu', 'imu_0/data_raw'),
-
             # Fixposition-specific topics
             # not part of the core INS API, so keep them contained in the 'fixposition' namespace
             ('/fixposition/fpa/eoe', 'fixposition/fpa/eoe'),
@@ -90,6 +87,7 @@ def generate_launch_description():
             ('/fixposition/fpa/odometry', 'fixposition/fpa/odometry'),
             ('/fixposition/fpa/odomsh', 'fixposition/fpa/odomsh'),
             ('/fixposition/fpa/odomstatus', 'fixposition/fpa/odomstatus'),
+            ('/fixposition/fpa/rawimu', 'fixposition/fpa/rawimu'),
             ('/fixposition/fpa/text', 'fixposition/fpa/text'),
             ('/fixposition/fpa/tp', 'fixposition/fpa/tp'),
             ('/fixposition/fusion', 'fixposition/fusion'),
