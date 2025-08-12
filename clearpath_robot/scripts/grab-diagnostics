@@ -61,8 +61,9 @@ cat /proc/loadavg >> $temp_folder/cpu-load.log
 
 # Network diagnostics
 ip a >> $temp_folder/ip.log
-mkdir -p $temp_folder/netplan
 sudo cp -r /etc/netplan/ "$temp_folder/netplan/"
+# Remove any lines containing the word 'password' (case insensitive) from netplan files
+sudo sed -i '/\bpassword\b/Id' "$temp_folder/netplan/"*
 
 # Get hostname
 hostname=$(hostname)
