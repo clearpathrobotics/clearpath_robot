@@ -52,6 +52,15 @@ TOPICS = [
     'metadata',
 ]
 
+TRANSPORTS = [
+    'compressed',
+    'compressedDepth',
+    'theora',
+    'ffmpeg',
+    'zstd',
+    'foxglove',
+]
+
 OTHERS = [
     'rgbd',
     'extrinsics/depth_to_color',
@@ -88,12 +97,13 @@ def generate_launch_description():
 
     for camera in CAMERAS:
         for image in IMAGES:
-            remappings.extend([
+            remappings.append(
                 (f'~/{camera}/{image}', f'{camera}/image'),
-                (f'~/{camera}/{image}/compressed', f'{camera}/compressed'),
-                (f'~/{camera}/{image}/compressedDepth', f'{camera}/compressedDepth'),
-                (f'~/{camera}/{image}/theora', f'{camera}/theora'),
-            ])
+            )
+            for transport in TRANSPORTS:
+                remappings.append(
+                    (f'~/{camera}/{image}/{transport}', f'{camera}/{transport}')
+                )
         for topic in TOPICS:
             remappings.append(
                 (f'~/{camera}/{topic}', f'{camera}/{topic}')

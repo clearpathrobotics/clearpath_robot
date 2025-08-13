@@ -65,6 +65,11 @@ def generate_launch_description():
         output='screen',
         remappings=[
             ('image_raw/compressed', 'color/image/compressed'),
+            ('image_raw/compressedDepth', 'color/image/compressedDepth'),
+            ('image_raw/theora', 'color/image/theora'),
+            ('image_raw/ffmpeg', 'color/image/ffmpeg'),
+            ('image_raw/zstd', 'color/image/zstd'),
+            ('image_raw/foxglove', 'color/image/foxglove'),
             ('camera_info', 'color/camera_info'),
             ('joint_states',
                 PathJoinSubstitution(['/', robot_namespace, 'platform', 'joint_states'])),

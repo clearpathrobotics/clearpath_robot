@@ -35,6 +35,15 @@ from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
 from launch_ros.substitutions import FindPackageShare
 
+TRANSPORTS = [
+    'compressed',
+    'compressedDepth',
+    'theora',
+    'ffmpeg',
+    'zstd',
+    'foxglove',
+]
+
 
 def launch_setup(context):
     parameters = LaunchConfiguration('parameters')
@@ -42,34 +51,31 @@ def launch_setup(context):
 
     name = os.path.basename(namespace.perform(context))
 
+    remappings = [
+            ('~/imu/data', 'imu/data'),
+            ('~/nn/spatial_detections', 'nn/spatial_detections'),
+            ('~/rgb/camera_info', 'color/camera_info'),
+            ('~/rgb/image_raw', 'color/image'),
+            ('~/rgb/preview/image_raw', 'color/image'),
+            ('~/stereo/camera_info', 'stereo/camera_info'),
+            ('~/stereo/image_raw', 'stereo/image'),
+            ('/diagnostics', 'diagnostics'),
+    ]
+
+    for transport in TRANSPORTS:
+        remappings.extend([
+            (f'~/rgb/image_raw/{transport}', f'color/{transport}'),
+            (f'~/rgb/preview/image_raw/{transport}', f'color/{transport}'),
+            (f'~/stereo/image_raw/{transport}', f'stereo/{transport}')
+        ])
+
     depthai_oakd_node = ComposableNode(
         package='depthai_ros_driver',
         name=name,
         namespace=namespace,
         plugin='depthai_ros_driver::Camera',
         parameters=[parameters],
-        remappings=[
-            ('~/imu/data', 'imu/data'),
-            ('~/nn/spatial_detections', 'nn/spatial_detections'),
-            ('~/rgb/camera_info', 'color/camera_info'),
-            ('~/rgb/image_raw', 'color/image'),
-            ('~/rgb/image_raw/compressed', 'color/compressed'),
-            ('~/rgb/image_raw/compressedDepth', 'color/compressedDepth'),
-            ('~/rgb/image_raw/ffmpeg', 'color/ffmpeg'),
-            ('~/rgb/image_raw/theora', 'color/theora'),
-            ('~/rgb/preview/image_raw', 'color/image'),
-            ('~/rgb/preview/image_raw/compressed', 'color/compressed'),
-            ('~/rgb/preview/image_raw/compressedDepth', 'color/compressedDepth'),
-            ('~/rgb/preview/image_raw/ffmpeg', 'color/ffmpeg'),
-            ('~/rgb/preview/image_raw/theora', 'color/theora'),
-            ('~/stereo/camera_info', 'stereo/camera_info'),
-            ('~/stereo/image_raw', 'stereo/image'),
-            ('~/stereo/image_raw/compressed', 'stereo/compressed'),
-            ('~/stereo/image_raw/compressedDepth', 'stereo/compressedDepth'),
-            ('~/stereo/image_raw/ffmpeg', 'stereo/ffmpeg'),
-            ('~/stereo/image_raw/theora', 'stereo/theora'),
-            ('/diagnostics', 'diagnostics'),
-        ],
+        remappings=remappings,
         extra_arguments=[{'use_intra_process_comms': True}],
     )
 
