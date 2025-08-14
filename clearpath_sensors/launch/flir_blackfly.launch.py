@@ -84,6 +84,7 @@ def generate_launch_description():
     image_proc_remappings = [
         ('image_raw', 'raw/image'),
         ('image_color', 'color/image'),
+        ('image_mono', 'mono/image'),
     ]
 
     for transport in TRANSPORTS:
