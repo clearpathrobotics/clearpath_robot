@@ -1,16 +1,40 @@
 fixposition_driver:
   ros__parameters:
-    fp_output:
-      formats:
-        - ODOMETRY
-        - LLH
-        - RAWIMU
-        - CORRIMU
-      port: "21001"
-      ip: 192.168.131.35
-      rate: 200
-      type: tcp
-      reconnect: 5
-    customer_input:
-      speed_topic: "xvn/speed"
-      rtcm_topic: "xvn/rtcm"
+    stream: tcpcli://192.168.131.35:21000
+    reconnect_delay: 5.0
+    delay_warning: 0.03
+    messages:
+      - "FP_A-ODOMETRY"
+      - "FP_A-ODOMENU"
+      - "FP_A-ODOMSH"
+      - "FP_A-ODOMSTATUS"
+      - "FP_A-IMUBIAS"
+      - "FP_A-EOE"
+      - "FP_A-TF"
+      - "FP_A-RAWIMU"
+      - "FP_A-CORRIMU"
+      - "FP_A-LLH"
+      - "NOV_B-INSPVAX"
+      - "FP_A-TEXT"
+      - "FP_A-GNSSANT"
+      - "FP_A-GNSSCORR"
+      - "FP_A-TP"
+      - "GGA"
+      - "GLL"
+      - "GSA"
+      - "GST"
+      - "GSV"
+      - "HDT"
+      - "RMC"
+      - "VTG"
+      - "ZDA"
+      - "NOV_B-BESTGNSSPOS"
+    nmea_epoch: "FUSION"
+    fusion_epoch: true
+    raw_output:   false
+    cov_warning:  false
+    nav2_mode:    false
+    output_ns:   "/fixposition"
+    speed_topic: "/fixposition/speed"
+    corr_topic:  "/rtcm"
+    qos_type:    "sensor_short"
