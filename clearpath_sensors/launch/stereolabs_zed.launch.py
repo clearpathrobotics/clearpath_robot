@@ -65,6 +65,15 @@ CAMERAS = [
     ('stereo_raw', 'stereo/raw')
 ]
 
+TRANSPORTS = [
+    'compressed',
+    'compressedDepth',
+    'theora',
+    'ffmpeg',
+    'zstd',
+    'foxglove',
+]
+
 OTHERS = [
     'temperature/imu',
     'temperature/left',
@@ -129,13 +138,12 @@ def generate_launch_description():
                 PathJoinSubstitution(['/', namespace, new, 'camera_info'])),
             ('~/%s/%s' % (old, image),
                 PathJoinSubstitution(['/', namespace, new, 'image'])),
-            ('~/%s/%s/compressed' % (old, image),
-                PathJoinSubstitution(['/', namespace, new, 'compressed'])),
-            ('~/%s/%s/compressedDepth' % (old, image),
-                PathJoinSubstitution(['/', namespace, new, 'compressedDepth'])),
-            ('~/%s/%s/theora' % (old, image),
-                PathJoinSubstitution(['/', namespace, new, 'theora'])),
         ])
+        for transport in TRANSPORTS:
+            remappings.append(
+                ('~/%s/%s/%s' % (old, image, transport),
+                    PathJoinSubstitution(['/', namespace, new, transport])),
+            )
 
     # Others
     for topic in OTHERS:

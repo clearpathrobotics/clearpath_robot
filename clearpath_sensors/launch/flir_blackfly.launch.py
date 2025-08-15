@@ -32,6 +32,15 @@ from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
 from launch_ros.substitutions import FindPackageShare
 
+TRANSPORTS = [
+    'compressed',
+    'compressedDepth',
+    'theora',
+    'ffmpeg',
+    'zstd',
+    'foxglove',
+]
+
 
 def generate_launch_description():
     parameters = LaunchConfiguration('parameters')
@@ -60,6 +69,30 @@ def generate_launch_description():
 
     name = 'flir_blackfly'
 
+    driver_remappings = [
+        (f'{name}/camera_info', 'raw/camera_info'),
+        (f'{name}/control', 'control'),
+        (f'{name}/meta', 'meta'),
+        (f'{name}/image_raw', 'raw/image'),
+    ]
+
+    for transport in TRANSPORTS:
+        driver_remappings.append(
+            (f'{name}/image_raw/{transport}', f'raw/{transport}')
+        )
+
+    image_proc_remappings = [
+        ('image_raw', 'raw/image'),
+        ('image_color', 'color/image'),
+        ('image_mono', 'mono/image'),
+    ]
+
+    for transport in TRANSPORTS:
+        image_proc_remappings.extend([
+            (f'image_color/{transport}', f'color/{transport}'),
+            (f'image_mono/{transport}', f'mono/{transport}'),
+        ])
+
     composable_nodes = [
         ComposableNode(
             package='spinnaker_camera_driver',
@@ -67,16 +100,7 @@ def generate_launch_description():
             name=name,
             namespace=namespace,
             parameters=[parameters, {'parameter_file': param_mapping_file}],
-            remappings=[
-                (name + '/camera_info', 'raw/camera_info'),
-                (name + '/control', 'control'),
-                (name + '/meta', 'meta'),
-                (name + '/image_raw', 'raw/image'),
-                (name + '/image_raw/compressed', 'raw/compressed'),
-                (name + '/image_raw/compressedDepth', 'raw/compressedDepth'),
-                (name + '/image_raw/theora', 'raw/theora'),
-                (name + '/image_raw/ffmpeg', 'raw/ffmpeg'),
-            ],
+            remappings=driver_remappings,
             extra_arguments=[{'use_intra_process_comms': True}],
         ),
         ComposableNode(
@@ -85,19 +109,7 @@ def generate_launch_description():
             name='image_debayer',
             namespace=namespace,
             parameters=[parameters],
-            remappings=[
-                ('image_raw', 'raw/image'),
-                ('image_color', 'color/image'),
-                ('image_color/compressed', 'color/compressed'),
-                ('image_color/compressedDepth', 'color/compressedDepth'),
-                ('image_color/theora', 'color/theora'),
-                ('image_mono', 'mono/image'),
-                ('image_mono/compressed', 'mono/compressed'),
-                ('image_mono/compressedDepth', 'mono/compressedDepth'),
-                ('image_mono/theora', 'mono/theora'),
-                ('image_color/ffmpeg', 'color/ffmpeg'),
-                ('image_mono/ffmpeg', 'mono/ffmpeg'),
-            ],
+            remappings=image_proc_remappings,
             extra_arguments=[{'use_intra_process_comms': True}],
         ),
         ComposableNode(
