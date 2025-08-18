@@ -2,6 +2,11 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* [clearpath_robot] Changed default service user to robot from administrator. (`#248 <https://github.com/clearpathrobotics/clearpath_robot/issues/248>`_)
+* Contributors: Tony Baltovski
+
 2.6.2 (2025-07-15)
 ------------------
 * [clearpath_robot] Added getting the robot.yaml file to the grab-diagnostics script.

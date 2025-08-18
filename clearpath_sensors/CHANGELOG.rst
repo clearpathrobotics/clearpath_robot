@@ -2,6 +2,15 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add missing dependency (`#258 <https://github.com/clearpathrobotics/clearpath_robot/issues/258>`_)
+* Fix/image remaps (`#257 <https://github.com/clearpathrobotics/clearpath_robot/issues/257>`_)
+  * Add remaps for additional image transports
+  * Add missing mono remap
+* Correct default oakd config file (`#255 <https://github.com/clearpathrobotics/clearpath_robot/issues/255>`_)
+* Contributors: Hilary Luo
+
 2.6.2 (2025-07-15)
 ------------------
 
