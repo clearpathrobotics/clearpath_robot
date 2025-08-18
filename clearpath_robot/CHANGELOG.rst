@@ -2,8 +2,8 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.6.3 (2025-08-18)
+------------------
 * [clearpath_robot] Changed default service user to robot from administrator. (`#248 <https://github.com/clearpathrobotics/clearpath_robot/issues/248>`_)
 * Contributors: Tony Baltovski
 

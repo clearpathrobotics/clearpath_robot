@@ -2,8 +2,8 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.6.3 (2025-08-18)
+------------------
 * Add missing dependency (`#258 <https://github.com/clearpathrobotics/clearpath_robot/issues/258>`_)
 * Fix/image remaps (`#257 <https://github.com/clearpathrobotics/clearpath_robot/issues/257>`_)
   * Add remaps for additional image transports
