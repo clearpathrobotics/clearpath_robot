@@ -28,6 +28,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 from clearpath_config.common.types.platform import Platform
 from clearpath_motor_msgs.msg import (
+    LynxMotorProtection,
     LynxMultiFeedback,
     LynxSystemProtection,
     PumaMultiFeedback,
@@ -182,20 +183,13 @@ class MobilityTestNode(ClearpathTestNode):
             # kick out if we're not running the tests
             return
 
-        for i in range(len(lynx_status.motor_states)):
-            state = lynx_status.motor_states[i]
+        for motor in lynx_status.motor_states:
+            state = motor.state
 
-            position = 'Unknown'
-            if i == LynxSystemProtection.A300_MOTOR_FRONT_LEFT:
-                position = 'Front-Left'
-            elif i == LynxSystemProtection.A300_MOTOR_FRONT_RIGHT:
-                position = 'Front-Right'
-            elif i == LynxSystemProtection.A300_MOTOR_REAR_LEFT:
-                position = 'Rear-Left'
-            elif i == LynxSystemProtection.A300_MOTOR_REAR_RIGHT:
-                position = 'Rear-Right'
+            positions = motor.joint_name.split('_')[:2]
+            position = f'{positions[0].title()}-{positions[1].title()}'
 
-            if state == LynxSystemProtection.THROTTLED:
+            if state == LynxMotorProtection.THROTTLED:
                 self.test_error = True
                 self.test_error_msg = f'{position} motor is throttled'
                 self.test_results.append(ClearpathTestResult(
@@ -203,7 +197,7 @@ class MobilityTestNode(ClearpathTestNode):
                     self.test_name,
                     self.test_error_msg,
                 ))
-            elif state == LynxSystemProtection.OVERHEATED:
+            elif state == LynxMotorProtection.OVERHEATED:
                 self.test_error = True
                 self.test_error_msg = f'{position} motor overheated'
                 self.test_results.append(ClearpathTestResult(
@@ -211,7 +205,7 @@ class MobilityTestNode(ClearpathTestNode):
                     self.test_name,
                     self.test_error_msg,
                 ))
-            elif state == LynxSystemProtection.ERROR:
+            elif state == LynxMotorProtection.ERROR:
                 self.test_error = True
                 self.test_error_msg = f'{position} motor error'
                 self.test_results.append(ClearpathTestResult(
