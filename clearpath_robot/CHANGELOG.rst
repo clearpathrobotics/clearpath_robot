@@ -2,8 +2,8 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.7.0 (2025-08-25)
+------------------
 * Add ewellix_driver to pacakge.xml (`#264 <https://github.com/clearpathrobotics/clearpath_robot/issues/264>`_)
 * [clearpath_robot] Added missing package list. (`#262 <https://github.com/clearpathrobotics/clearpath_robot/issues/262>`_)
   * [clearpath_robot] Added missing package list.

@@ -2,8 +2,8 @@
 Changelog for package clearpath_platform
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.7.0 (2025-08-25)
+------------------
 * Drivetrains (`#250 <https://github.com/clearpathrobotics/clearpath_robot/issues/250>`_)
   * Allow for only 2 motors in fan control node
   * Fixed logic
