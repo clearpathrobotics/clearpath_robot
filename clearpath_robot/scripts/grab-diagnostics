@@ -43,7 +43,7 @@ sudo journalctl -b 0 -u clearpath-robot >> $temp_folder/robot.log
 sudo journalctl -b 0 -u clearpath-discovery >> $temp_folder/discovery.log
 sudo journalctl -b 0 -u clearpath-manipulators >> $temp_folder/manipulators.log
 sudo journalctl -b 0 -u clearpath-vcan >> $temp_folder/vcan.log
-
+apt list --installed | grep clearpath >> $temp_folder/clearpath-packages.log
 # ROS 2 diagnostics
 ros2 doctor --report >> $temp_folder/doctor.log
 ros2 topic list >> $temp_folder/topics.log
@@ -82,3 +82,4 @@ mv "$archive_name" "$HOME/"
 rm -r "$temp_folder"
 
 echo "Log archived as: $HOME/$archive_name"
+echo "Please review contents for any sensitive information before sharing."
