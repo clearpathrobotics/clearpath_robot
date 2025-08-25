@@ -158,21 +158,17 @@ a300_cooling::FanController::FanController() : Node("a300_fan_controller"),
     [this](const clearpath_motor_msgs::msg::LynxMultiStatus::SharedPtr msg)
   {
     std::lock_guard<std::mutex> lock(update_mutex_);
-    try
-    {
-      this->thermal_sensors_.setSensorValue("pcb_motor1",  msg->drivers.at(0).pcb_temperature);
-      this->thermal_sensors_.setSensorValue("mcu_motor1",  msg->drivers.at(0).mcu_temperature);
-      this->thermal_sensors_.setSensorValue("pcb_motor2",  msg->drivers.at(1).pcb_temperature);
-      this->thermal_sensors_.setSensorValue("mcu_motor2",  msg->drivers.at(1).mcu_temperature);
-      this->thermal_sensors_.setSensorValue("pcb_motor3",  msg->drivers.at(2).pcb_temperature);
-      this->thermal_sensors_.setSensorValue("mcu_motor3",  msg->drivers.at(2).mcu_temperature);
-      this->thermal_sensors_.setSensorValue("pcb_motor4",  msg->drivers.at(3).pcb_temperature);
-      this->thermal_sensors_.setSensorValue("mcu_motor4",  msg->drivers.at(3).mcu_temperature);
-    }
-    catch (const std::out_of_range & e)
+    if (msg->drivers.size() != 2 && msg->drivers.size() != 4)
     {
       RCLCPP_ERROR(this->get_logger(),
-                   "%s topic does not contain 4 drivers: %s", MOTOR_TEMPERATURE_TOPIC.c_str(), e.what());
+                   "%s topic contains an invalid number of drivers: %ld", MOTOR_TEMPERATURE_TOPIC.c_str(), msg->drivers.size());
+      return;
+    }
+
+    for (size_t i = 0; i < msg->drivers.size(); i++)
+    {
+      this->thermal_sensors_.setSensorValue("pcb_motor" + std::to_string(i+1),  msg->drivers.at(i).pcb_temperature);
+      this->thermal_sensors_.setSensorValue("mcu_motor" + std::to_string(i+1),  msg->drivers.at(i).mcu_temperature);
     }
     this->lynx_status_stale_ = 0;
   });

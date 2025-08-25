@@ -39,6 +39,7 @@
 
 #include "clearpath_motor_msgs/msg/lynx_feedback.hpp"
 #include "clearpath_motor_msgs/msg/lynx_multi_feedback.hpp"
+#include "clearpath_motor_msgs/msg/lynx_motor_protection.hpp"
 #include "clearpath_motor_msgs/msg/lynx_system_protection.hpp"
 
 namespace clearpath_hardware_interfaces

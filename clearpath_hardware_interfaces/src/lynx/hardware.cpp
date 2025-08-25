@@ -75,11 +75,11 @@ void LynxHardware::writeCommandsToHardware()
 
   switch(node_->get_protection().system_state)
   {
-    case clearpath_motor_msgs::msg::LynxSystemProtection::THROTTLED:
+    case clearpath_motor_msgs::msg::LynxMotorProtection::THROTTLED:
       max_velocity = MAXIMUM_VELOCITY_THROTTLED_RADS;
       break;
 
-    case clearpath_motor_msgs::msg::LynxSystemProtection::OVERHEATED:
+    case clearpath_motor_msgs::msg::LynxMotorProtection::OVERHEATED:
       max_velocity = MAXIMUM_VELOCITY_OVERHEATED_RADS;
       break;
   }
@@ -141,7 +141,7 @@ hardware_interface::CallbackReturn LynxHardware::getHardwareInfo(const hardware_
   RCLCPP_INFO(rclcpp::get_logger(hw_name_), "Name: %s", hw_name_.c_str());
 
   // Check for valid number of joints
-  if (num_joints_ != DIFF_DRIVE_FOUR_JOINTS)
+  if (num_joints_ != DIFF_DRIVE_FOUR_JOINTS && num_joints_ != DIFF_DRIVE_TWO_JOINTS)
   {
     RCLCPP_ERROR(rclcpp::get_logger(hw_name_), "Invalid number of joints %u", num_joints_);
     return hardware_interface::CallbackReturn::ERROR;

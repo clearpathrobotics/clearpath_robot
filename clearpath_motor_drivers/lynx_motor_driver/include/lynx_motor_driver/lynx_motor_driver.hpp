@@ -36,6 +36,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
 #include "clearpath_motor_msgs/msg/lynx_debug.hpp"
 #include "clearpath_motor_msgs/msg/lynx_feedback.hpp"
+#include "clearpath_motor_msgs/msg/lynx_motor_protection.hpp"
 #include "clearpath_motor_msgs/msg/lynx_status.hpp"
 #include "clearpath_motor_msgs/msg/lynx_system_protection.hpp"
 
