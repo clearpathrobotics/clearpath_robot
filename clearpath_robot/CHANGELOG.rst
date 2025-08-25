@@ -2,6 +2,15 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add ewellix_driver to pacakge.xml (`#264 <https://github.com/clearpathrobotics/clearpath_robot/issues/264>`_)
+* [clearpath_robot] Added missing package list. (`#262 <https://github.com/clearpathrobotics/clearpath_robot/issues/262>`_)
+  * [clearpath_robot] Added missing package list.
+  * Changed command to get installed package list.
+* [clearpath_robot] Remove any lines containing the word 'password' (case insensitive) from netplan files when grabbing diagnostics. (`#256 <https://github.com/clearpathrobotics/clearpath_robot/issues/256>`_)
+* Contributors: Tony Baltovski, luis-camero
+
 2.6.3 (2025-08-18)
 ------------------
 * [clearpath_robot] Changed default service user to robot from administrator. (`#248 <https://github.com/clearpathrobotics/clearpath_robot/issues/248>`_)

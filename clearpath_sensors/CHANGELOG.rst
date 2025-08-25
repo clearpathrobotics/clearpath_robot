@@ -2,6 +2,15 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Remove exec_depend on fixposition driver (`#263 <https://github.com/clearpathrobotics/clearpath_robot/issues/263>`_)
+  Update the version requirement in the commented-out block below
+* Update Fixposition launch file, parameters to use 8.x driver (`#253 <https://github.com/clearpathrobotics/clearpath_robot/issues/253>`_)
+  * Migration of Fixposition 8.x parameters
+  * Update topic remaps for new driver version
+* Contributors: Chris Iverach-Brereton
+
 2.6.3 (2025-08-18)
 ------------------
 * Add missing dependency (`#258 <https://github.com/clearpathrobotics/clearpath_robot/issues/258>`_)

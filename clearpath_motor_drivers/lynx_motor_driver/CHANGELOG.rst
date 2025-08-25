@@ -2,6 +2,15 @@
 Changelog for package lynx_motor_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Drivetrains (`#250 <https://github.com/clearpathrobotics/clearpath_robot/issues/250>`_)
+  * Allow for only 2 motors in fan control node
+  * Fixed logic
+  * Added 2 joint support for lynx hardware
+  * Switch to using motor protection message
+* Contributors: Roni Kreinin
+
 2.6.3 (2025-08-18)
 ------------------
 

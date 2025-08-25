@@ -2,6 +2,11 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix: OAK-D Parameters (`#260 <https://github.com/clearpathrobotics/clearpath_robot/issues/260>`_)
+* Contributors: luis-camero
+
 2.6.3 (2025-08-18)
 ------------------
 
