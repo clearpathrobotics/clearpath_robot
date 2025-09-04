@@ -542,7 +542,7 @@ class RobotLaunchGenerator(LaunchGenerator):
                 if arm.gripper:
                     if arm.gripper.MANIPULATOR_MODEL == FrankaGripper.MANIPULATOR_MODEL:
                         node = LaunchFile.Node(
-                            name=f'{arm.gripper.name}_node',
+                            name=f'{arm.gripper.name}_controller',
                             package='franka_gripper',
                             executable='franka_gripper_node',
                             namespace=f'{self.namespace}/manipulators',
