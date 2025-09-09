@@ -34,7 +34,14 @@
 import os
 
 from clearpath_config.common.types.platform import Platform
-from clearpath_config.manipulators.types.arms import Franka, UniversalRobots
+from clearpath_config.manipulators.types.arms import (
+  BaseKinova,
+  Franka,
+  KinovaGen3Dof6,
+  KinovaGen3Dof7,
+  KinovaGen3Lite,
+  UniversalRobots
+)
 from clearpath_config.manipulators.types.grippers import FrankaGripper
 from clearpath_config.platform.battery import BatteryConfig
 from clearpath_generator_common.common import LaunchFile, Package
@@ -565,6 +572,67 @@ class RobotLaunchGenerator(LaunchGenerator):
                             ]
                         )
                         manipulator_service_launch_writer.add_node(node)
+            # Kinova Vision
+            if (arm.MANIPULATOR_MODEL == KinovaGen3Dof6.MANIPULATOR_MODEL or
+                    arm.MANIPULATOR_MODEL == KinovaGen3Dof7.MANIPULATOR_MODEL or
+                    arm.MANIPULATOR_MODEL == KinovaGen3Lite.MANIPULATOR_MODEL):
+                if (arm.get_urdf_parameters().get(BaseKinova.VISION, False)):
+                    depth_node = LaunchFile.Node(
+                        name=f'{arm.name}_depth_camera',
+                        package='kinova_vision',
+                        executable='kinova_vision_node',
+                        namespace=f'{self.namespace}/manipulators',
+                        parameters=[{
+                            'camera_type': 'depth',
+                            'camera_name': 'depth',
+                            'camera_info_url_default': 'package://kinova_vision/launch/calibration/default_depth_calib_%ux%u.ini',
+                            'camera_info_url_user': '',
+                            'stream_config': 'rtspsrc location=rtsp://'
+                                + arm.ip
+                                + '/depth latency=30'
+                                + ' ! '
+                                + 'rtpgstdepay',
+                            'frame_id': f'{arm.name}_camera_depth_frame',
+                            'max_pub_rate': '30.0',
+                        }],
+                        remappings=[
+                            ('camera_info', 'depth/camera_info'),
+                            ('image_raw', 'depth/image_raw'),
+                            ('image_raw/compressed', 'depth/image_raw/compressed'),
+                            ('image_raw/compressedDepth', 'depth/image_raw/compressedDepth'),
+                            ('image_raw/theora', 'depth/image_raw/theora'),
+                        ]
+                    )
+
+                    color_node = LaunchFile.Node(
+                        name=f'{arm.name}_color_camera',
+                        package='kinova_vision',
+                        executable='kinova_vision_node',
+                        namespace=f'{self.namespace}/manipulators',
+                        parameters=[{
+                            'camera_type': 'color',
+                            'camera_name': 'color',
+                            'camera_info_url_default': 'package://kinova_vision/launch/calibration/default_color_calib_%ux%u.ini',
+                            'camera_info_url_user': '',
+                            'stream_config': 'rtspsrc location=rtsp://'
+                                + arm.ip
+                                + '/color latency=30'
+                                + ' ! rtph264depay ! avdec_h264 ! videoconvert',
+                            'frame_id': f'{arm.name}_camera_color_frame',
+                            'max_pub_rate': '30.0',
+                        }],
+                        remappings=[
+                            ('camera_info', 'color/camera_info'),
+                            ('image_raw', 'color/image_raw'),
+                            ('image_raw/compressed', 'color/image_raw/compressed'),
+                            ('image_raw/compressedDepth', 'color/image_raw/compressedDepth'),
+                            ('image_raw/theora', 'color/image_raw/theora'),
+                        ]
+                    )
+
+                    manipulator_service_launch_writer.add_node(depth_node)
+                    manipulator_service_launch_writer.add_node(color_node)
+
         if self.clearpath_config.manipulators.get_all_manipulators():
             manipulator_service_launch_writer.add(self.manipulators_launch_file)
         manipulator_service_launch_writer.generate_file()
