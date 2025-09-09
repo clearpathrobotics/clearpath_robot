@@ -593,7 +593,7 @@ class RobotLaunchGenerator(LaunchGenerator):
                                 + ' ! '
                                 + 'rtpgstdepay',
                             'frame_id': f'{arm.name}_camera_depth_frame',
-                            'max_pub_rate': '30.0',
+                            'max_pub_rate': 30.0,
                         }],
                         remappings=[
                             ('camera_info', 'depth/camera_info'),
@@ -619,7 +619,7 @@ class RobotLaunchGenerator(LaunchGenerator):
                                 + '/color latency=30'
                                 + ' ! rtph264depay ! avdec_h264 ! videoconvert',
                             'frame_id': f'{arm.name}_camera_color_frame',
-                            'max_pub_rate': '30.0',
+                            'max_pub_rate': 30.0,
                         }],
                         remappings=[
                             ('camera_info', 'color/camera_info'),
