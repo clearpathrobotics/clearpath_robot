@@ -634,8 +634,41 @@ class RobotLaunchGenerator(LaunchGenerator):
                         ]
                     )
 
+                    pointcloud_node = LaunchFile.ComposableNodeContainer(
+                        name=f'{arm.name}_depth_proc_container',
+                        namespace=f'{self.namespace}/manipulators',
+                        composable_node_descriptions=[
+                            LaunchFile.ComposableNode(
+                                name=f'{arm.name}_register_node',
+                                package='depth_image_proc',
+                                plugin='depth_image_proc::RegisterNode',
+                                namespace=f'{self.namespace}/manipulators',
+                                parameters=[{'fill_upsampling_holes': True}],
+                                remappings=[
+                                    ('rgb/camera_info', f'{arm.name}_color_camera/camera_info'),
+                                    ('depth/camera_info', f'{arm.name}_depth_camera/camera_info'),
+                                    ('depth/image_rect', f'{arm.name}_depth_camera/image_raw'),
+                                ]
+                            ),
+                            LaunchFile.ComposableNode(
+                                name=f'{arm.name}_pointcloud_node',
+                                package='depth_image_proc',
+                                plugin='depth_image_proc::PointCloudXyzrgbNode',
+                                namespace=f'{self.namespace}/manipulators',
+                                remappings=[
+                                    ('rgb/camera_info', f'{arm.name}_color_camera/camera_info'),
+                                    ('depth/camera_info', f'{arm.name}_depth_camera/camera_info'),
+                                    ('rgb/image_rect_color', f'{arm.name}_color_camera/image_raw'),
+                                    ('depth/image_rect', f'{arm.name}_depth_camera/image_raw'),
+                                    ('points', f'{arm.name}_depth_camera/color/points'),
+                                ]
+                            )
+                        ]
+                    )
+
                     manipulator_service_launch_writer.add_node(depth_node)
                     manipulator_service_launch_writer.add_node(color_node)
+                    manipulator_service_launch_writer.add(pointcloud_node)
 
         if self.clearpath_config.manipulators.get_all_manipulators():
             manipulator_service_launch_writer.add(self.manipulators_launch_file)
