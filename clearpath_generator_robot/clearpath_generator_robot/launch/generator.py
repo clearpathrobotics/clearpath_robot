@@ -667,6 +667,10 @@ class RobotLaunchGenerator(LaunchGenerator):
                                 plugin='depth_image_proc::PointCloudXyzrgbNode',
                                 namespace=f'{self.namespace}/manipulators',
                                 remappings=[
+                                    ('depth_registered/camera_info',
+                                        f'{arm.name}_depth_upsampled/camera_info'),
+                                    ('depth_registered/image_rect',
+                                        f'{arm.name}_depth_upsampled/image_rect'),
                                     ('depth_registered/image_rect/compressed',
                                         f'{arm.name}_depth_upsampled/image_rect/compressed'),
                                     ('depth_registered/image_rect/compressedDepth',
