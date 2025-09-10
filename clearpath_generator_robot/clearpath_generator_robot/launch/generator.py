@@ -633,10 +633,21 @@ class RobotLaunchGenerator(LaunchGenerator):
                             ('image_raw/zstd', '~/image_raw/zstd'),
                         ]
                     )
+    /a300_00036/manipulators/depth_registered/camera_info: sensor_msgs/msg/CameraInfo
+    /a300_00036/manipulators/depth_registered/image_rect: sensor_msgs/msg/Image
+    /a300_00036/manipulators/depth_registered/image_rect/compressed: sensor_msgs/msg/CompressedImage
+    /a300_00036/manipulators/depth_registered/image_rect/compressedDepth: sensor_msgs/msg/CompressedImage
+    /a300_00036/manipulators/depth_registered/image_rect/ffmpeg: ffmpeg_image_transport_msgs/msg/FFMPEGPacket
+    /a300_00036/manipulators/depth_registered/image_rect/theora: theora_image_transport/msg/Packet
+    /a300_00036/manipulators/depth_registered/image_rect/zstd: sensor_msgs/msg/CompressedImage
 
                     pointcloud_node = LaunchFile.ComposableNodeContainer(
                         name=f'{arm.name}_depth_proc_container',
                         namespace=f'{self.namespace}/manipulators',
+                        remappings=[
+                            ('/tf', f'/{self.namespace}/tf'),
+                            ('/tf_static', f'/{self.namespace}/tf_static')
+                        ],
                         composable_node_descriptions=[
                             LaunchFile.ComposableNode(
                                 name=f'{arm.name}_register_node',
@@ -648,6 +659,13 @@ class RobotLaunchGenerator(LaunchGenerator):
                                     ('rgb/camera_info', f'{arm.name}_color_camera/camera_info'),
                                     ('depth/camera_info', f'{arm.name}_depth_camera/camera_info'),
                                     ('depth/image_rect', f'{arm.name}_depth_camera/image_raw'),
+                                    ('depth_registered/camera_info', '~/camera_info'),
+                                    ('depth_registered/image_rect', '~/image_rect'),
+                                    ('depth_registered/image_rect/compressed','~/image_rect/compressed'),
+                                    ('depth_registered/image_rect/compressedDepth','~/image_rect/compressedDepth'),
+                                    ('depth_registered/image_rect/ffmpeg','~/image_rect/ffmpeg'),
+                                    ('depth_registered/image_rect/theora','~/image_rect/theora'),
+                                    ('depth_registered/image_rect/zstd','~/image_rect/zstd'),
                                 ]
                             ),
                             LaunchFile.ComposableNode(
