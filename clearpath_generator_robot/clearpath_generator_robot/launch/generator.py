@@ -643,7 +643,7 @@ class RobotLaunchGenerator(LaunchGenerator):
                         ],
                         composable_node_descriptions=[
                             LaunchFile.ComposableNode(
-                                name=f'{arm.name}_register_node',
+                                name=f'{arm.name}_depth_upsampled',
                                 package='depth_image_proc',
                                 plugin='depth_image_proc::RegisterNode',
                                 namespace=f'{self.namespace}/manipulators',
