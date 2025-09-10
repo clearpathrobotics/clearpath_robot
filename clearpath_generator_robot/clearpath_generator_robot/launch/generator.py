@@ -596,11 +596,13 @@ class RobotLaunchGenerator(LaunchGenerator):
                             'max_pub_rate': 30.0,
                         }],
                         remappings=[
-                            ('camera_info', 'depth/camera_info'),
-                            ('image_raw', 'depth/image_raw'),
-                            ('image_raw/compressed', 'depth/image_raw/compressed'),
-                            ('image_raw/compressedDepth', 'depth/image_raw/compressedDepth'),
-                            ('image_raw/theora', 'depth/image_raw/theora'),
+                            ('camera_info', '~/camera_info'),
+                            ('image_raw', '~/image_raw'),
+                            ('image_raw/compressed', '~/image_raw/compressed'),
+                            ('image_raw/compressedDepth', '~/image_raw/compressedDepth'),
+                            ('image_raw/theora', '~/image_raw/theora'),
+                            ('image_raw/ffmpeg', '~/image_raw/ffmpeg'),
+                            ('image_raw/zstd', '~/image_raw/zstd'),
                         ]
                     )
 
@@ -622,11 +624,13 @@ class RobotLaunchGenerator(LaunchGenerator):
                             'max_pub_rate': 30.0,
                         }],
                         remappings=[
-                            ('camera_info', 'color/camera_info'),
-                            ('image_raw', 'color/image_raw'),
-                            ('image_raw/compressed', 'color/image_raw/compressed'),
-                            ('image_raw/compressedDepth', 'color/image_raw/compressedDepth'),
-                            ('image_raw/theora', 'color/image_raw/theora'),
+                            ('camera_info', '~/camera_info'),
+                            ('image_raw', '~/image_raw'),
+                            ('image_raw/compressed', '~/image_raw/compressed'),
+                            ('image_raw/compressedDepth', '~/image_raw/compressedDepth'),
+                            ('image_raw/theora', '~/image_raw/theora'),
+                            ('image_raw/ffmpeg', '~/image_raw/ffmpeg'),
+                            ('image_raw/zstd', '~/image_raw/zstd'),
                         ]
                     )
 
