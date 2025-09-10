@@ -633,13 +633,6 @@ class RobotLaunchGenerator(LaunchGenerator):
                             ('image_raw/zstd', '~/image_raw/zstd'),
                         ]
                     )
-    /a300_00036/manipulators/depth_registered/camera_info: sensor_msgs/msg/CameraInfo
-    /a300_00036/manipulators/depth_registered/image_rect: sensor_msgs/msg/Image
-    /a300_00036/manipulators/depth_registered/image_rect/compressed: sensor_msgs/msg/CompressedImage
-    /a300_00036/manipulators/depth_registered/image_rect/compressedDepth: sensor_msgs/msg/CompressedImage
-    /a300_00036/manipulators/depth_registered/image_rect/ffmpeg: ffmpeg_image_transport_msgs/msg/FFMPEGPacket
-    /a300_00036/manipulators/depth_registered/image_rect/theora: theora_image_transport/msg/Packet
-    /a300_00036/manipulators/depth_registered/image_rect/zstd: sensor_msgs/msg/CompressedImage
 
                     pointcloud_node = LaunchFile.ComposableNodeContainer(
                         name=f'{arm.name}_depth_proc_container',
