@@ -2,6 +2,16 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Jazzy Fix: Stereolabs Zed launch file (`#265 <https://github.com/clearpathrobotics/clearpath_robot/issues/265>`_)
+  * Fix: Stereolabs Zed launch file (`#208 <https://github.com/clearpathrobotics/clearpath_robot/issues/208>`_)
+  * Update node parameters
+  * Switch to composable node
+  * Double to single quotes in Zed parameters
+  * Add 'NEURAL_LIGHT' to parameter comment
+* Contributors: luis-camero
+
 2.7.0 (2025-08-25)
 ------------------
 * Remove exec_depend on fixposition driver (`#263 <https://github.com/clearpathrobotics/clearpath_robot/issues/263>`_)

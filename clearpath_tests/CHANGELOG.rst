@@ -2,6 +2,9 @@
 Changelog for package clearpath_tests
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.7.0 (2025-08-25)
 ------------------
 * Added LynxMotorProtection support (`#261 <https://github.com/clearpathrobotics/clearpath_robot/issues/261>`_)

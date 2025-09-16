@@ -2,6 +2,9 @@
 Changelog for package lynx_motor_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.7.0 (2025-08-25)
 ------------------
 * Drivetrains (`#250 <https://github.com/clearpathrobotics/clearpath_robot/issues/250>`_)

@@ -2,6 +2,18 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Feature: Franka in Jazzy (`#266 <https://github.com/clearpathrobotics/clearpath_robot/issues/266>`_)
+  * Feature: Franka Hand (`#252 <https://github.com/clearpathrobotics/clearpath_robot/issues/252>`_)
+  * Add frank gripper launch
+  * Add manipulators to namespace
+  * Add remapping of joint states
+  * Fix joint names
+  * Define arm_id in joint names to franka_gripper_node
+  * Rename franka_gripper node
+* Contributors: luis-camero
+
 2.7.0 (2025-08-25)
 ------------------
 * Fix: OAK-D Parameters (`#260 <https://github.com/clearpathrobotics/clearpath_robot/issues/260>`_)
