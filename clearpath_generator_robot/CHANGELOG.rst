@@ -2,8 +2,8 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.7.1 (2025-09-16)
+------------------
 * Feature: Franka in Jazzy (`#266 <https://github.com/clearpathrobotics/clearpath_robot/issues/266>`_)
   * Feature: Franka Hand (`#252 <https://github.com/clearpathrobotics/clearpath_robot/issues/252>`_)
   * Add frank gripper launch

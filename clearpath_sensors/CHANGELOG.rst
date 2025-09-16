@@ -2,8 +2,8 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.7.1 (2025-09-16)
+------------------
 * Jazzy Fix: Stereolabs Zed launch file (`#265 <https://github.com/clearpathrobotics/clearpath_robot/issues/265>`_)
   * Fix: Stereolabs Zed launch file (`#208 <https://github.com/clearpathrobotics/clearpath_robot/issues/208>`_)
   * Update node parameters
