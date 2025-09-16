@@ -577,24 +577,26 @@ class RobotLaunchGenerator(LaunchGenerator):
                     arm.MANIPULATOR_MODEL == KinovaGen3Dof7.MANIPULATOR_MODEL or
                     arm.MANIPULATOR_MODEL == KinovaGen3Lite.MANIPULATOR_MODEL):
                 if (arm.get_urdf_parameters().get(BaseKinova.VISION, False)):
+                    depth_node_parameters = {
+                        'camera_type': 'depth',
+                        'camera_name': 'depth',
+                        'camera_info_url_default':
+                        'package://kinova_vision/launch/calibration/default_depth_calib_%ux%u.ini',
+                        'camera_info_url_user': '',
+                        'stream_config': 'rtspsrc location=rtsp://'
+                            + arm.ip
+                            + '/depth latency=30'
+                            + ' ! '
+                            + 'rtpgstdepay',
+                        'frame_id': f'{arm.name}_camera_depth_frame',
+                        'max_pub_rate': 30.0,
+                    }
                     depth_node = LaunchFile.Node(
                         name=f'{arm.name}_depth_camera',
                         package='kinova_vision',
                         executable='kinova_vision_node',
                         namespace=f'{self.namespace}/manipulators',
-                        parameters=[{
-                            'camera_type': 'depth',
-                            'camera_name': 'depth',
-                            'camera_info_url_default': 'package://kinova_vision/launch/calibration/default_depth_calib_%ux%u.ini',
-                            'camera_info_url_user': '',
-                            'stream_config': 'rtspsrc location=rtsp://'
-                                + arm.ip
-                                + '/depth latency=30'
-                                + ' ! '
-                                + 'rtpgstdepay',
-                            'frame_id': f'{arm.name}_camera_depth_frame',
-                            'max_pub_rate': 30.0,
-                        }],
+                        parameters=[depth_node_parameters],
                         remappings=[
                             ('camera_info', '~/camera_info'),
                             ('image_raw', '~/image_raw'),
@@ -605,24 +607,25 @@ class RobotLaunchGenerator(LaunchGenerator):
                             ('image_raw/zstd', '~/image_raw/zstd'),
                         ]
                     )
-
+                    color_node_parameters = {
+                        'camera_type': 'color',
+                        'camera_name': 'color',
+                        'camera_info_url_default':
+                        'package://kinova_vision/launch/calibration/default_color_calib_%ux%u.ini',
+                        'camera_info_url_user': '',
+                        'stream_config': 'rtspsrc location=rtsp://'
+                            + arm.ip
+                            + '/color latency=30'
+                            + ' ! rtph264depay ! avdec_h264 ! videoconvert',
+                        'frame_id': f'{arm.name}_camera_color_frame',
+                        'max_pub_rate': 30.0,
+                    }
                     color_node = LaunchFile.Node(
                         name=f'{arm.name}_color_camera',
                         package='kinova_vision',
                         executable='kinova_vision_node',
                         namespace=f'{self.namespace}/manipulators',
-                        parameters=[{
-                            'camera_type': 'color',
-                            'camera_name': 'color',
-                            'camera_info_url_default': 'package://kinova_vision/launch/calibration/default_color_calib_%ux%u.ini',
-                            'camera_info_url_user': '',
-                            'stream_config': 'rtspsrc location=rtsp://'
-                                + arm.ip
-                                + '/color latency=30'
-                                + ' ! rtph264depay ! avdec_h264 ! videoconvert',
-                            'frame_id': f'{arm.name}_camera_color_frame',
-                            'max_pub_rate': 30.0,
-                        }],
+                        parameters=[color_node_parameters],
                         remappings=[
                             ('camera_info', '~/camera_info'),
                             ('image_raw', '~/image_raw'),
@@ -649,16 +652,26 @@ class RobotLaunchGenerator(LaunchGenerator):
                                 namespace=f'{self.namespace}/manipulators',
                                 parameters=[{'fill_upsampling_holes': True}],
                                 remappings=[
-                                    ('rgb/camera_info', f'{arm.name}_color_camera/camera_info'),
-                                    ('depth/camera_info', f'{arm.name}_depth_camera/camera_info'),
-                                    ('depth/image_rect', f'{arm.name}_depth_camera/image_raw'),
-                                    ('depth_registered/camera_info', '~/camera_info'),
-                                    ('depth_registered/image_rect', '~/image_rect'),
-                                    ('depth_registered/image_rect/compressed','~/image_rect/compressed'),
-                                    ('depth_registered/image_rect/compressedDepth','~/image_rect/compressedDepth'),
-                                    ('depth_registered/image_rect/ffmpeg','~/image_rect/ffmpeg'),
-                                    ('depth_registered/image_rect/theora','~/image_rect/theora'),
-                                    ('depth_registered/image_rect/zstd','~/image_rect/zstd'),
+                                    ('rgb/camera_info',
+                                        f'{arm.name}_color_camera/camera_info'),
+                                    ('depth/camera_info',
+                                        f'{arm.name}_depth_camera/camera_info'),
+                                    ('depth/image_rect',
+                                        f'{arm.name}_depth_camera/image_raw'),
+                                    ('depth_registered/camera_info',
+                                        '~/camera_info'),
+                                    ('depth_registered/image_rect',
+                                        '~/image_rect'),
+                                    ('depth_registered/image_rect/compressed',
+                                        '~/image_rect/compressed'),
+                                    ('depth_registered/image_rect/compressedDepth',
+                                        '~/image_rect/compressedDepth'),
+                                    ('depth_registered/image_rect/ffmpeg',
+                                        '~/image_rect/ffmpeg'),
+                                    ('depth_registered/image_rect/theora',
+                                        '~/image_rect/theora'),
+                                    ('depth_registered/image_rect/zstd',
+                                        '~/image_rect/zstd'),
                                 ]
                             ),
                             LaunchFile.ComposableNode(
@@ -681,11 +694,16 @@ class RobotLaunchGenerator(LaunchGenerator):
                                         f'{arm.name}_depth_upsampled/image_rect/theora'),
                                     ('depth_registered/image_rect/zstd',
                                         f'{arm.name}_depth_upsampled/image_rect/zstd'),
-                                    ('rgb/camera_info', f'{arm.name}_color_camera/camera_info'),
-                                    ('depth/camera_info', f'{arm.name}_depth_camera/camera_info'),
-                                    ('rgb/image_rect_color', f'{arm.name}_color_camera/image_raw'),
-                                    ('depth/image_rect', f'{arm.name}_depth_camera/image_raw'),
-                                    ('points', f'{arm.name}_depth_camera/color/points'),
+                                    ('rgb/camera_info',
+                                        f'{arm.name}_color_camera/camera_info'),
+                                    ('depth/camera_info',
+                                        f'{arm.name}_depth_camera/camera_info'),
+                                    ('rgb/image_rect_color',
+                                        f'{arm.name}_color_camera/image_raw'),
+                                    ('depth/image_rect',
+                                        f'{arm.name}_depth_camera/image_raw'),
+                                    ('points',
+                                        f'{arm.name}_depth_camera/color/points'),
                                 ]
                             )
                         ]
