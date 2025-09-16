@@ -107,12 +107,14 @@ class SensorParam():
 
         if 'luxonis_oakd' in self.param_file.parameters:
             luxonis_params = self.param_file.parameters['luxonis_oakd']
+
+            # parameters are already flattened by the time we get here!
             if self.sensor.ip_address:
-                luxonis_params['camera']['i_ip'] = self.sensor.ip_address
+                luxonis_params['camera.i_ip'] = self.sensor.ip_address
             if self.sensor.mx_id:
-                luxonis_params['camera']['i_mx_id'] = self.sensor.mx_id
+                luxonis_params['camera.i_mx_id'] = self.sensor.mx_id
             if self.sensor.serial:
-                luxonis_params['camera']['i_usb_port_id'] = self.sensor.serial
+                luxonis_params['camera.i_usb_port_id'] = self.sensor.serial
             self.param_file.parameters[self.sensor.name] = luxonis_params
             self.param_file.parameters.pop('luxonis_oakd')
 
