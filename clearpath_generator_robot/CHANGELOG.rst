@@ -2,8 +2,8 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.7.2 (2025-09-18)
+------------------
 * Feature: Kinova Jazzy Support (`#268 <https://github.com/clearpathrobotics/clearpath_robot/issues/268>`_)
   * Add Kinova vision node to manipulator launch file
   * Kinova camera rate from string to double
