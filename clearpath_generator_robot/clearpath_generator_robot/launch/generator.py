@@ -34,7 +34,14 @@
 import os
 
 from clearpath_config.common.types.platform import Platform
-from clearpath_config.manipulators.types.arms import Franka, UniversalRobots
+from clearpath_config.manipulators.types.arms import (
+  BaseKinova,
+  Franka,
+  KinovaGen3Dof6,
+  KinovaGen3Dof7,
+  KinovaGen3Lite,
+  UniversalRobots
+)
 from clearpath_config.manipulators.types.grippers import FrankaGripper
 from clearpath_config.platform.battery import BatteryConfig
 from clearpath_generator_common.common import LaunchFile, Package
@@ -565,6 +572,147 @@ class RobotLaunchGenerator(LaunchGenerator):
                             ]
                         )
                         manipulator_service_launch_writer.add_node(node)
+            # Kinova Vision
+            if (arm.MANIPULATOR_MODEL == KinovaGen3Dof6.MANIPULATOR_MODEL or
+                    arm.MANIPULATOR_MODEL == KinovaGen3Dof7.MANIPULATOR_MODEL or
+                    arm.MANIPULATOR_MODEL == KinovaGen3Lite.MANIPULATOR_MODEL):
+                if (arm.get_urdf_parameters().get(BaseKinova.VISION, False)):
+                    depth_node_parameters = {
+                        'camera_type': 'depth',
+                        'camera_name': 'depth',
+                        'camera_info_url_default':
+                        'package://kinova_vision/launch/calibration/default_depth_calib_%ux%u.ini',
+                        'camera_info_url_user': '',
+                        'stream_config': 'rtspsrc location=rtsp://'
+                            + arm.ip
+                            + '/depth latency=30'
+                            + ' ! '
+                            + 'rtpgstdepay',
+                        'frame_id': f'{arm.name}_camera_depth_frame',
+                        'max_pub_rate': 30.0,
+                    }
+                    depth_node = LaunchFile.Node(
+                        name=f'{arm.name}_depth_camera',
+                        package='kinova_vision',
+                        executable='kinova_vision_node',
+                        namespace=f'{self.namespace}/manipulators',
+                        parameters=[depth_node_parameters],
+                        remappings=[
+                            ('camera_info', '~/camera_info'),
+                            ('image_raw', '~/image_raw'),
+                            ('image_raw/compressed', '~/image_raw/compressed'),
+                            ('image_raw/compressedDepth', '~/image_raw/compressedDepth'),
+                            ('image_raw/theora', '~/image_raw/theora'),
+                            ('image_raw/ffmpeg', '~/image_raw/ffmpeg'),
+                            ('image_raw/zstd', '~/image_raw/zstd'),
+                        ]
+                    )
+                    color_node_parameters = {
+                        'camera_type': 'color',
+                        'camera_name': 'color',
+                        'camera_info_url_default':
+                        'package://kinova_vision/launch/calibration/default_color_calib_%ux%u.ini',
+                        'camera_info_url_user': '',
+                        'stream_config': 'rtspsrc location=rtsp://'
+                            + arm.ip
+                            + '/color latency=30'
+                            + ' ! rtph264depay ! avdec_h264 ! videoconvert',
+                        'frame_id': f'{arm.name}_camera_color_frame',
+                        'max_pub_rate': 30.0,
+                    }
+                    color_node = LaunchFile.Node(
+                        name=f'{arm.name}_color_camera',
+                        package='kinova_vision',
+                        executable='kinova_vision_node',
+                        namespace=f'{self.namespace}/manipulators',
+                        parameters=[color_node_parameters],
+                        remappings=[
+                            ('camera_info', '~/camera_info'),
+                            ('image_raw', '~/image_raw'),
+                            ('image_raw/compressed', '~/image_raw/compressed'),
+                            ('image_raw/compressedDepth', '~/image_raw/compressedDepth'),
+                            ('image_raw/theora', '~/image_raw/theora'),
+                            ('image_raw/ffmpeg', '~/image_raw/ffmpeg'),
+                            ('image_raw/zstd', '~/image_raw/zstd'),
+                        ]
+                    )
+
+                    pointcloud_node = LaunchFile.ComposableNodeContainer(
+                        name=f'{arm.name}_depth_proc_container',
+                        namespace=f'{self.namespace}/manipulators',
+                        remappings=[
+                            ('/tf', f'/{self.namespace}/tf'),
+                            ('/tf_static', f'/{self.namespace}/tf_static')
+                        ],
+                        composable_node_descriptions=[
+                            LaunchFile.ComposableNode(
+                                name=f'{arm.name}_depth_upsampled',
+                                package='depth_image_proc',
+                                plugin='depth_image_proc::RegisterNode',
+                                namespace=f'{self.namespace}/manipulators',
+                                parameters=[{'fill_upsampling_holes': True}],
+                                remappings=[
+                                    ('rgb/camera_info',
+                                        f'{arm.name}_color_camera/camera_info'),
+                                    ('depth/camera_info',
+                                        f'{arm.name}_depth_camera/camera_info'),
+                                    ('depth/image_rect',
+                                        f'{arm.name}_depth_camera/image_raw'),
+                                    ('depth_registered/camera_info',
+                                        '~/camera_info'),
+                                    ('depth_registered/image_rect',
+                                        '~/image_rect'),
+                                    ('depth_registered/image_rect/compressed',
+                                        '~/image_rect/compressed'),
+                                    ('depth_registered/image_rect/compressedDepth',
+                                        '~/image_rect/compressedDepth'),
+                                    ('depth_registered/image_rect/ffmpeg',
+                                        '~/image_rect/ffmpeg'),
+                                    ('depth_registered/image_rect/theora',
+                                        '~/image_rect/theora'),
+                                    ('depth_registered/image_rect/zstd',
+                                        '~/image_rect/zstd'),
+                                ]
+                            ),
+                            LaunchFile.ComposableNode(
+                                name=f'{arm.name}_pointcloud_node',
+                                package='depth_image_proc',
+                                plugin='depth_image_proc::PointCloudXyzrgbNode',
+                                namespace=f'{self.namespace}/manipulators',
+                                remappings=[
+                                    ('depth_registered/camera_info',
+                                        f'{arm.name}_depth_upsampled/camera_info'),
+                                    ('depth_registered/image_rect',
+                                        f'{arm.name}_depth_upsampled/image_rect'),
+                                    ('depth_registered/image_rect/compressed',
+                                        f'{arm.name}_depth_upsampled/image_rect/compressed'),
+                                    ('depth_registered/image_rect/compressedDepth',
+                                        f'{arm.name}_depth_upsampled/image_rect/compressedDepth'),
+                                    ('depth_registered/image_rect/ffmpeg',
+                                        f'{arm.name}_depth_upsampled/image_rect/ffmpeg'),
+                                    ('depth_registered/image_rect/theora',
+                                        f'{arm.name}_depth_upsampled/image_rect/theora'),
+                                    ('depth_registered/image_rect/zstd',
+                                        f'{arm.name}_depth_upsampled/image_rect/zstd'),
+                                    ('rgb/camera_info',
+                                        f'{arm.name}_color_camera/camera_info'),
+                                    ('depth/camera_info',
+                                        f'{arm.name}_depth_camera/camera_info'),
+                                    ('rgb/image_rect_color',
+                                        f'{arm.name}_color_camera/image_raw'),
+                                    ('depth/image_rect',
+                                        f'{arm.name}_depth_camera/image_raw'),
+                                    ('points',
+                                        f'{arm.name}_depth_camera/color/points'),
+                                ]
+                            )
+                        ]
+                    )
+
+                    manipulator_service_launch_writer.add_node(depth_node)
+                    manipulator_service_launch_writer.add_node(color_node)
+                    manipulator_service_launch_writer.add(pointcloud_node)
+
         if self.clearpath_config.manipulators.get_all_manipulators():
             manipulator_service_launch_writer.add(self.manipulators_launch_file)
         manipulator_service_launch_writer.generate_file()
