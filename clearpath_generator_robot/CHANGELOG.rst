@@ -2,6 +2,21 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Feature: Kinova Jazzy Support (`#268 <https://github.com/clearpathrobotics/clearpath_robot/issues/268>`_)
+  * Add Kinova vision node to manipulator launch file
+  * Kinova camera rate from string to double
+  * Use node name to namespace Kinova camera topics
+  * Add Kinova Pointcloud ComposableNodeContainer
+  * Fix Kinova processing container remappings
+  * Remove unnecessary lines
+  * Rename depth registered node
+  * Update depth registered node in pointcloud generator
+  * Add missing remap to pointcloud processor
+  * Lint
+* Contributors: luis-camero
+
 2.7.1 (2025-09-16)
 ------------------
 * Feature: Franka in Jazzy (`#266 <https://github.com/clearpathrobotics/clearpath_robot/issues/266>`_)
