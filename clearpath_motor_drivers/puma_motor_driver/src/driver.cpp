@@ -31,6 +31,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include <math.h>
 #include "rclcpp/rclcpp.hpp"
 
+// must match firmware
+#define CAN_FEEDBACK_RATE 50.0
+
 namespace puma_motor_driver
 {
 
@@ -74,6 +77,9 @@ Driver::Driver(
   encoder_cpr_(1),
   gear_ratio_(1)
 {
+  can_feedback_rate_ = std::make_shared<double>(CAN_FEEDBACK_RATE);
+  can_feedback_freq_status_ = std::make_shared<diagnostic_updater::FrequencyStatus>(
+    diagnostic_updater::FrequencyStatusParam(can_feedback_rate_.get(), can_feedback_rate_.get(), 0.1, 5));
 }
 
 void Driver::processMessage(const can_msgs::msg::Frame::SharedPtr received_msg)
@@ -1024,6 +1030,16 @@ Driver::Field * Driver::cfgFieldForMessage(uint32_t api)
 {
   uint32_t cfg_field_index = (api & CAN_MSGID_API_ID_M) >> CAN_MSGID_API_S;
   return &cfg_fields_[cfg_field_index];
+}
+
+/**
+ * @brief Runs the frequency diagnostic update to populate the status message
+ */
+void Driver::runFreqStatus(diagnostic_updater::DiagnosticStatusWrapper & stat)
+{
+  can_feedback_freq_status_->run(stat);
+
+  // TODO: add any additional fields (e.g. voltage, current, velocity)?
 }
 
 }  // namespace puma_motor_driver
