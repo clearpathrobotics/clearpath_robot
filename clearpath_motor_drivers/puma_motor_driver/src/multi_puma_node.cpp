@@ -232,7 +232,7 @@ void MultiPumaNode::publishStatus()
 void MultiPumaNode::driverDiagnostic(DiagnosticStatusWrapper & stat, int i)
 {
   // Assume we're OK. This will be merged over later on if we aren't
-  stat.mergeSummary(DiagnosticStatusWrapper::OK, "OK");
+  stat.summary(DiagnosticStatusWrapper::OK, "OK");
 
   // basic stats
   stat.add("CAN ID", (int)status_msg_.drivers[i].device_number);
