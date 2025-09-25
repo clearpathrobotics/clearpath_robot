@@ -32,7 +32,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include "rclcpp/rclcpp.hpp"
 
 // must match firmware
-#define CAN_FEEDBACK_RATE 20.0
+#define CAN_FEEDBACK_RATE 40.0
 
 namespace puma_motor_driver
 {
@@ -108,14 +108,19 @@ void Driver::processMessage(const can_msgs::msg::Frame::SharedPtr received_msg)
     field = statusFieldForMessage(received_api);
   } else if ((received_api & CAN_MSGID_API_M & CAN_API_MC_ICTRL) == CAN_API_MC_ICTRL) {
     field = ictrlFieldForMessage(received_api);
+    can_feedback_freq_status_->tick();
   } else if ((received_api & CAN_MSGID_API_M & CAN_API_MC_POS) == CAN_API_MC_POS) {
     field = posFieldForMessage(received_api);
+    can_feedback_freq_status_->tick();
   } else if ((received_api & CAN_MSGID_API_M & CAN_API_MC_VCOMP) == CAN_API_MC_VCOMP) {
     field = vcompFieldForMessage(received_api);
+    can_feedback_freq_status_->tick();
   } else if ((received_api & CAN_MSGID_API_M & CAN_API_MC_SPD) == CAN_API_MC_SPD) {
     field = spdFieldForMessage(received_api);
+    can_feedback_freq_status_->tick();
   } else if ((received_api & CAN_MSGID_API_M & CAN_API_MC_VOLTAGE) == CAN_API_MC_VOLTAGE) {
     field = voltageFieldForMessage(received_api);
+    can_feedback_freq_status_->tick();
   }
 
   if (!field) {
@@ -126,7 +131,6 @@ void Driver::processMessage(const can_msgs::msg::Frame::SharedPtr received_msg)
   std::copy_n(std::begin(received_msg->data), Field::FIELD_STRUCT_DATA_SIZE,
     std::begin(field->data));
   field->received = true;
-  can_feedback_freq_status_->tick();
 }
 
 double Driver::radPerSecToRpm() const
