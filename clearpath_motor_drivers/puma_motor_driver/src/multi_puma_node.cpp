@@ -313,6 +313,7 @@ void MultiPumaNode::run()
 
   // Process all received messages through the connected driver instances.
   while (interface_->recv(recv_msg_)) {
+    can_feedback_freq_status_->tick();
     for (auto & driver : drivers_) {
       driver.processMessage(recv_msg_);
     }
