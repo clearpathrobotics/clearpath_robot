@@ -237,7 +237,7 @@ void MultiPumaNode::driverDiagnostic(DiagnosticStatusWrapper & stat, int i)
   // basic stats
   stat.add("CAN ID", (int)status_msg_.drivers[i].device_number);
   stat.add("Joint Name", status_msg_.drivers[i].device_name);
-  stat.add("Bus Voltage", status_msg_.drivers[i].bus_voltage);
+  stat.add("Bus Voltage (V)", status_msg_.drivers[i].bus_voltage);
   stat.add("Motor Temperature (C)", status_msg_.drivers[i].temperature);
   stat.add("Output Voltage (V)", status_msg_.drivers[i].output_voltage);
   stat.add("Analogue Input (V)", status_msg_.drivers[i].analog_input);
