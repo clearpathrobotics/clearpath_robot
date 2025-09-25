@@ -102,7 +102,6 @@ void Driver::processMessage(const can_msgs::msg::Frame::SharedPtr received_msg)
 
   Field * field = nullptr;
   uint32_t received_api = getApi(*received_msg);
-  can_feedback_freq_status_->tick();
   if ((received_api & CAN_MSGID_API_M & CAN_API_MC_CFG) == CAN_API_MC_CFG) {
     field = cfgFieldForMessage(received_api);
   } else if ((received_api & CAN_MSGID_API_M & CAN_API_MC_STATUS) == CAN_API_MC_STATUS) {
@@ -127,6 +126,7 @@ void Driver::processMessage(const can_msgs::msg::Frame::SharedPtr received_msg)
   std::copy_n(std::begin(received_msg->data), Field::FIELD_STRUCT_DATA_SIZE,
     std::begin(field->data));
   field->received = true;
+  can_feedback_freq_status_->tick();
 }
 
 double Driver::radPerSecToRpm() const
