@@ -36,9 +36,6 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
 #include "puma_motor_driver/can_proto.hpp"
 
-// Used to smooth out voltage/current/velocity data for diagnostics since it is infrequently updated
-#define DIAGNOSTICS_LOW_PASS 0.9
-
 namespace puma_motor_driver
 {
 

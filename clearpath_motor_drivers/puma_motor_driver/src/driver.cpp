@@ -31,6 +31,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include <math.h>
 #include "rclcpp/rclcpp.hpp"
 
+// must match firmware
+#define CAN_FEEDBACK_RATE 20.0
+
 namespace puma_motor_driver
 {
 
@@ -1041,8 +1044,6 @@ Driver::Field * Driver::cfgFieldForMessage(uint32_t api)
 void Driver::runFreqStatus(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   can_feedback_freq_status_->run(stat);
-
-  // TODO: add any additional fields (e.g. voltage, current, velocity)?
 }
 
 }  // namespace puma_motor_driver
