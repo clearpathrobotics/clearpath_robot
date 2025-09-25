@@ -511,13 +511,14 @@ class RobotLaunchGenerator(LaunchGenerator):
             self.platform_extras_service_launch_file)
         platform_extras_service_launch_writer.add(self.platform_extras_launch_file)
 
-        if self.clearpath_config.platform.extras.launch:
+        for launch in self.clearpath_config.platform.extras.launch:
             extra_launch = LaunchFile(
-                name=(os.path.basename(
-                    self.clearpath_config.platform.extras.launch['path']
-                )).split('.')[0],
-                path=os.path.dirname(self.clearpath_config.platform.extras.launch['path']),
-                package=Package(self.clearpath_config.platform.extras.launch['package']),
+                name=(os.path.basename(launch.path)).split('.')[0],
+                path=os.path.dirname(launch.path),
+                package=Package(launch.package),
+                args=[
+                    (key, launch.args[key]) for key in launch.args
+                ]
             )
             platform_extras_service_launch_writer.add(extra_launch)
 
