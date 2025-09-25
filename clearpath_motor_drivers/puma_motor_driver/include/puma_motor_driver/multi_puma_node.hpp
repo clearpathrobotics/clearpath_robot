@@ -168,10 +168,10 @@ private:
     {PumaStatus::MODE_VCOMP, "V-Comp"},
   };
   const std::map<uint8_t, std::string> FAULT_FLAG_LABELS_ = {
-    {PumaStatus::FAULT_CURRENT, "Current"},
-    {PumaStatus::FAULT_TEMPERATURE, "Temperature"},
-    {PumaStatus::FAULT_BUS_VOLTAGE, "Bus voltage"},
-    {PumaStatus::FAULT_BRIDGE_DRIVER, "Bridge driver"},
+    {PumaStatus::FAULT_CURRENT, "Current Fault"},
+    {PumaStatus::FAULT_TEMPERATURE, "Temperature Fault"},
+    {PumaStatus::FAULT_BUS_VOLTAGE, "Bus Voltage Fault"},
+    {PumaStatus::FAULT_BRIDGE_DRIVER, "Bridge Driver Fault"},
   };
   const std::map<std::string, std::string> PUMA_MOTOR_LABELS_ = {
     {"front_left_wheel_joint", "Front Left"},
