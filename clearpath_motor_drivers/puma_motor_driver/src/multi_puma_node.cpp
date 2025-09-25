@@ -124,8 +124,7 @@ MultiPumaNode::MultiPumaNode(const std::string node_name)
 
   // Setup diagnostics
   updater_.setHardwareID("Puma");
-  for (uint8_t i = 0; i < joint_names_.size(); i++)
-  {
+  for (uint8_t i = 0; i < joint_names_.size(); i++) {
     std::string name = "Puma Motor Driver " + std::to_string(i + 1) + " (" + joint_names_[i] + ")";
     updater_.add(name, std::bind(&MultiPumaNode::driverDiagnostic, this, std::placeholders::_1, i));
   }

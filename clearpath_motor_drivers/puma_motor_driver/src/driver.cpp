@@ -31,9 +31,6 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include <math.h>
 #include "rclcpp/rclcpp.hpp"
 
-// must match firmware
-#define CAN_FEEDBACK_RATE 50.0
-
 namespace puma_motor_driver
 {
 
@@ -79,7 +76,13 @@ Driver::Driver(
 {
   can_feedback_rate_ = std::make_shared<double>(CAN_FEEDBACK_RATE);
   can_feedback_freq_status_ = std::make_shared<diagnostic_updater::FrequencyStatus>(
-    diagnostic_updater::FrequencyStatusParam(can_feedback_rate_.get(), can_feedback_rate_.get(), 0.1, 5));
+    diagnostic_updater::FrequencyStatusParam(
+      can_feedback_rate_.get(),
+      can_feedback_rate_.get(),
+      0.1,
+      5
+    )
+  );
 }
 
 void Driver::processMessage(const can_msgs::msg::Frame::SharedPtr received_msg)
