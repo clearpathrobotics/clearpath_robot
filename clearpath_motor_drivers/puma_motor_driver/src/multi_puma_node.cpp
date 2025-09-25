@@ -121,6 +121,10 @@ MultiPumaNode::MultiPumaNode(const std::string node_name)
 
   run_timer_ = this->create_wall_timer(
     std::chrono::milliseconds(1000 / freq_), std::bind(&MultiPumaNode::run, this));
+
+  // Add diagnostic tasks
+  std::string name = "Puma Motor Driver " + std::to_string(i + 1) + " (" + joint_names_[i] + ")";
+  updater_.add(name, std::bind(&MultiPumaNode::driverDiagnostic, this, std::placeholders::_1, i));
 }
 
 bool MultiPumaNode::getFeedback()
