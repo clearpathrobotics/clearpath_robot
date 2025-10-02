@@ -1049,6 +1049,12 @@ Driver::Field * Driver::cfgFieldForMessage(uint32_t api)
 void Driver::runFreqStatus(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   can_feedback_freq_status_->run(stat);
+
+  stat.add("Duty cycle", lastDutyCycle());
+  stat.add("Current (A)", lastCurrent());
+  stat.add("Speed (rad/s)", lastSpeed());
+  stat.add("Position", lastPosition());
+  stat.add("Setpoint", lastSetpoint());
 }
 
 }  // namespace puma_motor_driver
