@@ -61,6 +61,8 @@ class TestRobotLaunchGenerator:
                 print(f'Unsupported accessory: {e}')
             except UnsupportedPlatformException as e:
                 print(f'Unsupported platform: {e}')
+            except FileNotFoundError as e:
+                print(f'File not found: {e}')
             except Exception as e:
                 errors.append("Sample '%s' failed to load: '%s'" % (
                     sample,
