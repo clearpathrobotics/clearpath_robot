@@ -164,6 +164,7 @@ class RobotLaunchGenerator(LaunchGenerator):
                             self.clearpath_config.platform.wireless.router.publish_passwords,
                     }
                 ],
+                remappings=[('/diagnostics', 'diagnostics'),],
             )
         else:
             self.wireless_router_node = None
@@ -187,6 +188,7 @@ class RobotLaunchGenerator(LaunchGenerator):
                             self.clearpath_config.platform.wireless.base_station.publish_passwords,
                     }
                 ],
+                remappings=[('/diagnostics', 'diagnostics'),],
             )
         else:
             self.base_station_node = None
