@@ -56,7 +56,7 @@ def launch_setup(context):
             ('~/nn/spatial_detections', 'nn/spatial_detections'),
             ('~/rgb/camera_info', 'color/camera_info'),
             ('~/rgb/image_raw', 'color/image'),
-            ('~/rgb/preview/image_raw', 'color/image'),
+            ('~/rgb/preview/image_raw', 'color/preview/image'),
             ('~/stereo/camera_info', 'stereo/camera_info'),
             ('~/stereo/image_raw', 'stereo/image'),
             ('/diagnostics', 'diagnostics'),
@@ -65,7 +65,7 @@ def launch_setup(context):
     for transport in TRANSPORTS:
         remappings.extend([
             (f'~/rgb/image_raw/{transport}', f'color/{transport}'),
-            (f'~/rgb/preview/image_raw/{transport}', f'color/{transport}'),
+            (f'~/rgb/preview/image_raw/{transport}', f'color/preview/{transport}'),
             (f'~/stereo/image_raw/{transport}', f'stereo/{transport}')
         ])
 
