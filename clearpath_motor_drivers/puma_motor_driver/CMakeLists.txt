@@ -10,6 +10,7 @@ find_package(ament_cmake REQUIRED)
 find_package(can_msgs REQUIRED)
 find_package(clearpath_motor_msgs REQUIRED)
 find_package(clearpath_ros2_socketcan_interface REQUIRED)
+find_package(diagnostic_updater REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
@@ -20,6 +21,7 @@ set(DEPENDENCIES
   can_msgs
   clearpath_motor_msgs
   clearpath_ros2_socketcan_interface
+  diagnostic_updater
   rclcpp
   std_msgs
   sensor_msgs

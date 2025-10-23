@@ -44,6 +44,7 @@ from clearpath_config.manipulators.types.arms import (
 )
 from clearpath_config.manipulators.types.grippers import FrankaGripper
 from clearpath_config.platform.battery import BatteryConfig
+from clearpath_config.platform.wireless import PeplinkRouter
 from clearpath_generator_common.common import LaunchFile, Package
 from clearpath_generator_common.launch.generator import LaunchGenerator
 from clearpath_generator_common.launch.writer import LaunchWriter
@@ -141,6 +142,56 @@ class RobotLaunchGenerator(LaunchGenerator):
             ],
             remappings=[('/diagnostics', 'diagnostics'),],
         )
+
+        # Onboard router & base station
+        if isinstance(self.clearpath_config.platform.wireless.router, PeplinkRouter):
+            self.wireless_router_node = LaunchFile.Node(
+                package='peplink_router_driver',
+                executable='peplink_router_node',
+                name='router_node',
+                namespace=f'{self.namespace}/network/router',
+                parameters=[
+                    {
+                        'ip_address':
+                            self.clearpath_config.platform.wireless.router.ip_address,
+                        'username':
+                            self.clearpath_config.platform.wireless.router.username,
+                        'password':
+                            self.clearpath_config.platform.wireless.router.password,
+                        'enable_gps':
+                            self.clearpath_config.platform.wireless.router.enable_gps,
+                        'publish_passwords':
+                            self.clearpath_config.platform.wireless.router.publish_passwords,
+                    }
+                ],
+                remappings=[('/diagnostics', 'diagnostics'),],
+            )
+        else:
+            self.wireless_router_node = None
+        if isinstance(self.clearpath_config.platform.wireless.base_station, PeplinkRouter):
+            self.base_station_node = LaunchFile.Node(
+                package='peplink_router_driver',
+                executable='peplink_router_node',
+                name='base_station_node',
+                namespace=f'{self.namespace}/network/base_station',
+                parameters=[
+                    {
+                        'ip_address':
+                            self.clearpath_config.platform.wireless.base_station.ip_address,
+                        'username':
+                            self.clearpath_config.platform.wireless.base_station.username,
+                        'password':
+                            self.clearpath_config.platform.wireless.base_station.password,
+                        'enable_gps':
+                            self.clearpath_config.platform.wireless.base_station.enable_gps,
+                        'publish_passwords':
+                            self.clearpath_config.platform.wireless.base_station.publish_passwords,
+                    }
+                ],
+                remappings=[('/diagnostics', 'diagnostics'),],
+            )
+        else:
+            self.base_station_node = None
 
         # Diagnostics launch args
         self.diag_updater_params = LaunchFile.LaunchArg(
@@ -395,8 +446,20 @@ class RobotLaunchGenerator(LaunchGenerator):
         if self.bms_launch_file is None and self.bms_node is None:
             common_platform_components.append(self.battery_state_estimator)
 
-        if self.clearpath_config.platform.enable_wireless_watcher:
+        if self.clearpath_config.platform.wireless.enable_wireless_watcher:
             common_platform_components.append(self.wireless_watcher_node)
+        if (
+            self.wireless_router_node is not None
+            and self.clearpath_config.platform.wireless.router is not None
+            and self.clearpath_config.platform.wireless.router.launch_enabled
+        ):
+            common_platform_components.append(self.wireless_router_node)
+        if (
+            self.base_station_node is not None
+            and self.clearpath_config.platform.wireless.base_station is not None
+            and self.clearpath_config.platform.wireless.base_station.launch_enabled
+        ):
+            common_platform_components.append(self.base_station_node)
 
         if len(self.can_bridges) > 0:
             common_platform_components.extend(self.can_bridges)
@@ -511,13 +574,14 @@ class RobotLaunchGenerator(LaunchGenerator):
             self.platform_extras_service_launch_file)
         platform_extras_service_launch_writer.add(self.platform_extras_launch_file)
 
-        if self.clearpath_config.platform.extras.launch:
+        for launch in self.clearpath_config.platform.extras.launch:
             extra_launch = LaunchFile(
-                name=(os.path.basename(
-                    self.clearpath_config.platform.extras.launch['path']
-                )).split('.')[0],
-                path=os.path.dirname(self.clearpath_config.platform.extras.launch['path']),
-                package=Package(self.clearpath_config.platform.extras.launch['package']),
+                name=(os.path.basename(launch.path)).split('.')[0],
+                path=os.path.dirname(launch.path),
+                package=Package(launch.package),
+                args=[
+                    (key, launch.args[key]) for key in launch.args
+                ]
             )
             platform_extras_service_launch_writer.add(extra_launch)
 

@@ -21,13 +21,16 @@ OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTE
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+#include <string>
+
 #include "puma_motor_driver/multi_puma_node.hpp"
 
 MultiPumaNode::MultiPumaNode(const std::string node_name)
 :Node(node_name),
   active_(false),
   status_count_(0),
-  desired_mode_(clearpath_motor_msgs::msg::PumaStatus::MODE_SPEED)
+  desired_mode_(clearpath_motor_msgs::msg::PumaStatus::MODE_SPEED),
+  updater_(this)
 {
   // Parameters
   this->declare_parameter("canbus_dev", "vcan0");
@@ -118,6 +121,13 @@ MultiPumaNode::MultiPumaNode(const std::string node_name)
 
   run_timer_ = this->create_wall_timer(
     std::chrono::milliseconds(1000 / freq_), std::bind(&MultiPumaNode::run, this));
+
+  // Setup diagnostics
+  updater_.setHardwareID("Puma");
+  for (uint8_t i = 0; i < joint_names_.size(); i++) {
+    std::string name = "Puma Motor Driver " + std::to_string(i + 1) + " (" + joint_names_[i] + ")";
+    updater_.add(name, std::bind(&MultiPumaNode::driverDiagnostic, this, std::placeholders::_1, i));
+  }
 }
 
 bool MultiPumaNode::getFeedback()
@@ -210,6 +220,40 @@ void MultiPumaNode::publishStatus()
 {
   if (getStatus()) {
     status_pub_->publish(status_msg_);
+  }
+}
+
+/**
+ * @brief Diagnostic task to report details for each motor driver
+ *
+ * @param i Driver index number
+ */
+void MultiPumaNode::driverDiagnostic(DiagnosticStatusWrapper & stat, int i)
+{
+  // Assume we're OK. This will be merged over later on if we aren't
+  stat.summary(DiagnosticStatusWrapper::OK, "OK");
+
+  drivers_[i].runFreqStatus(stat);
+
+  // basic stats
+  stat.add("CAN ID", (int)status_msg_.drivers[i].device_number);
+  stat.add("Joint Name", status_msg_.drivers[i].device_name);
+  stat.add("Bus Voltage (V)", status_msg_.drivers[i].bus_voltage);
+  stat.add("Motor Temperature (C)", status_msg_.drivers[i].temperature);
+  stat.add("Output Voltage (V)", status_msg_.drivers[i].output_voltage);
+  stat.add("Analogue Input (V)", status_msg_.drivers[i].analog_input);
+
+  // control mode; convert to a string
+  stat.add("Mode", MODE_FLAG_LABELS_.at((int)status_msg_.drivers[i].mode));
+
+  // fault flags; these are a bit field
+  for (auto label : FAULT_FLAG_LABELS_) {
+    bool flag = (status_msg_.drivers[i].fault >> label.first) & 0x01;
+    stat.add(label.second, flag ? "True" : "False");
+    if (flag) {
+      // raise a warning if there's a fault
+      stat.mergeSummary(DiagnosticStatusWrapper::WARN, label.second);
+    }
   }
 }
 

@@ -24,6 +24,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #ifndef PUMA_MOTOR_DRIVER_MULTI_PUMA_NODE_H
 #define PUMA_MOTOR_DRIVER_MULTI_PUMA_NODE_H
 
+#include <map>
+
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/float64.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
@@ -34,6 +36,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include "clearpath_motor_msgs/msg/puma_feedback.hpp"
 
 #include "clearpath_ros2_socketcan_interface/socketcan_interface.hpp"
+
+#include "diagnostic_updater/diagnostic_updater.hpp"
 
 #include "puma_motor_driver/driver.hpp"
 // #include "puma_motor_driver/diagnostic_updater.hpp"
@@ -121,6 +125,9 @@ public:
   void run();
 
 private:
+  using DiagnosticStatusWrapper = diagnostic_updater::DiagnosticStatusWrapper;
+  using PumaStatus = clearpath_motor_msgs::msg::PumaStatus;
+
   std::shared_ptr<clearpath_ros2_socketcan_interface::SocketCANInterface> interface_;
   std::vector<puma_motor_driver::Driver> drivers_;
 
@@ -149,6 +156,34 @@ private:
   rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr cmd_sub_;
   rclcpp::TimerBase::SharedPtr run_timer_;
 
+  // Diagnostic Updater
+  diagnostic_updater::Updater updater_;
+
+  // Diagnostic labels
+  const std::map<uint8_t, std::string> MODE_FLAG_LABELS_ = {
+    {PumaStatus::MODE_VOLTAGE, "Voltage"},
+    {PumaStatus::MODE_CURRENT, "Current"},
+    {PumaStatus::MODE_SPEED, "Speed"},
+    {PumaStatus::MODE_POSITION, "Position"},
+    {PumaStatus::MODE_VCOMP, "V-Comp"},
+  };
+  const std::map<uint8_t, std::string> FAULT_FLAG_LABELS_ = {
+    {PumaStatus::FAULT_CURRENT, "Current Fault"},
+    {PumaStatus::FAULT_TEMPERATURE, "Temperature Fault"},
+    {PumaStatus::FAULT_BUS_VOLTAGE, "Bus Voltage Fault"},
+    {PumaStatus::FAULT_BRIDGE_DRIVER, "Bridge Driver Fault"},
+  };
+  const std::map<std::string, std::string> PUMA_MOTOR_LABELS_ = {
+    {"front_left_wheel_joint", "Front Left"},
+    {"front_right_wheel_joint", "Front Right"},
+    {"rear_left_wheel_joint", "Rear Left"},
+    {"rear_right_wheel_joint", "Rear Right"},
+  };
+
+
+  // Diagnostic Tasks
+  void driverDiagnostic(DiagnosticStatusWrapper & stat, int i);
+  void protectionDiagnostic(DiagnosticStatusWrapper & stat);
 };
 
 #endif // PUMA_MOTOR_DRIVER_PUMA_NODE_H

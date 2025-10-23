@@ -31,6 +31,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include <math.h>
 #include "rclcpp/rclcpp.hpp"
 
+// must match firmware
+#define CAN_FEEDBACK_RATE 40.0
+
 namespace puma_motor_driver
 {
 
@@ -74,6 +77,15 @@ Driver::Driver(
   encoder_cpr_(1),
   gear_ratio_(1)
 {
+  can_feedback_rate_ = std::make_shared<double>(CAN_FEEDBACK_RATE);
+  can_feedback_freq_status_ = std::make_shared<diagnostic_updater::FrequencyStatus>(
+    diagnostic_updater::FrequencyStatusParam(
+      can_feedback_rate_.get(),
+      can_feedback_rate_.get(),
+      0.1,
+      5
+    )
+  );
 }
 
 void Driver::processMessage(const can_msgs::msg::Frame::SharedPtr received_msg)
@@ -96,14 +108,19 @@ void Driver::processMessage(const can_msgs::msg::Frame::SharedPtr received_msg)
     field = statusFieldForMessage(received_api);
   } else if ((received_api & CAN_MSGID_API_M & CAN_API_MC_ICTRL) == CAN_API_MC_ICTRL) {
     field = ictrlFieldForMessage(received_api);
+    can_feedback_freq_status_->tick();
   } else if ((received_api & CAN_MSGID_API_M & CAN_API_MC_POS) == CAN_API_MC_POS) {
     field = posFieldForMessage(received_api);
+    can_feedback_freq_status_->tick();
   } else if ((received_api & CAN_MSGID_API_M & CAN_API_MC_VCOMP) == CAN_API_MC_VCOMP) {
     field = vcompFieldForMessage(received_api);
+    can_feedback_freq_status_->tick();
   } else if ((received_api & CAN_MSGID_API_M & CAN_API_MC_SPD) == CAN_API_MC_SPD) {
     field = spdFieldForMessage(received_api);
+    can_feedback_freq_status_->tick();
   } else if ((received_api & CAN_MSGID_API_M & CAN_API_MC_VOLTAGE) == CAN_API_MC_VOLTAGE) {
     field = voltageFieldForMessage(received_api);
+    can_feedback_freq_status_->tick();
   }
 
   if (!field) {
@@ -1024,6 +1041,20 @@ Driver::Field * Driver::cfgFieldForMessage(uint32_t api)
 {
   uint32_t cfg_field_index = (api & CAN_MSGID_API_ID_M) >> CAN_MSGID_API_S;
   return &cfg_fields_[cfg_field_index];
+}
+
+/**
+ * @brief Runs the frequency diagnostic update to populate the status message
+ */
+void Driver::runFreqStatus(diagnostic_updater::DiagnosticStatusWrapper & stat)
+{
+  can_feedback_freq_status_->run(stat);
+
+  stat.add("Duty cycle", lastDutyCycle());
+  stat.add("Current (A)", lastCurrent());
+  stat.add("Speed (rad/s)", lastSpeed());
+  stat.add("Position", lastPosition());
+  stat.add("Setpoint", lastSetpoint());
 }
 
 }  // namespace puma_motor_driver
