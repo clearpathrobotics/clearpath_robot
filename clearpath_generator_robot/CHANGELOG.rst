@@ -2,8 +2,8 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.8.0 (2025-10-23)
+------------------
 * Generate peplink launches (`#275 <https://github.com/clearpathrobotics/clearpath_robot/issues/275>`_)
   * Use the new platform.wireless, add peplink nodes for the onboard router + base station hardware. Move the wireless_watcher flag into platform.wireless
   * Add peplink router dependency
