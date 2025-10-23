@@ -2,8 +2,8 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.8.1 (2025-10-23)
+------------------
 * Fix/zed2 objdet params (`#277 <https://github.com/clearpathrobotics/clearpath_robot/issues/277>`_)
   * [clearpath_sensors] Updated Zed2 object detection mode type.
   * [clearpath_sensors] Updated Zed2 object detection model name.
