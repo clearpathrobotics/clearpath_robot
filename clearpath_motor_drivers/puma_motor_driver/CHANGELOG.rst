@@ -5,6 +5,9 @@ Changelog for package puma_motor_driver
 1.1.0 (2025-01-15)
 ------------------
 
+Forthcoming
+-----------
+
 2.8.0 (2025-10-23)
 ------------------
 * Add additional Puma diagnostics (`#270 <https://github.com/clearpathrobotics/clearpath_robot/issues/270>`_)

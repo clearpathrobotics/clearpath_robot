@@ -2,6 +2,9 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.8.0 (2025-10-23)
 ------------------
 * Generate peplink launches (`#275 <https://github.com/clearpathrobotics/clearpath_robot/issues/275>`_)
