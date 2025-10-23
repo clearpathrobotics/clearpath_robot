@@ -2,6 +2,11 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Remap preview to separate topic (`#276 <https://github.com/clearpathrobotics/clearpath_robot/issues/276>`_)
+* Contributors: luis-camero
+
 2.7.2 (2025-09-18)
 ------------------
 

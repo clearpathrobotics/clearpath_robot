@@ -2,6 +2,18 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Generate peplink launches (`#275 <https://github.com/clearpathrobotics/clearpath_robot/issues/275>`_)
+  * Use the new platform.wireless, add peplink nodes for the onboard router + base station hardware. Move the wireless_watcher flag into platform.wireless
+  * Add peplink router dependency
+  * Remap the diagnostics topic for the peplink nodes
+* Generate multiple launch entries for extras (`#271 <https://github.com/clearpathrobotics/clearpath_robot/issues/271>`_)
+* Catch FileNotFound exceptions when loading the samples and ignore them
+  Some samples have `/path/to/...` placeholders, which will never load correctly (`#274 <https://github.com/clearpathrobotics/clearpath_robot/issues/274>`_)
+* Use flattened parameter names for Oak-D configuration (`#267 <https://github.com/clearpathrobotics/clearpath_robot/issues/267>`_)
+* Contributors: Chris Iverach-Brereton
+
 2.7.2 (2025-09-18)
 ------------------
 * Feature: Kinova Jazzy Support (`#268 <https://github.com/clearpathrobotics/clearpath_robot/issues/268>`_)

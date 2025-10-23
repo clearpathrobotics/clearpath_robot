@@ -18,15 +18,15 @@
   <exec_depend>socat</exec_depend>
 
   <!-- Metapackage dependencies-->
-  <exec_depend version_gte="2.5.0">clearpath_generator_robot</exec_depend>
-  <exec_depend version_gte="2.5.0">clearpath_hardware_interfaces</exec_depend>
-  <exec_depend version_gte="2.5.0">clearpath_sensors</exec_depend>
-  <exec_depend version_gte="2.5.0">lynx_motor_driver</exec_depend>
-  <exec_depend version_gte="2.5.0">puma_motor_driver</exec_depend>
+  <exec_depend version_gte="2.8.0">clearpath_generator_robot</exec_depend>
+  <exec_depend version_gte="2.8.0">clearpath_hardware_interfaces</exec_depend>
+  <exec_depend version_gte="2.8.0">clearpath_sensors</exec_depend>
+  <exec_depend version_gte="2.8.0">lynx_motor_driver</exec_depend>
+  <exec_depend version_gte="2.8.0">puma_motor_driver</exec_depend>
 
   <!-- Package dependencies-->
-  <exec_depend version_gte="2.5.0">clearpath_config</exec_depend>
-  <exec_depend version_gte="2.5.0">clearpath_common</exec_depend>
+  <exec_depend version_gte="2.8.0">clearpath_config</exec_depend>
+  <exec_depend version_gte="2.8.0">clearpath_common</exec_depend>
   <exec_depend>clearpath_tests</exec_depend>
   <exec_depend>robot_upstart</exec_depend>
 

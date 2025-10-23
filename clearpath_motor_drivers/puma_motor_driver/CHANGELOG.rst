@@ -5,6 +5,11 @@ Changelog for package puma_motor_driver
 1.1.0 (2025-01-15)
 ------------------
 
+Forthcoming
+-----------
+* Add additional Puma diagnostics (`#270 <https://github.com/clearpathrobotics/clearpath_robot/issues/270>`_)
+* Contributors: Chris Iverach-Brereton
+
 2.7.2 (2025-09-18)
 ------------------
 
