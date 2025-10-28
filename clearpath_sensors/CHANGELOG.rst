@@ -2,6 +2,9 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.8.1 (2025-10-23)
 ------------------
 * Fix/zed2 objdet params (`#277 <https://github.com/clearpathrobotics/clearpath_robot/issues/277>`_)
