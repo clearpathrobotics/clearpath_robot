@@ -2,8 +2,8 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.8.2 (2025-10-28)
+------------------
 * Fix/Feature: Valence Battery Update/Fix (`#278 <https://github.com/clearpathrobotics/clearpath_robot/issues/278>`_)
   * Only add battery estimator when no battery driver
   * Update valence arguments
