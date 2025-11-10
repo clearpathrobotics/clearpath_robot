@@ -15,6 +15,13 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 
+install(DIRECTORY samples
+  DESTINATION share/${PROJECT_NAME}
+)
+
+set(EXCLUDED_DIR samples)
+list(APPEND AMENT_LINT_AUTO_FILE_EXCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/${EXCLUDED_DIR}")
+
 ament_python_install_package(${PROJECT_NAME})
 
 if(BUILD_TESTING)
@@ -32,6 +39,7 @@ if(BUILD_TESTING)
   set(_pytest_tests
     test/test_generator_launch.py
     test/test_generator_param.py
+    test/test_samples.py
   )
   foreach(_test_path ${_pytest_tests})
     get_filename_component(_test_name ${_test_path} NAME_WE)

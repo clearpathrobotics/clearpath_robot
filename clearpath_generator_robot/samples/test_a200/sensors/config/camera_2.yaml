@@ -1,0 +1,43 @@
+a201_0000/sensors/camera_2:
+  axis_camera:
+    ros__parameters:
+      hostname: '192.168.131.10'
+      http_port: 80
+      username: 'root'
+      password: ''
+      width: 640
+      height: 480
+      fps: 20
+      tf_prefix: 'axis'
+      camera_info_url: ''
+      use_encrypted_password: False
+      camera: 1
+      ir: True
+      defog: True
+      wiper: True
+      ptz: True
+      min_pan: -3.141592653589793
+      max_pan: 3.141592653589793
+      min_tilt: 0.0
+      max_tilt: 1.5707963267948966
+      min_zoom: 1
+      max_zoom: 24
+      max_pan_speed: 2.61
+      max_tilt_speed: 2.61
+      ptz_teleop: True
+      button_enable_pan_tilt: -1
+      button_enable_zoom: -1
+      axis_pan: 3
+      axis_tilt: 4
+      invert_tilt: False
+      axis_zoom_in: 5
+      axis_zoom_out: 2
+      zoom_in_offset: -1.0
+      zoom_out_offset: -1.0
+      zoom_in_scale: -0.5
+      zoom_out_scale: 0.5
+      scale_pan: 2.61
+      scale_tilt: 2.61
+      scale_zoom: 100.0
+      device_type: 'q62'
+      serial: ''

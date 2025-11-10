@@ -1,0 +1,20 @@
+a300_00000:
+  clearpath_diagnostic_updater:
+    ros__parameters:
+      serial_number: 'a300-00000'
+      platform_model: 'a300'
+      ros_distro: 'jazzy'
+      latest_apt_firmware_version: '2.7.1'
+      installed_apt_firmware_version: 'none'
+      bms_state_rate: 2.5
+      bms_state_tolerance: 0.2
+      topics.sensors/camera_0/color/image.type: 'sensor_msgs/msg/Image'
+      topics.sensors/camera_0/color/image.rate: 30.0
+      topics.sensors/camera_1/color/image.type: 'sensor_msgs/msg/Image'
+      topics.sensors/camera_1/color/image.rate: 30.0
+      topics.sensors/imu_0/data.type: 'sensor_msgs/msg/Imu'
+      topics.sensors/imu_0/data.rate: 50.0
+      topics.sensors/imu_0/data_raw.type: 'sensor_msgs/msg/Imu'
+      topics.sensors/imu_0/data_raw.rate: 50.0
+      topics.sensors/imu_0/mag.type: 'sensor_msgs/msg/MagneticField'
+      topics.sensors/imu_0/mag.rate: 50.0
