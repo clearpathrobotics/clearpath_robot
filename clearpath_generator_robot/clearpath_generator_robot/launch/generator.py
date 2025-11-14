@@ -467,7 +467,7 @@ class RobotLaunchGenerator(LaunchGenerator):
             common_platform_components.extend(self.can_bridges)
 
         self.platform_components = {
-            Platform.GENERIC: common_platform_components,
+            Platform.GENERIC: [],
             Platform.J100: common_platform_components + [
                 self.imu_0_filter_node,
                 self.imu_0_filter_config,
