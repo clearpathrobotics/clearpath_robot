@@ -56,6 +56,7 @@ CAMERAS = [
     ('rgb_gray', 'color/gray'),
     ('rgb_raw', 'color/raw'),
     ('rgb_raw_gray', 'color/raw_gray'),
+    ('rgb/color/rect/image', 'color'),
     # Right
     ('right', 'right'),
     ('right_gray', 'right/gray'),
@@ -123,6 +124,14 @@ def generate_launch_description():
             image = 'image_raw_color'
         elif 'gray' in old:
             image = 'image_rect_gray'
+        elif 'rgb/color/rect/image' in old:
+            image = 'color'
+            remappings.extend([
+                ('~/%s/camera_info' % (old),
+                    PathJoinSubstitution(['/', namespace, new, 'camera_info'])),
+                ('~/%s' % (old),
+                    PathJoinSubstitution(['/', namespace, new, 'image'])),
+            ])
         else:
             image = 'image_rect_color'
         remappings.extend([
