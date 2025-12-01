@@ -197,8 +197,6 @@ can_hardware::Frame Driver::getMsg(const uint32_t id)
   msg.id = id;
   msg.dlc = 0;
   msg.is_extended = true;
-  // msg.header.stamp = nh_->get_clock()->now();
-  // msg.header.frame_id = "base_link";
   return msg;
 }
 

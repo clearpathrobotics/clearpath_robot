@@ -292,9 +292,6 @@ void MultiPumaNode::frameCallback(const can_hardware::Frame& frame)
 
 void MultiPumaNode::run()
 {
-  RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 5000,
-    "[HAL-y Code]: MultiPumaNode Run Cycle %d", status_count_);
-
   if (active_) {
     // Checks to see if power flag has been reset for each driver
     for (auto & driver : drivers_) {
