@@ -1,0 +1,60 @@
+cpr_generic_e:
+  ekf_node:
+    ros__parameters:
+      odom_frame: 'odom'
+      base_link_frame: 'base_link'
+      world_frame: 'odom'
+      publish_tf: True
+      two_d_mode: True
+      use_sim_time: False
+      print_diagnostics: True
+      frequency: 50.0
+      odom0: 'platform/odom'
+      odom0_config: [True, True, False, False, False, True, True, True, False, False, False, True, False, False, False]
+      odom0_differential: False
+      odom0_queue_size: 10
+      imu0: 'sensors/imu_0/data'
+      imu0_config: [False, False, False, False, False, False, False, False, False, False, False, True, True, False, False]
+      imu0_differential: False
+      imu0_queue_size: 10
+      imu0_remove_gravitational_acceleration: True
+      imu1: 'sensors/imu_1/data'
+      imu1_config: [False, False, False, False, False, False, False, False, False, False, False, True, True, False, False]
+      imu1_differential: False
+      imu1_queue_size: 10
+      imu1_remove_gravitational_acceleration: True
+      imu2: 'sensors/imu_2/data'
+      imu2_config: [False, False, False, False, False, False, False, False, False, False, False, True, True, False, False]
+      imu2_differential: False
+      imu2_queue_size: 10
+      imu2_remove_gravitational_acceleration: True
+      imu3: 'sensors/imu_3/data'
+      imu3_config: [False, False, False, False, False, False, False, False, False, False, False, True, True, False, False]
+      imu3_differential: False
+      imu3_queue_size: 10
+      imu3_remove_gravitational_acceleration: True
+      imu4: 'sensors/imu_4/data'
+      imu4_config: [False, False, False, False, False, False, False, False, False, False, False, True, True, False, False]
+      imu4_differential: False
+      imu4_queue_size: 10
+      imu4_remove_gravitational_acceleration: True
+      imu5: 'sensors/imu_5/data'
+      imu5_config: [False, False, False, False, False, False, False, False, False, False, False, True, True, False, False]
+      imu5_differential: False
+      imu5_queue_size: 10
+      imu5_remove_gravitational_acceleration: True
+      imu6: 'sensors/imu_6/data'
+      imu6_config: [False, False, False, False, False, False, False, False, False, False, False, True, True, False, False]
+      imu6_differential: False
+      imu6_queue_size: 10
+      imu6_remove_gravitational_acceleration: True
+      imu7: 'sensors/imu_7/data'
+      imu7_config: [False, False, False, False, False, False, False, False, False, False, False, True, True, False, False]
+      imu7_differential: False
+      imu7_queue_size: 10
+      imu7_remove_gravitational_acceleration: True
+      imu9: 'sensors/gps_2/imu/data'
+      imu9_config: [False, False, False, False, False, False, False, False, False, False, False, True, True, False, False]
+      imu9_differential: False
+      imu9_queue_size: 10
+      imu9_remove_gravitational_acceleration: True

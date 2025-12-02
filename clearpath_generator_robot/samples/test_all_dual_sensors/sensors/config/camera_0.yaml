@@ -1,0 +1,43 @@
+cpr_generic_e/sensors/camera_0:
+  axis_camera:
+    ros__parameters:
+      hostname: '192.168.131.10'
+      http_port: 80
+      username: 'root'
+      password: ''
+      width: 640
+      height: 480
+      fps: 20
+      tf_prefix: None
+      camera_info_url: ''
+      use_encrypted_password: True
+      camera: 1
+      ir: False
+      defog: False
+      wiper: False
+      ptz: True
+      min_pan: -3.141592653589793
+      max_pan: 3.141592653589793
+      min_tilt: -1.5707963267948966
+      max_tilt: 1.5707963267948966
+      min_zoom: 1
+      max_zoom: 24
+      max_pan_speed: 2.61
+      max_tilt_speed: 2.61
+      ptz_teleop: False
+      button_enable_pan_tilt: -1
+      button_enable_zoom: -1
+      axis_pan: -1
+      axis_tilt: -1
+      invert_tilt: False
+      axis_zoom_in: -1
+      axis_zoom_out: -1
+      zoom_in_offset: 0.0
+      zoom_out_offset: 0.0
+      zoom_in_scale: 1.0
+      zoom_out_scale: 1.0
+      scale_pan: 1.0
+      scale_tilt: 1.0
+      scale_zoom: 1.0
+      serial: ''
+      device_type: 'dome_fixed'

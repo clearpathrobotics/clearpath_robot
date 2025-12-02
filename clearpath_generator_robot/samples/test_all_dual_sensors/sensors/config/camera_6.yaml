@@ -1,0 +1,30 @@
+cpr_generic_e/sensors/camera_6:
+  camera_6:
+    ros__parameters:
+      camera.i_enable_imu: False
+      camera.i_enable_ir: False
+      camera.i_floodlight_brightness: 0
+      camera.i_ip: ''
+      camera.i_laser_dot_brightness: 100
+      camera.i_mx_id: ''
+      camera.i_nn_type: 'none'
+      camera.i_pipeline_type: 'RGB'
+      camera.i_usb_speed: 'SUPER_PLUS'
+      camera.i_usb_port_id: ''
+      rgb.i_board_socket_id: 0
+      rgb.i_fps: 30.0
+      rgb.i_height: 720
+      rgb.i_width: 1280
+      rgb.i_max_q_size: 10
+      stereo.i_fps: 30.0
+      stereo.i_height: 720
+      stereo.i_width: 1280
+      use_sim_time: False
+      rgb.i_interleaved: False
+      rgb.i_preview_size: 250
+      rgb.i_enable_preview: True
+      rgb.i_low_bandwidth: True
+      rgb.i_keep_preview_aspect_ratio: True
+      rgb.i_publish_topic: False
+      rgb.i_resolution: '1080P'
+      device_type: 'pro'

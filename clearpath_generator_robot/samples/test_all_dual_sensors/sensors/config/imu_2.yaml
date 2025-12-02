@@ -1,0 +1,173 @@
+cpr_generic_e/sensors/imu_2:
+  microstrain_inertial_driver:
+    ros__parameters:
+      port: '/dev/microstrain_main'
+      baudrate: 115200
+      aux_port: '/dev/ttyACM1'
+      aux_baudrate: 115200
+      debug: False
+      set_baud: False
+      poll_port: False
+      poll_rate_hz: 1.0
+      poll_max_tries: 60
+      reconnect_attempts: 0
+      configure_after_reconnect: True
+      device_setup: True
+      save_settings: False
+      raw_file_enable: False
+      raw_file_include_support_data: True
+      raw_file_directory: '/home/your_name'
+      tf_mode: 0
+      frame_id: 'imu_2_link'
+      mount_frame_id: 'base_link'
+      map_frame_id: 'map'
+      earth_frame_id: 'earth'
+      gnss1_frame_id: 'gnss_1_antenna_link'
+      gnss2_frame_id: 'gnss_2_antenna_link'
+      odometer_frame_id: 'odometer_link'
+      target_frame_id: 'base_link'
+      publish_mount_to_frame_id_transform: False
+      mount_to_frame_id_transform: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+      use_enu_frame: True
+      gnss1_antenna_offset_source: 1
+      gnss1_antenna_offset: [0.0, -0.7, -1.0]
+      gnss2_antenna_offset_source: 1
+      gnss2_antenna_offset: [0.0, 0.7, -1.0]
+      gnss_glonass_enable: False
+      gnss_galileo_enable: True
+      gnss_beidou_enable: False
+      rtk_dongle_enable: False
+      ntrip_interface_enable: False
+      filter_enable_gnss_pos_vel_aiding: False
+      filter_enable_gnss_heading_aiding: False
+      filter_enable_altimeter_aiding: False
+      filter_enable_odometer_aiding: False
+      filter_enable_magnetometer_aiding: False
+      filter_enable_external_heading_aiding: False
+      filter_init_condition_src: 0
+      filter_auto_heading_alignment_selector: 1
+      filter_init_reference_frame: 2
+      filter_init_position: [0.0, 0.0, 0.0]
+      filter_init_velocity: [0.0, 0.0, 0.0]
+      filter_init_attitude: [0.0, 0.0, 0.0]
+      filter_relative_position_config: False
+      filter_relative_position_frame: 2
+      filter_relative_position_source: 2
+      filter_relative_position_ref: [0.0, 0.0, 0.01]
+      filter_lever_arm_offset: [0.0, 0.0, 0.0]
+      filter_enable_wheeled_vehicle_constraint: False
+      filter_enable_vertical_gyro_constraint: False
+      filter_enable_gnss_antenna_cal: False
+      filter_gnss_antenna_cal_max_offset: 0.1
+      filter_pps_source: 1
+      filter_sensor2vehicle_frame_selector: 0
+      filter_sensor2vehicle_frame_transformation_euler: [0.0, 0.0, 0.0]
+      filter_sensor2vehicle_frame_transformation_matrix: [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+      filter_sensor2vehicle_frame_transformation_quaternion: [0.0, 0.0, 0.0, 1.0]
+      filter_auto_init: False
+      filter_reset_after_config: False
+      filter_declination_source: 2
+      filter_declination: 0.23
+      filter_use_compensated_accel: False
+      filter_adaptive_level: 2
+      filter_adaptive_time_limit_ms: 15000
+      filter_enable_external_gps_time_update: False
+      filter_external_gps_time_topic: '/external_gps_time'
+      gps_leap_seconds: 18.0
+      filter_speed_lever_arm: [0.0, 0.5, -1.0]
+      filter_heading_source: 1
+      filter_dynamics_mode: 1
+      imu_orientation_cov: [0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01]
+      imu_linear_cov: [0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01]
+      imu_angular_cov: [0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01]
+      imu_mag_cov: [0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01]
+      imu_pressure_variance: 0.01
+      enable_hardware_odometer: False
+      odometer_scaling: 0.0
+      odometer_uncertainty: 0.0
+      gpio_config: False
+      gpio1_feature: 0
+      gpio1_behavior: 0
+      gpio1_pin_mode: 0
+      gpio2_feature: 0
+      gpio2_behavior: 0
+      gpio2_pin_mode: 0
+      gpio3_feature: 0
+      gpio3_behavior: 0
+      gpio3_pin_mode: 0
+      gpio4_feature: 0
+      gpio4_behavior: 0
+      gpio4_pin_mode: 0
+      sbas_enable: True
+      sbas_enable_ranging: False
+      sbas_enable_corrections: True
+      sbas_apply_integrity: False
+      imu_data_rate: 100
+      imu_mag_data_rate: 0
+      imu_pressure_data_rate: 0
+      imu_wheel_speed_data_rate: 0
+      gnss1_llh_position_data_rate: 2
+      gnss1_velocity_data_rate: 2
+      gnss1_velocity_ecef_data_rate: 0
+      gnss1_odometry_earth_data_rate: 0
+      gnss1_time_data_rate: 0
+      gnss2_llh_position_data_rate: 2
+      gnss2_velocity_data_rate: 2
+      gnss2_velocity_ecef_data_rate: 0
+      gnss2_odometry_earth_data_rate: 0
+      gnss2_time_data_rate: 0
+      filter_human_readable_status_data_rate: 1
+      filter_imu_data_rate: 0
+      filter_llh_position_data_rate: 0
+      filter_velocity_data_rate: 0
+      filter_velocity_ecef_data_rate: 0
+      filter_odometry_earth_data_rate: 25
+      filter_odometry_map_data_rate: 25
+      filter_dual_antenna_heading_data_rate: 0
+      mip_sensor_overrange_status_data_rate: 0
+      mip_gnss1_fix_info_data_rate: 0
+      mip_gnss1_sbas_info_data_rate: 0
+      mip_gnss1_rf_error_detection_data_rate: 0
+      mip_gnss2_fix_info_data_rate: 0
+      mip_gnss2_sbas_info_data_rate: 0
+      mip_gnss2_rf_error_detection_data_rate: 0
+      mip_filter_status_data_rate: 0
+      mip_filter_gnss_position_aiding_status_data_rate: 0
+      mip_filter_multi_antenna_offset_correction_data_rate: 0
+      mip_filter_gnss_dual_antenna_status_data_rate: 0
+      mip_filter_aiding_measurement_summary_data_rate: 0
+      nmea_message_config: False
+      nmea_message_allow_duplicate_talker_ids: False
+      imu_nmea_prkr_data_rate: 0
+      gnss1_nmea_talker_id: 1
+      gnss1_nmea_gga_data_rate: 0
+      gnss1_nmea_gll_data_rate: 0
+      gnss1_nmea_gsv_data_rate: 0
+      gnss1_nmea_rmc_data_rate: 0
+      gnss1_nmea_vtg_data_rate: 0
+      gnss1_nmea_hdt_data_rate: 0
+      gnss1_nmea_zda_data_rate: 0
+      gnss2_nmea_talker_id: 2
+      gnss2_nmea_gga_data_rate: 0
+      gnss2_nmea_gll_data_rate: 0
+      gnss2_nmea_gsv_data_rate: 0
+      gnss2_nmea_rmc_data_rate: 0
+      gnss2_nmea_vtg_data_rate: 0
+      gnss2_nmea_hdt_data_rate: 0
+      gnss2_nmea_zda_data_rate: 0
+      filter_nmea_talker_id: 3
+      filter_nmea_gga_data_rate: 0
+      filter_nmea_gll_data_rate: 0
+      filter_nmea_rmc_data_rate: 0
+      filter_nmea_hdt_data_rate: 0
+      filter_nmea_prka_data_rate: 0
+      subscribe_ext_time: False
+      subscribe_ext_fix: False
+      subscribe_ext_vel_ned: False
+      subscribe_ext_vel_enu: False
+      subscribe_ext_vel_ecef: False
+      subscribe_ext_vel_body: False
+      subscribe_ext_heading_ned: False
+      subscribe_ext_heading_enu: False
+      subscribe_ext_mag: False
+      subscribe_ext_pressure: False

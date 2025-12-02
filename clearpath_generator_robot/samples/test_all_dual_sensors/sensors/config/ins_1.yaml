@@ -1,0 +1,24 @@
+cpr_generic_e/sensors/ins_1:
+  fixposition_driver:
+    ros__parameters:
+      stream: 'tcpcli://192.168.131.35:21000'
+      reconnect_delay: 5.0
+      delay_warning: 0.03
+      messages: ['FP_A-ODOMETRY', 'FP_A-ODOMENU', 'FP_A-ODOMSH', 'FP_A-ODOMSTATUS', 'FP_A-IMUBIAS', 'FP_A-EOE', 'FP_A-TF', 'FP_A-RAWIMU', 'FP_A-CORRIMU', 'FP_A-LLH', 'NOV_B-INSPVAX', 'FP_A-TEXT', 'FP_A-GNSSANT', 'FP_A-GNSSCORR', 'FP_A-TP', 'GGA', 'GLL', 'GSA', 'GST', 'GSV', 'HDT', 'RMC', 'VTG', 'ZDA', 'NOV_B-BESTGNSSPOS']
+      nmea_epoch: 'FUSION'
+      fusion_epoch: True
+      raw_output: False
+      cov_warning: False
+      nav2_mode: False
+      output_ns: '/fixposition'
+      speed_topic: '/fixposition/speed'
+      corr_topic: '/rtcm'
+      qos_type: 'sensor_short'
+      fp_output.formats: ['ODOMETRY', 'LLH', 'RAWIMU', 'CORRIMU']
+      fp_output.rate: 200
+      fp_output.type: 'tcp'
+      fp_output.reconnect: 5
+      fp_output.ip: '192.168.131.35'
+      fp_output.port: '21001'
+      customer_input.speed_topic: 'xvn/speed'
+      customer_input.rtcm_topic: 'xvn/rtcm'

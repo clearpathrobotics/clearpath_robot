@@ -1,0 +1,28 @@
+cpr_generic_e/sensors/lidar3d_4:
+  velodyne_transform_node:
+    ros__parameters:
+      calibration: '/opt/ros/jazzy/share/velodyne_pointcloud/params/VLP16db.yaml'
+      max_range: 130.0
+      min_range: 0.9
+      organize_cloud: True
+      view_direction: 0.0
+      model: 'VLP16'
+      fixed_frame: 'lidar3d_4_laser'
+      target_frame: 'lidar3d_4_laser'
+  velodyne_driver_node:
+    ros__parameters:
+      device_ip: '192.168.131.25'
+      enabled: True
+      frame_id: 'lidar3d_4_laser'
+      gps_time: False
+      model: 'VLP16'
+      port: 2368
+      read_fast: False
+      read_once: False
+      repeat_delay: 0.0
+      rpm: 600.0
+      time_offset: 0.0
+  velodyne_laserscan_node:
+    ros__parameters:
+      resolution: 0.007
+      ring: -1

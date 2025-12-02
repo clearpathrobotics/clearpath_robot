@@ -1,0 +1,30 @@
+j100_0000:
+  twist_mux:
+    ros__parameters:
+      use_stamped: True
+      topics:
+        joy:
+          topic: 'joy_teleop/cmd_vel'
+          timeout: 0.5
+          priority: 10
+        interactive_marker:
+          topic: 'twist_marker_server/cmd_vel'
+          timeout: 0.5
+          priority: 8
+        rc:
+          topic: 'rc_teleop/cmd_vel'
+          timeout: 0.5
+          priority: 12
+        external:
+          topic: 'cmd_vel'
+          timeout: 0.5
+          priority: 1
+      locks:
+        e_stop:
+          topic: 'platform/emergency_stop'
+          timeout: 0.0
+          priority: 255
+        safety_stop:
+          topic: 'platform/safety_stop'
+          timeout: 0.0
+          priority: 254

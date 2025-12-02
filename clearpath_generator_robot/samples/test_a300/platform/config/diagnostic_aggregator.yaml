@@ -37,9 +37,6 @@ a300_00000:
       platform.analyzers.networking.expected: ['wireless_watcher: Wi-Fi Monitor']
       sensors.type: 'diagnostic_aggregator/AnalyzerGroup'
       sensors.path: 'Sensors'
-      sensors.analyzers.cameras.type: 'diagnostic_aggregator/GenericAnalyzer'
-      sensors.analyzers.cameras.path: 'Cameras'
-      sensors.analyzers.cameras.contains: ['camera']
       sensors.analyzers.imu.type: 'diagnostic_aggregator/GenericAnalyzer'
       sensors.analyzers.imu.path: 'IMU'
       sensors.analyzers.imu.contains: ['imu']

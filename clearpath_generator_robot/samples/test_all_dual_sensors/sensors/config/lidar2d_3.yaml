@@ -1,0 +1,9 @@
+cpr_generic_e/sensors/lidar2d_3:
+  lms1xx:
+    ros__parameters:
+      frame_id: 'lidar2d_3_laser'
+      host: '192.168.131.21'
+      port: 2111
+      publish_min_range_as_inf: False
+      min_ang: -2.391
+      max_ang: 2.391

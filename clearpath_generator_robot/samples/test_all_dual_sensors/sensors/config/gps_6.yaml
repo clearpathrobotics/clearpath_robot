@@ -1,0 +1,7 @@
+cpr_generic_e/sensors/gps_6:
+  nmea_navsat_driver:
+    ros__parameters:
+      port: '/dev/clearpath/gps'
+      baud: 115200
+      frame_id: 'gps_6_link'
+      useRMC: False

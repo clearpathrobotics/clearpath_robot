@@ -1,4 +1,4 @@
-a201_0000:
+a200_0000:
   clearpath_diagnostic_updater:
     ros__parameters:
       serial_number: 'a200-0000'
@@ -13,33 +13,3 @@ a201_0000:
       mcu_power_tolerance: 0.25
       estop_rate: 1.8
       estop_tolerance: 0.25
-      topics.sensors/lidar2d_0/scan.type: 'sensor_msgs/msg/LaserScan'
-      topics.sensors/lidar2d_0/scan.rate: 40.0
-      topics.sensors/lidar2d_1/scan.type: 'sensor_msgs/msg/LaserScan'
-      topics.sensors/lidar2d_1/scan.rate: 40.0
-      topics.sensors/lidar3d_0/scan.type: 'sensor_msgs/msg/LaserScan'
-      topics.sensors/lidar3d_0/scan.rate: 20.0
-      topics.sensors/lidar3d_0/points.type: 'sensor_msgs/msg/PointCloud2'
-      topics.sensors/lidar3d_0/points.rate: 20.0
-      topics.sensors/camera_0/color/image.type: 'sensor_msgs/msg/Image'
-      topics.sensors/camera_0/color/image.rate: 30.0
-      topics.sensors/camera_0/depth/image.type: 'sensor_msgs/msg/Image'
-      topics.sensors/camera_0/depth/image.rate: 30.0
-      topics.sensors/camera_0/points.type: 'sensor_msgs/msg/PointCloud2'
-      topics.sensors/camera_0/points.rate: 30.0
-      topics.sensors/camera_1/color/image.type: 'sensor_msgs/msg/Image'
-      topics.sensors/camera_1/color/image.rate: 30.0
-      topics.sensors/camera_1/depth/image.type: 'sensor_msgs/msg/Image'
-      topics.sensors/camera_1/depth/image.rate: 30.0
-      topics.sensors/camera_1/points.type: 'sensor_msgs/msg/PointCloud2'
-      topics.sensors/camera_1/points.rate: 30.0
-      topics.sensors/camera_2/color/image/compressed.type: 'sensor_msgs/msg/CompressedImage'
-      topics.sensors/camera_2/color/image/compressed.rate: 20.0
-      topics.sensors/imu_0/data.type: 'sensor_msgs/msg/Imu'
-      topics.sensors/imu_0/data.rate: 100.0
-      topics.sensors/imu_0/mag.type: 'sensor_msgs/msg/MagneticField'
-      topics.sensors/imu_0/mag.rate: 0.0
-      topics.sensors/gps_0/fix.type: 'sensor_msgs/msg/NavSatFix'
-      topics.sensors/gps_0/fix.rate: 10.0
-      topics.sensors/gps_1/fix.type: 'sensor_msgs/msg/NavSatFix'
-      topics.sensors/gps_1/fix.rate: 10.0

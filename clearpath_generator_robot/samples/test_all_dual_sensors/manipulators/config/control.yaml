@@ -1,0 +1,6 @@
+cpr_generic_e/manipulators:
+  controller_manager:
+    ros__parameters:
+      update_rate: 1000
+      joint_state_broadcaster:
+        type: 'joint_state_broadcaster/JointStateBroadcaster'

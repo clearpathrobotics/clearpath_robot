@@ -1,0 +1,15 @@
+cpr_generic_e:
+  ekf_node:
+    ros__parameters:
+      odom_frame: 'odom'
+      base_link_frame: 'base_link'
+      world_frame: 'odom'
+      publish_tf: True
+      two_d_mode: True
+      use_sim_time: False
+      print_diagnostics: True
+      frequency: 50.0
+      odom0: 'platform/odom'
+      odom0_config: [True, True, False, False, False, True, True, True, False, False, False, True, False, False, False]
+      odom0_differential: False
+      odom0_queue_size: 10

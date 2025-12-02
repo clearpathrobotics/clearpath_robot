@@ -61,7 +61,7 @@ def generate_launch_description():
                 (
                     'namespace'
                     ,
-                    'a201_0000'
+                    'a200_0000'
                 )
                 ,
                 (
@@ -80,7 +80,7 @@ def generate_launch_description():
                 (
                     'namespace'
                     ,
-                    'a201_0000'
+                    'a200_0000'
                 )
                 ,
                 (
@@ -105,7 +105,7 @@ def generate_launch_description():
                 (
                     'namespace'
                     ,
-                    'a201_0000'
+                    'a200_0000'
                 )
                 ,
                 (
@@ -122,7 +122,7 @@ def generate_launch_description():
         name='battery_state_control',
         executable='battery_state_control',
         package='clearpath_hardware_interfaces',
-        namespace='a201_0000',
+        namespace='a200_0000',
         output='screen',
         arguments=
             [
@@ -138,7 +138,7 @@ def generate_launch_description():
         name='battery_state_estimator',
         executable='battery_state_estimator',
         package='clearpath_hardware_interfaces',
-        namespace='a201_0000',
+        namespace='a200_0000',
         output='screen',
         arguments=
             [
@@ -154,7 +154,7 @@ def generate_launch_description():
         name='wireless_watcher',
         executable='wireless_watcher',
         package='wireless_watcher',
-        namespace='a201_0000',
+        namespace='a200_0000',
         output='screen',
         remappings=
             [

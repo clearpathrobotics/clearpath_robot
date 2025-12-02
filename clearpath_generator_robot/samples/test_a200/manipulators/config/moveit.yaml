@@ -1,4 +1,4 @@
-a201_0000:
+a200_0000:
   move_group:
     ros__parameters:
       robot_description_planning:

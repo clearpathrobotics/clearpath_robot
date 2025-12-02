@@ -1,0 +1,6 @@
+cpr_generic_e:
+  controller_manager:
+    ros__parameters:
+      update_rate: 20
+      use_sim_time: False
+      joint_state_broadcaster.type: 'joint_state_broadcaster/JointStateBroadcaster'

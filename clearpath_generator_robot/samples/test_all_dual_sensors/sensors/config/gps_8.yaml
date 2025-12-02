@@ -1,0 +1,13 @@
+cpr_generic_e/sensors/gps_8:
+  duro_node:
+    ros__parameters:
+      ip_address: '192.168.131.30'
+      port: 55555
+      gps_receiver_frame_id: 'gps_8_link'
+      imu_frame_id: 'gps_8_link'
+      utm_frame_id: 'map'
+      orientation_source: 'gps'
+      z_coord_ref_switch: 'zero'
+      z_coord_exact_height: 0.2
+      euler_based_orientation: True
+      ip_port: 55555

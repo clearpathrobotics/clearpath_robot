@@ -1,0 +1,1059 @@
+cpr_generic_e/manipulators:
+  controller_manager:
+    ros__parameters:
+      update_rate: 500
+      joint_state_broadcaster:
+        type: 'joint_state_broadcaster/JointStateBroadcaster'
+      arm_34_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_33_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_32_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_31_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_30_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_29_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_28_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_27_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_26_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_25_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_24_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_23_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_22_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_21_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_20_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_19_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_18_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_17_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_16_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_15_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_14_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_13_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_12_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_11_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_10_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_9_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_8_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_7_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_6_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_5_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_4_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_3_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_2_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_1_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_0_joint_trajectory_controller:
+        type: 'joint_trajectory_controller/JointTrajectoryController'
+      arm_2_gripper_controller:
+        type: 'position_controllers/GripperActionController'
+      arm_3_gripper_controller:
+        type: 'position_controllers/GripperActionController'
+      arm_6_gripper_controller:
+        type: 'position_controllers/GripperActionController'
+      arm_7_gripper_controller:
+        type: 'position_controllers/GripperActionController'
+      arm_10_gripper_controller:
+        type: 'position_controllers/GripperActionController'
+      arm_11_gripper_controller:
+        type: 'position_controllers/GripperActionController'
+      arm_12_gripper_controller:
+        type: 'position_controllers/GripperActionController'
+      arm_13_gripper_controller:
+        type: 'position_controllers/GripperActionController'
+      arm_14_gripper_controller:
+        type: 'position_controllers/GripperActionController'
+      arm_15_gripper_controller:
+        type: 'position_controllers/GripperActionController'
+      arm_16_gripper_controller:
+        type: 'position_controllers/GripperActionController'
+      arm_18_gripper_controller:
+        type: 'position_controllers/GripperActionController'
+      arm_19_gripper_controller:
+        type: 'position_controllers/GripperActionController'
+      arm_21_gripper_controller:
+        type: 'position_controllers/GripperActionController'
+      arm_22_gripper_controller:
+        type: 'position_controllers/GripperActionController'
+      arm_24_gripper_controller:
+        type: 'position_controllers/GripperActionController'
+      arm_25_gripper_controller:
+        type: 'position_controllers/GripperActionController'
+      arm_27_gripper_controller:
+        type: 'position_controllers/GripperActionController'
+      arm_28_gripper_controller:
+        type: 'position_controllers/GripperActionController'
+      arm_30_gripper_controller:
+        type: 'position_controllers/GripperActionController'
+      arm_31_gripper_controller:
+        type: 'position_controllers/GripperActionController'
+      arm_33_gripper_controller:
+        type: 'position_controllers/GripperActionController'
+      arm_34_gripper_controller:
+        type: 'position_controllers/GripperActionController'
+      lift_0_position_controller:
+        type: 'position_controllers/JointGroupPositionController'
+      lift_1_position_controller:
+        type: 'position_controllers/JointGroupPositionController'
+      lift_2_position_controller:
+        type: 'position_controllers/JointGroupPositionController'
+      lift_3_position_controller:
+        type: 'position_controllers/JointGroupPositionController'
+      lift_4_position_controller:
+        type: 'position_controllers/JointGroupPositionController'
+      lift_5_position_controller:
+        type: 'position_controllers/JointGroupPositionController'
+      lift_6_position_controller:
+        type: 'position_controllers/JointGroupPositionController'
+      lift_7_position_controller:
+        type: 'position_controllers/JointGroupPositionController'
+      lift_8_position_controller:
+        type: 'position_controllers/JointGroupPositionController'
+      lift_9_position_controller:
+        type: 'position_controllers/JointGroupPositionController'
+      lift_10_position_controller:
+        type: 'position_controllers/JointGroupPositionController'
+  arm_34_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_34_shoulder_pan_joint', 'arm_34_shoulder_lift_joint', 'arm_34_elbow_joint', 'arm_34_wrist_1_joint', 'arm_34_wrist_2_joint', 'arm_34_wrist_3_joint']
+      command_interfaces: ['position']
+      state_interfaces: ['position', 'velocity']
+      state_publish_rate: 100.0
+      action_monitor_rate: 20.0
+      allow_partial_joints_goal: False
+      constraints:
+        stopped_velocity_tolerance: 0.0
+        goal_time: 0.0
+  arm_33_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_33_shoulder_pan_joint', 'arm_33_shoulder_lift_joint', 'arm_33_elbow_joint', 'arm_33_wrist_1_joint', 'arm_33_wrist_2_joint', 'arm_33_wrist_3_joint']
+      command_interfaces: ['position']
+      state_interfaces: ['position', 'velocity']
+      state_publish_rate: 100.0
+      action_monitor_rate: 20.0
+      allow_partial_joints_goal: False
+      constraints:
+        stopped_velocity_tolerance: 0.0
+        goal_time: 0.0
+  arm_32_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_32_shoulder_pan_joint', 'arm_32_shoulder_lift_joint', 'arm_32_elbow_joint', 'arm_32_wrist_1_joint', 'arm_32_wrist_2_joint', 'arm_32_wrist_3_joint']
+      command_interfaces: ['position']
+      state_interfaces: ['position', 'velocity']
+      state_publish_rate: 100.0
+      action_monitor_rate: 20.0
+      allow_partial_joints_goal: False
+      constraints:
+        stopped_velocity_tolerance: 0.0
+        goal_time: 0.0
+  arm_31_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_31_shoulder_pan_joint', 'arm_31_shoulder_lift_joint', 'arm_31_elbow_joint', 'arm_31_wrist_1_joint', 'arm_31_wrist_2_joint', 'arm_31_wrist_3_joint']
+      command_interfaces: ['position']
+      state_interfaces: ['position', 'velocity']
+      state_publish_rate: 100.0
+      action_monitor_rate: 20.0
+      allow_partial_joints_goal: False
+      constraints:
+        stopped_velocity_tolerance: 0.0
+        goal_time: 0.0
+  arm_30_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_30_shoulder_pan_joint', 'arm_30_shoulder_lift_joint', 'arm_30_elbow_joint', 'arm_30_wrist_1_joint', 'arm_30_wrist_2_joint', 'arm_30_wrist_3_joint']
+      command_interfaces: ['position']
+      state_interfaces: ['position', 'velocity']
+      state_publish_rate: 100.0
+      action_monitor_rate: 20.0
+      allow_partial_joints_goal: False
+      constraints:
+        stopped_velocity_tolerance: 0.0
+        goal_time: 0.0
+  arm_29_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_29_shoulder_pan_joint', 'arm_29_shoulder_lift_joint', 'arm_29_elbow_joint', 'arm_29_wrist_1_joint', 'arm_29_wrist_2_joint', 'arm_29_wrist_3_joint']
+      command_interfaces: ['position']
+      state_interfaces: ['position', 'velocity']
+      state_publish_rate: 100.0
+      action_monitor_rate: 20.0
+      allow_partial_joints_goal: False
+      constraints:
+        stopped_velocity_tolerance: 0.0
+        goal_time: 0.0
+  arm_28_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_28_shoulder_pan_joint', 'arm_28_shoulder_lift_joint', 'arm_28_elbow_joint', 'arm_28_wrist_1_joint', 'arm_28_wrist_2_joint', 'arm_28_wrist_3_joint']
+      command_interfaces: ['position']
+      state_interfaces: ['position', 'velocity']
+      state_publish_rate: 100.0
+      action_monitor_rate: 20.0
+      allow_partial_joints_goal: False
+      constraints:
+        stopped_velocity_tolerance: 0.0
+        goal_time: 0.0
+  arm_27_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_27_shoulder_pan_joint', 'arm_27_shoulder_lift_joint', 'arm_27_elbow_joint', 'arm_27_wrist_1_joint', 'arm_27_wrist_2_joint', 'arm_27_wrist_3_joint']
+      command_interfaces: ['position']
+      state_interfaces: ['position', 'velocity']
+      state_publish_rate: 100.0
+      action_monitor_rate: 20.0
+      allow_partial_joints_goal: False
+      constraints:
+        stopped_velocity_tolerance: 0.0
+        goal_time: 0.0
+  arm_26_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_26_shoulder_pan_joint', 'arm_26_shoulder_lift_joint', 'arm_26_elbow_joint', 'arm_26_wrist_1_joint', 'arm_26_wrist_2_joint', 'arm_26_wrist_3_joint']
+      command_interfaces: ['position']
+      state_interfaces: ['position', 'velocity']
+      state_publish_rate: 100.0
+      action_monitor_rate: 20.0
+      allow_partial_joints_goal: False
+      constraints:
+        stopped_velocity_tolerance: 0.0
+        goal_time: 0.0
+  arm_25_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_25_shoulder_pan_joint', 'arm_25_shoulder_lift_joint', 'arm_25_elbow_joint', 'arm_25_wrist_1_joint', 'arm_25_wrist_2_joint', 'arm_25_wrist_3_joint']
+      command_interfaces: ['position']
+      state_interfaces: ['position', 'velocity']
+      state_publish_rate: 100.0
+      action_monitor_rate: 20.0
+      allow_partial_joints_goal: False
+      constraints:
+        stopped_velocity_tolerance: 0.0
+        goal_time: 0.0
+  arm_24_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_24_shoulder_pan_joint', 'arm_24_shoulder_lift_joint', 'arm_24_elbow_joint', 'arm_24_wrist_1_joint', 'arm_24_wrist_2_joint', 'arm_24_wrist_3_joint']
+      command_interfaces: ['position']
+      state_interfaces: ['position', 'velocity']
+      state_publish_rate: 100.0
+      action_monitor_rate: 20.0
+      allow_partial_joints_goal: False
+      constraints:
+        stopped_velocity_tolerance: 0.0
+        goal_time: 0.0
+  arm_23_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_23_shoulder_pan_joint', 'arm_23_shoulder_lift_joint', 'arm_23_elbow_joint', 'arm_23_wrist_1_joint', 'arm_23_wrist_2_joint', 'arm_23_wrist_3_joint']
+      command_interfaces: ['position']
+      state_interfaces: ['position', 'velocity']
+      state_publish_rate: 100.0
+      action_monitor_rate: 20.0
+      allow_partial_joints_goal: False
+      constraints:
+        stopped_velocity_tolerance: 0.0
+        goal_time: 0.0
+  arm_22_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_22_shoulder_pan_joint', 'arm_22_shoulder_lift_joint', 'arm_22_elbow_joint', 'arm_22_wrist_1_joint', 'arm_22_wrist_2_joint', 'arm_22_wrist_3_joint']
+      command_interfaces: ['position']
+      state_interfaces: ['position', 'velocity']
+      state_publish_rate: 100.0
+      action_monitor_rate: 20.0
+      allow_partial_joints_goal: False
+      constraints:
+        stopped_velocity_tolerance: 0.0
+        goal_time: 0.0
+  arm_21_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_21_shoulder_pan_joint', 'arm_21_shoulder_lift_joint', 'arm_21_elbow_joint', 'arm_21_wrist_1_joint', 'arm_21_wrist_2_joint', 'arm_21_wrist_3_joint']
+      command_interfaces: ['position']
+      state_interfaces: ['position', 'velocity']
+      state_publish_rate: 100.0
+      action_monitor_rate: 20.0
+      allow_partial_joints_goal: False
+      constraints:
+        stopped_velocity_tolerance: 0.0
+        goal_time: 0.0
+  arm_20_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_20_shoulder_pan_joint', 'arm_20_shoulder_lift_joint', 'arm_20_elbow_joint', 'arm_20_wrist_1_joint', 'arm_20_wrist_2_joint', 'arm_20_wrist_3_joint']
+      command_interfaces: ['position']
+      state_interfaces: ['position', 'velocity']
+      state_publish_rate: 100.0
+      action_monitor_rate: 20.0
+      allow_partial_joints_goal: False
+      constraints:
+        stopped_velocity_tolerance: 0.0
+        goal_time: 0.0
+  arm_19_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_19_shoulder_pan_joint', 'arm_19_shoulder_lift_joint', 'arm_19_elbow_joint', 'arm_19_wrist_1_joint', 'arm_19_wrist_2_joint', 'arm_19_wrist_3_joint']
+      command_interfaces: ['position']
+      state_interfaces: ['position', 'velocity']
+      state_publish_rate: 100.0
+      action_monitor_rate: 20.0
+      allow_partial_joints_goal: False
+      constraints:
+        stopped_velocity_tolerance: 0.0
+        goal_time: 0.0
+  arm_18_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_18_shoulder_pan_joint', 'arm_18_shoulder_lift_joint', 'arm_18_elbow_joint', 'arm_18_wrist_1_joint', 'arm_18_wrist_2_joint', 'arm_18_wrist_3_joint']
+      command_interfaces: ['position']
+      state_interfaces: ['position', 'velocity']
+      state_publish_rate: 100.0
+      action_monitor_rate: 20.0
+      allow_partial_joints_goal: False
+      constraints:
+        stopped_velocity_tolerance: 0.0
+        goal_time: 0.0
+  arm_17_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_17_shoulder_pan_joint', 'arm_17_shoulder_lift_joint', 'arm_17_elbow_joint', 'arm_17_wrist_1_joint', 'arm_17_wrist_2_joint', 'arm_17_wrist_3_joint']
+      command_interfaces: ['position']
+      state_interfaces: ['position', 'velocity']
+      state_publish_rate: 100.0
+      action_monitor_rate: 20.0
+      allow_partial_joints_goal: False
+      constraints:
+        stopped_velocity_tolerance: 0.0
+        goal_time: 0.0
+  arm_16_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_16_joint_1', 'arm_16_joint_2', 'arm_16_joint_3', 'arm_16_joint_4', 'arm_16_joint_5', 'arm_16_joint_6', 'arm_16_joint_7']
+      command_interfaces: ['position', 'velocity']
+      state_interfaces: ['position', 'velocity']
+      state_publish_rate: 100.0
+      action_monitor_rate: 20.0
+      allow_partial_joints_goal: False
+      constraints:
+        stopped_velocity_tolerance: 0.0
+        goal_time: 0.0
+  arm_15_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_15_joint_1', 'arm_15_joint_2', 'arm_15_joint_3', 'arm_15_joint_4', 'arm_15_joint_5', 'arm_15_joint_6', 'arm_15_joint_7']
+      command_interfaces: ['position', 'velocity']
+      state_interfaces: ['position', 'velocity']
+      state_publish_rate: 100.0
+      action_monitor_rate: 20.0
+      allow_partial_joints_goal: False
+      constraints:
+        stopped_velocity_tolerance: 0.0
+        goal_time: 0.0
+  arm_14_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_14_joint_1', 'arm_14_joint_2', 'arm_14_joint_3', 'arm_14_joint_4', 'arm_14_joint_5', 'arm_14_joint_6']
+      command_interfaces: ['position', 'velocity']
+      state_interfaces: ['position', 'velocity']
+      state_publish_rate: 100.0
+      action_monitor_rate: 20.0
+      allow_partial_joints_goal: False
+      constraints:
+        stopped_velocity_tolerance: 0.0
+        goal_time: 0.0
+  arm_13_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_13_joint_1', 'arm_13_joint_2', 'arm_13_joint_3', 'arm_13_joint_4', 'arm_13_joint_5', 'arm_13_joint_6']
+      command_interfaces: ['position', 'velocity']
+      state_interfaces: ['position', 'velocity']
+      state_publish_rate: 100.0
+      action_monitor_rate: 20.0
+      allow_partial_joints_goal: False
+      constraints:
+        stopped_velocity_tolerance: 0.0
+        goal_time: 0.0
+  arm_12_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_12_joint_1', 'arm_12_joint_2', 'arm_12_joint_3', 'arm_12_joint_4', 'arm_12_joint_5', 'arm_12_joint_6']
+      command_interfaces: ['position']
+      state_interfaces: ['position', 'velocity']
+      state_publish_rate: 100.0
+      action_monitor_rate: 20.0
+      allow_partial_joints_goal: False
+      constraints:
+        stopped_velocity_tolerance: 0.0
+        goal_time: 0.0
+  arm_11_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_11_fer_joint1', 'arm_11_fer_joint2', 'arm_11_fer_joint3', 'arm_11_fer_joint4', 'arm_11_fer_joint5', 'arm_11_fer_joint6', 'arm_11_fer_joint7']
+      command_interfaces: ['effort']
+      state_interfaces: ['position', 'velocity']
+      gains:
+        arm_11_fer_joint1:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_11_fer_joint2:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_11_fer_joint3:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_11_fer_joint4:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_11_fer_joint5:
+          p: 250.0
+          d: 10.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_11_fer_joint6:
+          p: 150.0
+          d: 10.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_11_fer_joint7:
+          p: 50.0
+          d: 5.0
+          i: 0.0
+          i_clamp: 1.0
+  arm_10_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_10_fer_joint1', 'arm_10_fer_joint2', 'arm_10_fer_joint3', 'arm_10_fer_joint4', 'arm_10_fer_joint5', 'arm_10_fer_joint6', 'arm_10_fer_joint7']
+      command_interfaces: ['effort']
+      state_interfaces: ['position', 'velocity']
+      gains:
+        arm_10_fer_joint1:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_10_fer_joint2:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_10_fer_joint3:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_10_fer_joint4:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_10_fer_joint5:
+          p: 250.0
+          d: 10.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_10_fer_joint6:
+          p: 150.0
+          d: 10.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_10_fer_joint7:
+          p: 50.0
+          d: 5.0
+          i: 0.0
+          i_clamp: 1.0
+  arm_9_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_9_fer_joint1', 'arm_9_fer_joint2', 'arm_9_fer_joint3', 'arm_9_fer_joint4', 'arm_9_fer_joint5', 'arm_9_fer_joint6', 'arm_9_fer_joint7']
+      command_interfaces: ['effort']
+      state_interfaces: ['position', 'velocity']
+      gains:
+        arm_9_fer_joint1:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_9_fer_joint2:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_9_fer_joint3:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_9_fer_joint4:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_9_fer_joint5:
+          p: 250.0
+          d: 10.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_9_fer_joint6:
+          p: 150.0
+          d: 10.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_9_fer_joint7:
+          p: 50.0
+          d: 5.0
+          i: 0.0
+          i_clamp: 1.0
+  arm_8_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_8_fer_joint1', 'arm_8_fer_joint2', 'arm_8_fer_joint3', 'arm_8_fer_joint4', 'arm_8_fer_joint5', 'arm_8_fer_joint6', 'arm_8_fer_joint7']
+      command_interfaces: ['effort']
+      state_interfaces: ['position', 'velocity']
+      gains:
+        arm_8_fer_joint1:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_8_fer_joint2:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_8_fer_joint3:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_8_fer_joint4:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_8_fer_joint5:
+          p: 250.0
+          d: 10.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_8_fer_joint6:
+          p: 150.0
+          d: 10.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_8_fer_joint7:
+          p: 50.0
+          d: 5.0
+          i: 0.0
+          i_clamp: 1.0
+  arm_7_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_7_fp3_joint1', 'arm_7_fp3_joint2', 'arm_7_fp3_joint3', 'arm_7_fp3_joint4', 'arm_7_fp3_joint5', 'arm_7_fp3_joint6', 'arm_7_fp3_joint7']
+      command_interfaces: ['effort']
+      state_interfaces: ['position', 'velocity']
+      gains:
+        arm_7_fp3_joint1:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_7_fp3_joint2:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_7_fp3_joint3:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_7_fp3_joint4:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_7_fp3_joint5:
+          p: 250.0
+          d: 10.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_7_fp3_joint6:
+          p: 150.0
+          d: 10.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_7_fp3_joint7:
+          p: 50.0
+          d: 5.0
+          i: 0.0
+          i_clamp: 1.0
+  arm_6_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_6_fp3_joint1', 'arm_6_fp3_joint2', 'arm_6_fp3_joint3', 'arm_6_fp3_joint4', 'arm_6_fp3_joint5', 'arm_6_fp3_joint6', 'arm_6_fp3_joint7']
+      command_interfaces: ['effort']
+      state_interfaces: ['position', 'velocity']
+      gains:
+        arm_6_fp3_joint1:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_6_fp3_joint2:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_6_fp3_joint3:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_6_fp3_joint4:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_6_fp3_joint5:
+          p: 250.0
+          d: 10.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_6_fp3_joint6:
+          p: 150.0
+          d: 10.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_6_fp3_joint7:
+          p: 50.0
+          d: 5.0
+          i: 0.0
+          i_clamp: 1.0
+  arm_5_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_5_fp3_joint1', 'arm_5_fp3_joint2', 'arm_5_fp3_joint3', 'arm_5_fp3_joint4', 'arm_5_fp3_joint5', 'arm_5_fp3_joint6', 'arm_5_fp3_joint7']
+      command_interfaces: ['effort']
+      state_interfaces: ['position', 'velocity']
+      gains:
+        arm_5_fp3_joint1:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_5_fp3_joint2:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_5_fp3_joint3:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_5_fp3_joint4:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_5_fp3_joint5:
+          p: 250.0
+          d: 10.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_5_fp3_joint6:
+          p: 150.0
+          d: 10.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_5_fp3_joint7:
+          p: 50.0
+          d: 5.0
+          i: 0.0
+          i_clamp: 1.0
+  arm_4_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_4_fp3_joint1', 'arm_4_fp3_joint2', 'arm_4_fp3_joint3', 'arm_4_fp3_joint4', 'arm_4_fp3_joint5', 'arm_4_fp3_joint6', 'arm_4_fp3_joint7']
+      command_interfaces: ['effort']
+      state_interfaces: ['position', 'velocity']
+      gains:
+        arm_4_fp3_joint1:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_4_fp3_joint2:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_4_fp3_joint3:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_4_fp3_joint4:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_4_fp3_joint5:
+          p: 250.0
+          d: 10.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_4_fp3_joint6:
+          p: 150.0
+          d: 10.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_4_fp3_joint7:
+          p: 50.0
+          d: 5.0
+          i: 0.0
+          i_clamp: 1.0
+  arm_3_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_3_fr3_joint1', 'arm_3_fr3_joint2', 'arm_3_fr3_joint3', 'arm_3_fr3_joint4', 'arm_3_fr3_joint5', 'arm_3_fr3_joint6', 'arm_3_fr3_joint7']
+      command_interfaces: ['effort']
+      state_interfaces: ['position', 'velocity']
+      gains:
+        arm_3_fr3_joint1:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_3_fr3_joint2:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_3_fr3_joint3:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_3_fr3_joint4:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_3_fr3_joint5:
+          p: 250.0
+          d: 10.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_3_fr3_joint6:
+          p: 150.0
+          d: 10.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_3_fr3_joint7:
+          p: 50.0
+          d: 5.0
+          i: 0.0
+          i_clamp: 1.0
+  arm_2_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_2_fr3_joint1', 'arm_2_fr3_joint2', 'arm_2_fr3_joint3', 'arm_2_fr3_joint4', 'arm_2_fr3_joint5', 'arm_2_fr3_joint6', 'arm_2_fr3_joint7']
+      command_interfaces: ['effort']
+      state_interfaces: ['position', 'velocity']
+      gains:
+        arm_2_fr3_joint1:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_2_fr3_joint2:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_2_fr3_joint3:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_2_fr3_joint4:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_2_fr3_joint5:
+          p: 250.0
+          d: 10.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_2_fr3_joint6:
+          p: 150.0
+          d: 10.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_2_fr3_joint7:
+          p: 50.0
+          d: 5.0
+          i: 0.0
+          i_clamp: 1.0
+  arm_1_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_1_fr3_joint1', 'arm_1_fr3_joint2', 'arm_1_fr3_joint3', 'arm_1_fr3_joint4', 'arm_1_fr3_joint5', 'arm_1_fr3_joint6', 'arm_1_fr3_joint7']
+      command_interfaces: ['effort']
+      state_interfaces: ['position', 'velocity']
+      gains:
+        arm_1_fr3_joint1:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_1_fr3_joint2:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_1_fr3_joint3:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_1_fr3_joint4:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_1_fr3_joint5:
+          p: 250.0
+          d: 10.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_1_fr3_joint6:
+          p: 150.0
+          d: 10.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_1_fr3_joint7:
+          p: 50.0
+          d: 5.0
+          i: 0.0
+          i_clamp: 1.0
+  arm_0_joint_trajectory_controller:
+    ros__parameters:
+      joints: ['arm_0_fr3_joint1', 'arm_0_fr3_joint2', 'arm_0_fr3_joint3', 'arm_0_fr3_joint4', 'arm_0_fr3_joint5', 'arm_0_fr3_joint6', 'arm_0_fr3_joint7']
+      command_interfaces: ['effort']
+      state_interfaces: ['position', 'velocity']
+      gains:
+        arm_0_fr3_joint1:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_0_fr3_joint2:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_0_fr3_joint3:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_0_fr3_joint4:
+          p: 600.0
+          d: 30.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_0_fr3_joint5:
+          p: 250.0
+          d: 10.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_0_fr3_joint6:
+          p: 150.0
+          d: 10.0
+          i: 0.0
+          i_clamp: 1.0
+        arm_0_fr3_joint7:
+          p: 50.0
+          d: 5.0
+          i: 0.0
+          i_clamp: 1.0
+  arm_2_gripper_controller:
+    ros__parameters:
+      default: True
+      joint: 'arm_2_gripper_robotiq_85_left_knuckle_joint'
+      use_effort_interface: True
+      use_speed_interface: True
+  arm_3_gripper_controller:
+    ros__parameters:
+      default: True
+      joint: 'arm_3_gripper_finger_joint'
+      use_effort_interface: True
+      use_speed_interface: True
+  arm_6_gripper_controller:
+    ros__parameters:
+      default: True
+      joint: 'arm_6_gripper_robotiq_85_left_knuckle_joint'
+      use_effort_interface: True
+      use_speed_interface: True
+  arm_7_gripper_controller:
+    ros__parameters:
+      default: True
+      joint: 'arm_7_gripper_finger_joint'
+      use_effort_interface: True
+      use_speed_interface: True
+  arm_10_gripper_controller:
+    ros__parameters:
+      default: True
+      joint: 'arm_10_gripper_robotiq_85_left_knuckle_joint'
+      use_effort_interface: True
+      use_speed_interface: True
+  arm_11_gripper_controller:
+    ros__parameters:
+      default: True
+      joint: 'arm_11_gripper_finger_joint'
+      use_effort_interface: True
+      use_speed_interface: True
+  arm_12_gripper_controller:
+    ros__parameters:
+      default: True
+      joint: 'arm_12_gripper_right_finger_bottom_joint'
+      allow_stalling: True
+  arm_13_gripper_controller:
+    ros__parameters:
+      default: True
+      joint: 'arm_13_gripper_robotiq_85_left_knuckle_joint'
+      use_effort_interface: True
+      use_speed_interface: True
+  arm_14_gripper_controller:
+    ros__parameters:
+      default: True
+      joint: 'arm_14_gripper_finger_joint'
+      use_effort_interface: True
+      use_speed_interface: True
+  arm_15_gripper_controller:
+    ros__parameters:
+      default: True
+      joint: 'arm_15_gripper_robotiq_85_left_knuckle_joint'
+      use_effort_interface: True
+      use_speed_interface: True
+  arm_16_gripper_controller:
+    ros__parameters:
+      default: True
+      joint: 'arm_16_gripper_finger_joint'
+      use_effort_interface: True
+      use_speed_interface: True
+  arm_18_gripper_controller:
+    ros__parameters:
+      default: True
+      joint: 'arm_18_gripper_robotiq_85_left_knuckle_joint'
+      use_effort_interface: True
+      use_speed_interface: True
+  arm_19_gripper_controller:
+    ros__parameters:
+      default: True
+      joint: 'arm_19_gripper_finger_joint'
+      use_effort_interface: True
+      use_speed_interface: True
+  arm_21_gripper_controller:
+    ros__parameters:
+      default: True
+      joint: 'arm_21_gripper_robotiq_85_left_knuckle_joint'
+      use_effort_interface: True
+      use_speed_interface: True
+  arm_22_gripper_controller:
+    ros__parameters:
+      default: True
+      joint: 'arm_22_gripper_finger_joint'
+      use_effort_interface: True
+      use_speed_interface: True
+  arm_24_gripper_controller:
+    ros__parameters:
+      default: True
+      joint: 'arm_24_gripper_robotiq_85_left_knuckle_joint'
+      use_effort_interface: True
+      use_speed_interface: True
+  arm_25_gripper_controller:
+    ros__parameters:
+      default: True
+      joint: 'arm_25_gripper_finger_joint'
+      use_effort_interface: True
+      use_speed_interface: True
+  arm_27_gripper_controller:
+    ros__parameters:
+      default: True
+      joint: 'arm_27_gripper_robotiq_85_left_knuckle_joint'
+      use_effort_interface: True
+      use_speed_interface: True
+  arm_28_gripper_controller:
+    ros__parameters:
+      default: True
+      joint: 'arm_28_gripper_finger_joint'
+      use_effort_interface: True
+      use_speed_interface: True
+  arm_30_gripper_controller:
+    ros__parameters:
+      default: True
+      joint: 'arm_30_gripper_robotiq_85_left_knuckle_joint'
+      use_effort_interface: True
+      use_speed_interface: True
+  arm_31_gripper_controller:
+    ros__parameters:
+      default: True
+      joint: 'arm_31_gripper_finger_joint'
+      use_effort_interface: True
+      use_speed_interface: True
+  arm_33_gripper_controller:
+    ros__parameters:
+      default: True
+      joint: 'arm_33_gripper_robotiq_85_left_knuckle_joint'
+      use_effort_interface: True
+      use_speed_interface: True
+  arm_34_gripper_controller:
+    ros__parameters:
+      default: True
+      joint: 'arm_34_gripper_finger_joint'
+      use_effort_interface: True
+      use_speed_interface: True
+  lift_0_position_controller:
+    ros__parameters:
+      joints: ['lift_0_lower_joint']
+  lift_1_position_controller:
+    ros__parameters:
+      joints: ['lift_1_lower_joint']
+  lift_2_position_controller:
+    ros__parameters:
+      joints: ['lift_2_lower_joint']
+  lift_3_position_controller:
+    ros__parameters:
+      joints: ['lift_3_lower_joint']
+  lift_4_position_controller:
+    ros__parameters:
+      joints: ['lift_4_lower_joint']
+  lift_5_position_controller:
+    ros__parameters:
+      joints: ['lift_5_lower_joint']
+  lift_6_position_controller:
+    ros__parameters:
+      joints: ['lift_6_lower_joint']
+  lift_7_position_controller:
+    ros__parameters:
+      joints: ['lift_7_lower_joint']
+  lift_8_position_controller:
+    ros__parameters:
+      joints: ['lift_8_lower_joint']
+  lift_9_position_controller:
+    ros__parameters:
+      joints: ['lift_9_lower_joint']
+  lift_10_position_controller:
+    ros__parameters:
+      joints: ['lift_10_lower_joint']

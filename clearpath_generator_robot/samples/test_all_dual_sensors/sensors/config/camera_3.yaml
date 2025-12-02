@@ -1,0 +1,40 @@
+cpr_generic_e/sensors/camera_3:
+  flir_blackfly:
+    ros__parameters:
+      serial_number: ''
+      debug: False
+      compute_brightness: False
+      adjust_timestamp: True
+      dump_node_map: False
+      gain_auto: 'Continuous'
+      pixel_format: 'BayerRG8'
+      exposure_auto: 'Continuous'
+      binning_x: 2
+      binning_y: 2
+      frame_rate_auto: False
+      frame_rate: 40
+      frame_rate_enable: True
+      buffer_queue_size: 1
+      trigger_mode: False
+      chunk_mode_active: True
+      chunk_selector_frame_id: 'FrameID'
+      chunk_enable_frame_id: True
+      chunk_selector_exposure_time: 'ExposureTime'
+      chunk_enable_exposure_time: True
+      chunk_selector_gain: 'Gain'
+      chunk_enable_gain: True
+      chunk_selector_timestamp: 'Timestamp'
+      chunk_enable_timestamp: True
+      flir_blackfly.image_raw.enable_pub_plugins: ['image_transport/raw']
+  image_debayer:
+    ros__parameters:
+      ffmpeg_image_transport:
+        qmax: 40
+        preset: 'superfast'
+        tune: 'zerolatency'
+        bit_rate: 1000000
+        gop_size: 15
+      image_mono:
+        enable_pub_plugins: ['image_transport/compressed', 'image_transport/ffmpeg', 'image_transport/raw']
+      image_color:
+        enable_pub_plugins: ['image_transport/compressed', 'image_transport/ffmpeg', 'image_transport/raw']

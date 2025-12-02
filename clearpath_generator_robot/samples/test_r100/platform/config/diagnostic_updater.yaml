@@ -1,0 +1,14 @@
+r100_0000:
+  clearpath_diagnostic_updater:
+    ros__parameters:
+      serial_number: 'r100-0000'
+      platform_model: 'r100'
+      ros_distro: 'jazzy'
+      latest_apt_firmware_version: '2.7.3'
+      installed_apt_firmware_version: 'none'
+      bms_state_rate: 10.0
+      bms_state_tolerance: 0.15
+      topics.sensors/imu_0/data.type: 'sensor_msgs/msg/Imu'
+      topics.sensors/imu_0/data.rate: 50.0
+      topics.sensors/lidar2d_0/scan.type: 'sensor_msgs/msg/LaserScan'
+      topics.sensors/lidar2d_0/scan.rate: 40.0

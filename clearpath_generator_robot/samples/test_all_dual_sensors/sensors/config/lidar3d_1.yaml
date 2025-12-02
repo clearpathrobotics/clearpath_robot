@@ -1,0 +1,35 @@
+cpr_generic_e/sensors/lidar3d_1:
+  ouster_driver:
+    ros__parameters:
+      sensor_hostname: '192.168.131.21'
+      udp_dest: '192.168.131.100'
+      mtp_dest: ''
+      mtp_main: False
+      lidar_mode: ''
+      timestamp_mode: 'TIME_FROM_ROS_TIME'
+      ptp_utc_tai_offset: -37.0
+      udp_profile_lidar: ''
+      metadata: ''
+      lidar_port: 7502
+      imu_port: 7503
+      sensor_frame: 'lidar3d_1_sensor_link'
+      lidar_frame: 'lidar3d_1_sensor_link'
+      imu_frame: 'lidar3d_1_sensor_link'
+      point_cloud_frame: 'lidar3d_1_sensor_link'
+      pub_static_tf: False
+      proc_mask: 'IMU|PCL|SCAN|IMG|RAW|TLM'
+      scan_ring: 0
+      use_system_default_qos: False
+      point_type: 'original'
+      azimuth_window_start: 0
+      azimuth_window_end: 360000
+      persist_config: False
+      attempt_reconnect: False
+      dormant_period_between_reconnects: 1.0
+      max_failed_reconnect_attempts: 2147483647
+      organized: True
+      destagger: True
+      min_range: 0.0
+      max_range: 1000.0
+      cap_type: 'halo'
+      base_type: 'base'
