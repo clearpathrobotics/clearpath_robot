@@ -34,6 +34,8 @@ jobs:
           wget https://packages.clearpathrobotics.com/public.key -O - | sudo apt-key add -
           sudo sh -c 'echo "deb https://packages.clearpathrobotics.com/stable/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/clearpath-latest.list'
           sudo apt-get update
+          sudo wget https://raw.githubusercontent.com/clearpathrobotics/public-rosdistro/master/rosdep/50-clearpath.list -O /etc/ros/rosdep/sources.list.d/50-clearpath.list
+          rosdep update
       - uses: ros-tooling/action-ros-ci@v0.3
         id: action_ros_ci_step
         with:
@@ -50,6 +52,14 @@ jobs:
       - uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: jazzy
+      - name: clearpath-package-server
+        run: |
+          sudo apt install wget
+          wget https://packages.clearpathrobotics.com/public.key -O - | sudo apt-key add -
+          sudo sh -c 'echo "deb https://packages.clearpathrobotics.com/stable/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/clearpath-latest.list'
+          sudo apt-get update
+          sudo wget https://raw.githubusercontent.com/clearpathrobotics/public-rosdistro/master/rosdep/50-clearpath.list -O /etc/ros/rosdep/sources.list.d/50-clearpath.list
+          rosdep update
       - uses: ros-tooling/action-ros-ci@v0.3
         id: action_ros_ci_step
         with:
@@ -85,6 +95,14 @@ jobs:
       - uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: jazzy
+      - name: clearpath-package-server
+        run: |
+          sudo apt install wget
+          wget https://packages.clearpathrobotics.com/public.key -O - | sudo apt-key add -
+          sudo sh -c 'echo "deb https://packages.clearpathrobotics.com/stable/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/clearpath-latest.list'
+          sudo apt-get update
+          sudo wget https://raw.githubusercontent.com/clearpathrobotics/public-rosdistro/master/rosdep/50-clearpath.list -O /etc/ros/rosdep/sources.list.d/50-clearpath.list
+          rosdep update
       - uses: ros-tooling/action-ros-ci@v0.3
         id: action_ros_ci_step
         with:
@@ -117,6 +135,14 @@ jobs:
       - uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: jazzy
+      - name: clearpath-package-server
+        run: |
+          sudo apt install wget
+          wget https://packages.clearpathrobotics.com/public.key -O - | sudo apt-key add -
+          sudo sh -c 'echo "deb https://packages.clearpathrobotics.com/stable/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/clearpath-latest.list'
+          sudo apt-get update
+          sudo wget https://raw.githubusercontent.com/clearpathrobotics/public-rosdistro/master/rosdep/50-clearpath.list -O /etc/ros/rosdep/sources.list.d/50-clearpath.list
+          rosdep update
       - uses: ros-tooling/action-ros-ci@v0.3
         id: action_ros_ci_step
         with:
