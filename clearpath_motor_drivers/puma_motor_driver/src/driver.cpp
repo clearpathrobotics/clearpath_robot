@@ -22,7 +22,6 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCL
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "clearpath_motor_msgs/msg/puma_status.hpp"
-#include "clearpath_ros2_socketcan_interface/socketcan_interface.hpp"
 
 #include "puma_motor_driver/driver.hpp"
 
@@ -59,7 +58,7 @@ enum ConfigurationState
 typedef ConfigurationStates::ConfigurationState ConfigurationState;
 
 Driver::Driver(
-  const std::shared_ptr<clearpath_ros2_socketcan_interface::SocketCANInterface> interface,
+  const std::shared_ptr<can_hardware::drivers::SocketCanDriver> interface,
   std::shared_ptr<rclcpp::Node> nh,
   const uint8_t & device_number,
   const std::string & device_name)
@@ -88,20 +87,20 @@ Driver::Driver(
   );
 }
 
-void Driver::processMessage(const can_msgs::msg::Frame::SharedPtr received_msg)
+void Driver::processMessage(const can_hardware::Frame & received_msg)
 {
   // If it's not our message, jump out.
-  if (getDeviceNumber(*received_msg) != device_number_) {
+  if (getDeviceNumber(received_msg) != device_number_) {
     return;
   }
 
   // If there's no data then this is a request message, jump out.
-  if (received_msg->dlc == 0) {
+  if (received_msg.dlc == 0) {
     return;
   }
 
   Field * field = nullptr;
-  uint32_t received_api = getApi(*received_msg);
+  uint32_t received_api = getApi(received_msg);
   if ((received_api & CAN_MSGID_API_M & CAN_API_MC_CFG) == CAN_API_MC_CFG) {
     field = cfgFieldForMessage(received_api);
   } else if ((received_api & CAN_MSGID_API_M & CAN_API_MC_STATUS) == CAN_API_MC_STATUS) {
@@ -128,7 +127,7 @@ void Driver::processMessage(const can_msgs::msg::Frame::SharedPtr received_msg)
   }
 
   // Copy the received data and mark that field as received.
-  std::copy_n(std::begin(received_msg->data), Field::FIELD_STRUCT_DATA_SIZE,
+  std::copy_n(std::begin(received_msg.data), Field::FIELD_STRUCT_DATA_SIZE,
     std::begin(field->data));
   field->received = true;
 }
@@ -140,35 +139,35 @@ double Driver::radPerSecToRpm() const
 
 void Driver::sendId(const uint32_t id)
 {
-  can_msgs::msg::Frame msg = getMsg(id);
-  interface_->send(msg);
+  auto msg = getMsg(id);
+  interface_->sendFrame(msg);
 }
 
 void Driver::sendUint8(const uint32_t id, const uint8_t value)
 {
-  can_msgs::msg::Frame msg = getMsg(id);
+  auto msg = getMsg(id);
   msg.dlc = sizeof(uint8_t);
   uint8_t data[8] = {0};
   std::memcpy(data, &value, sizeof(uint8_t));
   std::copy(std::begin(data), std::end(data), std::begin(msg.data));
 
-  interface_->send(msg);
+  interface_->sendFrame(msg);
 }
 
 void Driver::sendUint16(const uint32_t id, const uint16_t value)
 {
-  can_msgs::msg::Frame msg = getMsg(id);
+  auto msg = getMsg(id);
   msg.dlc = sizeof(uint16_t);
   uint8_t data[8] = {0};
   std::memcpy(data, &value, sizeof(uint16_t));
   std::copy(std::begin(data), std::end(data), std::begin(msg.data));
 
-  interface_->send(msg);
+  interface_->sendFrame(msg);
 }
 
 void Driver::sendFixed8x8(const uint32_t id, const float value)
 {
-  can_msgs::msg::Frame msg = getMsg(id);
+  auto msg = getMsg(id);
   msg.dlc = sizeof(int16_t);
   int16_t output_value = static_cast<int16_t>(static_cast<float>(1 << 8) * value);
 
@@ -176,12 +175,12 @@ void Driver::sendFixed8x8(const uint32_t id, const float value)
   std::memcpy(data, &output_value, sizeof(int16_t));
   std::copy(std::begin(data), std::end(data), std::begin(msg.data));
 
-  interface_->send(msg);
+  interface_->sendFrame(msg);
 }
 
 void Driver::sendFixed16x16(const uint32_t id, const double value)
 {
-  can_msgs::msg::Frame msg = getMsg(id);
+  auto msg = getMsg(id);
   msg.dlc = sizeof(int32_t);
   int32_t output_value = static_cast<int32_t>(static_cast<double>((1 << 16) * value));
 
@@ -189,26 +188,24 @@ void Driver::sendFixed16x16(const uint32_t id, const double value)
   std::memcpy(data, &output_value, sizeof(int32_t));
   std::copy(std::begin(data), std::end(data), std::begin(msg.data));
 
-  interface_->send(msg);
+  interface_->sendFrame(msg);
 }
 
-can_msgs::msg::Frame Driver::getMsg(const uint32_t id)
+can_hardware::Frame Driver::getMsg(const uint32_t id)
 {
-  can_msgs::msg::Frame msg;
+  can_hardware::Frame msg;
   msg.id = id;
   msg.dlc = 0;
   msg.is_extended = true;
-  msg.header.stamp = nh_->get_clock()->now();
-  msg.header.frame_id = "base_link";
   return msg;
 }
 
-uint32_t Driver::getApi(const can_msgs::msg::Frame msg)
+uint32_t Driver::getApi(const can_hardware::Frame & msg)
 {
   return msg.id & (CAN_MSGID_FULL_M ^ CAN_MSGID_DEVNO_M);
 }
 
-uint32_t Driver::getDeviceNumber(const can_msgs::msg::Frame msg)
+uint32_t Driver::getDeviceNumber(const can_hardware::Frame & msg)
 {
   return msg.id & CAN_MSGID_DEVNO_M;
 }
@@ -901,7 +898,7 @@ uint16_t Driver::encoderCounts()
 
 double Driver::getP()
 {
-  Field * field;
+  Field * field = nullptr;
   switch (control_mode_) {
     case clearpath_motor_msgs::msg::PumaStatus::MODE_CURRENT:
       field = ictrlFieldForMessage(getApi(getMsg(LM_API_ICTRL_PC)));
@@ -918,7 +915,7 @@ double Driver::getP()
 
 double Driver::getI()
 {
-  Field * field;
+  Field * field = nullptr;
   switch (control_mode_) {
     case clearpath_motor_msgs::msg::PumaStatus::MODE_CURRENT:
       field = ictrlFieldForMessage(getApi(getMsg(LM_API_ICTRL_IC)));
@@ -935,7 +932,7 @@ double Driver::getI()
 
 double Driver::getD()
 {
-  Field * field;
+  Field * field = nullptr;
   switch (control_mode_) {
     case clearpath_motor_msgs::msg::PumaStatus::MODE_CURRENT:
       field = ictrlFieldForMessage(getApi(getMsg(LM_API_ICTRL_DC)));
@@ -952,7 +949,7 @@ double Driver::getD()
 
 uint8_t * Driver::getRawP()
 {
-  Field * field;
+  Field * field = nullptr;
   switch (control_mode_) {
     case clearpath_motor_msgs::msg::PumaStatus::MODE_CURRENT:
       field = ictrlFieldForMessage(getApi(getMsg(LM_API_ICTRL_PC)));
@@ -969,7 +966,7 @@ uint8_t * Driver::getRawP()
 
 uint8_t * Driver::getRawI()
 {
-  Field * field;
+  Field * field = nullptr;
   switch (control_mode_) {
     case clearpath_motor_msgs::msg::PumaStatus::MODE_CURRENT:
       field = ictrlFieldForMessage(getApi(getMsg(LM_API_ICTRL_IC)));
@@ -986,7 +983,7 @@ uint8_t * Driver::getRawI()
 
 uint8_t * Driver::getRawD()
 {
-  Field * field;
+  Field * field = nullptr;
   switch (control_mode_) {
     case clearpath_motor_msgs::msg::PumaStatus::MODE_CURRENT:
       field = ictrlFieldForMessage(getApi(getMsg(LM_API_ICTRL_DC)));

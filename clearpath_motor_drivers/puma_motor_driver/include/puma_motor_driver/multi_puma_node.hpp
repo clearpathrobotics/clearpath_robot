@@ -25,6 +25,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #define PUMA_MOTOR_DRIVER_MULTI_PUMA_NODE_H
 
 #include <map>
+#include <mutex>
+#include <queue>
 
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/float64.hpp"
@@ -35,7 +37,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include "clearpath_motor_msgs/msg/puma_multi_feedback.hpp"
 #include "clearpath_motor_msgs/msg/puma_feedback.hpp"
 
-#include "clearpath_ros2_socketcan_interface/socketcan_interface.hpp"
+#include "can_hardware/common/types.hpp"
+#include "can_hardware/drivers/socketcan_driver.hpp"
 
 #include "diagnostic_updater/diagnostic_updater.hpp"
 
@@ -117,6 +120,13 @@ public:
   bool connectIfNotConnected();
 
   /**
+   * @brief Callback function for processing incoming CAN frames.
+   * 
+   * @param frame The received CAN frame.
+   */
+  void frameCallback(const can_hardware::Frame& frame);
+
+  /**
    * Main control loop that checks and maintains the socket gateway, resets
    * and reconfigures drivers that have disconnected, verifies parameters
    * are set appropriately, receives motor data, and publishes the feedback
@@ -128,7 +138,8 @@ private:
   using DiagnosticStatusWrapper = diagnostic_updater::DiagnosticStatusWrapper;
   using PumaStatus = clearpath_motor_msgs::msg::PumaStatus;
 
-  std::shared_ptr<clearpath_ros2_socketcan_interface::SocketCANInterface> interface_;
+  // std::shared_ptr<clearpath_ros2_socketcan_interface::SocketCANInterface> interface_;
+  std::shared_ptr<can_hardware::drivers::SocketCanDriver> interface_;
   std::vector<puma_motor_driver::Driver> drivers_;
 
   bool active_;
@@ -142,7 +153,9 @@ private:
   std::vector<int64_t> joint_can_ids_;
   std::vector<int64_t> joint_directions_;
 
-  can_msgs::msg::Frame::SharedPtr recv_msg_;
+  std::queue<can_hardware::Frame> recv_msg_queue_;
+  std::mutex recv_msg_mutex_;
+
   clearpath_motor_msgs::msg::PumaMultiStatus status_msg_;
   clearpath_motor_msgs::msg::PumaMultiFeedback feedback_msg_;
 

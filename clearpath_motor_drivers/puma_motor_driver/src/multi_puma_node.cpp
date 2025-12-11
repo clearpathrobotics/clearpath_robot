@@ -93,9 +93,10 @@ MultiPumaNode::MultiPumaNode(const std::string node_name)
 
   node_handle_ = std::shared_ptr<rclcpp::Node>(this, [](rclcpp::Node *){});
 
-  // Socket
-  interface_.reset(new clearpath_ros2_socketcan_interface::SocketCANInterface(
-    canbus_dev_, node_handle_));
+  // SocketCAN Interface
+  interface_ = std::make_shared<can_hardware::drivers::SocketCanDriver>(canbus_dev_);
+  interface_->registerFrameCallback(
+    std::bind(&MultiPumaNode::frameCallback, this,  std::placeholders::_1));
 
   for (uint8_t i = 0; i < joint_names_.size(); i++) {
     drivers_.push_back(puma_motor_driver::Driver(
@@ -106,7 +107,6 @@ MultiPumaNode::MultiPumaNode(const std::string node_name)
     ));
   }
 
-  recv_msg_.reset(new can_msgs::msg::Frame());
   feedback_msg_.drivers_feedback.resize(drivers_.size());
   status_msg_.drivers.resize(drivers_.size());
 
@@ -284,6 +284,12 @@ bool MultiPumaNode::areAllActive()
   return true;
 }
 
+void MultiPumaNode::frameCallback(const can_hardware::Frame& frame)
+{
+  std::lock_guard<std::mutex> lock(recv_msg_mutex_);
+  recv_msg_queue_.push(frame);
+}
+
 void MultiPumaNode::run()
 {
   if (active_) {
@@ -311,10 +317,15 @@ void MultiPumaNode::run()
     }
   }
 
-  // Process all received messages through the connected driver instances.
-  while (interface_->recv(recv_msg_)) {
+  while (!recv_msg_queue_.empty()) {
+    can_hardware::Frame frame;
+    {
+      std::lock_guard<std::mutex> lock(recv_msg_mutex_);
+      frame = std::move(recv_msg_queue_.front());
+      recv_msg_queue_.pop();
+    }
     for (auto & driver : drivers_) {
-      driver.processMessage(recv_msg_);
+      driver.processMessage(frame);
     }
   }
 
