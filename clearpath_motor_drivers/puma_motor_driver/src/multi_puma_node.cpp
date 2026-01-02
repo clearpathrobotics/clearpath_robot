@@ -94,13 +94,11 @@ MultiPumaNode::MultiPumaNode(const std::string node_name)
   node_handle_ = std::shared_ptr<rclcpp::Node>(this, [](rclcpp::Node *){});
 
   // SocketCAN Interface
-  interface_ = std::make_shared<can_hardware::drivers::SocketCanDriver>(canbus_dev_);
-  interface_->registerFrameCallback(
-    std::bind(&MultiPumaNode::frameCallback, this,  std::placeholders::_1));
+  interface_ = std::make_unique<CanConnection>(canbus_dev_);
 
   for (uint8_t i = 0; i < joint_names_.size(); i++) {
-    drivers_.push_back(puma_motor_driver::Driver(
-      interface_,
+    drivers_.emplace_back(std::make_unique<puma_motor_driver::Driver>(
+      interface_.get(),
       node_handle_,
       joint_can_ids_[i],
       joint_names_[i]
@@ -112,10 +110,9 @@ MultiPumaNode::MultiPumaNode(const std::string node_name)
 
   uint8_t i = 0;
   for (auto & driver : drivers_) {
-    driver.clearMsgCache();
-    driver.setEncoderCPR(encoder_cpr_);
-    driver.setGearRatio(gear_ratio_ * joint_directions_[i]);
-    driver.setMode(desired_mode_, gain_p_, gain_i_, gain_d_);
+    driver->setEncoderCPR(encoder_cpr_);
+    driver->setGearRatio(gear_ratio_ * joint_directions_[i]);
+    driver->setMode(desired_mode_, gain_p_, gain_i_, gain_d_);
     i++;
   }
 
@@ -135,11 +132,11 @@ bool MultiPumaNode::getFeedback()
   // Check All Fields Received
   uint8_t received = 0;
   for (auto & driver : drivers_) {
-    received |= driver.receivedDutyCycle() << FeedbackBit::DutyCycle;
-    received |= driver.receivedCurrent() << FeedbackBit::Current;
-    received |= driver.receivedPosition() << FeedbackBit::Position;
-    received |= driver.receivedSpeed() << FeedbackBit::Speed;
-    received |= driver.receivedSetpoint() << FeedbackBit::Setpoint;
+    received |= driver->receivedDutyCycle() << FeedbackBit::DutyCycle;
+    received |= driver->receivedCurrent() << FeedbackBit::Current;
+    received |= driver->receivedPosition() << FeedbackBit::Position;
+    received |= driver->receivedSpeed() << FeedbackBit::Speed;
+    received |= driver->receivedSetpoint() << FeedbackBit::Setpoint;
   }
 
   if (received != (1 << FeedbackBit::Count) - 1) {
@@ -149,13 +146,13 @@ bool MultiPumaNode::getFeedback()
   uint8_t feedback_index = 0;
   for (auto & driver : drivers_) {
     clearpath_motor_msgs::msg::PumaFeedback * f = &feedback_msg_.drivers_feedback[feedback_index];
-    f->device_number = driver.deviceNumber();
-    f->device_name = driver.deviceName();
-    f->duty_cycle = driver.lastDutyCycle();
-    f->current = driver.lastCurrent();
-    f->travel = driver.lastPosition();
-    f->speed = driver.lastSpeed();
-    f->setpoint = driver.lastSetpoint();
+    f->device_number = driver->deviceNumber();
+    f->device_name = driver->deviceName();
+    f->duty_cycle = driver->lastDutyCycle();
+    f->current = driver->lastCurrent();
+    f->travel = driver->lastPosition();
+    f->speed = driver->lastSpeed();
+    f->setpoint = driver->lastSetpoint();
 
     feedback_index++;
   }
@@ -170,13 +167,13 @@ bool MultiPumaNode::getStatus()
   uint8_t received_fields = 0;
   uint8_t received_status = 0;
   for (auto & driver : drivers_) {
-    received_fields |= driver.receivedBusVoltage() << StatusBit::BusVoltage;
-    received_fields |= driver.receivedOutVoltage() << StatusBit::OutVoltage;
-    received_fields |= driver.receivedAnalogInput() << StatusBit::AnalogInput;
+    received_fields |= driver->receivedBusVoltage() << StatusBit::BusVoltage;
+    received_fields |= driver->receivedOutVoltage() << StatusBit::OutVoltage;
+    received_fields |= driver->receivedAnalogInput() << StatusBit::AnalogInput;
     received_fields |= 1 << StatusBit::AnalogInput;
-    received_fields |= driver.receivedTemperature() << StatusBit::Temperature;
-    received_fields |= driver.receivedMode() << StatusBit::Mode;
-    received_fields |= driver.receivedFault() << StatusBit::Fault;
+    received_fields |= driver->receivedTemperature() << StatusBit::Temperature;
+    received_fields |= driver->receivedMode() << StatusBit::Mode;
+    received_fields |= driver->receivedFault() << StatusBit::Fault;
     if (received_fields != (1 << StatusBit::Count) - 1) {
       RCLCPP_DEBUG(this->get_logger(), "Received Status Fields %x", received_fields);
     } else {
@@ -194,14 +191,14 @@ bool MultiPumaNode::getStatus()
   status_index = 0;
   for (auto & driver : drivers_) {
     clearpath_motor_msgs::msg::PumaStatus * s = &status_msg_.drivers[status_index];
-    s->device_number = driver.deviceNumber();
-    s->device_name = driver.deviceName();
-    s->bus_voltage = driver.lastBusVoltage();
-    s->output_voltage = driver.lastOutVoltage();
-    s->analog_input = driver.lastAnalogInput();
-    s->temperature = driver.lastTemperature();
-    s->mode = driver.lastMode();
-    s->fault = driver.lastFault();
+    s->device_number = driver->deviceNumber();
+    s->device_name = driver->deviceName();
+    s->bus_voltage = driver->lastBusVoltage();
+    s->output_voltage = driver->lastOutVoltage();
+    s->analog_input = driver->lastAnalogInput();
+    s->temperature = driver->lastTemperature();
+    s->mode = driver->lastMode();
+    s->fault = driver->lastFault();
 
     status_index++;
   }
@@ -233,7 +230,7 @@ void MultiPumaNode::driverDiagnostic(DiagnosticStatusWrapper & stat, int i)
   // Assume we're OK. This will be merged over later on if we aren't
   stat.summary(DiagnosticStatusWrapper::OK, "OK");
 
-  drivers_[i].runFreqStatus(stat);
+  drivers_[i]->runFreqStatus(stat);
 
   // basic stats
   stat.add("CAN ID", (int)status_msg_.drivers[i].device_number);
@@ -262,11 +259,11 @@ void MultiPumaNode::cmdCallback(const sensor_msgs::msg::JointState::SharedPtr ms
   if (active_) {
     for (auto & driver : drivers_) {
       for (int i = 0; i < static_cast<int>(msg->name.size()); i++) {
-        if (driver.deviceName() == msg->name[i]) {
+        if (driver->deviceName() == msg->name[i]) {
           if (desired_mode_ == clearpath_motor_msgs::msg::PumaStatus::MODE_VOLTAGE) {
-            driver.commandDutyCycle(msg->velocity[i]);
+            driver->commandDutyCycle(msg->velocity[i]);
           } else if (desired_mode_ == clearpath_motor_msgs::msg::PumaStatus::MODE_SPEED) {
-            driver.commandSpeed(msg->velocity[i]);
+            driver->commandSpeed(msg->velocity[i]);
           }
         }
       }
@@ -277,62 +274,56 @@ void MultiPumaNode::cmdCallback(const sensor_msgs::msg::JointState::SharedPtr ms
 bool MultiPumaNode::areAllActive()
 {
   for (auto & driver : drivers_) {
-    if (!driver.isConfigured()) {
+    if (!driver->isConfigured()) {
       return false;
     }
   }
   return true;
 }
 
-void MultiPumaNode::frameCallback(const can_hardware::Frame& frame)
-{
-  std::lock_guard<std::mutex> lock(recv_msg_mutex_);
-  recv_msg_queue_.push(frame);
-}
-
 void MultiPumaNode::run()
 {
+  RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 5000,
+    "[HAL-y Code]: MultiPumaNode Run Cycle %d", status_count_);
+
   if (active_) {
     // Checks to see if power flag has been reset for each driver
     for (auto & driver : drivers_) {
-      if (driver.lastPower() != 0) {
+      if (driver->lastPower() != 0) {
         active_ = false;
         RCLCPP_WARN(this->get_logger(),
           "Power reset detected on device ID %d, will reconfigure all drivers.",
-          driver.deviceNumber());
+          driver->deviceNumber());
         for (auto & driver : drivers_) {
-          driver.resetConfiguration();
+          driver->resetConfiguration();
         }
       }
     }
     // Queue data requests for the drivers in order to assemble an amalgamated status message.
     for (auto & driver : drivers_) {
-      driver.requestStatusMessages();
-      driver.requestFeedbackSetpoint();
+      driver->requestStatusMessages();
+      driver->requestFeedbackSetpoint();
     }
   } else {
-    // Set parameters for each driver.
+    // Set parameters for each driver->
     for (auto & driver : drivers_) {
-      driver.configureParams();
+      driver->configureParams();
     }
   }
 
-  while (!recv_msg_queue_.empty()) {
-    can_hardware::Frame frame;
-    {
-      std::lock_guard<std::mutex> lock(recv_msg_mutex_);
-      frame = std::move(recv_msg_queue_.front());
-      recv_msg_queue_.pop();
-    }
-    for (auto & driver : drivers_) {
-      driver.processMessage(frame);
-    }
+  const auto now = this->get_clock()->now();
+
+  for (auto & driver : drivers_) {
+    // Update for HAL signals
+    driver->write(now);
   }
 
   // Check parameters of each driver instance.
   if (!active_) {
     for (auto & driver : drivers_) {
-      driver.verifyParams();
+      RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 1000,
+        "Verifying parameters for device ID %d", driver->deviceNumber());
+      driver->verifyParams();
     }
   }
 
