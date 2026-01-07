@@ -11,43 +11,41 @@ def generate_launch_description():
     # Include Packages
 
     # Declare launch files
-    launch_file_lidar2d_0 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/lidar2d_0.launch.py'
-    launch_file_lidar2d_1 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/lidar2d_1.launch.py'
-    launch_file_lidar2d_2 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/lidar2d_2.launch.py'
-    launch_file_lidar2d_3 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/lidar2d_3.launch.py'
-    launch_file_lidar3d_0 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/lidar3d_0.launch.py'
-    launch_file_lidar3d_1 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/lidar3d_1.launch.py'
-    launch_file_lidar3d_4 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/lidar3d_4.launch.py'
-    launch_file_lidar3d_5 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/lidar3d_5.launch.py'
-    launch_file_camera_0 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/camera_0.launch.py'
-    launch_file_camera_1 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/camera_1.launch.py'
-    launch_file_camera_2 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/camera_2.launch.py'
-    launch_file_camera_3 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/camera_3.launch.py'
-    launch_file_camera_4 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/camera_4.launch.py'
-    launch_file_camera_5 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/camera_5.launch.py'
-    launch_file_camera_6 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/camera_6.launch.py'
-    launch_file_camera_7 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/camera_7.launch.py'
-    launch_file_camera_8 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/camera_8.launch.py'
-    launch_file_camera_9 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/camera_9.launch.py'
-    launch_file_imu_0 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/imu_0.launch.py'
-    launch_file_imu_1 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/imu_1.launch.py'
-    launch_file_imu_2 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/imu_2.launch.py'
-    launch_file_imu_3 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/imu_3.launch.py'
-    launch_file_imu_4 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/imu_4.launch.py'
-    launch_file_imu_5 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/imu_5.launch.py'
-    launch_file_imu_6 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/imu_6.launch.py'
-    launch_file_imu_7 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/imu_7.launch.py'
-    launch_file_gps_0 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/gps_0.launch.py'
-    launch_file_gps_1 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/gps_1.launch.py'
-    launch_file_gps_2 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/gps_2.launch.py'
-    launch_file_gps_3 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/gps_3.launch.py'
-    launch_file_gps_4 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/gps_4.launch.py'
-    launch_file_gps_5 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/gps_5.launch.py'
-    launch_file_gps_6 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/gps_6.launch.py'
-    launch_file_gps_7 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/gps_7.launch.py'
-    launch_file_gps_8 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/gps_8.launch.py'
-    launch_file_ins_0 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/ins_0.launch.py'
-    launch_file_ins_1 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/ins_1.launch.py'
+    launch_file_lidar2d_0 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/lidar2d_0.launch.py'
+    launch_file_lidar2d_1 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/lidar2d_1.launch.py'
+    launch_file_lidar2d_2 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/lidar2d_2.launch.py'
+    launch_file_lidar2d_3 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/lidar2d_3.launch.py'
+    launch_file_lidar3d_0 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/lidar3d_0.launch.py'
+    launch_file_lidar3d_1 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/lidar3d_1.launch.py'
+    launch_file_lidar3d_4 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/lidar3d_4.launch.py'
+    launch_file_lidar3d_5 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/lidar3d_5.launch.py'
+    launch_file_camera_0 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/camera_0.launch.py'
+    launch_file_camera_1 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/camera_1.launch.py'
+    launch_file_camera_2 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/camera_2.launch.py'
+    launch_file_camera_3 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/camera_3.launch.py'
+    launch_file_camera_4 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/camera_4.launch.py'
+    launch_file_camera_5 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/camera_5.launch.py'
+    launch_file_camera_6 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/camera_6.launch.py'
+    launch_file_camera_7 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/camera_7.launch.py'
+    launch_file_imu_0 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/imu_0.launch.py'
+    launch_file_imu_1 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/imu_1.launch.py'
+    launch_file_imu_2 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/imu_2.launch.py'
+    launch_file_imu_3 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/imu_3.launch.py'
+    launch_file_imu_4 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/imu_4.launch.py'
+    launch_file_imu_5 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/imu_5.launch.py'
+    launch_file_imu_6 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/imu_6.launch.py'
+    launch_file_imu_7 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/imu_7.launch.py'
+    launch_file_gps_0 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/gps_0.launch.py'
+    launch_file_gps_1 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/gps_1.launch.py'
+    launch_file_gps_2 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/gps_2.launch.py'
+    launch_file_gps_3 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/gps_3.launch.py'
+    launch_file_gps_4 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/gps_4.launch.py'
+    launch_file_gps_5 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/gps_5.launch.py'
+    launch_file_gps_6 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/gps_6.launch.py'
+    launch_file_gps_7 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/gps_7.launch.py'
+    launch_file_gps_8 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/gps_8.launch.py'
+    launch_file_ins_0 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/ins_0.launch.py'
+    launch_file_ins_1 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_dual_sensors/sensors/launch/ins_1.launch.py'
 
     # Include launch files
     launch_lidar2d_0 = IncludeLaunchDescription(
@@ -112,14 +110,6 @@ def generate_launch_description():
 
     launch_camera_7 = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([launch_file_camera_7]),
-    )
-
-    launch_camera_8 = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([launch_file_camera_8]),
-    )
-
-    launch_camera_9 = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([launch_file_camera_9]),
     )
 
     launch_imu_0 = IncludeLaunchDescription(
@@ -216,8 +206,6 @@ def generate_launch_description():
     ld.add_action(launch_camera_5)
     ld.add_action(launch_camera_6)
     ld.add_action(launch_camera_7)
-    ld.add_action(launch_camera_8)
-    ld.add_action(launch_camera_9)
     ld.add_action(launch_imu_0)
     ld.add_action(launch_imu_1)
     ld.add_action(launch_imu_2)

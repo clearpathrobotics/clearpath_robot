@@ -11,7 +11,7 @@ def generate_launch_description():
     # Include Packages
 
     # Declare launch files
-    launch_file_lidar2d_0 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_r100/sensors/launch/lidar2d_0.launch.py'
+    launch_file_lidar2d_0 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_r100/sensors/launch/lidar2d_0.launch.py'
 
     # Include launch files
     launch_lidar2d_0 = IncludeLaunchDescription(

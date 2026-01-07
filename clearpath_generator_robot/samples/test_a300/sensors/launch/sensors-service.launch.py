@@ -11,7 +11,7 @@ def generate_launch_description():
     # Include Packages
 
     # Declare launch files
-    launch_file_imu_0 = '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_a300/sensors/launch/imu_0.launch.py'
+    launch_file_imu_0 = '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_a300/sensors/launch/imu_0.launch.py'
 
     # Include launch files
     launch_imu_0 = IncludeLaunchDescription(

@@ -58,10 +58,6 @@ cpr_generic_e:
       topics.sensors/camera_6/color/image.rate: 30.0
       topics.sensors/camera_7/color/image.type: 'sensor_msgs/msg/Image'
       topics.sensors/camera_7/color/image.rate: 30.0
-      topics.sensors/camera_8/color/image.type: 'sensor_msgs/msg/Image'
-      topics.sensors/camera_8/color/image.rate: 30.0
-      topics.sensors/camera_9/color/image.type: 'sensor_msgs/msg/Image'
-      topics.sensors/camera_9/color/image.rate: 30.0
       topics.sensors/imu_0/mag.type: 'sensor_msgs/msg/MagneticField'
       topics.sensors/imu_0/mag.rate: 20.0
       topics.sensors/imu_1/data.type: 'sensor_msgs/msg/Imu'

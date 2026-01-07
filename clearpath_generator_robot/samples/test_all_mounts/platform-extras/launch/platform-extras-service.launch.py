@@ -23,7 +23,7 @@ def generate_launch_description():
                 (
                     'setup_path'
                     ,
-                    '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_mounts'
+                    '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_all_mounts'
                 )
                 ,
                 (

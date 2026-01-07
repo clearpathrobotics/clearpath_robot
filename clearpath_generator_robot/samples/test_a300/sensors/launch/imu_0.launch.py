@@ -25,7 +25,7 @@ def generate_launch_description():
                 (
                     'parameters'
                     ,
-                    '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_a300/sensors/config/imu_0.yaml'
+                    '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_a300/sensors/config/imu_0.yaml'
                 )
                 ,
                 (
@@ -56,7 +56,7 @@ def generate_launch_description():
                 (
                     'parameters'
                     ,
-                    '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_a300/sensors/config/imu_0.yaml'
+                    '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_a300/sensors/config/imu_0.yaml'
                 )
                 ,
                 (

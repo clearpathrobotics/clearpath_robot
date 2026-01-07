@@ -10,21 +10,21 @@ def generate_launch_description():
 
     launch_arg_diagnostic_updater_params = DeclareLaunchArgument(
         'diagnostic_updater_params',
-        default_value='/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_a200/platform/config/diagnostic_updater.yaml',
+        default_value='/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_a200/platform/config/diagnostic_updater.yaml',
         description='')
 
     diagnostic_updater_params = LaunchConfiguration('diagnostic_updater_params')
 
     launch_arg_diagnostic_aggregator_params = DeclareLaunchArgument(
         'diagnostic_aggregator_params',
-        default_value='/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_a200/platform/config/diagnostic_aggregator.yaml',
+        default_value='/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_a200/platform/config/diagnostic_aggregator.yaml',
         description='')
 
     diagnostic_aggregator_params = LaunchConfiguration('diagnostic_aggregator_params')
 
     launch_arg_foxglove_bridge_parameters = DeclareLaunchArgument(
         'foxglove_bridge_parameters',
-        default_value='/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_a200/platform/config/foxglove_bridge.yaml',
+        default_value='/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_a200/platform/config/foxglove_bridge.yaml',
         description='')
 
     foxglove_bridge_parameters = LaunchConfiguration('foxglove_bridge_parameters')
@@ -49,7 +49,7 @@ def generate_launch_description():
                 (
                     'setup_path'
                     ,
-                    '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_a200'
+                    '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_a200'
                 )
                 ,
                 (
@@ -128,7 +128,7 @@ def generate_launch_description():
             [
                 '-s'
                 ,
-                '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_a200'
+                '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_a200'
                 ,
             ]
         ,
@@ -144,7 +144,7 @@ def generate_launch_description():
             [
                 '-s'
                 ,
-                '/home/lcamero/Workspaces/jazzy_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_a200'
+                '/home/lcamero/Workspaces/sample_ws/src/clearpath_robot/clearpath_generator_robot/samples/test_a200'
                 ,
             ]
         ,
