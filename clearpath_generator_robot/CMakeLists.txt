@@ -12,6 +12,7 @@ find_package(ament_cmake_python REQUIRED)
 install(PROGRAMS
   ${PROJECT_NAME}/launch/generate_launch
   ${PROJECT_NAME}/param/generate_param
+  test/generate_samples
   DESTINATION lib/${PROJECT_NAME}
 )
 
