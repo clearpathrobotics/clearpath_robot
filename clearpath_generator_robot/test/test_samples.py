@@ -94,7 +94,7 @@ class TestSamples:
         os.path.normpath(
             new_sample_dir).split(os.sep)[-2:])
 
-    def filter_lines(self, lines: List[str]) -> str:
+    def filter_lines(self, lines: List[str], filepath: str) -> str:
         """Filter line files to prevent comparing lines that are expected to be different."""
         filtered = []
         for line in lines:
@@ -113,15 +113,15 @@ class TestSamples:
         if len(dirs_cmp.left_only) > 0:
             logs.append(
                 f'Files/directories: {dirs_cmp.left_only}, '
-                f'only found in installed samples: {dir_1} '
-                f'not in generated samples: {dir_2}'
+                f'only found in: {dir_1} '
+                f'not in: {dir_2}'
             )
         # Log Only in Generated Directory
         if len(dirs_cmp.right_only) > 0:
             logs.append(
                 f'Files/directories: {dirs_cmp.right_only}, '
-                f'only found in generated samples: {dir_2} '
-                f'not in installed samples: {dir_1}'
+                f'only found in: {dir_2} '
+                f'not in: {dir_1}'
             )
         # Compare Files
         (_, mismatches, errors) = filecmp.cmpfiles(
@@ -134,8 +134,8 @@ class TestSamples:
                 lines_1 = fp1.readlines()
             with open(path_2, 'r') as fp2:
                 lines_2 = fp2.readlines()
-            lines_1 = self.filter_lines(lines_1)
-            lines_2 = self.filter_lines(lines_2)
+            lines_1 = self.filter_lines(lines_1, path_1)
+            lines_2 = self.filter_lines(lines_2, path_2)
             file_diff = difflib.unified_diff(
                 a=lines_1,
                 b=lines_2,
@@ -149,8 +149,8 @@ class TestSamples:
         if len(errors) > 0:
             logs.append(
                 f'Errors: {errors} found when '
-                f'comparing installed samples: {dir_1} '
-                f'and generated samples: {dir_2}'
+                f'comparing: {dir_1} '
+                f'and: {dir_2}'
             )
         # Recurse
         if not shallow:
