@@ -31,6 +31,7 @@
 # Redistribution and use in source and binary forms, with or without
 # modification, is not permitted without the express permission
 # of Clearpath Robotics.
+import os
 
 from clearpath_generator_common.common import Package
 from clearpath_generator_common.param.generator import ParamGenerator
@@ -52,3 +53,6 @@ class RobotParamGenerator(ParamGenerator):
             if sensor.get_launch_enabled():
                 sensor_param = SensorParam(sensor, self.namespace, self.sensors_params_path)
                 sensor_param.generate_config()
+        # Check if sensor parameters directory is empty, and remove if so
+        if not os.listdir(self.sensors_params_path):
+            os.rmdir(self.sensors_params_path)
