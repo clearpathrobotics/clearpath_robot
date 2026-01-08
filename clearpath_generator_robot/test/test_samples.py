@@ -87,14 +87,19 @@ class TestSamples:
                     os.path.join(installed_sample_dir, sample, 'robot.yaml'))))
         break
     installed_sample_dir = real_installed_sample_dir
+    relpath_installed_sample_dir = os.sep.join(
+        os.path.normpath(
+            installed_sample_dir).split(os.sep)[-2:])
+    relpath_new_sample_dir = os.sep.join(
+        os.path.normpath(
+            new_sample_dir).split(os.sep)[-2:])
 
     def filter_lines(self, lines: List[str]) -> str:
         """Filter line files to prevent comparing lines that are expected to be different."""
         filtered = []
         for line in lines:
-            if os.path.realpath(self.new_sample_dir) in line:
-                continue
-            if os.path.realpath(self.installed_sample_dir) in line:
+            if (self.relpath_new_sample_dir in line) or (
+                    self.relpath_installed_sample_dir in line):
                 continue
             filtered.append(line)
         return filtered
