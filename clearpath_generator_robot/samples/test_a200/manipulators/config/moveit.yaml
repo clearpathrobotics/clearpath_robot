@@ -13,6 +13,17 @@ a200_0000:
       publish_geometry_updates: True
       publish_state_updates: True
       publish_transforms_updates: True
+      pilz:
+        planning_plugins: ['pilz_industrial_motion_planner/CommandPlanner']
+        default_planner_config: 'PTP'
+        request_adapters: ['default_planning_request_adapters/ResolveConstraintFrames', 'default_planning_request_adapters/ValidateWorkspaceBounds', 'default_planning_request_adapters/CheckStartStateBounds', 'default_planning_request_adapters/CheckStartStateCollision']
+        response_adapters: ['default_planning_response_adapters/ValidateSolution', 'default_planning_response_adapters/DisplayMotionPath']
+        capabilities: 'pilz_industrial_motion_planner/MoveGroupSequenceAction pilz_industrial_motion_planner/MoveGroupSequenceService'
+        cartesian_limits:
+          max_trans_vel: 1.0
+          max_trans_acc: 2.25
+          max_trans_dec: -5.0
+          max_rot_vel: 1.57
       ompl:
         planning_plugins: ['ompl_interface/OMPLPlanner']
         path_tolerance: 0.1
@@ -168,17 +179,6 @@ a200_0000:
         default_workspace_bounds: 10.0
         start_state_max_dt: 0.5
         max_sampling_attempts: 100
-      pilz:
-        planning_plugins: ['pilz_industrial_motion_planner/CommandPlanner']
-        default_planner_config: 'PTP'
-        request_adapters: ['default_planning_request_adapters/ResolveConstraintFrames', 'default_planning_request_adapters/ValidateWorkspaceBounds', 'default_planning_request_adapters/CheckStartStateBounds', 'default_planning_request_adapters/CheckStartStateCollision']
-        response_adapters: ['default_planning_response_adapters/ValidateSolution', 'default_planning_response_adapters/DisplayMotionPath']
-        capabilities: 'pilz_industrial_motion_planner/MoveGroupSequenceAction pilz_industrial_motion_planner/MoveGroupSequenceService'
-        cartesian_limits:
-          max_trans_vel: 1.0
-          max_trans_acc: 2.25
-          max_trans_dec: -5.0
-          max_rot_vel: 1.57
       planning_pipelines: ['chomp', 'pilz', 'ompl']
       default_planning_pipeline: 'ompl'
       allow_trajectory_execution: True
