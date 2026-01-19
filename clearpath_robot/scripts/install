@@ -254,6 +254,7 @@ domain_id = clearpath_config.system.domain_id
 # Platform
 platform = robot_upstart.Job(
     name='clearpath-platform',
+    user=clearpath_config.system.username,
     rmw=rmw,
     workspace_setup=workspace_setup,
     ros_domain_id=domain_id)
@@ -268,6 +269,7 @@ platform_extras.install(Provider=PlatformProvider)
 # Sensors
 sensors = robot_upstart.Job(
     name='clearpath-sensors',
+    user=clearpath_config.system.username,
     rmw=rmw,
     workspace_setup=workspace_setup,
     ros_domain_id=domain_id)
@@ -282,6 +284,7 @@ sensors_extras.install(Provider=SensorsProvider)
 # Manipulators
 manipulators = robot_upstart.Job(
     name='clearpath-manipulators',
+    user=clearpath_config.system.username,
     rmw=rmw,
     workspace_setup=workspace_setup,
     ros_domain_id=domain_id)
