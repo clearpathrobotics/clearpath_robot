@@ -2,8 +2,8 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.8.5 (2026-01-19)
+------------------
 * Fix: Generic (`#283 <https://github.com/clearpathrobotics/clearpath_robot/issues/283>`_)
   * Add generic components to generic robot
   * Emty components for generic robot
