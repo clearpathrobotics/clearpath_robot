@@ -5,6 +5,13 @@ Changelog for package puma_motor_driver
 1.1.0 (2025-01-15)
 ------------------
 
+Forthcoming
+-----------
+* CORE-36182: [puma_motor_driver] Port to can_hardware socketcan driver (`#286 <https://github.com/clearpathrobotics/clearpath_robot/issues/286>`_)
+  * CORE-36182: [puma_motor_driver] Port to can_hardware socketcan driver
+  * misc clean up
+* Contributors: Natesh Narain
+
 2.8.4 (2025-11-13)
 ------------------
 

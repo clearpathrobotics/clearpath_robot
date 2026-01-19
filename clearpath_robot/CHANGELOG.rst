@@ -2,6 +2,13 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix: Robot Install (`#295 <https://github.com/clearpathrobotics/clearpath_robot/issues/295>`_)
+  * Pass user to robot_upstart jobs
+  * Fix call to clearpath_config
+* Contributors: luis-camero
+
 2.8.4 (2025-11-13)
 ------------------
 
