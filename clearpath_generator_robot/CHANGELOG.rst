@@ -2,8 +2,8 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.8.6 (2026-01-20)
+------------------
 * Remove second check to add battery estimator (`#297 <https://github.com/clearpathrobotics/clearpath_robot/issues/297>`_)
 * Contributors: luis-camero
 
