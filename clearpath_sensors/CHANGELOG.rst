@@ -2,6 +2,9 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.3.6 (2025-11-20)
 ------------------
 * [clearpath_sensors] Updated the StereoLabs Zed topic remapping to reflect changes in the driver. (`#284 <https://github.com/clearpathrobotics/clearpath_robot/issues/284>`_)
