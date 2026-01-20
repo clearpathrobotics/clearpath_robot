@@ -2,6 +2,9 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.8.5 (2026-01-19)
 ------------------
 * Fix: Robot Install (`#295 <https://github.com/clearpathrobotics/clearpath_robot/issues/295>`_)
