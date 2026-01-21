@@ -7,6 +7,10 @@ After=clearpath-robot.service
 User=robot
 Type=simple
 ExecStart=/usr/sbin/clearpath-manipulators-start
+LimitRTPRIO=infinity
+LimitMEMLOCK=infinity
+CPUSchedulingPolicy=fifo
+CPUSchedulingPriority=50
 
 [Install]
 WantedBy=clearpath-robot.service
