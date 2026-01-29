@@ -550,7 +550,8 @@ class RobotLaunchGenerator(LaunchGenerator):
         platform_service_launch_writer.add(self.platform_launch_file)
 
         # MCU
-        if self.mcu.protocol == self.mcu.MICRO_ROS:
+        mcu = self.clearpath_config.platform.mcu
+        if mcu.protocol == mcu.MICRO_ROS:
             if self.platform_model == Platform.A200:
                 # Do nothing
                 pass
@@ -561,7 +562,7 @@ class RobotLaunchGenerator(LaunchGenerator):
                 platform_service_launch_writer.add(self.eth_uros_node)
                 platform_service_launch_writer.add(self.configure_mcu)
 
-        if self.mcu.protocol == self.mcu.PROTON:
+        if mcu.protocol == mcu.PROTON:
             if self.platform_model == Platform.A200:
                 platform = None
             elif (self.platform_model in [
