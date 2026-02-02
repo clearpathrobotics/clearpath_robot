@@ -27,6 +27,8 @@
   <!-- Package dependencies-->
   <exec_depend version_gte="2.8.0">clearpath_config</exec_depend>
   <exec_depend version_gte="2.8.0">clearpath_common</exec_depend>
+  <exec_depend version_gte="2.7.0">clearpath_firmware</exec_depend>
+  <exec_depend>proton_ros2</exec_depend>
   <exec_depend>clearpath_tests</exec_depend>
   <exec_depend>robot_upstart</exec_depend>
 
