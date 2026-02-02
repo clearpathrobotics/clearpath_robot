@@ -551,7 +551,7 @@ class RobotLaunchGenerator(LaunchGenerator):
 
         # MCU
         mcu = self.clearpath_config.platform.mcu
-        if mcu.protocol == mcu.MICRO_ROS:
+        if mcu.protocol == mcu.UROS:
             if self.platform_model == Platform.A200:
                 # Do nothing
                 pass
