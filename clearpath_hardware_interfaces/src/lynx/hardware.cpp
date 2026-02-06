@@ -127,10 +127,10 @@ void LynxHardware::updateJointsFromHardware(const rclcpp::Duration & period)
 /**
  * @brief Get hardware information from robot description
 */
-hardware_interface::CallbackReturn LynxHardware::getHardwareInfo(const hardware_interface::HardwareInfo & info)
+hardware_interface::CallbackReturn LynxHardware::getHardwareInfo(const hardware_interface::HardwareComponentInterfaceParams & params)
 {
   // Get info from URDF
-  if (hardware_interface::SystemInterface::on_init(info) != hardware_interface::CallbackReturn::SUCCESS)
+  if (hardware_interface::SystemInterface::on_init(params) != hardware_interface::CallbackReturn::SUCCESS)
   {
     return hardware_interface::CallbackReturn::ERROR;
   }
@@ -218,11 +218,11 @@ hardware_interface::CallbackReturn LynxHardware::validateJoints()
 /**
  * @brief Initialization
 */
-hardware_interface::CallbackReturn LynxHardware::on_init(const hardware_interface::HardwareInfo & info)
+hardware_interface::CallbackReturn LynxHardware::on_init(const hardware_interface::HardwareComponentInterfaceParams & params)
 {
   hardware_interface::CallbackReturn ret;
   // Get Hardware name and joints
-  ret = getHardwareInfo(info);
+  ret = getHardwareInfo(params);
 
   if (ret != hardware_interface::CallbackReturn::SUCCESS)
   {
