@@ -55,6 +55,7 @@ class TestRobotLaunchGenerator:
             shutil.copy(src, dst)
             # Generate
             try:
+                print(f'generating {dst}')
                 rpg = RobotParamGenerator(os.path.dirname(dst))
                 rpg.generate()
             except UnsupportedAccessoryException as e:

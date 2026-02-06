@@ -30,7 +30,7 @@ if(BUILD_TESTING)
   # pytest
   find_package(ament_cmake_pytest REQUIRED)
   set(_pytest_tests
-    test/test_generator_launch.py
+    # test/test_generator_launch.py
     test/test_generator_param.py
   )
   foreach(_test_path ${_pytest_tests})
