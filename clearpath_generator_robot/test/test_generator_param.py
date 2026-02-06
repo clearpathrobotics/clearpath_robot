@@ -50,9 +50,6 @@ class TestRobotLaunchGenerator:
         share_dir = get_package_share_directory('clearpath_config')
         sample_dir = os.path.join(share_dir, 'sample')
         for sample in os.listdir(sample_dir):
-            now = time.time()
-            if (now - start) > 55:
-                break
             # Create Clearpath Directory
             src = os.path.join(sample_dir, sample)
             dst = os.path.join(os.environ['HOME'], '.clearpath', 'robot.yaml')
@@ -74,4 +71,12 @@ class TestRobotLaunchGenerator:
                     sample,
                     e.args[0],
                 ))
+
+            now = time.time()
+            if (now - start) > 55:
+                break
+            else:
+                errors.append(f'Sample {count} {os.path.basename(src)}')
+                count += 1
+
         assert not errors, 'Errors: %s' % '\n'.join(errors)
