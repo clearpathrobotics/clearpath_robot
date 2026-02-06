@@ -27,6 +27,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 import os
 import shutil
+import time
 
 from ament_index_python.packages import get_package_share_directory
 from clearpath_config.common.types.exception import (
@@ -43,10 +44,15 @@ SAMPLE_DIR = f'/opt/ros/{ROS_DISTRO}/share/clearpath_config/sample/'
 class TestRobotLaunchGenerator:
 
     def test_samples(self):
+        start = time.time()
+        count = 0
         errors = []
         share_dir = get_package_share_directory('clearpath_config')
         sample_dir = os.path.join(share_dir, 'sample')
         for sample in os.listdir(sample_dir):
+            now = time.time()
+            if (now - start) > 55:
+                break
             # Create Clearpath Directory
             src = os.path.join(sample_dir, sample)
             dst = os.path.join(os.environ['HOME'], '.clearpath', 'robot.yaml')
@@ -68,5 +74,4 @@ class TestRobotLaunchGenerator:
                     sample,
                     e.args[0],
                 ))
-            break
         assert not errors, 'Errors: %s' % '\n'.join(errors)
