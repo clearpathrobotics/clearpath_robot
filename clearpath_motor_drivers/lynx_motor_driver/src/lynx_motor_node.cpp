@@ -159,7 +159,7 @@ LynxMotorNode::LynxMotorNode(const std::string node_name) :
   system_protection_msg_.header.frame_id = "base_link";
   system_protection_msg_.motor_states.resize(drivers_.size());
   system_protection_msg_.system_state = clearpath_motor_msgs::msg::LynxMotorProtection::NORMAL;
-  for (auto i = 0; i < system_protection_msg_.motor_states.size(); i++)
+  for (auto i = 0u; i < system_protection_msg_.motor_states.size(); i++)
   {
     system_protection_msg_.motor_states.at(i).can_id = drivers_.at(i).getCanID();
     system_protection_msg_.motor_states.at(i).joint_name = drivers_.at(i).getJointName();
