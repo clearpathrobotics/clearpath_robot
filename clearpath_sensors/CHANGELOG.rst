@@ -2,6 +2,22 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Added support for the Microstrain GV7. (`#305 <https://github.com/clearpathrobotics/clearpath_robot/issues/305>`_)
+  * Added support for the Microstrain GV7.
+  * Rename microstrain_imu GV7 parameter file
+  * Check for device type of microstrain IMU to use different config file
+  * Removed un-needed launch file and fixed data_raw remap.
+  ---------
+  Co-authored-by: Luis Camero <lcamero@clearpathrobotics.com>
+* Fix: CMake Verision and CI (`#299 <https://github.com/clearpathrobotics/clearpath_robot/issues/299>`_)
+  * Updated cmake version to 3.20
+  * Switch action to run on container
+  * Update repos update action version
+  * Increase test timeout
+* Contributors: Tony Baltovski, luis-camero
+
 2.8.6 (2026-01-20)
 ------------------
 

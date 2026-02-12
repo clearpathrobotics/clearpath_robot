@@ -2,6 +2,20 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Bumped clearpath_firmware version.
+* Feature: Proton (`#300 <https://github.com/clearpathrobotics/clearpath_robot/issues/300>`_)
+  * Add Proton launch to platform service launch
+  * Use self.clearpath_config instead of creating BaseGenerator in common
+  * Add clearpath_firmware and proton_ros2 as exec_depend
+* Fix: CMake Verision and CI (`#299 <https://github.com/clearpathrobotics/clearpath_robot/issues/299>`_)
+  * Updated cmake version to 3.20
+  * Switch action to run on container
+  * Update repos update action version
+  * Increase test timeout
+* Contributors: Tony Baltovski, luis-camero
+
 2.8.6 (2026-01-20)
 ------------------
 

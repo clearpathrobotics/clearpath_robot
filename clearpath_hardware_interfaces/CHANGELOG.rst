@@ -2,6 +2,15 @@
 Changelog for package clearpath_platform
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix: CMake Verision and CI (`#299 <https://github.com/clearpathrobotics/clearpath_robot/issues/299>`_)
+  * Updated cmake version to 3.20
+  * Switch action to run on container
+  * Update repos update action version
+  * Increase test timeout
+* Contributors: luis-camero
+
 2.8.6 (2026-01-20)
 ------------------
 
