@@ -58,6 +58,7 @@ class RobotLaunchGenerator(LaunchGenerator):
 
         # Additional packages specific to physical robots
         self.pkg_clearpath_sensors = Package('clearpath_sensors')
+        self.pkg_clearpath_firmware = Package('clearpath_firmware')
         self.pkg_clearpath_hardware_interfaces = Package('clearpath_hardware_interfaces')
 
         # Filter for MCU IMU
@@ -124,6 +125,12 @@ class RobotLaunchGenerator(LaunchGenerator):
                 ('time_reference', 'sensors/gps_0/time_reference'),
                 ('vel', 'sensors/gps_0/vel'),
             ],
+        )
+
+        # Proton Launch
+        self.proton_launch = LaunchFile(
+            'proton',
+            package=self.pkg_clearpath_firmware
         )
 
         # Wireless watcher
@@ -467,14 +474,10 @@ class RobotLaunchGenerator(LaunchGenerator):
             Platform.J100: common_platform_components + [
                 self.imu_0_filter_node,
                 self.imu_0_filter_config,
-                self.configure_mcu,
-                self.j100_uros_node,
                 self.nmea_driver_node
             ],
             Platform.A200: common_platform_components,
             Platform.A300: common_platform_components + [
-                self.eth_uros_node,
-                self.configure_mcu,
                 self.lighting_node,
                 self.lynx_node,
                 self.a300_fan_control,
@@ -484,16 +487,12 @@ class RobotLaunchGenerator(LaunchGenerator):
             Platform.W200: common_platform_components + [
                 self.imu_0_filter_node,
                 self.imu_0_filter_config,
-                self.eth_uros_node,
-                self.configure_mcu,
                 self.lighting_node,
                 self.sevcon_node
             ],
             Platform.DD100: common_platform_components + [
                 self.imu_0_filter_node,
                 self.imu_0_filter_config,
-                self.eth_uros_node,
-                self.configure_mcu,
                 self.lighting_node,
                 self.puma_node,
                 self.pinout_node,
@@ -501,8 +500,6 @@ class RobotLaunchGenerator(LaunchGenerator):
             Platform.DO100: common_platform_components + [
                 self.imu_0_filter_node,
                 self.imu_0_filter_config,
-                self.eth_uros_node,
-                self.configure_mcu,
                 self.lighting_node,
                 self.puma_node,
                 self.pinout_node,
@@ -510,8 +507,6 @@ class RobotLaunchGenerator(LaunchGenerator):
             Platform.DD150: common_platform_components + [
                 self.imu_0_filter_node,
                 self.imu_0_filter_config,
-                self.eth_uros_node,
-                self.configure_mcu,
                 self.lighting_node,
                 self.puma_node,
                 self.pinout_node,
@@ -519,8 +514,6 @@ class RobotLaunchGenerator(LaunchGenerator):
             Platform.DO150: common_platform_components + [
                 self.imu_0_filter_node,
                 self.imu_0_filter_config,
-                self.eth_uros_node,
-                self.configure_mcu,
                 self.lighting_node,
                 self.puma_node,
                 self.pinout_node,
@@ -528,8 +521,6 @@ class RobotLaunchGenerator(LaunchGenerator):
             Platform.R100: common_platform_components + [
                 self.imu_0_filter_node,
                 self.imu_0_filter_config,
-                self.eth_uros_node,
-                self.configure_mcu,
                 self.lighting_node,
                 self.puma_node,
             ],
@@ -557,6 +548,37 @@ class RobotLaunchGenerator(LaunchGenerator):
     def generate_platform(self) -> None:
         platform_service_launch_writer = LaunchWriter(self.platform_service_launch_file)
         platform_service_launch_writer.add(self.platform_launch_file)
+
+        # MCU
+        mcu = self.clearpath_config.platform.mcu
+        if mcu.protocol == mcu.UROS:
+            if self.platform_model == Platform.A200:
+                # Do nothing
+                pass
+            elif self.platform_model == Platform.J100:
+                platform_service_launch_writer.add(self.j100_uros_node)
+                platform_service_launch_writer.add(self.configure_mcu)
+            else:
+                platform_service_launch_writer.add(self.eth_uros_node)
+                platform_service_launch_writer.add(self.configure_mcu)
+
+        if mcu.protocol == mcu.PROTON:
+            if self.platform_model == Platform.A200:
+                platform = None
+            elif (self.platform_model in [
+                    Platform.DD100, Platform.DD150, Platform.DO100, Platform.DO150]):
+                platform = 'd1x0'
+            elif (self.platform_model in [
+                    Platform.J100, Platform.R100, Platform.W200]):
+                platform = self.platform_model
+            else:
+                platform = 'core'
+            if platform is not None:
+                self.proton_launch.args = [
+                    ('namespace', self.namespace),
+                    ('platform', platform)
+                ]
+                platform_service_launch_writer.add(self.proton_launch)
 
         for component in self.platform_components[self.platform_model]:
             platform_service_launch_writer.add(component)

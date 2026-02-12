@@ -32,7 +32,11 @@
 
 from clearpath_config.common.utils.dictionary import merge_dict
 from clearpath_config.sensors.types.cameras import BaseCamera
-from clearpath_config.sensors.types.imu import BaseIMU, IMUFilter
+from clearpath_config.sensors.types.imu import (
+    BaseIMU,
+    IMUFilter,
+    Microstrain
+)
 from clearpath_config.sensors.types.sensor import BaseSensor
 
 from clearpath_generator_common.common import Package, ParamFile
@@ -62,8 +66,15 @@ class SensorParam():
         self.clearpath_sensors_package = Package(self.CLEARPATH_SENSORS)
 
         # Default parameter file for the sensor
+        default_param_file_name = sensor.get_sensor_model()
+
+        # Update default parameter file for special cases
+        if self.sensor.get_sensor_model() == Microstrain.get_sensor_model():
+            if self.sensor.device_type == self.sensor.GV7:
+                default_param_file_name += f'_{self.sensor.GV7}'
+
         self.default_param_file = ParamFile(
-            name=self.sensor.get_sensor_model(),
+            name=default_param_file_name,
             package=self.clearpath_sensors_package,
             parameters={})
         self.default_param_file.read()
