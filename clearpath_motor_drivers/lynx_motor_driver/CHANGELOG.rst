@@ -2,8 +2,8 @@
 Changelog for package lynx_motor_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.9.0 (2026-02-11)
+------------------
 * Fix: CMake Verision and CI (`#299 <https://github.com/clearpathrobotics/clearpath_robot/issues/299>`_)
   * Updated cmake version to 3.20
   * Switch action to run on container
