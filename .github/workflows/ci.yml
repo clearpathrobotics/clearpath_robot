@@ -21,15 +21,10 @@ jobs:
       - uses: 'ros-industrial/industrial_ci@master'
         env: ${{matrix.env}}
   clearpath_robot_cpr_ci:
-<<<<<<< HEAD
     name: Humble Clearpath Release
-    runs-on: ubuntu-22.04
-=======
-    name: Jazzy Clearpath Release
     runs-on: ubuntu-latest
     container:
-      image: ubuntu:noble
->>>>>>> cb829d1 (Fix: CMake Verision and CI (#299))
+      image: ubuntu:jammy
     steps:
       - uses: actions/checkout@v3
       - uses: ros-tooling/setup-ros@v0.7
@@ -51,15 +46,10 @@ jobs:
             clearpath_robot
             clearpath_sensors
   clearpath_robot_src_ci:
-<<<<<<< HEAD
     name: Humble Clearpath Source
-    runs-on: ubuntu-22.04
-=======
-    name: Jazzy Clearpath Source
     runs-on: ubuntu-latest
     container:
-      image: ubuntu:noble
->>>>>>> cb829d1 (Fix: CMake Verision and CI (#299))
+      image: ubuntu:jammy
     steps:
       - uses: actions/checkout@v3
       - uses: ros-tooling/setup-ros@v0.7
@@ -76,15 +66,10 @@ jobs:
             clearpath_sensors
           vcs-repo-file-url: dependencies.repos
   clearpath_robot_src_head_ci:
-<<<<<<< HEAD
     name: Humble Clearpath Source with Head Branch
-    runs-on: ubuntu-22.04
-=======
-    name: Jazzy Clearpath Source with Head Branch
     runs-on: ubuntu-latest
     container:
-      image: ubuntu:noble
->>>>>>> cb829d1 (Fix: CMake Verision and CI (#299))
+      image: ubuntu:jammy
     steps:
       - uses: actions/checkout@v3
       - uses: actions/checkout@v3
@@ -120,15 +105,10 @@ jobs:
           vcs-repo-file-url: updated_dependencies.repos
   clearpath_robot_src_base_ci:
     if: github.event_name == 'pull_request'
-<<<<<<< HEAD
     name: Humble Clearpath Source with Base Branch
-    runs-on: ubuntu-22.04
-=======
-    name: Jazzy Clearpath Source with Base Branch
     runs-on: ubuntu-latest
     container:
-      image: ubuntu:noble
->>>>>>> cb829d1 (Fix: CMake Verision and CI (#299))
+      image: ubuntu:jammy
     steps:
       - uses: actions/checkout@v3
       - uses: actions/checkout@v3
