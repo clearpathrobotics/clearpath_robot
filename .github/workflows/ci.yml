@@ -12,8 +12,8 @@ jobs:
     strategy:
       matrix:
         env:
-          - {ROS_REPO: testing, ROS_DISTRO: humble, ROSDEP_SKIP_KEYS: "micro_ros_agent sevcon_traction umx_driver valence_bms_driver"}
-          - {ROS_REPO: main, ROS_DISTRO: humble, ROSDEP_SKIP_KEYS: "micro_ros_agent sevcon_traction umx_driver valence_bms_driver"}
+          - {ROS_REPO: testing, ROS_DISTRO: humble, ROSDEP_SKIP_KEYS: "micro_ros_agent sevcon_traction umx_driver valence_bms_driver ewellix_driver"}
+          - {ROS_REPO: main, ROS_DISTRO: humble, ROSDEP_SKIP_KEYS: "micro_ros_agent sevcon_traction umx_driver valence_bms_driver ewellix_driver"}
       fail-fast: false
     runs-on: ubuntu-22.04
     steps:
@@ -22,7 +22,9 @@ jobs:
         env: ${{matrix.env}}
   clearpath_robot_cpr_ci:
     name: Humble Clearpath Release
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:jammy
     steps:
       - uses: actions/checkout@v3
       - uses: ros-tooling/setup-ros@v0.7
@@ -45,7 +47,9 @@ jobs:
             clearpath_sensors
   clearpath_robot_src_ci:
     name: Humble Clearpath Source
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:jammy
     steps:
       - uses: actions/checkout@v3
       - uses: ros-tooling/setup-ros@v0.7
@@ -63,13 +67,15 @@ jobs:
           vcs-repo-file-url: dependencies.repos
   clearpath_robot_src_head_ci:
     name: Humble Clearpath Source with Head Branch
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:jammy
     steps:
       - uses: actions/checkout@v3
       - uses: actions/checkout@v3
         with:
           repository: clearpathrobotics/repos-dep-update-action
-          ref: 0.0.1
+          ref: 0.0.3
           path: repos-dep-update-action
       - name: Extract branch name
         shell: bash
@@ -100,13 +106,15 @@ jobs:
   clearpath_robot_src_base_ci:
     if: github.event_name == 'pull_request'
     name: Humble Clearpath Source with Base Branch
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:jammy
     steps:
       - uses: actions/checkout@v3
       - uses: actions/checkout@v3
         with:
           repository: clearpathrobotics/repos-dep-update-action
-          ref: 0.0.1
+          ref: 0.0.3
           path: repos-dep-update-action
       - name: Use repos update action
         uses: ./repos-dep-update-action/
