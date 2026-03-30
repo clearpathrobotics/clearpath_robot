@@ -11,12 +11,9 @@ jobs:
     name: Jazzy Clearpath Release
     runs-on: ubuntu-latest
     container:
-      image: ubuntu:noble
+      image: rostooling/setup-ros-docker:ubuntu-noble-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: ros-tooling/setup-ros@v0.7
-        with:
-          required-ros-distributions: jazzy
       - name: clearpath-package-server
         run: |
           sudo apt install wget
@@ -37,12 +34,9 @@ jobs:
     name: Jazzy Clearpath Source
     runs-on: ubuntu-latest
     container:
-      image: ubuntu:noble
+      image: rostooling/setup-ros-docker:ubuntu-noble-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: ros-tooling/setup-ros@v0.7
-        with:
-          required-ros-distributions: jazzy
       - name: clearpath-package-server
         run: |
           sudo apt install wget
@@ -64,7 +58,7 @@ jobs:
     name: Jazzy Clearpath Source with Head Branch
     runs-on: ubuntu-latest
     container:
-      image: ubuntu:noble
+      image: rostooling/setup-ros-docker:ubuntu-noble-latest
     steps:
       - uses: actions/checkout@v3
       - name: "[Repositories Updater] Checkout action"
@@ -91,9 +85,6 @@ jobs:
       - name: "[Repositories Updater] Print updated dependencies"
         run: |
           cat updated_dependencies.repos
-      - uses: ros-tooling/setup-ros@v0.7
-        with:
-          required-ros-distributions: jazzy
       - name: clearpath-package-server
         run: |
           sudo apt install wget
@@ -116,7 +107,7 @@ jobs:
     name: Jazzy Clearpath Source with Base Branch
     runs-on: ubuntu-latest
     container:
-      image: ubuntu:noble
+      image: rostooling/setup-ros-docker:ubuntu-noble-latest
     steps:
       - uses: actions/checkout@v3
       - name: "[Repositories Updater] Checkout action"
@@ -139,9 +130,6 @@ jobs:
       - name: "[Repositories Updater] Print updated dependencies"
         run: |
           cat updated_dependencies.repos
-      - uses: ros-tooling/setup-ros@v0.7
-        with:
-          required-ros-distributions: jazzy
       - name: clearpath-package-server
         run: |
           sudo apt install wget
