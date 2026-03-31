@@ -21,22 +21,12 @@ jobs:
       - uses: 'ros-industrial/industrial_ci@master'
         env: ${{matrix.env}}
   clearpath_robot_cpr_ci:
-<<<<<<< HEAD
     name: Humble Clearpath Release
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-      - uses: ros-tooling/setup-ros@v0.7
-        with:
-          required-ros-distributions: humble
-=======
-    name: Jazzy Clearpath Release
     runs-on: ubuntu-latest
     container:
-      image: rostooling/setup-ros-docker:ubuntu-noble-latest
+      image: rostooling/setup-ros-docker:ubuntu-jammy-latest
     steps:
       - uses: actions/checkout@v3
->>>>>>> 6e16b3c (Changed to rostooling/setup-ros-docker:ubuntu-noble-latest for CI image. (#312))
       - name: clearpath-package-server
         run: |
           sudo apt install wget
@@ -53,19 +43,10 @@ jobs:
             clearpath_robot
             clearpath_sensors
   clearpath_robot_src_ci:
-<<<<<<< HEAD
     name: Humble Clearpath Source
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-      - uses: ros-tooling/setup-ros@v0.7
-        with:
-          required-ros-distributions: humble
-=======
-    name: Jazzy Clearpath Source
     runs-on: ubuntu-latest
     container:
-      image: rostooling/setup-ros-docker:ubuntu-noble-latest
+      image: rostooling/setup-ros-docker:ubuntu-jammy-latest
     steps:
       - uses: actions/checkout@v3
       - name: clearpath-package-server
@@ -76,7 +57,6 @@ jobs:
           sudo apt-get update
           sudo wget https://raw.githubusercontent.com/clearpathrobotics/public-rosdistro/master/rosdep/50-clearpath.list -O /etc/ros/rosdep/sources.list.d/50-clearpath.list
           rosdep update
->>>>>>> 6e16b3c (Changed to rostooling/setup-ros-docker:ubuntu-noble-latest for CI image. (#312))
       - uses: ros-tooling/action-ros-ci@v0.3
         id: action_ros_ci_step
         with:
@@ -88,15 +68,10 @@ jobs:
             clearpath_sensors
           vcs-repo-file-url: dependencies.repos
   clearpath_robot_src_head_ci:
-<<<<<<< HEAD
     name: Humble Clearpath Source with Head Branch
-    runs-on: ubuntu-22.04
-=======
-    name: Jazzy Clearpath Source with Head Branch
     runs-on: ubuntu-latest
     container:
-      image: rostooling/setup-ros-docker:ubuntu-noble-latest
->>>>>>> 6e16b3c (Changed to rostooling/setup-ros-docker:ubuntu-noble-latest for CI image. (#312))
+      image: rostooling/setup-ros-docker:ubuntu-jammy-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/checkout@v3
@@ -117,11 +92,6 @@ jobs:
       - name: Updated dependencies
         run: |
           cat updated_dependencies.repos
-<<<<<<< HEAD
-      - uses: ros-tooling/setup-ros@v0.7
-        with:
-          required-ros-distributions: humble
-=======
       - name: clearpath-package-server
         run: |
           sudo apt install wget
@@ -130,7 +100,6 @@ jobs:
           sudo apt-get update
           sudo wget https://raw.githubusercontent.com/clearpathrobotics/public-rosdistro/master/rosdep/50-clearpath.list -O /etc/ros/rosdep/sources.list.d/50-clearpath.list
           rosdep update
->>>>>>> 6e16b3c (Changed to rostooling/setup-ros-docker:ubuntu-noble-latest for CI image. (#312))
       - uses: ros-tooling/action-ros-ci@v0.3
         id: action_ros_ci_step
         with:
@@ -143,15 +112,10 @@ jobs:
           vcs-repo-file-url: updated_dependencies.repos
   clearpath_robot_src_base_ci:
     if: github.event_name == 'pull_request'
-<<<<<<< HEAD
     name: Humble Clearpath Source with Base Branch
-    runs-on: ubuntu-22.04
-=======
-    name: Jazzy Clearpath Source with Base Branch
     runs-on: ubuntu-latest
     container:
-      image: rostooling/setup-ros-docker:ubuntu-noble-latest
->>>>>>> 6e16b3c (Changed to rostooling/setup-ros-docker:ubuntu-noble-latest for CI image. (#312))
+      image: rostooling/setup-ros-docker:ubuntu-jammy-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/checkout@v3
@@ -168,11 +132,6 @@ jobs:
       - name: Updated dependencies
         run: |
           cat updated_dependencies.repos
-<<<<<<< HEAD
-      - uses: ros-tooling/setup-ros@v0.7
-        with:
-          required-ros-distributions: humble
-=======
       - name: clearpath-package-server
         run: |
           sudo apt install wget
@@ -181,7 +140,6 @@ jobs:
           sudo apt-get update
           sudo wget https://raw.githubusercontent.com/clearpathrobotics/public-rosdistro/master/rosdep/50-clearpath.list -O /etc/ros/rosdep/sources.list.d/50-clearpath.list
           rosdep update
->>>>>>> 6e16b3c (Changed to rostooling/setup-ros-docker:ubuntu-noble-latest for CI image. (#312))
       - uses: ros-tooling/action-ros-ci@v0.3
         id: action_ros_ci_step
         with:
@@ -192,4 +150,3 @@ jobs:
             clearpath_robot
             clearpath_sensors
           vcs-repo-file-url: updated_dependencies.repos
-
