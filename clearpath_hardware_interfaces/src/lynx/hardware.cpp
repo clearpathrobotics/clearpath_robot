@@ -1,55 +1,44 @@
 /**
- *
- *  \file
- *  \brief      Class representing W200 hardware
- *  \author     Roni Kreinin <rkreinin@clearpathrobotics.com>
- *  \author     Tony Baltovski <tbaltovski@clearpathrobotics.com>
- *  \copyright  Copyright (c) 2023, Clearpath Robotics, Inc.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of Clearpath Robotics, Inc. nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL CLEARPATH ROBOTICS, INC. BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * Please send comments, questions, or patches to code@clearpathrobotics.com
- *
- */
+Software License Agreement (BSD)
 
-#include "clearpath_hardware_interfaces/w200/hardware.hpp"
-#include "clearpath_platform_msgs/msg/feedback.hpp"
-#include "hardware_interface/types/hardware_interface_type_values.hpp"
+\file      hardware.cpp
+\authors   Luis Camero <lcamero@clearpathrobotics.com>
+           Roni Kreinin <rkreinin@clearpathrobotics.com>
+\copyright Copyright (c) 2024, Clearpath Robotics, Inc., All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+* Redistributions of source code must retain the above copyright notice,
+  this list of conditions and the following disclaimer.
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+* Neither the name of Clearpath Robotics nor the names of its contributors
+  may be used to endorse or promote products derived from this software
+  without specific prior written permission.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+*/
+#include "clearpath_hardware_interfaces/lynx/hardware.hpp"
 
 namespace clearpath_hardware_interfaces
 {
 
-static const std::string LEFT_CMD_JOINT_NAME = "front_left_wheel_joint";
-static const std::string RIGHT_CMD_JOINT_NAME = "front_right_wheel_joint";
-static const std::string LEFT_ALT_JOINT_NAME = "rear_left_wheel_joint";
-static const std::string RIGHT_ALT_JOINT_NAME = "rear_right_wheel_joint";
-
-static constexpr double MINIMUM_VELOCITY = 0.01f;
-
-
-hardware_interface::CallbackReturn W200Hardware::initHardwareInterface()
+/**
+ * @brief Initialize hardware interface object
+*/
+hardware_interface::CallbackReturn LynxHardware::initHardwareInterface()
 {
-  node_ = std::make_shared<W200HardwareInterface>("w200_hardware_interface");
+  node_ = std::make_shared<LynxHardwareInterface>("lynx_hardware_interface");
 
   if (node_ == nullptr)
   {
@@ -60,56 +49,85 @@ hardware_interface::CallbackReturn W200Hardware::initHardwareInterface()
 }
 
 /**
- * @brief Write commanded velocities to the hardware_interface
- *
- */
-void W200Hardware::writeCommandsToHardware()
+ * @brief Write commands to the hardware
+*/
+void LynxHardware::writeCommandsToHardware()
 {
-  double diff_speed_left = hw_commands_[wheel_joints_[LEFT_CMD_JOINT_NAME]];
-  double diff_speed_right = hw_commands_[wheel_joints_[RIGHT_CMD_JOINT_NAME]];
+  sensor_msgs::msg::JointState joint_state;
+  double highest_velocity = 0.0f;
+  double max_velocity = MAXIMUM_VELOCITY_NORMAL_RADS;
 
-  if (std::abs(diff_speed_left) < MINIMUM_VELOCITY
-    && std::abs(diff_speed_right) < MINIMUM_VELOCITY)
+  for (auto i = 0u; i < num_joints_; i++)
   {
-    diff_speed_left = diff_speed_right = 0.0;
+    joint_state.name.push_back(info_.joints[i].name);
+    double speed = hw_commands_[i];
+    if (std::abs(speed) < MINIMUM_VELOCITY_RADS)
+    {
+      speed = 0.0;
+    }
+
+    if (std::abs(speed) > highest_velocity)
+    {
+      highest_velocity = std::abs(speed);
+    }
+    joint_state.velocity.push_back(speed);
   }
 
-  node_->drive_command(
-    static_cast<float>(diff_speed_left),
-    static_cast<float>(diff_speed_right));
+  switch(node_->get_protection().system_state)
+  {
+    case clearpath_motor_msgs::msg::LynxMotorProtection::THROTTLED:
+      max_velocity = MAXIMUM_VELOCITY_THROTTLED_RADS;
+      break;
+
+    case clearpath_motor_msgs::msg::LynxMotorProtection::OVERHEATED:
+      max_velocity = MAXIMUM_VELOCITY_OVERHEATED_RADS;
+      break;
+  }
+
+  if (highest_velocity > max_velocity)
+  {
+    double scale = max_velocity / highest_velocity;
+
+    for (auto i = 0u; i < num_joints_; i++)
+    {
+      joint_state.velocity.at(i) *= scale;
+    }
+  }
+
+  node_->drive_command(joint_state);
+  return;
 }
 
 /**
  * @brief Pull latest speed and travel measurements from MCU,
- * and store in joint structure for ros_control
- *
- */
-void W200Hardware::updateJointsFromHardware(const rclcpp::Duration & period)
+ * and store in joint structure for ROS controls
+*/
+void LynxHardware::updateJointsFromHardware(const rclcpp::Duration & period)
 {
   rclcpp::spin_some(node_);
 
   if (node_->has_new_feedback())
   {
-    auto left_msg = node_->get_left_feedback();
-    auto right_msg = node_->get_right_feedback();
-    RCLCPP_DEBUG(
-      rclcpp::get_logger(hw_name_),
-      "Received linear distance information (L: %f, R: %f)",
-      left_msg.data, right_msg.data);
+    auto msg = node_->get_feedback();
 
-    hw_states_velocity_[wheel_joints_[LEFT_CMD_JOINT_NAME]] = left_msg.data;
-    hw_states_velocity_[wheel_joints_[RIGHT_CMD_JOINT_NAME]] = right_msg.data;
-    hw_states_velocity_[wheel_joints_[LEFT_ALT_JOINT_NAME]] = left_msg.data;
-    hw_states_velocity_[wheel_joints_[RIGHT_ALT_JOINT_NAME]] = right_msg.data;
-
-    hw_states_position_[wheel_joints_[LEFT_CMD_JOINT_NAME]] += left_msg.data * period.seconds();
-    hw_states_position_[wheel_joints_[RIGHT_CMD_JOINT_NAME]] += right_msg.data * period.seconds();
-    hw_states_position_[wheel_joints_[LEFT_ALT_JOINT_NAME]] += left_msg.data * period.seconds();
-    hw_states_position_[wheel_joints_[RIGHT_ALT_JOINT_NAME]] += right_msg.data * period.seconds();
+    for (auto& lynx : msg.drivers)
+    {
+      for (auto i = 0; i < num_joints_; i++)
+      {
+        if (lynx.joint_name == info_.joints[i].name)
+        {
+          hw_states_velocity_[i] = lynx.velocity;
+          hw_states_position_[i] = lynx.travel;
+        }
+      }
+    }
   }
 }
 
-hardware_interface::CallbackReturn W200Hardware::getHardwareInfo(const hardware_interface::HardwareComponentInterfaceParams & params)
+/**
+ * @brief Get hardware information from robot description
+*/
+hardware_interface::CallbackReturn LynxHardware::getHardwareInfo(const hardware_interface::HardwareComponentInterfaceParams & params)
 {
   // Get info from URDF
   if (hardware_interface::SystemInterface::on_init(params) != hardware_interface::CallbackReturn::SUCCESS)
@@ -139,11 +157,14 @@ hardware_interface::CallbackReturn W200Hardware::getHardwareInfo(const hardware_
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
-hardware_interface::CallbackReturn W200Hardware::validateJoints()
+/**
+ * @brief Check command interfaces are valid
+*/
+hardware_interface::CallbackReturn LynxHardware::validateJoints()
 {
   for (const hardware_interface::ComponentInfo & joint : info_.joints)
   {
-    // W200Hardware has exactly two states and one command interface on each joint
+    // LynxHardware has exactly two states and one command interface on each joint
     if (joint.command_interfaces.size() != 1)
     {
       RCLCPP_FATAL(
@@ -191,12 +212,13 @@ hardware_interface::CallbackReturn W200Hardware::validateJoints()
     }
   }
 
-  // Set the last time to now
-  // last_time_seconds_ = node_->now();
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
-hardware_interface::CallbackReturn W200Hardware::on_init(const hardware_interface::HardwareComponentInterfaceParams & params)
+/**
+ * @brief Initialization
+*/
+hardware_interface::CallbackReturn LynxHardware::on_init(const hardware_interface::HardwareComponentInterfaceParams & params)
 {
   hardware_interface::CallbackReturn ret;
   // Get Hardware name and joints
@@ -219,7 +241,10 @@ hardware_interface::CallbackReturn W200Hardware::on_init(const hardware_interfac
   return initHardwareInterface();
 }
 
-std::vector<hardware_interface::StateInterface> W200Hardware::export_state_interfaces()
+/**
+ * @brief Map state interfaces
+*/
+std::vector<hardware_interface::StateInterface> LynxHardware::export_state_interfaces()
 {
   std::vector<hardware_interface::StateInterface> state_interfaces;
   for (auto i = 0u; i < num_joints_; i++)
@@ -235,7 +260,10 @@ std::vector<hardware_interface::StateInterface> W200Hardware::export_state_inter
   return state_interfaces;
 }
 
-std::vector<hardware_interface::CommandInterface> W200Hardware::export_command_interfaces()
+/**
+ * @brief Map command interfaces
+*/
+std::vector<hardware_interface::CommandInterface> LynxHardware::export_command_interfaces()
 {
   std::vector<hardware_interface::CommandInterface> command_interfaces;
 
@@ -244,15 +272,15 @@ std::vector<hardware_interface::CommandInterface> W200Hardware::export_command_i
     command_interfaces.emplace_back(
       hardware_interface::CommandInterface(
         info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_commands_[i]));
-
-    // Map wheel joint name to index
-    wheel_joints_[info_.joints[i].name] = i;
   }
 
   return command_interfaces;
 }
 
-hardware_interface::CallbackReturn W200Hardware::on_activate(const rclcpp_lifecycle::State & /*previous_state*/)
+/**
+ * @brief Activate
+*/
+hardware_interface::CallbackReturn LynxHardware::on_activate(const rclcpp_lifecycle::State & /*previous_state*/)
 {
   RCLCPP_INFO(rclcpp::get_logger(hw_name_), "Starting ...please wait...");
 
@@ -273,7 +301,10 @@ hardware_interface::CallbackReturn W200Hardware::on_activate(const rclcpp_lifecy
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
-hardware_interface::CallbackReturn W200Hardware::on_deactivate(const rclcpp_lifecycle::State & /*previous_state*/)
+/**
+ * @brief Deactivate
+*/
+hardware_interface::CallbackReturn LynxHardware::on_deactivate(const rclcpp_lifecycle::State & /*previous_state*/)
 {
   RCLCPP_INFO(rclcpp::get_logger(hw_name_), "Stopping ...please wait...");
 
@@ -282,7 +313,10 @@ hardware_interface::CallbackReturn W200Hardware::on_deactivate(const rclcpp_life
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
-hardware_interface::return_type W200Hardware::read(const rclcpp::Time & /*time*/, const rclcpp::Duration & period)
+/**
+ * @brief Read joint feedback from hardware interface
+*/
+hardware_interface::return_type LynxHardware::read(const rclcpp::Time & /*time*/, const rclcpp::Duration & period)
 {
   RCLCPP_DEBUG(rclcpp::get_logger(hw_name_), "Reading from hardware");
 
@@ -295,7 +329,10 @@ hardware_interface::return_type W200Hardware::read(const rclcpp::Time & /*time*/
   return hardware_interface::return_type::OK;
 }
 
-hardware_interface::return_type W200Hardware::write(const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
+/**
+ * @brief Write joint command to hardware interface
+*/
+hardware_interface::return_type LynxHardware::write(const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
   RCLCPP_DEBUG(rclcpp::get_logger(hw_name_), "Writing to hardware");
 
@@ -306,8 +343,8 @@ hardware_interface::return_type W200Hardware::write(const rclcpp::Time & /*time*
   return hardware_interface::return_type::OK;
 }
 
-}  // namespace clearpath_hardware_interfaces
+} // namespace clearpath_hardware_interfaces
 
 #include "pluginlib/class_list_macros.hpp"
 PLUGINLIB_EXPORT_CLASS(
-  clearpath_hardware_interfaces::W200Hardware, hardware_interface::SystemInterface)
+  clearpath_hardware_interfaces::LynxHardware, hardware_interface::SystemInterface)

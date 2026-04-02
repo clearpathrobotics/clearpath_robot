@@ -1,10 +1,10 @@
 /**
  *
  *  \file
- *  \brief      Base W200 hardware class
+ *  \brief      Lynx Motor hardware class
+ *  \author     Luis Camero <lcamero@clearpathrobotics.com>
  *  \author     Roni Kreinin <rkreinin@clearpathrobotics.com>
- *  \author     Tony Baltovski <tbaltovski@clearpathrobotics.com>
- *  \copyright  Copyright (c) 2023, Clearpath Robotics, Inc.
+ *  \copyright  Copyright (c) 2024, Clearpath Robotics, Inc.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,9 +31,8 @@
  * Please send comments, questions, or patches to code@clearpathrobotics.com
  *
  */
-
-#ifndef CLEARPATH_HARDWARE_INTERFACES_W200__HARDWARE_HPP_
-#define CLEARPATH_HARDWARE_INTERFACES_W200__HARDWARE_HPP_
+#ifndef CLEARPATH_HARDWARE_INTERFACES__LYNX_HARDWARE_HPP_
+#define CLEARPATH_HARDWARE_INTERFACES__LYNX_HARDWARE_HPP_
 
 #include <memory>
 #include <string>
@@ -44,9 +43,10 @@
 #include "hardware_interface/hardware_info.hpp"
 #include "hardware_interface/system_interface.hpp"
 #include "hardware_interface/types/hardware_interface_return_values.hpp"
-#include "hardware_interface/visibility_control.h"
+#include "hardware_interface/types/hardware_interface_type_values.hpp"
 
-#include "clearpath_hardware_interfaces/w200/hardware_interface.hpp"
+#include "clearpath_hardware_interfaces/lynx/hardware_interface.hpp"
+#include "clearpath_hardware_interfaces/visibility_control.h"
 
 
 namespace clearpath_hardware_interfaces
@@ -54,11 +54,15 @@ namespace clearpath_hardware_interfaces
 
 static constexpr uint8_t DIFF_DRIVE_TWO_JOINTS = 2;
 static constexpr uint8_t DIFF_DRIVE_FOUR_JOINTS = 4;
+static constexpr double MINIMUM_VELOCITY_RADS = 0.01f;
+static constexpr double MAXIMUM_VELOCITY_NORMAL_RADS = 12.307f;
+static constexpr double MAXIMUM_VELOCITY_THROTTLED_RADS = 6.1535f;
+static constexpr double MAXIMUM_VELOCITY_OVERHEATED_RADS = 1.2307f;
 
-class W200Hardware : public hardware_interface::SystemInterface
+class LynxHardware : public hardware_interface::SystemInterface
 {
 public:
-  RCLCPP_SHARED_PTR_DEFINITIONS(W200Hardware)
+  RCLCPP_SHARED_PTR_DEFINITIONS(LynxHardware)
 
   HARDWARE_INTERFACE_PUBLIC
   hardware_interface::CallbackReturn on_init(const hardware_interface::HardwareComponentInterfaceParams & params) override;
@@ -86,13 +90,11 @@ protected:
   virtual hardware_interface::CallbackReturn getHardwareInfo(const hardware_interface::HardwareComponentInterfaceParams & params);
   virtual hardware_interface::CallbackReturn validateJoints();
   virtual hardware_interface::CallbackReturn initHardwareInterface();
-  std::shared_ptr<W200HardwareInterface> node_;
+  std::shared_ptr<LynxHardwareInterface> node_;
 
   // Store the command for the robot
   std::vector<double> hw_commands_;
   std::vector<double> hw_states_position_, hw_states_position_offset_, hw_states_velocity_;
-
-  std::map<std::string, uint8_t> wheel_joints_;
 
   uint8_t num_joints_;
   std::string hw_name_;
@@ -100,4 +102,4 @@ protected:
 
 }  // namespace clearpath_hardware_interfaces
 
-#endif  // CLEARPATH_HARDWARE_INTERFACES_W200_HARDWARE_HPP_
+#endif  // CLEARPATH_HARDWARE_INTERFACES__LYNX_HARDWARE_HPP_
