@@ -591,6 +591,7 @@ class RobotLaunchGenerator(LaunchGenerator):
 
         platform_service_launch_writer.generate_file()
 
+        os.makedirs(os.path.dirname(self.platform_extras_launch_path), exist_ok=True)
         platform_extras_service_launch_writer = LaunchWriter(
             self.platform_extras_service_launch_file)
         platform_extras_service_launch_writer.add(self.platform_extras_launch_file)
