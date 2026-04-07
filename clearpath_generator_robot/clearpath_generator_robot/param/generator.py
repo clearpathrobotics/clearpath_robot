@@ -49,10 +49,9 @@ class RobotParamGenerator(ParamGenerator):
 
     def generate_sensors(self) -> None:
         sensors = self.clearpath_config.sensors.get_all_sensors()
-        for sensor in sensors:
-            if sensor.get_launch_enabled():
+        enabled_sensors = [s for s in sensors if s.get_launch_enabled()]
+        if enabled_sensors:
+            os.makedirs(self.sensors_params_path, exist_ok=True)
+            for sensor in enabled_sensors:
                 sensor_param = SensorParam(sensor, self.namespace, self.sensors_params_path)
                 sensor_param.generate_config()
-        # Check if sensor parameters directory is empty, and remove if so
-        if not os.listdir(self.sensors_params_path):
-            os.rmdir(self.sensors_params_path)
