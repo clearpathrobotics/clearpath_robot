@@ -73,7 +73,7 @@ jobs:
         run: |
           apt-get update
           apt-get install -y jq git python3 python3-pip
-          python3 -m pip install yq --break-system-packages
+          python3 -m pip install yq
       - name: "[Repositories Updater] Extract branch name"
         shell: bash
         run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
@@ -123,7 +123,7 @@ jobs:
         run: |
           apt-get update
           apt-get install -y jq git python3 python3-pip
-          python3 -m pip install yq --break-system-packages
+          python3 -m pip install yq
       - name: "[Repositories Updater] Run action"
         uses: ./repos-dep-update-action/
         with:
