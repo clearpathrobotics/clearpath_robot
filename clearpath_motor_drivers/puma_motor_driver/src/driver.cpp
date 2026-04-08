@@ -111,7 +111,8 @@ void Driver::processMessage(const can_msgs::msg::Frame::SharedPtr received_msg)
   }
 
   // Copy the received data and mark that field as received.
-  std::copy_n(std::begin(received_msg->data), Field::FIELD_STRUCT_DATA_SIZE,
+  std::copy_n(
+    std::begin(received_msg->data), Field::FIELD_STRUCT_DATA_SIZE,
     std::begin(field->data));
   field->received = true;
 }
@@ -260,7 +261,8 @@ void Driver::verifyParams()
       if (receivedPower() && (lastPower() == 0)) {
         // Only advance state when we have a new LM_API_STATUS_POWER msg
         // with the power flag cleared
-        RCLCPP_INFO(rclcpp::get_logger("rclcpp"),
+        RCLCPP_INFO(
+          rclcpp::get_logger("rclcpp"),
           "Puma Motor Controller on %s (%i): cleared power flag.",
           device_name_.c_str(), device_number_);
         state_ = ConfigurationState::EncoderPosRef;
@@ -271,7 +273,8 @@ void Driver::verifyParams()
     case ConfigurationState::EncoderPosRef:
       if (posEncoderRef() == LM_REF_ENCODER) {
         state_ = ConfigurationState::EncoderSpdRef;
-        RCLCPP_INFO(rclcpp::get_logger("rclcpp"),
+        RCLCPP_INFO(
+          rclcpp::get_logger("rclcpp"),
           "Puma Motor Controller on %s (%i): set position encoder reference.",
           device_name_.c_str(), device_number_);
       } else {
@@ -281,7 +284,8 @@ void Driver::verifyParams()
     case ConfigurationState::EncoderSpdRef:
       if (spdEncoderRef() == LM_REF_QUAD_ENCODER) {
         state_ = ConfigurationState::EncoderCounts;
-        RCLCPP_INFO(rclcpp::get_logger("rclcpp"),
+        RCLCPP_INFO(
+          rclcpp::get_logger("rclcpp"),
           "Puma Motor Controller on %s (%i): set speed encoder reference.",
           device_name_.c_str(), device_number_);
       } else {
@@ -291,7 +295,8 @@ void Driver::verifyParams()
     case ConfigurationState::EncoderCounts:
       if (encoderCounts() == encoder_cpr_) {
         state_ = ConfigurationState::ClosedLoop;
-        RCLCPP_INFO(rclcpp::get_logger("rclcpp"),
+        RCLCPP_INFO(
+          rclcpp::get_logger("rclcpp"),
           "Puma Motor Controller on %s (%i): set encoder counts to %i.",
           device_name_.c_str(), device_number_, encoder_cpr_);
       } else {
@@ -301,7 +306,8 @@ void Driver::verifyParams()
     case ConfigurationState::ClosedLoop:  // Need to enter a close loop mode to record encoder data.
       if (lastMode() == clearpath_motor_msgs::msg::PumaStatus::MODE_SPEED) {
         state_ = ConfigurationState::ControlMode;
-        RCLCPP_INFO(rclcpp::get_logger("rclcpp"),
+        RCLCPP_INFO(
+          rclcpp::get_logger("rclcpp"),
           "Puma Motor Controller on %s (%i): entered a close-loop control mode.",
           device_name_.c_str(), device_number_);
       } else {
@@ -312,12 +318,14 @@ void Driver::verifyParams()
       if (lastMode() == control_mode_) {
         if (control_mode_ != clearpath_motor_msgs::msg::PumaStatus::MODE_VOLTAGE) {
           state_ = ConfigurationState::PGain;
-          RCLCPP_INFO(rclcpp::get_logger("rclcpp"),
+          RCLCPP_INFO(
+            rclcpp::get_logger("rclcpp"),
             "Puma Motor Controller on %s (%i): was set to a close loop control mode.",
             device_name_.c_str(), device_number_);
         } else {
           state_ = ConfigurationState::VerifiedParameters;
-          RCLCPP_INFO(rclcpp::get_logger("rclcpp"),
+          RCLCPP_INFO(
+            rclcpp::get_logger("rclcpp"),
             "Puma Motor Controller on %s (%i): was set to voltage control mode.",
             device_name_.c_str(), device_number_);
         }
@@ -326,11 +334,13 @@ void Driver::verifyParams()
     case ConfigurationState::PGain:
       if (verifyRaw16x16(getRawP(), gain_p_)) {
         state_ = ConfigurationState::IGain;
-        RCLCPP_INFO(rclcpp::get_logger("rclcpp"),
+        RCLCPP_INFO(
+          rclcpp::get_logger("rclcpp"),
           "Puma Motor Controller on %s (%i): P gain constant was set to %f and %f was requested.",
           device_name_.c_str(), device_number_, getP(), gain_p_);
       } else {
-        RCLCPP_WARN(rclcpp::get_logger("rclcpp"),
+        RCLCPP_WARN(
+          rclcpp::get_logger("rclcpp"),
           "Puma Motor Controller on %s (%i): P gain constant was set to %f and %f was requested.",
           device_name_.c_str(), device_number_, getP(), gain_p_);
         switch (control_mode_) {
@@ -349,11 +359,13 @@ void Driver::verifyParams()
     case ConfigurationState::IGain:
       if (verifyRaw16x16(getRawI(), gain_i_)) {
         state_ = ConfigurationState::DGain;
-        RCLCPP_INFO(rclcpp::get_logger("rclcpp"),
+        RCLCPP_INFO(
+          rclcpp::get_logger("rclcpp"),
           "Puma Motor Controller on %s (%i): I gain constant was set to %f and %f was requested.",
           device_name_.c_str(), device_number_, getI(), gain_i_);
       } else {
-        RCLCPP_WARN(rclcpp::get_logger("rclcpp"),
+        RCLCPP_WARN(
+          rclcpp::get_logger("rclcpp"),
           "Puma Motor Controller on %s (%i): I gain constant was set to %f and %f was requested.",
           device_name_.c_str(), device_number_, getI(), gain_i_);
         switch (control_mode_) {
@@ -372,11 +384,13 @@ void Driver::verifyParams()
     case ConfigurationState::DGain:
       if (verifyRaw16x16(getRawD(), gain_d_)) {
         state_ = ConfigurationState::VerifiedParameters;
-        RCLCPP_INFO(rclcpp::get_logger("rclcpp"),
+        RCLCPP_INFO(
+          rclcpp::get_logger("rclcpp"),
           "Puma Motor Controller on %s (%i): D gain constant was set to %f and %f was requested.",
           device_name_.c_str(), device_number_, getD(), gain_d_);
       } else {
-        RCLCPP_WARN(rclcpp::get_logger("rclcpp"),
+        RCLCPP_WARN(
+          rclcpp::get_logger("rclcpp"),
           "Puma Motor Controller on %s (%i): D gain constant was set to %f and %f was requested.",
           device_name_.c_str(), device_number_, getD(), gain_d_);
         switch (control_mode_) {
@@ -394,7 +408,8 @@ void Driver::verifyParams()
       break;
   }
   if (state_ == ConfigurationState::VerifiedParameters) {
-    RCLCPP_INFO(rclcpp::get_logger("rclcpp"),
+    RCLCPP_INFO(
+      rclcpp::get_logger("rclcpp"),
       "Puma Motor Controller on %s (%i): all parameters verified.",
       device_name_.c_str(), device_number_);
     configured_ = true;
@@ -510,14 +525,16 @@ void Driver::setMode(const uint8_t mode)
 {
   if (mode == clearpath_motor_msgs::msg::PumaStatus::MODE_VOLTAGE) {
     control_mode_ = mode;
-    RCLCPP_INFO(rclcpp::get_logger("rclcpp"),
+    RCLCPP_INFO(
+      rclcpp::get_logger("rclcpp"),
       "Puma Motor Controller on %s (%i): mode set to voltage control.",
       device_name_.c_str(), device_number_);
     if (configured_) {
       resetConfiguration();
     }
   } else {
-    RCLCPP_ERROR(rclcpp::get_logger("rclcpp"),
+    RCLCPP_ERROR(
+      rclcpp::get_logger("rclcpp"),
       "Puma Motor Controller on %s (%i): Close loop modes need PID gains.",
       device_name_.c_str(), device_number_);
   }
@@ -527,7 +544,8 @@ void Driver::setMode(const uint8_t mode, const double p, const double i, const d
 {
   if (mode == clearpath_motor_msgs::msg::PumaStatus::MODE_VOLTAGE) {
     control_mode_ = mode;
-    RCLCPP_WARN(rclcpp::get_logger("rclcpp"),
+    RCLCPP_WARN(
+      rclcpp::get_logger("rclcpp"),
       "Puma Motor Controller on %s (%i): mode set to voltage control but PID gains are not needed.",
       device_name_.c_str(), device_number_);
     if (configured_) {
@@ -539,9 +557,11 @@ void Driver::setMode(const uint8_t mode, const double p, const double i, const d
       resetConfiguration();
     }
     setGains(p, i, d);
-    RCLCPP_INFO(rclcpp::get_logger("rclcpp"),
-        "Puma Motor Controller on %s (%i): mode set to a closed-loop control with PID gains of P:%f, I:%f and D:%f.",
-        device_name_.c_str(), device_number_, gain_p_, gain_i_, gain_d_);
+    RCLCPP_INFO(
+      rclcpp::get_logger(
+        "rclcpp"),
+      "Puma Motor Controller on %s (%i): mode set to a closed-loop control with PID gains of P:%f, I:%f and D:%f.",
+      device_name_.c_str(), device_number_, gain_p_, gain_i_, gain_d_);
   }
 }
 
