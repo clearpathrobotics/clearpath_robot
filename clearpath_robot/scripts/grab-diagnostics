@@ -33,6 +33,20 @@ temp_folder=$(mktemp -d)
 # Get robot yaml file
 if [ -e /etc/clearpath/robot.yaml ]; then
  sudo cp /etc/clearpath/robot.yaml "$temp_folder/robot.yaml"
+
+ # List src/ directories for each custom workspace defined in robot.yaml
+ workspaces=$(sed -n '\|^\s*workspaces:|,\|^[[:space:]]*[^-[:space:]]|p' /etc/clearpath/robot.yaml | \
+   grep -E '^\s*- ' | sed 's/^[[:space:]]*- //')
+ if [ -n "$workspaces" ]; then
+   while IFS= read -r setup_bash; do
+     ws_dir=$(dirname "$(dirname "$setup_bash")")
+     if [ -d "$ws_dir/src" ]; then
+       echo "=== $ws_dir/src ===" >> "$temp_folder/workspaces.log"
+       ls -1 "$ws_dir/src/" >> "$temp_folder/workspaces.log" 2>&1
+       echo "" >> "$temp_folder/workspaces.log"
+     fi
+   done <<< "$workspaces"
+ fi
 fi
 
 
