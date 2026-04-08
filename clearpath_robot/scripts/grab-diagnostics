@@ -35,7 +35,7 @@ if [ -e /etc/clearpath/robot.yaml ]; then
  sudo cp /etc/clearpath/robot.yaml "$temp_folder/robot.yaml"
 
  # List src/ directories for each custom workspace defined in robot.yaml
- workspaces=$(sed -n '|^\s*workspaces:|,|^[[:space:]]*[^-[:space:]]|p' /etc/clearpath/robot.yaml | \
+ workspaces=$(sed -n '\|^\s*workspaces:|,\|^[[:space:]]*[^-[:space:]]|p' /etc/clearpath/robot.yaml | \
    grep -E '^\s*- ' | sed 's/^[[:space:]]*- //')
  if [ -n "$workspaces" ]; then
    while IFS= read -r setup_bash; do
