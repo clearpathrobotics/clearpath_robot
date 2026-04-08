@@ -24,7 +24,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include "puma_motor_driver/multi_puma_node.hpp"
 
 MultiPumaNode::MultiPumaNode(const std::string node_name)
-:Node(node_name),
+: Node(node_name),
   active_(false),
   status_count_(0),
   desired_mode_(clearpath_motor_msgs::msg::PumaStatus::MODE_SPEED)
@@ -88,20 +88,22 @@ MultiPumaNode::MultiPumaNode(const std::string node_name)
     "platform/puma/status",
     rclcpp::SensorDataQoS());
 
-  node_handle_ = std::shared_ptr<rclcpp::Node>(this, [](rclcpp::Node *){});
+  node_handle_ = std::shared_ptr<rclcpp::Node>(this, [](rclcpp::Node *) {});
 
   // Socket
-  interface_.reset(new clearpath_ros2_socketcan_interface::SocketCANInterface(
-    canbus_dev_, node_handle_));
+  interface_.reset(
+    new clearpath_ros2_socketcan_interface::SocketCANInterface(
+      canbus_dev_, node_handle_));
 
   interface_->startSendTimer(1);
 
   for (uint8_t i = 0; i < joint_names_.size(); i++) {
-    drivers_.push_back(puma_motor_driver::Driver(
-      interface_,
-      node_handle_,
-      joint_can_ids_[i],
-      joint_names_[i]
+    drivers_.push_back(
+      puma_motor_driver::Driver(
+        interface_,
+        node_handle_,
+        joint_can_ids_[i],
+        joint_names_[i]
     ));
   }
 
@@ -249,7 +251,8 @@ void MultiPumaNode::run()
     for (auto & driver : drivers_) {
       if (driver.lastPower() != 0) {
         active_ = false;
-        RCLCPP_WARN(this->get_logger(),
+        RCLCPP_WARN(
+          this->get_logger(),
           "Power reset detected on device ID %d, will reconfigure all drivers.",
           driver.deviceNumber());
         for (auto & driver : drivers_) {
