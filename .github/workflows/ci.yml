@@ -7,19 +7,6 @@ on:
     - cron: "0 0 * * *" # every day at midnight
 
 jobs:
-  clearpath_robot_osrf_industrial_ci:
-    name: Humble OSRF Industrial
-    strategy:
-      matrix:
-        env:
-          - {ROS_REPO: testing, ROS_DISTRO: humble, ROSDEP_SKIP_KEYS: "ewellix_driver micro_ros_agent sevcon_traction umx_driver valence_bms_driver"}
-          - {ROS_REPO: main, ROS_DISTRO: humble, ROSDEP_SKIP_KEYS: "ewellix_driver micro_ros_agent sevcon_traction umx_driver valence_bms_driver"}
-      fail-fast: false
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-      - uses: 'ros-industrial/industrial_ci@master'
-        env: ${{matrix.env}}
   clearpath_robot_cpr_ci:
     name: Humble Clearpath Release
     runs-on: ubuntu-latest
@@ -33,6 +20,8 @@ jobs:
           wget https://packages.clearpathrobotics.com/public.key -O - | sudo apt-key add -
           sudo sh -c 'echo "deb https://packages.clearpathrobotics.com/stable/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/clearpath-latest.list'
           sudo apt-get update
+          sudo wget https://raw.githubusercontent.com/clearpathrobotics/public-rosdistro/master/rosdep/50-clearpath.list -O /etc/ros/rosdep/sources.list.d/50-clearpath.list
+          rosdep update
       - uses: ros-tooling/action-ros-ci@v0.3
         id: action_ros_ci_step
         with:
@@ -74,22 +63,28 @@ jobs:
       image: rostooling/setup-ros-docker:ubuntu-jammy-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/checkout@v3
+      - name: "[Repositories Updater] Checkout action"
+        uses: actions/checkout@v3
         with:
           repository: clearpathrobotics/repos-dep-update-action
-          ref: 0.0.1
+          ref: 0.0.4
           path: repos-dep-update-action
-      - name: Extract branch name
+      - name: "[Repositories Updater] Install dependencies"
+        run: |
+          apt-get update
+          apt-get install -y jq git python3 python3-pip
+          python3 -m pip install yq --break-system-packages
+      - name: "[Repositories Updater] Extract branch name"
         shell: bash
         run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
         id: extract_branch
-      - name: Use repos update action
+      - name: "[Repositories Updater] Run action"
         uses: ./repos-dep-update-action/
         with:
           branch: ${{ steps.extract_branch.outputs.branch }}
           input: dependencies.repos
           output: updated_dependencies.repos
-      - name: Updated dependencies
+      - name: "[Repositories Updater] Print updated dependencies"
         run: |
           cat updated_dependencies.repos
       - name: clearpath-package-server
@@ -118,18 +113,24 @@ jobs:
       image: rostooling/setup-ros-docker:ubuntu-jammy-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/checkout@v3
+      - name: "[Repositories Updater] Checkout action"
+        uses: actions/checkout@v3
         with:
           repository: clearpathrobotics/repos-dep-update-action
-          ref: 0.0.1
+          ref: 0.0.3
           path: repos-dep-update-action
-      - name: Use repos update action
+      - name: "[Repositories Updater] Install dependencies"
+        run: |
+          apt-get update
+          apt-get install -y jq git python3 python3-pip
+          python3 -m pip install yq --break-system-packages
+      - name: "[Repositories Updater] Run action"
         uses: ./repos-dep-update-action/
         with:
           branch: ${{ github.event.pull_request.base.ref }}
           input: dependencies.repos
           output: updated_dependencies.repos
-      - name: Updated dependencies
+      - name: "[Repositories Updater] Print updated dependencies"
         run: |
           cat updated_dependencies.repos
       - name: clearpath-package-server
