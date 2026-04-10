@@ -30,8 +30,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include <math.h>
 #include "rclcpp/rclcpp.hpp"
 
-// must match firmware
-#define CAN_FEEDBACK_RATE 40.0
+constexpr double EXPECTED_CAN_STATUS_RATE = 1.0;
 
 namespace puma_motor_driver
 {
@@ -57,6 +56,30 @@ enum ConfigurationState
 }  // namespace ConfigurationStates
 typedef ConfigurationStates::ConfigurationState ConfigurationState;
 
+
+/**
+ * @brief Convert a ConfigurationState enum value to a human-readable string for diagnostics.
+ */
+const char * configurationStateName(int state)
+{
+  switch (state) {
+    case ConfigurationState::Unknown: return "Unknown";
+    case ConfigurationState::Initializing: return "Initializing";
+    case ConfigurationState::PowerFlag: return "Power Flag";
+    case ConfigurationState::EncoderPosRef: return "Encoder Position Reference";
+    case ConfigurationState::EncoderSpdRef: return "Encoder Speed Reference";
+    case ConfigurationState::EncoderCounts: return "Encoder Counts";
+    case ConfigurationState::ClosedLoop: return "Closed Loop";
+    case ConfigurationState::ControlMode: return "Control Mode";
+    case ConfigurationState::PGain: return "P Gain";
+    case ConfigurationState::IGain: return "I Gain";
+    case ConfigurationState::DGain: return "D Gain";
+    case ConfigurationState::VerifiedParameters: return "Verified Parameters";
+    case ConfigurationState::Configured: return "Configured";
+    default: return "Unknown";
+  }
+}
+
 Driver::Driver(
   const std::shared_ptr<can_hardware::drivers::SocketCanDriver> interface,
   std::shared_ptr<rclcpp::Node> nh,
@@ -76,15 +99,6 @@ Driver::Driver(
   encoder_cpr_(1),
   gear_ratio_(1)
 {
-  can_feedback_rate_ = std::make_shared<double>(CAN_FEEDBACK_RATE);
-  can_feedback_freq_status_ = std::make_shared<diagnostic_updater::FrequencyStatus>(
-    diagnostic_updater::FrequencyStatusParam(
-      can_feedback_rate_.get(),
-      can_feedback_rate_.get(),
-      0.1,
-      5
-    )
-  );
 }
 
 void Driver::processMessage(const can_hardware::Frame & received_msg)
@@ -105,21 +119,24 @@ void Driver::processMessage(const can_hardware::Frame & received_msg)
     field = cfgFieldForMessage(received_api);
   } else if ((received_api & CAN_MSGID_API_M & CAN_API_MC_STATUS) == CAN_API_MC_STATUS) {
     field = statusFieldForMessage(received_api);
+    // Tick the status diagnostic once per fault message
+    if (configured_ && can_status_freq_diagnostic_ && received_api == getApi(getMsg(LM_API_STATUS_FAULT))) {
+      can_status_freq_diagnostic_->tick();
+    }
   } else if ((received_api & CAN_MSGID_API_M & CAN_API_MC_ICTRL) == CAN_API_MC_ICTRL) {
     field = ictrlFieldForMessage(received_api);
-    can_feedback_freq_status_->tick();
   } else if ((received_api & CAN_MSGID_API_M & CAN_API_MC_POS) == CAN_API_MC_POS) {
     field = posFieldForMessage(received_api);
-    can_feedback_freq_status_->tick();
   } else if ((received_api & CAN_MSGID_API_M & CAN_API_MC_VCOMP) == CAN_API_MC_VCOMP) {
     field = vcompFieldForMessage(received_api);
-    can_feedback_freq_status_->tick();
   } else if ((received_api & CAN_MSGID_API_M & CAN_API_MC_SPD) == CAN_API_MC_SPD) {
     field = spdFieldForMessage(received_api);
-    can_feedback_freq_status_->tick();
+    // Tick the frequency diagnostic once per feedback message
+    if (configured_ && can_feedback_freq_diagnostic_) {
+      can_feedback_freq_diagnostic_->tick();
+    }
   } else if ((received_api & CAN_MSGID_API_M & CAN_API_MC_VOLTAGE) == CAN_API_MC_VOLTAGE) {
     field = voltageFieldForMessage(received_api);
-    can_feedback_freq_status_->tick();
   }
 
   if (!field) {
@@ -246,6 +263,32 @@ void Driver::setEncoderCPR(const uint16_t encoder_cpr)
 void Driver::setGearRatio(const float gear_ratio)
 {
   gear_ratio_ = gear_ratio;
+}
+
+void Driver::setExpectedFeedbackRate(const double rate)
+{
+  can_feedback_rate_ = std::make_shared<double>(rate);
+  can_feedback_freq_diagnostic_ = std::make_shared<diagnostic_updater::FrequencyStatus>(
+    diagnostic_updater::FrequencyStatusParam(
+      can_feedback_rate_.get(),  // min expected frequency (Hz)
+      can_feedback_rate_.get(),  // max expected frequency (Hz)
+      0.1,  // tolerance (+/- 10%)
+      5  // window size
+    )
+  );
+}
+
+void Driver::initStatusDiagnostic()
+{
+  can_status_rate_ = std::make_shared<double>(EXPECTED_CAN_STATUS_RATE);
+  can_status_freq_diagnostic_ = std::make_shared<diagnostic_updater::FrequencyStatus>(
+    diagnostic_updater::FrequencyStatusParam(
+      can_status_rate_.get(),  // min expected frequency (Hz)
+      can_status_rate_.get(),  // max expected frequency (Hz)
+      0.1,  // tolerance (+/- 10%)
+      5  // window size
+    )
+  );
 }
 
 void Driver::commandDutyCycle(const float cmd)
@@ -1041,11 +1084,28 @@ Driver::Field * Driver::cfgFieldForMessage(uint32_t api)
 }
 
 /**
- * @brief Runs the frequency diagnostic update to populate the status message
+ * @brief Runs the frequency diagnostic update to populate the diagnostic status message
  */
 void Driver::runFreqStatus(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
-  can_feedback_freq_status_->run(stat);
+  stat.add("Configured", configured_);
+  stat.add("Configuration State", configurationStateName(state_));
+  stat.add("Mode", lastMode());
+
+  if (!configured_)
+  {
+    stat.mergeSummary(
+      diagnostic_updater::DiagnosticStatusWrapper::WARN, "Driver not yet configured.");
+    return;
+  }
+
+  if (can_feedback_freq_diagnostic_) {
+    can_feedback_freq_diagnostic_->run(stat);
+  }
+
+  if (can_status_freq_diagnostic_) {
+    can_status_freq_diagnostic_->run(stat);
+  }
 
   stat.add("Duty cycle", lastDutyCycle());
   stat.add("Current (A)", lastCurrent());
