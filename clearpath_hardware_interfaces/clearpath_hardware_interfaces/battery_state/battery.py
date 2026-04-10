@@ -310,7 +310,6 @@ class Battery:
     class RB20(LiION):
         CAPACITY = 20.0
         VOLTAGE = 12.8
-        # From Open Circuit Voltage vs SOC% curve (sampled at 5% intervals)
         LUT = [
             [12.0,  0.0],
             [12.2,  0.05],
