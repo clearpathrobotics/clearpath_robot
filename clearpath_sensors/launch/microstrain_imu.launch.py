@@ -62,6 +62,8 @@ def generate_launch_description():
 
     launch_microstrain_imu = GroupAction([
         SetRemap('imu/data', 'data'),
+        SetRemap('imu/data_raw', 'data_raw'),
+        SetRemap('imu/mag', 'mag'),
         SetRemap('/moving_ang', 'moving_ang'),
         SetRemap('/tf', 'tf'),
         SetRemap('/tf_static', PathJoinSubstitution(['/', robot_namespace, 'tf_static'])),
