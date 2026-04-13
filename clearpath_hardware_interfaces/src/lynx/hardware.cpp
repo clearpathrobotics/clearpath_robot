@@ -102,7 +102,7 @@ void LynxHardware::writeCommandsToHardware()
  * @brief Pull latest speed and travel measurements from MCU,
  * and store in joint structure for ROS controls
 */
-void LynxHardware::updateJointsFromHardware(const rclcpp::Duration & period)
+void LynxHardware::updateJointsFromHardware(const rclcpp::Duration & /*period*/)
 {
   rclcpp::spin_some(node_);
 
