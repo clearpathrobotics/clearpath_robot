@@ -2,6 +2,18 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Grab the folders inside the workspaces as well. (`#316 <https://github.com/clearpathrobotics/clearpath_robot/issues/316>`_) (`#318 <https://github.com/clearpathrobotics/clearpath_robot/issues/318>`_)
+  * Grab the folders inside the workspaces as well.
+  * Update clearpath_robot/scripts/grab-diagnostics
+  * Fixed sed alternate delimiter syntax in grab-diagnostics.
+  ---------
+  (cherry picked from commit 3b0211597b20c620843787d681f3e731f1c3c536)
+  Co-authored-by: Tony Baltovski <tbaltovski@clearpathrobotics.com>
+  Co-authored-by: Tom Wallis <thomas.wallis@rockwellautomation.com>
+* Contributors: mergify[bot]
+
 1.3.7 (2026-01-20)
 ------------------
 * [Humble] Fix: Robot Install (`#296 <https://github.com/clearpathrobotics/clearpath_robot/issues/296>`_)

@@ -2,6 +2,22 @@
 Changelog for package puma_motor_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* [Humble] Changed to rostooling/setup-ros-docker:ubuntu-noble-latest for CI image. (`#313 <https://github.com/clearpathrobotics/clearpath_robot/issues/313>`_)
+  * Changed to rostooling/setup-ros-docker:ubuntu-noble-latest for CI image. (`#312 <https://github.com/clearpathrobotics/clearpath_robot/issues/312>`_)
+  (cherry picked from commit 6e16b3cbdb3d04b644ba6c6fb3247267059770c9)
+  # Conflicts:
+  #	.github/workflows/ci.yml
+  * Resolve backport conflicts: use rostooling/setup-ros-docker:ubuntu-jammy-latest for Humble CI
+  * Add ewellix_driver to ROSDEP_SKIP_KEYS for Humble CI
+  * Linting fixes.
+  * Updated CI to match Jazzy.
+  * Removed --break-system-packages.
+  ---------
+  Co-authored-by: Tony Baltovski <tbaltovski@clearpathrobotics.com>
+* Contributors: mergify[bot]
+
 1.3.7 (2026-01-20)
 ------------------
 

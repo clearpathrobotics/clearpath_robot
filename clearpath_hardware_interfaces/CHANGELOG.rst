@@ -8,6 +8,15 @@ Changelog for package clearpath_platform
 0.3.3 (2024-10-04)
 ------------------
 
+Forthcoming
+-----------
+* Fixed the RB20 battery LUT to fit curve better. (`#323 <https://github.com/clearpathrobotics/clearpath_robot/issues/323>`_) (`#325 <https://github.com/clearpathrobotics/clearpath_robot/issues/325>`_)
+  * Fixed the RB20 battery LUT to fit curve better.
+  * Removed comment from RB20 LUT.
+  (cherry picked from commit 2b2a6ebc1f06898b1623ba66baf61da14bdaed0e)
+  Co-authored-by: Tony Baltovski <tbaltovski@clearpathrobotics.com>
+* Contributors: mergify[bot]
+
 1.3.7 (2026-01-20)
 ------------------
 

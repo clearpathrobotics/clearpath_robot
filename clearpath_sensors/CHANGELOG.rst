@@ -2,6 +2,18 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* [Humble] Fix: added missing imu/mag remap for microstrain_imu. (`#320 <https://github.com/clearpathrobotics/clearpath_robot/issues/320>`_)
+  * fix: added missing imu/mag remap for microstrain_imu. (`#319 <https://github.com/clearpathrobotics/clearpath_robot/issues/319>`_)
+  (cherry picked from commit afa2a6768729d30fceb665e6c59ca225dc7616ea)
+  # Conflicts:
+  #	clearpath_sensors/launch/microstrain_imu.launch.py
+  * Fixed conflicts.
+  ---------
+  Co-authored-by: Tony Baltovski <tbaltovski@clearpathrobotics.com>
+* Contributors: mergify[bot]
+
 1.3.7 (2026-01-20)
 ------------------
 
