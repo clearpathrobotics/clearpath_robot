@@ -2,8 +2,8 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.9.2 (2026-04-14)
+------------------
 * Grab the folders inside the workspaces as well. (`#316 <https://github.com/clearpathrobotics/clearpath_robot/issues/316>`_)
   * Grab the folders inside the workspaces as well.
   * Update clearpath_robot/scripts/grab-diagnostics

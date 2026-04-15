@@ -2,8 +2,8 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.9.2 (2026-04-14)
+------------------
 * Fix OAK-D camera launch, node naming, and point cloud output (`#327 <https://github.com/clearpathrobotics/clearpath_robot/issues/327>`_)
 * fix: added missing imu/mag remap for microstrain_imu. (`#319 <https://github.com/clearpathrobotics/clearpath_robot/issues/319>`_)
 * Contributors: Tony Baltovski
