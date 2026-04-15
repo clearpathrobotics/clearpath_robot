@@ -2,6 +2,15 @@
 Changelog for package clearpath_platform
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fixed unused parameter warning in LynxHardware. (`#326 <https://github.com/clearpathrobotics/clearpath_robot/issues/326>`_)
+* Fixed the RB20 battery LUT to fit curve better. (`#323 <https://github.com/clearpathrobotics/clearpath_robot/issues/323>`_)
+  * Fixed the RB20 battery LUT to fit curve better.
+  * Removed comment from RB20 LUT.
+* Updated declarations to fix deprecated warning. (`#307 <https://github.com/clearpathrobotics/clearpath_robot/issues/307>`_)
+* Contributors: Tony Baltovski
+
 2.9.1 (2026-02-11)
 ------------------
 

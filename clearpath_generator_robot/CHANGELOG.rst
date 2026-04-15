@@ -2,6 +2,17 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Feature: Generator Sample Tests (`#315 <https://github.com/clearpathrobotics/clearpath_robot/issues/315>`_)
+  * Remove empty sensor config directories
+  * Ignore non-YAML files in tests
+  * Add generator testing to CI
+  * Create sensor directory if sensors to generate exist
+  * Generate platform extras in robot launch generator
+  * Rename README to markdown and add generator tests
+* Contributors: luis-camero
+
 2.9.1 (2026-02-11)
 ------------------
 

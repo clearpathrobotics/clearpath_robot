@@ -2,6 +2,17 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Grab the folders inside the workspaces as well. (`#316 <https://github.com/clearpathrobotics/clearpath_robot/issues/316>`_)
+  * Grab the folders inside the workspaces as well.
+  * Update clearpath_robot/scripts/grab-diagnostics
+  Co-authored-by: Tom Wallis <thomas.wallis@rockwellautomation.com>
+  * Fixed sed alternate delimiter syntax in grab-diagnostics.
+  ---------
+  Co-authored-by: Tom Wallis <thomas.wallis@rockwellautomation.com>
+* Contributors: Tony Baltovski
+
 2.9.1 (2026-02-11)
 ------------------
 * Bumped version deps.
