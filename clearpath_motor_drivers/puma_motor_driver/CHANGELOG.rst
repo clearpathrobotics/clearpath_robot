@@ -2,8 +2,8 @@
 Changelog for package puma_motor_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.3.8 (2026-04-14)
+------------------
 * [Humble] Changed to rostooling/setup-ros-docker:ubuntu-noble-latest for CI image. (`#313 <https://github.com/clearpathrobotics/clearpath_robot/issues/313>`_)
   * Changed to rostooling/setup-ros-docker:ubuntu-noble-latest for CI image. (`#312 <https://github.com/clearpathrobotics/clearpath_robot/issues/312>`_)
   (cherry picked from commit 6e16b3cbdb3d04b644ba6c6fb3247267059770c9)
