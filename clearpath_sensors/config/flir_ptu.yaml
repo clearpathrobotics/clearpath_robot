@@ -7,3 +7,4 @@ ptu_driver:
     limits_enabled: false
     hz: 10
     default_velocity: 0.0
+    joint_name_prefix: "ptu_"
