@@ -5,5 +5,5 @@ ptu_driver:
     tcp_port: 4000
     port: /dev/ptu
     limits_enabled: false
-    hz: 10.0
+    hz: 10
     default_velocity: 0.0
