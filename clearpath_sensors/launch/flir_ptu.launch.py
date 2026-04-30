@@ -36,6 +36,7 @@ from launch_ros.substitutions import FindPackageShare
 def generate_launch_description():
     parameters = LaunchConfiguration('parameters')
     namespace = LaunchConfiguration('namespace')
+    robot_namespace = LaunchConfiguration('robot_namespace')
 
     arg_namespace = DeclareLaunchArgument(
         'namespace',
@@ -49,6 +50,10 @@ def generate_launch_description():
             'flir_ptu.yaml'
         ]))
 
+    arg_robot_namespace = DeclareLaunchArgument(
+        'robot_namespace',
+        default_value='')
+
     ptu_node = Node(
         package='flir_ptu_driver',
         executable='ptu_node',
@@ -56,10 +61,14 @@ def generate_launch_description():
         namespace=namespace,
         parameters=[parameters],
         output='screen',
+        remappings=[
+            ('state', PathJoinSubstitution(['/', robot_namespace, 'platform', 'joint_states'])),
+        ]
     )
 
     ld = LaunchDescription()
     ld.add_action(arg_namespace)
     ld.add_action(arg_parameters)
+    ld.add_action(arg_robot_namespace)
     ld.add_action(ptu_node)
     return ld
