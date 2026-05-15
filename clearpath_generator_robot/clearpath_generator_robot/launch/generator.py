@@ -33,7 +33,6 @@
 # of Clearpath Robotics.
 import os
 
-from clearpath_config.common.types.platform import Platform
 from clearpath_config.manipulators.types.arms import (
   BaseKinova,
   Franka,
@@ -470,55 +469,55 @@ class RobotLaunchGenerator(LaunchGenerator):
             common_platform_components.extend(self.can_bridges)
 
         self.platform_components = {
-            Platform.GENERIC: [],
-            Platform.J100: common_platform_components + [
+            'generic': [],
+            'j100': common_platform_components + [
                 self.imu_0_filter_node,
                 self.imu_0_filter_config,
                 self.nmea_driver_node
             ],
-            Platform.A200: common_platform_components,
-            Platform.A300: common_platform_components + [
+            'a200': common_platform_components,
+            'a300': common_platform_components + [
                 self.lighting_node,
                 self.lynx_node,
                 self.a300_fan_control,
                 self.a300_sw_low_soc_cutoff,
                 self.pinout_node,
             ],
-            Platform.W200: common_platform_components + [
+            'w200': common_platform_components + [
                 self.imu_0_filter_node,
                 self.imu_0_filter_config,
                 self.lighting_node,
                 self.sevcon_node
             ],
-            Platform.DD100: common_platform_components + [
+            'dd100': common_platform_components + [
                 self.imu_0_filter_node,
                 self.imu_0_filter_config,
                 self.lighting_node,
                 self.puma_node,
                 self.pinout_node,
             ],
-            Platform.DO100: common_platform_components + [
+            'do100': common_platform_components + [
                 self.imu_0_filter_node,
                 self.imu_0_filter_config,
                 self.lighting_node,
                 self.puma_node,
                 self.pinout_node,
             ],
-            Platform.DD150: common_platform_components + [
+            'dd150': common_platform_components + [
                 self.imu_0_filter_node,
                 self.imu_0_filter_config,
                 self.lighting_node,
                 self.puma_node,
                 self.pinout_node,
             ],
-            Platform.DO150: common_platform_components + [
+            'do150': common_platform_components + [
                 self.imu_0_filter_node,
                 self.imu_0_filter_config,
                 self.lighting_node,
                 self.puma_node,
                 self.pinout_node,
             ],
-            Platform.R100: common_platform_components + [
+            'r100': common_platform_components + [
                 self.imu_0_filter_node,
                 self.imu_0_filter_config,
                 self.lighting_node,
@@ -552,10 +551,10 @@ class RobotLaunchGenerator(LaunchGenerator):
         # MCU
         mcu = self.clearpath_config.platform.mcu
         if mcu.protocol == mcu.UROS:
-            if self.platform_model == Platform.A200:
+            if self.platform_model == 'a200':
                 # Do nothing
                 pass
-            elif self.platform_model == Platform.J100:
+            elif self.platform_model == 'j100':
                 platform_service_launch_writer.add(self.j100_uros_node)
                 platform_service_launch_writer.add(self.configure_mcu)
             else:
@@ -563,13 +562,13 @@ class RobotLaunchGenerator(LaunchGenerator):
                 platform_service_launch_writer.add(self.configure_mcu)
 
         if mcu.protocol == mcu.PROTON:
-            if self.platform_model == Platform.A200:
+            if self.platform_model == 'a200':
                 platform = None
             elif (self.platform_model in [
-                    Platform.DD100, Platform.DD150, Platform.DO100, Platform.DO150]):
+                    'dd100', 'dd150', 'do100', 'do150']):
                 platform = 'd1x0'
             elif (self.platform_model in [
-                    Platform.J100, Platform.R100, Platform.W200]):
+                    'j100', 'r100', 'w200']):
                 platform = self.platform_model
             else:
                 platform = 'core'
