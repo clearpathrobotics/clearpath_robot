@@ -26,7 +26,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #define LYNX_MOTOR_DRIVER__MESSAGE_H
 
 #include "lynx_motor_driver/can_api.hpp"
-#include "can_msgs/msg/frame.hpp"
+#include "can_hardware/common/types.hpp"
 
 #include <stdint.h>
 #include <cstring>
@@ -36,17 +36,14 @@ namespace lynx_motor_driver
 {
 
 /**
- * @brief Wrap a can_msgs Frame to add Lynx API functions
- * 
+ * @brief Wrap a can_hardware Frame to add Lynx API functions
+ *
  */
 struct Message
 {
-  can_msgs::msg::Frame frame_;
+  can_hardware::Frame frame_;
 
-  Message(can_msgs::msg::Frame::SharedPtr frame) : frame_(*frame)
-  {}
-
-  Message(can_msgs::msg::Frame frame) : frame_(frame)
+  Message(const can_hardware::Frame & frame) : frame_(frame)
   {}
 
   Message()
@@ -54,10 +51,10 @@ struct Message
 
   /**
    * @brief Get the Frame object
-   * 
-   * @return can_msgs::msg::Frame 
+   *
+   * @return can_hardware::Frame
    */
-  can_msgs::msg::Frame getFrame() const
+  can_hardware::Frame getFrame() const
   {
     return frame_;
   }

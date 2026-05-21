@@ -31,10 +31,10 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "std_msgs/msg/float64.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
-#include "can_msgs/msg/frame.hpp"
 #include "std_srvs/srv/empty.hpp"
 
-#include "clearpath_ros2_socketcan_interface/socketcan_interface.hpp"
+#include "can_hardware/common/types.hpp"
+#include "can_hardware/drivers/socketcan_driver.hpp"
 
 #include "lynx_motor_driver/lynx_motor_driver.hpp"
 #include "lynx_motor_driver/message.hpp"
@@ -61,7 +61,7 @@ public:
 
   // Callbacks
   void cmdCallback(const sensor_msgs::msg::JointState::SharedPtr msg);
-  void canRxCallback(const can_msgs::msg::Frame::SharedPtr msg);
+  void canRxCallback(const can_hardware::Frame & frame);
 
   // Update messages
   void updateDebug();
@@ -96,7 +96,7 @@ private:
   rclcpp::Node::SharedPtr node_handle_;
 
   // CAN Interface
-  std::shared_ptr<clearpath_ros2_socketcan_interface::SocketCANInterface> can_interface_;
+  std::shared_ptr<can_hardware::drivers::SocketCanDriver> can_interface_;
 
   // Variables
   bool updating_, update_started_, debugging_;
