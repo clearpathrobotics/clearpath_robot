@@ -29,7 +29,8 @@
 # Redistribution and use in source and binary forms, with or without
 # modification, is not permitted without the express permission
 # of Clearpath Robotics.
-"""Base class and registry for per-platform launch composition.
+"""
+Base class and registry for per-platform launch composition.
 
 `BasePlatformLaunch` defines the contract that each concrete platform launch subclass implements;
 `PlatformLaunch` is the registry that maps platform `NAME` strings (matching
@@ -48,7 +49,8 @@ from clearpath_generator_robot.launch import nodes
 #   the corresponding BasePlatformConfig.NAME (e.g. 'a200', 'j100')
 # - subclasses self-register via PlatformLaunch.register(...) at import time
 class BasePlatformLaunch:
-    """Base class for per-platform launch composition.
+    """
+    Base class for per-platform launch composition.
 
     Subclasses set `NAME` to match the corresponding `BasePlatformConfig.NAME` (e.g. `'a200'`)
     and override `get_platform_components` (and optionally `get_mcu_components`) to declare the

@@ -29,7 +29,8 @@
 # Redistribution and use in source and binary forms, with or without
 # modification, is not permitted without the express permission
 # of Clearpath Robotics.
-"""Factory functions that build the individual launch components used by per-platform launches.
+"""
+Factory functions that build the individual launch components used by per-platform launches.
 
 Each factory takes only the explicit context it needs (no reads from a generator object) and
 returns one logical unit — a `LaunchFile`, `LaunchFile.Node`, `LaunchFile.Process`,

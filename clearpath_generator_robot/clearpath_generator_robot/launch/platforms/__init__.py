@@ -29,7 +29,8 @@
 # Redistribution and use in source and binary forms, with or without
 # modification, is not permitted without the express permission
 # of Clearpath Robotics.
-"""Per-platform launch subclasses.
+"""
+Per-platform launch subclasses.
 
 Importing this package triggers `PlatformLaunch.register(...)` for every concrete
 `BasePlatformLaunch` subclass, populating the registry used by `RobotLaunchGenerator` to
