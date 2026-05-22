@@ -40,12 +40,12 @@ namespace lynx_motor_driver
  * @param can_id CAN ID
  * @param joint_name Joint name
  * @param direction Direction of rotation
- * @param can_interface SocketCANInterface shared pointer
+ * @param can_interface SocketCanDriver shared pointer
  */
 LynxMotorDriver::LynxMotorDriver(const int64_t& can_id,
                const std::string& joint_name,
                const int64_t direction,
-               std::shared_ptr<clearpath_ros2_socketcan_interface::SocketCANInterface> can_interface)
+               std::shared_ptr<can_hardware::drivers::SocketCanDriver> can_interface)
   : can_id_(can_id), joint_name_(joint_name), direction_(direction),
     protection_state_(clearpath_motor_msgs::msg::LynxMotorProtection::NORMAL), debug_(false),
     can_interface_(can_interface)
@@ -569,7 +569,7 @@ void LynxMotorDriver::send(const uint32_t id, const DataT value)
   }
 
   // Create frame message
-  can_msgs::msg::Frame frame;
+  can_hardware::Frame frame;
   frame.id = getCOBID(id);
   frame.dlc = sizeof(DataT);
   frame.is_extended = true;
@@ -580,7 +580,7 @@ void LynxMotorDriver::send(const uint32_t id, const DataT value)
   std::copy(std::begin(data), std::end(data), std::begin(frame.data));
 
   // Send frame to CAN interface
-  can_interface_->send(frame);
+  can_interface_->sendFrame(frame);
 }
 
 /**
@@ -591,13 +591,13 @@ void LynxMotorDriver::send(const uint32_t id, const DataT value)
 void LynxMotorDriver::send(const uint32_t id)
 {
   // Create frame message
-  can_msgs::msg::Frame frame;
+  can_hardware::Frame frame;
   frame.id = getCOBID(id);
   frame.dlc = 0;
   frame.is_extended = true;
 
   // Send frame to CAN interface
-  can_interface_->send(frame);
+  can_interface_->sendFrame(frame);
 }
 
 /**
@@ -617,7 +617,7 @@ void LynxMotorDriver::send(const uint32_t id, uint8_t * data, uint8_t length)
   }
 
   // Create frame message
-  can_msgs::msg::Frame frame;
+  can_hardware::Frame frame;
   frame.id = getCOBID(id);
   frame.dlc = length;
   frame.is_extended = true;
@@ -628,7 +628,7 @@ void LynxMotorDriver::send(const uint32_t id, uint8_t * data, uint8_t length)
   std::copy(std::begin(buffer), std::end(buffer), std::begin(frame.data));
 
   // Send frame to CAN interface
-  can_interface_->send(frame);
+  can_interface_->sendFrame(frame);
 }
 
 /**
