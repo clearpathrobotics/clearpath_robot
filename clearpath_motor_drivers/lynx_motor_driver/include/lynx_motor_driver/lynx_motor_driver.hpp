@@ -28,8 +28,10 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include <string>
 #include <memory>
 #include <mutex>
+#include <queue>
 
-#include "clearpath_ros2_socketcan_interface/socketcan_interface.hpp"
+#include "can_hardware/common/types.hpp"
+#include "can_hardware/drivers/socketcan_driver.hpp"
 #include "diagnostic_updater/update_functions.hpp"
 
 #include "lynx_motor_driver/message.hpp"
@@ -115,7 +117,7 @@ public:
     const int64_t& can_id,
     const std::string& joint_name,
     const int64_t direction,
-    std::shared_ptr<clearpath_ros2_socketcan_interface::SocketCANInterface> can_interface);
+    std::shared_ptr<can_hardware::drivers::SocketCanDriver> can_interface);
 
   // Process CAN message
   bool processMessage(const Message& received_msg);
@@ -184,7 +186,7 @@ private:
   bool first_travel_received_;
 
   // CAN interface
-  std::shared_ptr<clearpath_ros2_socketcan_interface::SocketCANInterface> can_interface_;
+  std::shared_ptr<can_hardware::drivers::SocketCanDriver> can_interface_;
 
   // Messages
   clearpath_motor_msgs::msg::LynxDebug debug_msg_;
