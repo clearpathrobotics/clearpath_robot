@@ -2,6 +2,9 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.9.2 (2026-04-14)
 ------------------
 * Feature: Generator Sample Tests (`#315 <https://github.com/clearpathrobotics/clearpath_robot/issues/315>`_)

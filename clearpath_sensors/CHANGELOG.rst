@@ -2,6 +2,18 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Feature: PTU (`#330 <https://github.com/clearpathrobotics/clearpath_robot/issues/330>`_)
+  * Added support for Flir PTU-5.
+  * Added Flir PTU launch file.
+  * Change hz parameter from float to int
+  * Remap joint states to platform joint states
+  * Set the joint_name_prefix parameter
+  ---------
+  Co-authored-by: Luis Camero <lcamero@clearpathrobotics.com>
+* Contributors: Tony Baltovski
+
 2.9.2 (2026-04-14)
 ------------------
 * Fix OAK-D camera launch, node naming, and point cloud output (`#327 <https://github.com/clearpathrobotics/clearpath_robot/issues/327>`_)
