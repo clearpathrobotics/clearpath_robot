@@ -282,7 +282,7 @@ class BatteryStateEstimator(Node):
 
         self.declare_parameter(
             'lookup_table.voltages',
-            rclpy.Parameter.TYPE.DOUBLE_ARRAY,
+            rclpy.Parameter.Type.DOUBLE_ARRAY,
             descriptor=ParameterDescriptor(
                 description='Lookup table of battery voltages in V. Must be same length as lookup_table.percentages.',
             )
@@ -290,7 +290,7 @@ class BatteryStateEstimator(Node):
 
         self.declare_parameter(
             'lookup_table.percentages',
-            rclpy.Parameter.TYPE.DOUBLE_ARRAY,
+            rclpy.Parameter.Type.DOUBLE_ARRAY,
             descriptor=ParameterDescriptor(
                 description='Lookup table of battery percentages. Must be same length as lookup_table.voltages.',
             )
