@@ -43,6 +43,7 @@ import re
 
 from ament_index_python.packages import get_package_share_directory
 
+from clearpath_config.common.utils.dictionary import flatten_dict
 from clearpath_config.platform.battery import BatteryConfig
 from clearpath_config.platform.wireless import PeplinkRouter
 from clearpath_generator_common.common import LaunchFile, Package
@@ -295,44 +296,70 @@ def _make_battery_state_control(namespace: str, setup_path: str) -> LaunchFile.N
     )
 
 
+def _resolve_battery_param_file(param_file: dict):
+    """Resolve a battery ``param_file`` PackagePath dict to a parameters-list element.
+
+    When ``package`` is set, emit a launch-time ``PathJoinSubstitution`` that
+    resolves the share directory via ``FindPackageShare`` so the generated
+    launch file stays portable across environments. When only ``path`` is set
+    (absolute path), pass it through as a plain string.
+    """
+    package = param_file.get('package')
+    path = param_file.get('path')
+    if package:
+        return LaunchFile.Variable(
+            f"PathJoinSubstitution([FindPackageShare('{package}'), '{path}'])"
+        )
+    return path
+
+
 def _make_battery_state_estimator(
         namespace: str,
         clearpath_config) -> LaunchFile.Node:
     """Build the battery_state_estimator node, configured for the active battery.
 
-    The base parameter file is selected from
-    ``clearpath_hardware_interfaces/share/config/battery_state_estimator/<model>.yaml``
-    and overridden with the platform model, the (num_series, num_parallel) cell
-    configuration parsed from the battery's ``SxPy`` configuration string, and
-    an optional ``rolling_average_window`` taken from ``battery.launch_args``.
+    Parameter layering (later entries override earlier ones at launch time):
+      1. Base parameter file for the selected built-in model, OR the user's
+         ``battery.param_file`` when ``battery.model == 'custom'``.
+      2. Inline ``battery.ros_parameters.battery_state_estimator`` overrides.
+      3. Generator-derived overrides: always ``platform``; additionally
+         ``cell.num_series`` and ``cell.num_parallel`` for built-in models.
     """
     battery = clearpath_config.platform.battery
     platform_model = clearpath_config.platform.get_platform_model()
 
-    base_param_file = os.path.join(
-        get_package_share_directory('clearpath_hardware_interfaces'),
-        'config',
-        'battery_state_estimator',
-        f'{_BATTERY_PARAM_FILES[battery.model]}.yaml',
-    )
+    parameters: list = []
 
-    num_series, num_parallel = _parse_battery_configuration(battery.configuration)
+    # 1) Base / user param file
+    if battery.model == BatteryConfig.CUSTOM:
+        parameters.append(_resolve_battery_param_file(battery.param_file))
+    else:
+        parameters.append(os.path.join(
+            get_package_share_directory('clearpath_hardware_interfaces'),
+            'config',
+            'battery_state_estimator',
+            f'{_BATTERY_PARAM_FILES[battery.model]}.yaml',
+        ))
 
-    overrides: dict = {
-        'platform': platform_model,
-        'cell.num_series': num_series,
-        'cell.num_parallel': num_parallel,
-    }
-    rolling_window = battery.launch_args.get('rolling_average_window')
-    if rolling_window is not None:
-        overrides['rolling_average_window'] = int(rolling_window)
+    # 2) Inline ros_parameters.battery_state_estimator overrides
+    inline = battery.ros_parameters.get(BatteryConfig.BATTERY_STATE_ESTIMATOR, {})
+    if inline:
+        parameters.append(flatten_dict(inline))
+
+    # 3) Generator-derived overrides (always last)
+    derived: dict = {'platform': platform_model}
+    if battery.model != BatteryConfig.CUSTOM:
+        num_series, num_parallel = _parse_battery_configuration(battery.configuration)
+        derived['cell.num_series'] = num_series
+        derived['cell.num_parallel'] = num_parallel
+    parameters.append(derived)
 
     return LaunchFile.Node(
         package='clearpath_hardware_interfaces',
         executable='battery_state_estimator',
         name='battery_state_estimator',
         namespace=namespace,
-        parameters=[base_param_file, overrides],
+        parameters=parameters,
     )
 
 
