@@ -39,6 +39,9 @@ mutually exclusive (e.g. battery components). Whether to include a result in the
 file is the caller's decision.
 """
 import os
+import re
+
+from ament_index_python.packages import get_package_share_directory
 
 from clearpath_config.platform.battery import BatteryConfig
 from clearpath_config.platform.wireless import PeplinkRouter
@@ -253,6 +256,34 @@ def make_foxglove_components(namespace: str, platform_params_path: str) -> list:
 # ---------------------------------------------------------------------------
 # Battery — single factory owning the BMS / estimator decision
 # ---------------------------------------------------------------------------
+# Map BatteryConfig.<model> string -> base parameter file stem under
+# clearpath_hardware_interfaces/share/config/battery_state_estimator/<stem>.yaml.
+# The mapping is explicit because not every model name lowercases cleanly
+# (e.g. '8A31DTM' -> 'dtm8a31').
+_BATTERY_PARAM_FILES = {
+    BatteryConfig.DTM8A31:  'dtm8a31',
+    BatteryConfig.ES20_12C: 'es20_12c',
+    BatteryConfig.HE2410:   'he2410',
+    BatteryConfig.HE2411:   'he2411',
+    BatteryConfig.HE2613:   'he2613',
+    BatteryConfig.RB20:     'rb20',
+    BatteryConfig.TLV1222:  'tlv1222',
+    BatteryConfig.U1_35:    'u1_35',
+}
+
+_BATTERY_CONFIGURATION_RE = re.compile(r'^S(\d+)P(\d+)$')
+
+
+def _parse_battery_configuration(configuration: str) -> tuple[int, int]:
+    """Parse a ``SxPy`` battery configuration string into ``(num_series, num_parallel)``."""
+    match = _BATTERY_CONFIGURATION_RE.match(configuration)
+    if not match:
+        raise ValueError(
+            f'Battery configuration {configuration!r} does not match expected SxPy format'
+        )
+    return int(match.group(1)), int(match.group(2))
+
+
 def _make_battery_state_control(namespace: str, setup_path: str) -> LaunchFile.Node:
     """Build the battery_state_control node (always required)."""
     return LaunchFile.Node(
@@ -264,14 +295,44 @@ def _make_battery_state_control(namespace: str, setup_path: str) -> LaunchFile.N
     )
 
 
-def _make_battery_state_estimator(namespace: str, setup_path: str) -> LaunchFile.Node:
-    """Build the battery_state_estimator node (used only when no BMS is present)."""
+def _make_battery_state_estimator(
+        namespace: str,
+        clearpath_config) -> LaunchFile.Node:
+    """Build the battery_state_estimator node, configured for the active battery.
+
+    The base parameter file is selected from
+    ``clearpath_hardware_interfaces/share/config/battery_state_estimator/<model>.yaml``
+    and overridden with the platform model, the (num_series, num_parallel) cell
+    configuration parsed from the battery's ``SxPy`` configuration string, and
+    an optional ``rolling_average_window`` taken from ``battery.launch_args``.
+    """
+    battery = clearpath_config.platform.battery
+    platform_model = clearpath_config.platform.get_platform_model()
+
+    base_param_file = os.path.join(
+        get_package_share_directory('clearpath_hardware_interfaces'),
+        'config',
+        'battery_state_estimator',
+        f'{_BATTERY_PARAM_FILES[battery.model]}.yaml',
+    )
+
+    num_series, num_parallel = _parse_battery_configuration(battery.configuration)
+
+    overrides: dict = {
+        'platform': platform_model,
+        'cell.num_series': num_series,
+        'cell.num_parallel': num_parallel,
+    }
+    rolling_window = battery.launch_args.get('rolling_average_window')
+    if rolling_window is not None:
+        overrides['rolling_average_window'] = int(rolling_window)
+
     return LaunchFile.Node(
         package='clearpath_hardware_interfaces',
         executable='battery_state_estimator',
         name='battery_state_estimator',
         namespace=namespace,
-        arguments=['-s', setup_path],
+        parameters=[base_param_file, overrides],
     )
 
 
@@ -356,7 +417,7 @@ def make_battery_components(namespace: str, clearpath_config, setup_path: str) -
     elif battery_model in [BatteryConfig.S_24V20_U1]:
         components.append(_make_inventus_bms(namespace, battery))
     else:
-        components.append(_make_battery_state_estimator(namespace, setup_path))
+        components.append(_make_battery_state_estimator(namespace, clearpath_config))
 
     return components
 
