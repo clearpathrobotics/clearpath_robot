@@ -41,8 +41,6 @@ file is the caller's decision.
 import os
 import re
 
-from ament_index_python.packages import get_package_share_directory
-
 from clearpath_config.common.utils.dictionary import flatten_dict
 from clearpath_config.platform.battery import BatteryConfig
 from clearpath_config.platform.wireless import PeplinkRouter
@@ -334,11 +332,11 @@ def _make_battery_state_estimator(
     if battery.model == BatteryConfig.CUSTOM:
         parameters.append(_resolve_battery_param_file(battery.param_file))
     else:
-        parameters.append(os.path.join(
-            get_package_share_directory('clearpath_hardware_interfaces'),
-            'config',
-            'battery_state_estimator',
-            f'{_BATTERY_PARAM_FILES[battery.model]}.yaml',
+        base_stem = _BATTERY_PARAM_FILES[battery.model]
+        parameters.append(LaunchFile.Variable(
+            "PathJoinSubstitution(["
+            "FindPackageShare('clearpath_hardware_interfaces'), "
+            f"'config', 'battery_state_estimator', '{base_stem}.yaml'])"
         ))
 
     # 2) Inline ros_parameters.battery_state_estimator overrides
