@@ -1,5 +1,5 @@
 # Deka DTM8A31 (24 V Sealed Lead-Acid)
-battery_state_estimator:
+/**:
   ros__parameters:
     technology: 'vrla'
     cell:

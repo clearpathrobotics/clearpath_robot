@@ -1,7 +1,7 @@
 # Enersys ES20-12C (12 V Sealed Lead-Acid)
 # Uses the generic 12 V SLA lookup table from
 # https://iopscience.iop.org/article/10.1088/1742-6596/1367/1/012077/pdf
-battery_state_estimator:
+/**:
   ros__parameters:
     technology: 'vrla'
     cell:

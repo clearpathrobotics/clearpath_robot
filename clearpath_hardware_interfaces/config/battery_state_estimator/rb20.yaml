@@ -1,5 +1,5 @@
 # RELiON RB20 (12 V Lithium-Ion / LiFePO4)
-battery_state_estimator:
+/**:
   ros__parameters:
     technology: 'lion'
     cell:
