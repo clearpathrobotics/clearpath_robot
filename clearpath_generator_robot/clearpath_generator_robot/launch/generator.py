@@ -127,8 +127,9 @@ class RobotLaunchGenerator(LaunchGenerator):
         :class:`ManipulatorLaunch` subclass for any vendor-specific helper
         nodes (UR tool communication, Franka gripper controller, Kinova
         vision/pointcloud pipeline). When at least one manipulator is
-        configured the shared `manipulators.launch.py` is included with a
-        common `control_delay` of `1.0` to give vendor drivers time to come
+        configured the shared `manipulators.launch.py` is included with the
+        `control_delay` taken from `manipulators.control_delay` in
+        `robot.yaml` (default `1.0`) to give vendor drivers time to come
         up before the controllers start.
         """
         manipulator_service_launch_writer = LaunchWriter(self.manipulators_service_launch_file)
@@ -143,9 +144,10 @@ class RobotLaunchGenerator(LaunchGenerator):
             for component in manipulator_launch.get_components():
                 manipulator_service_launch_writer.add(component)
 
-        if self.clearpath_config.manipulators.get_all_manipulators():
-            control_delay = ('control_delay', '1.0')
-            if control_delay not in self.manipulators_launch_file.args:
-                self.manipulators_launch_file.args.append(control_delay)
+        if arms:
+            self.manipulators_launch_file.args.append((
+                'control_delay',
+                str(self.clearpath_config.manipulators.control_delay),
+            ))
             manipulator_service_launch_writer.add(self.manipulators_launch_file)
         manipulator_service_launch_writer.generate_file()
