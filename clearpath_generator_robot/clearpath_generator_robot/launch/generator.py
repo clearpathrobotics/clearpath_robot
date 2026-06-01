@@ -137,6 +137,7 @@ class RobotLaunchGenerator(LaunchGenerator):
             try:
                 manipulator_launch_cls = ManipulatorLaunch.get(arm.MANIPULATOR_MODEL)
             except KeyError:
+                print(f'No manipulator launch found for model "{arm.MANIPULATOR_MODEL}"; skipping manipulator "{arm.name}"')  # noqa:E501
                 continue
             manipulator_launch = manipulator_launch_cls(arm, self.namespace)
             for component in manipulator_launch.get_components():
