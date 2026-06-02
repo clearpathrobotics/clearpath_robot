@@ -307,7 +307,7 @@ def _resolve_battery_param_file(param_file: dict):
     path = param_file.get('path')
     if package:
         return LaunchFile.Variable(
-            f'PathJoinSubstitution([FindPackageShare(\'{package}\'), \'{path}\'])'
+            f"PathJoinSubstitution([FindPackageShare('{package}'), '{path}'])"
         )
     return path
 
@@ -336,7 +336,7 @@ def _make_battery_state_estimator(
     else:
         base_stem = _BATTERY_PARAM_FILES[battery.model]
         parameters.append(LaunchFile.Variable(
-            "PathJoinSubstitution(["
+            'PathJoinSubstitution(['
             "FindPackageShare('clearpath_hardware_interfaces'), "
             f"'config', 'battery_state_estimator', '{base_stem}.yaml'])"
         ))
