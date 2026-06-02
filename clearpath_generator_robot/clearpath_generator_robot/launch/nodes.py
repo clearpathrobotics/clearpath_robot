@@ -306,7 +306,7 @@ def _resolve_battery_param_file(param_file: dict):
     path = param_file.get('path')
     if package:
         return LaunchFile.Variable(
-            f"PathJoinSubstitution([FindPackageShare('{package}'), '{path}'])"
+            f'PathJoinSubstitution([FindPackageShare(\'{package}\'), \'{path}\'])'
         )
     return path
 
