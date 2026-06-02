@@ -295,7 +295,8 @@ def _make_battery_state_control(namespace: str, setup_path: str) -> LaunchFile.N
 
 
 def _resolve_battery_param_file(param_file: dict):
-    """Resolve a battery ``param_file`` PackagePath dict to a parameters-list element.
+    """
+    Resolve a battery ``param_file`` PackagePath dict to a parameters-list element.
 
     When ``package`` is set, emit a launch-time ``PathJoinSubstitution`` that
     resolves the share directory via ``FindPackageShare`` so the generated
@@ -314,7 +315,8 @@ def _resolve_battery_param_file(param_file: dict):
 def _make_battery_state_estimator(
         namespace: str,
         clearpath_config) -> LaunchFile.Node:
-    """Build the battery_state_estimator node, configured for the active battery.
+    """
+    Build the battery_state_estimator node, configured for the active battery.
 
     Parameter layering (later entries override earlier ones at launch time):
       1. Base parameter file for the selected built-in model, OR the user's
