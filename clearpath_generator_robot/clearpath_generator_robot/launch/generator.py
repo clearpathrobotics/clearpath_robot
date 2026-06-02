@@ -33,499 +33,32 @@
 # of Clearpath Robotics.
 import os
 
-from clearpath_config.manipulators.types.arms import (
-  BaseKinova,
-  Franka,
-  KinovaGen3Dof6,
-  KinovaGen3Dof7,
-  KinovaGen3Lite,
-  UniversalRobots
-)
-from clearpath_config.manipulators.types.grippers import FrankaGripper
-from clearpath_config.platform.battery import BatteryConfig
-from clearpath_config.platform.wireless import PeplinkRouter
 from clearpath_generator_common.common import LaunchFile, Package
 from clearpath_generator_common.launch.generator import LaunchGenerator
 from clearpath_generator_common.launch.writer import LaunchWriter
+from clearpath_generator_robot.launch import manipulators  # noqa: F401
+from clearpath_generator_robot.launch import platforms  # noqa: F401
+from clearpath_generator_robot.launch.manipulator import ManipulatorLaunch
+from clearpath_generator_robot.launch.platform import PlatformLaunch
 from clearpath_generator_robot.launch.sensors import SensorLaunch
 
 
 class RobotLaunchGenerator(LaunchGenerator):
+    """
+    Concrete launch generator for physical Clearpath robots.
 
-    def __init__(self, setup_path: str = '/etc/clearpath/') -> None:
-        super().__init__(setup_path)
+    Emits the three top-level service launch files consumed by
+    `clearpath_robot` at runtime:
 
-        # Additional packages specific to physical robots
-        self.pkg_clearpath_sensors = Package('clearpath_sensors')
-        self.pkg_clearpath_firmware = Package('clearpath_firmware')
-        self.pkg_clearpath_hardware_interfaces = Package('clearpath_hardware_interfaces')
-
-        # Filter for MCU IMU
-        self.imu_0_filter_node = LaunchFile.Node(
-            package='imu_filter_madgwick',
-            executable='imu_filter_madgwick_node',
-            name='imu_filter_madgwick',
-            namespace=self.namespace,
-            parameters=[LaunchFile.Variable('imu_filter')],
-            remappings=[
-                ('imu/data_raw', 'sensors/imu_0/data_raw'),
-                ('imu/mag', 'sensors/imu_0/magnetic_field'),
-                ('imu/data', 'sensors/imu_0/data'),
-                ('/tf', 'tf'),
-            ],
-        )
-
-        self.imu_0_filter_config = LaunchFile.LaunchArg(
-            'imu_filter',
-            default_value=os.path.join(self.platform_params_path, 'imu_filter.yaml'),
-        )
-
-        # Configure MCU namespace and domain ID
-        self.configure_mcu = LaunchFile.Process(
-            name='configure_mcu',
-            cmd=[
-                ['export ROS_DOMAIN_ID=0;'],
-                [LaunchFile.Variable("FindExecutable(name='ros2')"),
-                 ' service call platform/mcu/configure',
-                 ' clearpath_platform_msgs/srv/ConfigureMcu',
-                 ' \"{{domain_id: {0},'.format(self.clearpath_config.system.domain_id),
-                 ' robot_namespace: \\\'{0}\\\'}}\"'.format(self.namespace)]
-            ]
-        )
-
-        # Ethernet MicroROS Agent
-        self.eth_uros_node = LaunchFile.Node(
-            name='micro_ros_agent',
-            package='micro_ros_agent',
-            executable='micro_ros_agent',
-            namespace=self.namespace,
-            arguments=['udp4', '--port', '11411'],
-        )
-
-        # J100 MicroROS Agent
-        self.j100_uros_node = LaunchFile.Node(
-            name='micro_ros_agent',
-            package='micro_ros_agent',
-            executable='micro_ros_agent',
-            namespace=self.namespace,
-            arguments=['serial', '--dev', '/dev/clearpath/j100'],
-        )
-
-        # J100 Navsat driver
-        self.nmea_driver_node = LaunchFile.Node(
-            package='nmea_navsat_driver',
-            executable='nmea_topic_driver',
-            name='nmea_topic_driver',
-            namespace=self.namespace,
-            remappings=[
-                ('nmea_sentence', 'sensors/gps_0/nmea_sentence'),
-                ('fix', 'sensors/gps_0/fix'),
-                ('heading', 'sensors/gps_0/heading'),
-                ('time_reference', 'sensors/gps_0/time_reference'),
-                ('vel', 'sensors/gps_0/vel'),
-            ],
-        )
-
-        # Proton Launch
-        self.proton_launch = LaunchFile(
-            'proton',
-            package=self.pkg_clearpath_firmware
-        )
-
-        # Wireless watcher
-        self.wireless_watcher_node = LaunchFile.Node(
-            package='wireless_watcher',
-            executable='wireless_watcher',
-            name='wireless_watcher',
-            namespace=self.namespace,
-            parameters=[
-                {
-                    'hz': 1.0,
-                    'dev': '',
-                    'connected_topic': 'platform/wifi_connected',
-                    'connection_topic': 'platform/wifi_status',
-                }
-            ],
-            remappings=[('/diagnostics', 'diagnostics'),],
-        )
-
-        # Onboard router & base station
-        if isinstance(self.clearpath_config.platform.wireless.router, PeplinkRouter):
-            self.wireless_router_node = LaunchFile.Node(
-                package='peplink_router_driver',
-                executable='peplink_router_node',
-                name='router_node',
-                namespace=f'{self.namespace}/network/router',
-                parameters=[
-                    {
-                        'ip_address':
-                            self.clearpath_config.platform.wireless.router.ip_address,
-                        'username':
-                            self.clearpath_config.platform.wireless.router.username,
-                        'password':
-                            self.clearpath_config.platform.wireless.router.password,
-                        'enable_gps':
-                            self.clearpath_config.platform.wireless.router.enable_gps,
-                        'publish_passwords':
-                            self.clearpath_config.platform.wireless.router.publish_passwords,
-                    }
-                ],
-                remappings=[('/diagnostics', 'diagnostics'),],
-            )
-        else:
-            self.wireless_router_node = None
-        if isinstance(self.clearpath_config.platform.wireless.base_station, PeplinkRouter):
-            self.base_station_node = LaunchFile.Node(
-                package='peplink_router_driver',
-                executable='peplink_router_node',
-                name='base_station_node',
-                namespace=f'{self.namespace}/network/base_station',
-                parameters=[
-                    {
-                        'ip_address':
-                            self.clearpath_config.platform.wireless.base_station.ip_address,
-                        'username':
-                            self.clearpath_config.platform.wireless.base_station.username,
-                        'password':
-                            self.clearpath_config.platform.wireless.base_station.password,
-                        'enable_gps':
-                            self.clearpath_config.platform.wireless.base_station.enable_gps,
-                        'publish_passwords':
-                            self.clearpath_config.platform.wireless.base_station.publish_passwords,
-                    }
-                ],
-                remappings=[('/diagnostics', 'diagnostics'),],
-            )
-        else:
-            self.base_station_node = None
-
-        # Diagnostics launch args
-        self.diag_updater_params = LaunchFile.LaunchArg(
-            'diagnostic_updater_params',
-            default_value=os.path.join(self.platform_params_path, 'diagnostic_updater.yaml'),
-        )
-        self.diag_aggregator_params = LaunchFile.LaunchArg(
-            'diagnostic_aggregator_params',
-            default_value=os.path.join(self.platform_params_path, 'diagnostic_aggregator.yaml'),
-        )
-
-        self.diagnostic_args = [
-            ('namespace', self.namespace),
-            ('updater_parameters', LaunchFile.Variable('diagnostic_updater_params')),
-            ('aggregator_parameters', LaunchFile.Variable('diagnostic_aggregator_params')),
-        ]
-
-        # Diagnostics launch
-        clearpath_diagnostics_package = Package('clearpath_diagnostics')
-        self.diagnostics_launch = LaunchFile(
-            'diagnostics',
-            package=clearpath_diagnostics_package,
-            args=self.diagnostic_args)
-
-        # Foxglove bridge
-        self.foxglove_bridge_params = LaunchFile.LaunchArg(
-            'foxglove_bridge_parameters',
-            default_value=os.path.join(
-                self.platform_params_path,
-                'foxglove_bridge.yaml')
-        )
-
-        self.foxglove_bridge_args = [
-            ('namespace', self.namespace),
-            ('parameters', LaunchFile.Variable(
-                'foxglove_bridge_parameters'))
-        ]
-
-        self.foxglove_bridge_launch = LaunchFile(
-            'foxglove_bridge',
-            package=clearpath_diagnostics_package,
-            args=self.foxglove_bridge_args
-        )
-
-        # Battery state
-        self.battery_state_estimator = LaunchFile.Node(
-            package='clearpath_hardware_interfaces',
-            executable='battery_state_estimator',
-            name='battery_state_estimator',
-            namespace=self.namespace,
-            arguments=['-s', setup_path]
-        )
-
-        self.battery_state_control = LaunchFile.Node(
-            package='clearpath_hardware_interfaces',
-            executable='battery_state_control',
-            name='battery_state_control',
-            namespace=self.namespace,
-            arguments=['-s', setup_path]
-        )
-
-        # BMS
-        self.bms_launch_file = None
-        self.bms_node = None
-
-        # Valence BMS
-        if (self.clearpath_config.platform.battery.model in
-                [BatteryConfig.VALENCE_U24_12XP, BatteryConfig.VALENCE_U27_12XP]):
-
-            launch_args = self.clearpath_config.platform.battery.launch_args
-
-            valence_launch_args = [
-                ('robot_namespace', self.namespace),
-                ('namespace', f'{self.namespace}/platform/bms'),
-                ('interface', 'can1'),
-                ('bms_id', '0')
-            ]
-
-            for i in range(len(valence_launch_args)):
-                key = valence_launch_args[i][0]
-                if key in launch_args:
-                    val = launch_args[key]
-                    valence_launch_args[i] = (key, str(val))
-
-            self.bms_launch_file = LaunchFile(
-                'bms',
-                package=Package('valence_bms_driver'),
-                args=valence_launch_args
-                )
-        # Inventus BMS
-        elif (self.clearpath_config.platform.battery.model in
-              [BatteryConfig.S_24V20_U1]):
-
-            launch_args = self.clearpath_config.platform.battery.launch_args
-
-            battery_count = 1
-
-            match(self.clearpath_config.platform.battery.configuration):
-                case BatteryConfig.S1P2:
-                    battery_count = 2
-                case BatteryConfig.S1P4:
-                    battery_count = 4
-                case BatteryConfig.S1P6:
-                    battery_count = 6
-
-            inventus_launch_args = [
-                    ('namespace', f'{self.namespace}/platform/bms'),
-                    ('interface', 'vcan1'),
-                    ('battery_count', str(battery_count)),
-                    ('master_id', '49'),
-                    ('battery_0_id', '49'),
-                    ('battery_1_id', '50'),
-                    ('battery_2_id', '51'),
-                    ('battery_3_id', '52'),
-                    ('battery_4_id', '53'),
-                    ('battery_5_id', '54'),
-            ]
-
-            for i in range(len(inventus_launch_args)):
-                key = inventus_launch_args[i][0]
-                if key in launch_args:
-                    val = launch_args[key]
-                    inventus_launch_args[i] = (key, str(val))
-
-            self.bms_node = LaunchFile(
-                'canopen_inventus',
-                filename='inventus',
-                package=Package('canopen_inventus_bringup'),
-                args=inventus_launch_args
-            )
-
-        # Lighting
-        self.lighting_node = LaunchFile.Node(
-          package='clearpath_hardware_interfaces',
-          executable='lighting_node',
-          name='lighting_node',
-          namespace=self.namespace,
-          parameters=[{'platform': self.platform_model}],
-          remappings=[('/diagnostics', 'diagnostics'),],
-        )
-
-        # Pinout
-        self.pinout_node = LaunchFile.Node(
-          package='clearpath_hardware_interfaces',
-          executable='pinout_control_node',
-          name='pinout_control_node',
-          namespace=self.namespace,
-          parameters=[{'platform': self.platform_model}],
-        )
-
-        # Sevcon
-        self.sevcon_node = LaunchFile.Node(
-          package='sevcon_traction',
-          executable='sevcon_traction_node',
-          name='sevcon_traction_node',
-          namespace=self.namespace,
-          remappings=[('/diagnostics', 'diagnostics')],
-        )
-
-        # Puma Multi-Drive Node
-        self.puma_node = LaunchFile.Node(
-          package='puma_motor_driver',
-          executable='multi_puma_node',
-          parameters=[os.path.join(self.platform_params_path, 'control.yaml')],
-          name='puma_control',
-          namespace=self.namespace,
-          remappings=[('/diagnostics', 'diagnostics')],
-        )
-
-        # BLDC Multi-Drive Node
-        self.lynx_node = LaunchFile.Node(
-          package='lynx_motor_driver',
-          executable='lynx_motor_driver',
-          parameters=[os.path.join(self.platform_params_path, 'control.yaml')],
-          name='lynx_control',
-          namespace=self.namespace,
-          remappings=[('/diagnostics', 'diagnostics'),],
-        )
-
-        # ROS2 socketcan bridges
-        ros2_socketcan_package = Package('clearpath_ros2_socketcan_interface')
-        self.can_bridges = []
-        for can_bridge in self.clearpath_config.platform.can_bridges.get_all():
-            self.can_bridges.append(LaunchFile(
-                f'{can_bridge.interface}_receiver',
-                filename='receiver',
-                package=ros2_socketcan_package,
-                args=[
-                    ('namespace', self.namespace),
-                    ('interface', can_bridge.interface),
-                    ('from_can_bus_topic', can_bridge.topic_rx),
-                    ('enable_can_fd', str(can_bridge.enaled_can_fd).lower()),
-                    ('interval_sec', str(can_bridge.interval)),
-                    ('use_bus_time', str(can_bridge.use_bus_time).lower()),
-                    ('filters', str(can_bridge.filters)),
-                    ('auto_configure', str(can_bridge.auto_configure).lower()),
-                    ('auto_activate', str(can_bridge.auto_activate).lower()),
-                    ('timeout', str(can_bridge.timeout)),
-                    ('transition_attempts', str(can_bridge.transition_attempts)),
-                ]
-            ))
-
-            self.can_bridges.append(LaunchFile(
-                f'{can_bridge.interface}_sender',
-                filename='sender',
-                package=ros2_socketcan_package,
-                args=[
-                    ('namespace', self.namespace),
-                    ('interface', can_bridge.interface),
-                    ('to_can_bus_topic', can_bridge.topic_tx),
-                    ('enable_can_fd', str(can_bridge.enaled_can_fd).lower()),
-                    ('interval_sec', str(can_bridge.interval)),
-                    ('auto_configure', str(can_bridge.auto_configure).lower()),
-                    ('auto_activate', str(can_bridge.auto_activate).lower()),
-                    ('timeout', str(can_bridge.timeout)),
-                    ('transition_attempts', str(can_bridge.transition_attempts)),
-                ]
-            ))
-
-        # A300 Fan Control Node
-        self.a300_fan_control = LaunchFile.Node(
-          package='clearpath_hardware_interfaces',
-          executable='fan_control_node',
-          name='a300_fan_control',
-          namespace=self.namespace,
-          remappings=[('/diagnostics', 'diagnostics')],
-        )
-
-        # A300 SW Low SOC cutoff Node
-        self.a300_sw_low_soc_cutoff = LaunchFile.Node(
-          package='clearpath_hardware_interfaces',
-          executable='sw_low_soc_cutoff_node',
-          name='a300_sw_low_soc_cutoff',
-          namespace=self.namespace,
-        )
-
-        # Components required for each platform
-        common_platform_components = [
-            self.diag_updater_params,
-            self.diag_aggregator_params,
-            self.diagnostics_launch,
-            self.battery_state_control,
-        ]
-
-        if self.clearpath_config.platform.enable_foxglove_bridge:
-            common_platform_components.append(self.foxglove_bridge_params)
-            common_platform_components.append(self.foxglove_bridge_launch)
-
-        # Only add estimator when no BMS is present
-        if self.bms_launch_file is None and self.bms_node is None:
-            common_platform_components.append(self.battery_state_estimator)
-
-        if self.clearpath_config.platform.wireless.enable_wireless_watcher:
-            common_platform_components.append(self.wireless_watcher_node)
-        if (
-            self.wireless_router_node is not None
-            and self.clearpath_config.platform.wireless.router is not None
-            and self.clearpath_config.platform.wireless.router.launch_enabled
-        ):
-            common_platform_components.append(self.wireless_router_node)
-        if (
-            self.base_station_node is not None
-            and self.clearpath_config.platform.wireless.base_station is not None
-            and self.clearpath_config.platform.wireless.base_station.launch_enabled
-        ):
-            common_platform_components.append(self.base_station_node)
-
-        if len(self.can_bridges) > 0:
-            common_platform_components.extend(self.can_bridges)
-
-        self.platform_components = {
-            'generic': [],
-            'j100': common_platform_components + [
-                self.imu_0_filter_node,
-                self.imu_0_filter_config,
-                self.nmea_driver_node
-            ],
-            'a200': common_platform_components,
-            'a300': common_platform_components + [
-                self.lighting_node,
-                self.lynx_node,
-                self.a300_fan_control,
-                self.a300_sw_low_soc_cutoff,
-                self.pinout_node,
-            ],
-            'w200': common_platform_components + [
-                self.imu_0_filter_node,
-                self.imu_0_filter_config,
-                self.lighting_node,
-                self.sevcon_node
-            ],
-            'dd100': common_platform_components + [
-                self.imu_0_filter_node,
-                self.imu_0_filter_config,
-                self.lighting_node,
-                self.puma_node,
-                self.pinout_node,
-            ],
-            'do100': common_platform_components + [
-                self.imu_0_filter_node,
-                self.imu_0_filter_config,
-                self.lighting_node,
-                self.puma_node,
-                self.pinout_node,
-            ],
-            'dd150': common_platform_components + [
-                self.imu_0_filter_node,
-                self.imu_0_filter_config,
-                self.lighting_node,
-                self.puma_node,
-                self.pinout_node,
-            ],
-            'do150': common_platform_components + [
-                self.imu_0_filter_node,
-                self.imu_0_filter_config,
-                self.lighting_node,
-                self.puma_node,
-                self.pinout_node,
-            ],
-            'r100': common_platform_components + [
-                self.imu_0_filter_node,
-                self.imu_0_filter_config,
-                self.lighting_node,
-                self.puma_node,
-            ],
-        }
+    * ``sensors-service.launch.py``      - per-sensor launch includes
+    * ``platform-service.launch.py``     - MCU, common and platform-specific
+      components, composed via the :class:`PlatformLaunch` registry
+    * ``manipulators-service.launch.py`` - arm/gripper drivers and vision
+      pipelines
+    """
 
     def generate_sensors(self) -> None:
+        """Generate the per-sensor launch files and the top-level sensors service launch."""
         sensors_service_launch_writer = LaunchWriter(self.sensors_service_launch_file)
         sensors = self.clearpath_config.sensors.get_all_sensors()
 
@@ -545,48 +78,26 @@ class RobotLaunchGenerator(LaunchGenerator):
         sensors_service_launch_writer.generate_file()
 
     def generate_platform(self) -> None:
+        """
+        Generate the platform service and platform-extras service launch files.
+
+        The concrete per-platform component set is resolved through the
+        :class:`PlatformLaunch` registry using ``self.platform_model``; any
+        user-declared ``platform.extras.launch`` entries are appended to a
+        separate extras launch file.
+        """
         platform_service_launch_writer = LaunchWriter(self.platform_service_launch_file)
         platform_service_launch_writer.add(self.platform_launch_file)
 
-        # MCU
-        mcu = self.clearpath_config.platform.mcu
-        if mcu.protocol == mcu.UROS:
-            if self.platform_model == 'a200':
-                # Do nothing
-                pass
-            elif self.platform_model == 'j100':
-                platform_service_launch_writer.add(self.j100_uros_node)
-                platform_service_launch_writer.add(self.configure_mcu)
-            else:
-                platform_service_launch_writer.add(self.eth_uros_node)
-                platform_service_launch_writer.add(self.configure_mcu)
-
-        if mcu.protocol == mcu.PROTON:
-            if self.platform_model == 'a200':
-                platform = None
-            elif (self.platform_model in [
-                    'dd100', 'dd150', 'do100', 'do150']):
-                platform = 'd1x0'
-            elif (self.platform_model in [
-                    'j100', 'r100', 'w200']):
-                platform = self.platform_model
-            else:
-                platform = 'core'
-            if platform is not None:
-                self.proton_launch.args = [
-                    ('namespace', self.namespace),
-                    ('platform', platform)
-                ]
-                platform_service_launch_writer.add(self.proton_launch)
-
-        for component in self.platform_components[self.platform_model]:
+        # Per-platform launch composition (MCU, common, and platform-specific components).
+        # The concrete subclass is selected from the PlatformLaunch registry by platform_model.
+        platform_launch = PlatformLaunch.get(self.platform_model)(
+            self.clearpath_config,
+            self.platform_params_path,
+            self.setup_path,
+        )
+        for component in platform_launch.get_components():
             platform_service_launch_writer.add(component)
-
-        if self.bms_launch_file:
-            platform_service_launch_writer.add(self.bms_launch_file)
-
-        if self.bms_node:
-            platform_service_launch_writer.add(self.bms_node)
 
         platform_service_launch_writer.generate_file()
 
@@ -609,195 +120,34 @@ class RobotLaunchGenerator(LaunchGenerator):
         platform_extras_service_launch_writer.generate_file()
 
     def generate_manipulators(self) -> None:
+        """
+        Generate the manipulators service launch file.
+
+        Iterates the configured arms and dispatches each to the matching
+        :class:`ManipulatorLaunch` subclass for any vendor-specific helper
+        nodes (UR tool communication, Franka gripper controller, Kinova
+        vision/pointcloud pipeline). When at least one manipulator is
+        configured the shared `manipulators.launch.py` is included with the
+        `control_delay` taken from `manipulators.control_delay` in
+        `robot.yaml` (default `1.0`) to give vendor drivers time to come
+        up before the controllers start.
+        """
         manipulator_service_launch_writer = LaunchWriter(self.manipulators_service_launch_file)
-        for arm in self.clearpath_config.manipulators.get_all_arms():
-            # Universal Robots Tool Communication
-            if arm.MANIPULATOR_MODEL == UniversalRobots.MANIPULATOR_MODEL:
-                node = LaunchFile.Node(
-                    name=f'{arm.name}_ur_tool_comm',
-                    package='ur_robot_driver',
-                    executable='tool_communication.py',
-                    namespace=self.namespace,
-                    parameters=[{
-                        'robot_ip': arm.ip,
-                        'tcp_port': 54321,
-                        'device_name': f'/tmp/{arm.name}_gripper'
-                    }],
-                )
-                manipulator_service_launch_writer.add_node(node)
-                # Delay controllers
-                self.manipulators_launch_file.args.append(
-                    ('control_delay', '1.0')
-                )
-            # Franka Hand Communication
-            if arm.MANIPULATOR_MODEL == Franka.MANIPULATOR_MODEL:
-                if arm.gripper:
-                    if arm.gripper.MANIPULATOR_MODEL == FrankaGripper.MANIPULATOR_MODEL:
-                        node = LaunchFile.Node(
-                            name=f'{arm.gripper.name}_controller',
-                            package='franka_gripper',
-                            executable='franka_gripper_node',
-                            namespace=f'{self.namespace}/manipulators',
-                            parameters=[{
-                                'robot_ip': arm.ip,
-                                'joint_names': [
-                                    f'{arm.gripper.name}_{arm.gripper.arm_id}_finger_joint1',
-                                    f'{arm.gripper.name}_{arm.gripper.arm_id}_finger_joint2'
-                                ],
-                                'state_publish_rate': 15,  # [Hz]
-                                'feedback_publish_rate': 30,  # [Hz]
-                                'default_speed': 0.1,  # [m/s]
-                                'default_grasp_epsilon': {
-                                    'inner': 0.005,  # [m]
-                                    'outer': 0.005  # [m]
-                                }
-                            }],
-                            remappings=[
-                                ('~/joint_states', f'/{self.namespace}/platform/joint_states')
-                            ]
-                        )
-                        manipulator_service_launch_writer.add_node(node)
-            # Kinova Vision
-            if (arm.MANIPULATOR_MODEL == KinovaGen3Dof6.MANIPULATOR_MODEL or
-                    arm.MANIPULATOR_MODEL == KinovaGen3Dof7.MANIPULATOR_MODEL or
-                    arm.MANIPULATOR_MODEL == KinovaGen3Lite.MANIPULATOR_MODEL):
-                if (arm.get_urdf_parameters().get(BaseKinova.VISION, False)):
-                    depth_node_parameters = {
-                        'camera_type': 'depth',
-                        'camera_name': 'depth',
-                        'camera_info_url_default':
-                        'package://kinova_vision/launch/calibration/default_depth_calib_%ux%u.ini',
-                        'camera_info_url_user': '',
-                        'stream_config': 'rtspsrc location=rtsp://'
-                            + arm.ip
-                            + '/depth latency=30'
-                            + ' ! '
-                            + 'rtpgstdepay',
-                        'frame_id': f'{arm.name}_camera_depth_frame',
-                        'max_pub_rate': 30.0,
-                    }
-                    depth_node = LaunchFile.Node(
-                        name=f'{arm.name}_depth_camera',
-                        package='kinova_vision',
-                        executable='kinova_vision_node',
-                        namespace=f'{self.namespace}/manipulators',
-                        parameters=[depth_node_parameters],
-                        remappings=[
-                            ('camera_info', '~/camera_info'),
-                            ('image_raw', '~/image_raw'),
-                            ('image_raw/compressed', '~/image_raw/compressed'),
-                            ('image_raw/compressedDepth', '~/image_raw/compressedDepth'),
-                            ('image_raw/theora', '~/image_raw/theora'),
-                            ('image_raw/ffmpeg', '~/image_raw/ffmpeg'),
-                            ('image_raw/zstd', '~/image_raw/zstd'),
-                        ]
-                    )
-                    color_node_parameters = {
-                        'camera_type': 'color',
-                        'camera_name': 'color',
-                        'camera_info_url_default':
-                        'package://kinova_vision/launch/calibration/default_color_calib_%ux%u.ini',
-                        'camera_info_url_user': '',
-                        'stream_config': 'rtspsrc location=rtsp://'
-                            + arm.ip
-                            + '/color latency=30'
-                            + ' ! rtph264depay ! avdec_h264 ! videoconvert',
-                        'frame_id': f'{arm.name}_camera_color_frame',
-                        'max_pub_rate': 30.0,
-                    }
-                    color_node = LaunchFile.Node(
-                        name=f'{arm.name}_color_camera',
-                        package='kinova_vision',
-                        executable='kinova_vision_node',
-                        namespace=f'{self.namespace}/manipulators',
-                        parameters=[color_node_parameters],
-                        remappings=[
-                            ('camera_info', '~/camera_info'),
-                            ('image_raw', '~/image_raw'),
-                            ('image_raw/compressed', '~/image_raw/compressed'),
-                            ('image_raw/compressedDepth', '~/image_raw/compressedDepth'),
-                            ('image_raw/theora', '~/image_raw/theora'),
-                            ('image_raw/ffmpeg', '~/image_raw/ffmpeg'),
-                            ('image_raw/zstd', '~/image_raw/zstd'),
-                        ]
-                    )
+        arms = self.clearpath_config.manipulators.get_all_arms()
+        for arm in arms:
+            try:
+                manipulator_launch_cls = ManipulatorLaunch.get(arm.MANIPULATOR_MODEL)
+            except KeyError:
+                print(f'No manipulator launch found for model "{arm.MANIPULATOR_MODEL}"; skipping manipulator "{arm.name}"')  # noqa:E501
+                continue
+            manipulator_launch = manipulator_launch_cls(arm, self.namespace)
+            for component in manipulator_launch.get_components():
+                manipulator_service_launch_writer.add(component)
 
-                    pointcloud_node = LaunchFile.ComposableNodeContainer(
-                        name=f'{arm.name}_depth_proc_container',
-                        namespace=f'{self.namespace}/manipulators',
-                        remappings=[
-                            ('/tf', f'/{self.namespace}/tf'),
-                            ('/tf_static', f'/{self.namespace}/tf_static')
-                        ],
-                        composable_node_descriptions=[
-                            LaunchFile.ComposableNode(
-                                name=f'{arm.name}_depth_upsampled',
-                                package='depth_image_proc',
-                                plugin='depth_image_proc::RegisterNode',
-                                namespace=f'{self.namespace}/manipulators',
-                                parameters=[{'fill_upsampling_holes': True}],
-                                remappings=[
-                                    ('rgb/camera_info',
-                                        f'{arm.name}_color_camera/camera_info'),
-                                    ('depth/camera_info',
-                                        f'{arm.name}_depth_camera/camera_info'),
-                                    ('depth/image_rect',
-                                        f'{arm.name}_depth_camera/image_raw'),
-                                    ('depth_registered/camera_info',
-                                        '~/camera_info'),
-                                    ('depth_registered/image_rect',
-                                        '~/image_rect'),
-                                    ('depth_registered/image_rect/compressed',
-                                        '~/image_rect/compressed'),
-                                    ('depth_registered/image_rect/compressedDepth',
-                                        '~/image_rect/compressedDepth'),
-                                    ('depth_registered/image_rect/ffmpeg',
-                                        '~/image_rect/ffmpeg'),
-                                    ('depth_registered/image_rect/theora',
-                                        '~/image_rect/theora'),
-                                    ('depth_registered/image_rect/zstd',
-                                        '~/image_rect/zstd'),
-                                ]
-                            ),
-                            LaunchFile.ComposableNode(
-                                name=f'{arm.name}_pointcloud_node',
-                                package='depth_image_proc',
-                                plugin='depth_image_proc::PointCloudXyzrgbNode',
-                                namespace=f'{self.namespace}/manipulators',
-                                remappings=[
-                                    ('depth_registered/camera_info',
-                                        f'{arm.name}_depth_upsampled/camera_info'),
-                                    ('depth_registered/image_rect',
-                                        f'{arm.name}_depth_upsampled/image_rect'),
-                                    ('depth_registered/image_rect/compressed',
-                                        f'{arm.name}_depth_upsampled/image_rect/compressed'),
-                                    ('depth_registered/image_rect/compressedDepth',
-                                        f'{arm.name}_depth_upsampled/image_rect/compressedDepth'),
-                                    ('depth_registered/image_rect/ffmpeg',
-                                        f'{arm.name}_depth_upsampled/image_rect/ffmpeg'),
-                                    ('depth_registered/image_rect/theora',
-                                        f'{arm.name}_depth_upsampled/image_rect/theora'),
-                                    ('depth_registered/image_rect/zstd',
-                                        f'{arm.name}_depth_upsampled/image_rect/zstd'),
-                                    ('rgb/camera_info',
-                                        f'{arm.name}_color_camera/camera_info'),
-                                    ('depth/camera_info',
-                                        f'{arm.name}_depth_camera/camera_info'),
-                                    ('rgb/image_rect_color',
-                                        f'{arm.name}_color_camera/image_raw'),
-                                    ('depth/image_rect',
-                                        f'{arm.name}_depth_camera/image_raw'),
-                                    ('points',
-                                        f'{arm.name}_depth_camera/color/points'),
-                                ]
-                            )
-                        ]
-                    )
-
-                    manipulator_service_launch_writer.add_node(depth_node)
-                    manipulator_service_launch_writer.add_node(color_node)
-                    manipulator_service_launch_writer.add(pointcloud_node)
-
-        if self.clearpath_config.manipulators.get_all_manipulators():
+        if arms:
+            self.manipulators_launch_file.args.append((
+                'control_delay',
+                str(self.clearpath_config.manipulators.control_delay),
+            ))
             manipulator_service_launch_writer.add(self.manipulators_launch_file)
         manipulator_service_launch_writer.generate_file()
