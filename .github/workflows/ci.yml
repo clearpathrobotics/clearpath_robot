@@ -6,22 +6,21 @@ on:
   schedule:
     - cron: "0 0 * * *" # every day at midnight
 
+permissions:
+  contents: read
+  packages: read
+
 jobs:
   clearpath_robot_cpr_ci:
     name: Jazzy Clearpath Release
     runs-on: ubuntu-latest
     container:
-      image: rostooling/setup-ros-docker:ubuntu-noble-latest
+      image: ghcr.io/clearpathrobotics/clearpath_docker:jazzy-ci-main
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v3
-      - name: clearpath-package-server
-        run: |
-          sudo apt install wget
-          wget https://packages.clearpathrobotics.com/public.key -O - | sudo apt-key add -
-          sudo sh -c 'echo "deb https://packages.clearpathrobotics.com/stable/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/clearpath-latest.list'
-          sudo apt-get update
-          sudo wget https://raw.githubusercontent.com/clearpathrobotics/public-rosdistro/master/rosdep/50-clearpath.list -O /etc/ros/rosdep/sources.list.d/50-clearpath.list
-          rosdep update
       - uses: ros-tooling/action-ros-ci@v0.3
         id: action_ros_ci_step
         with:
@@ -34,17 +33,12 @@ jobs:
     name: Jazzy Clearpath Source
     runs-on: ubuntu-latest
     container:
-      image: rostooling/setup-ros-docker:ubuntu-noble-latest
+      image: ghcr.io/clearpathrobotics/clearpath_docker:jazzy-ci-main
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v3
-      - name: clearpath-package-server
-        run: |
-          sudo apt install wget
-          wget https://packages.clearpathrobotics.com/public.key -O - | sudo apt-key add -
-          sudo sh -c 'echo "deb https://packages.clearpathrobotics.com/stable/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/clearpath-latest.list'
-          sudo apt-get update
-          sudo wget https://raw.githubusercontent.com/clearpathrobotics/public-rosdistro/master/rosdep/50-clearpath.list -O /etc/ros/rosdep/sources.list.d/50-clearpath.list
-          rosdep update
       - uses: ros-tooling/action-ros-ci@v0.3
         id: action_ros_ci_step
         with:
@@ -58,7 +52,10 @@ jobs:
     name: Jazzy Clearpath Source with Head Branch
     runs-on: ubuntu-latest
     container:
-      image: rostooling/setup-ros-docker:ubuntu-noble-latest
+      image: ghcr.io/clearpathrobotics/clearpath_docker:jazzy-ci-main
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v3
       - name: "[Repositories Updater] Checkout action"
@@ -85,14 +82,6 @@ jobs:
       - name: "[Repositories Updater] Print updated dependencies"
         run: |
           cat updated_dependencies.repos
-      - name: clearpath-package-server
-        run: |
-          sudo apt install wget
-          wget https://packages.clearpathrobotics.com/public.key -O - | sudo apt-key add -
-          sudo sh -c 'echo "deb https://packages.clearpathrobotics.com/stable/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/clearpath-latest.list'
-          sudo apt-get update
-          sudo wget https://raw.githubusercontent.com/clearpathrobotics/public-rosdistro/master/rosdep/50-clearpath.list -O /etc/ros/rosdep/sources.list.d/50-clearpath.list
-          rosdep update
       - uses: ros-tooling/action-ros-ci@v0.3
         id: action_ros_ci_step
         with:
@@ -107,7 +96,10 @@ jobs:
     name: Jazzy Clearpath Source with Base Branch
     runs-on: ubuntu-latest
     container:
-      image: rostooling/setup-ros-docker:ubuntu-noble-latest
+      image: ghcr.io/clearpathrobotics/clearpath_docker:jazzy-ci-main
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v3
       - name: "[Repositories Updater] Checkout action"
@@ -130,14 +122,6 @@ jobs:
       - name: "[Repositories Updater] Print updated dependencies"
         run: |
           cat updated_dependencies.repos
-      - name: clearpath-package-server
-        run: |
-          sudo apt install wget
-          wget https://packages.clearpathrobotics.com/public.key -O - | sudo apt-key add -
-          sudo sh -c 'echo "deb https://packages.clearpathrobotics.com/stable/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/clearpath-latest.list'
-          sudo apt-get update
-          sudo wget https://raw.githubusercontent.com/clearpathrobotics/public-rosdistro/master/rosdep/50-clearpath.list -O /etc/ros/rosdep/sources.list.d/50-clearpath.list
-          rosdep update
       - uses: ros-tooling/action-ros-ci@v0.3
         id: action_ros_ci_step
         with:
