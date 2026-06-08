@@ -1,7 +1,7 @@
 # Clearpath HE2411 (24 V Lithium-Ion)
 /**:
   ros__parameters:
-    technology: 'lion'
+    technology: 2  # lion
     cell:
       voltage: 25.3    # Nominal voltage per battery unit in V
       capacity: 11.6   # Capacity per battery unit in Ah

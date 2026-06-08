@@ -3,7 +3,7 @@
 # https://iopscience.iop.org/article/10.1088/1742-6596/1367/1/012077/pdf
 /**:
   ros__parameters:
-    technology: 'vrla'
+    technology: 8  # vrla
     cell:
       voltage: 12.0    # Nominal voltage per battery unit in V
       capacity: 35.0   # Capacity per battery unit in Ah

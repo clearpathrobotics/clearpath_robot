@@ -73,14 +73,17 @@ class BatteryLookupTable:
         if v <= self._lut[0][0]:
             return self._lut[0][1]
 
-        for i in range(0, len(self._lut)):
-            if v < self._lut[i][0]:
-                return (v - self._lut[i - 1][0]) * (self._lut[i][1] - self._lut[i - 1][1]) / (
-                    self._lut[i][0] - self._lut[i - 1][0]
-                ) + self._lut[i - 1][1]
+        iter = (lut for lut in self._lut)
+        prev = next(iter)
 
-        # Return maximum value
-        return self._lut[len(self._lut) - 1][1]
+        for lut in iter:
+            if v < lut[0]:
+                # Interpolate between prev and lut
+                return (v - prev[0]) * (lut[1] - prev[1]) / (lut[0] - prev[0]) + prev[1]
+            prev = lut
+
+        # If voltage is above maximum value, return maximum value
+        return self._lut[-1][1]
 
 
 class BatterySystem:
@@ -211,18 +214,6 @@ class BatteryStateEstimator(Node):
     Battery State Estimator class.
     Estimates the state of charge of the battery based on voltage.
     """
-    POWER_SUPPLY_TECHNOLOGY = [
-        'unknown',
-        'nimh',
-        'lion',
-        'lipo',
-        'life',
-        'nicd',
-        'limn',
-        'ternary',
-        'vrla',
-    ]
-
     PLATFORMS = [
         'a200',
         'j100',
@@ -241,10 +232,9 @@ class BatteryStateEstimator(Node):
         # Declare parameters
         self.declare_parameter(
             'technology',
-            'unknown',
+            0,
             descriptor=ParameterDescriptor(
-                description='Battery technology: name or sensor_msgs/BatteryState enum value, as a string.',
-                additional_constraints='|'.join(f'"{i}":"{tech}"' for i, tech in enumerate(self.POWER_SUPPLY_TECHNOLOGY))
+                description='Battery technology: sensor_msgs/BatteryState power_supply_technology enum index.',
             )
         )
 
@@ -363,17 +353,11 @@ class BatteryStateEstimator(Node):
             self.power_status_callback,
             qos_profile_sensor_data)
 
-    def _validate_technology(self, tech:str):
-        """Validate ``technology`` and return the matching ``BatteryState`` enum value."""
-        if tech.isdigit():
-            idx = int(tech)
-            if not (0 <= idx < len(self.POWER_SUPPLY_TECHNOLOGY)):
-                raise ValueError(f'Power supply technology index {idx} out of range')
-            return idx
-        elif tech in self.POWER_SUPPLY_TECHNOLOGY:
-            return self.POWER_SUPPLY_TECHNOLOGY.index(tech)
-        else:
-            raise ValueError(f'Power supply technology {tech!r} invalid; expected name or 0..{len(self.POWER_SUPPLY_TECHNOLOGY)-1}')
+    def _validate_technology(self, tech: int):
+        """Validate ``technology`` as a ``sensor_msgs/BatteryState`` enum index."""
+        if not isinstance(tech, int) or tech < 0:
+            raise ValueError(f'Power supply technology {tech!r} must be a non-negative int')
+        return tech
 
     def _validate_cell_voltage(self, voltage:float):
         """Validate that the per-cell voltage is non-negative."""
@@ -436,7 +420,7 @@ class BatteryStateEstimator(Node):
         match self.platform:
             case 'j100':
                 self.power_msg_voltage_index = Power.J100_MEASURED_BATTERY
-                self.power_msg_current_index = Power.J100_TOTAL_CURRENT
+                self.power_msg_current_index = [Power.J100_TOTAL_CURRENT]
             case 'a200':
                 self.power_msg_voltage_index = Power.A200_BATTERY_VOLTAGE
                 self.power_msg_current_index = [
@@ -446,16 +430,16 @@ class BatteryStateEstimator(Node):
                 ]
             case 'w200':
                 self.power_msg_voltage_index = Power.W200_MEASURED_BATTERY
-                self.power_msg_current_index = Power.W200_TOTAL_CURRENT
+                self.power_msg_current_index = [Power.W200_TOTAL_CURRENT]
             case 'dd100' | 'do100':
                 self.power_msg_voltage_index = Power.D100_MEASURED_BATTERY
-                self.power_msg_current_index = Power.D100_TOTAL_CURRENT
+                self.power_msg_current_index = [Power.D100_TOTAL_CURRENT]
             case 'dd150' | 'do150':
                 self.power_msg_voltage_index = Power.D150_MEASURED_BATTERY
-                self.power_msg_current_index = Power.D150_TOTAL_CURRENT
+                self.power_msg_current_index = [Power.D150_TOTAL_CURRENT]
             case 'r100':
                 self.power_msg_voltage_index = Power.R100_MEASURED_BATTERY
-                self.power_msg_current_index = Power.R100_TOTAL_CURRENT
+                self.power_msg_current_index = [Power.R100_TOTAL_CURRENT]
 
     def initialize_battery_state_message(self) -> None:
         """Populate the static fields of the published ``BatteryState`` message."""
@@ -488,16 +472,10 @@ class BatteryStateEstimator(Node):
 
         # Retrieve battery current
         current = 0.0
-        if isinstance(self.power_msg_current_index, int):
-            current = power_msg.measured_currents[
-                self.power_msg_current_index
-            ]
-        elif isinstance(self.power_msg_current_index, list):
-            for i in self.power_msg_current_index:
-                current += power_msg.measured_currents[i]
+        for i in self.power_msg_current_index:
+            current += power_msg.measured_currents[i]
 
         # Retrieve charging status
-        charging_status = 0
         if power_msg.charger_connected == 1:
             charging_status = BatteryState.POWER_SUPPLY_STATUS_CHARGING
         else:

@@ -1,7 +1,7 @@
 # RELiON RB20 (12 V Lithium-Ion / LiFePO4)
 /**:
   ros__parameters:
-    technology: 'lion'
+    technology: 2  # lion
     cell:
       voltage: 12.8    # Nominal voltage per battery unit in V
       capacity: 20.0   # Capacity per battery unit in Ah

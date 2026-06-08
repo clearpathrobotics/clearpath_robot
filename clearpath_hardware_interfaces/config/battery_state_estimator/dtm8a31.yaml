@@ -1,7 +1,7 @@
 # Deka DTM8A31 (24 V Sealed Lead-Acid)
 /**:
   ros__parameters:
-    technology: 'vrla'
+    technology: 8  # vrla
     cell:
       voltage: 24.0    # Nominal voltage per battery unit in V
       capacity: 50.0   # Capacity per battery unit in Ah
