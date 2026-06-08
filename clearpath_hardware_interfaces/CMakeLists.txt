@@ -313,4 +313,28 @@ ament_export_dependencies(
   rclcpp
 )
 
+## TESTS
+if(BUILD_TESTING)
+  find_package(ament_cmake_pytest REQUIRED)
+
+  # Battery state estimator parity tests. These spawn the installed
+  # battery_state_estimator as a subprocess via `ros2 run`, so they rely
+  # on this package being on the overlay environment that colcon test
+  # provides automatically.
+  set(_battery_test_dir
+    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/battery_state/test)
+
+  ament_add_pytest_test(battery_state_node_parity
+    ${_battery_test_dir}/test_node_parity.py
+    WORKING_DIRECTORY ${_battery_test_dir}
+    TIMEOUT 600
+  )
+
+  ament_add_pytest_test(battery_state_generated_launch_parity
+    ${_battery_test_dir}/test_generated_launch_parity.py
+    WORKING_DIRECTORY ${_battery_test_dir}
+    TIMEOUT 120
+  )
+endif()
+
 ament_package()

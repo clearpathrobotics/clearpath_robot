@@ -40,6 +40,14 @@
   <exec_depend version_gte="2.3.0">clearpath_platform_description</exec_depend>
   <exec_depend>xacro</exec_depend>
 
+  <test_depend>ament_cmake_pytest</test_depend>
+  <test_depend>clearpath_config</test_depend>
+  <test_depend>launch</test_depend>
+  <test_depend>launch_ros</test_depend>
+  <test_depend>python3-pytest</test_depend>
+  <test_depend>python3-yaml</test_depend>
+  <test_depend>rclpy</test_depend>
+
   <export>
     <build_type>ament_cmake</build_type>
   </export>
