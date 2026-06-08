@@ -32,41 +32,316 @@
 # modification, is not permitted without the express permission
 # of Clearpath Robotics.
 
-import os
+from math import nan
 
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
+from rcl_interfaces.msg import ParameterDescriptor
 
 from clearpath_platform_msgs.msg import Power
 from sensor_msgs.msg import BatteryState
 
-from clearpath_config.clearpath_config import ClearpathConfig
-from clearpath_config.common.types.platform import Platform
-from clearpath_generator_common.common import BaseGenerator
 
-from clearpath_hardware_interfaces.battery_state.battery import Battery
+class BatteryLookupTable:
+    """
+    Battery Lookup Table class.
+    Contains lookup table for voltage to percentage mapping.
+    """
+
+    def __init__(self, lut: list[tuple[float, float]]):
+        """Initialize the lookup table with a list of (voltage, percentage) pairs."""
+        self._lut = lut
+
+    @property
+    def lut(self) -> list[tuple[float, float]]:
+        """Lookup table of (voltage, percentage) pairs."""
+        return self._lut
+
+    @lut.setter
+    def lut(self, value: list[tuple[float, float]]) -> None:
+        """Replace the lookup table with a new list of (voltage, percentage) pairs."""
+        self._lut = value
+
+    def linear_interpolation(self, v: float) -> float:
+        """Return the percentage at voltage ``v``, linearly interpolated from the table.
+
+        Values below the table's minimum voltage clamp to the first entry; values
+        above the maximum clamp to the last entry.
+        """
+        # Check if voltage is below minimum value
+        if v <= self._lut[0][0]:
+            return self._lut[0][1]
+
+        iter = (lut for lut in self._lut)
+        prev = next(iter)
+
+        for lut in iter:
+            if v < lut[0]:
+                # Interpolate between prev and lut
+                return (v - prev[0]) * (lut[1] - prev[1]) / (lut[0] - prev[0]) + prev[1]
+            prev = lut
+
+        # If voltage is above maximum value, return maximum value
+        return self._lut[-1][1]
+
+
+class BatterySystem:
+    """
+    Battery description class.
+    Contains battery configuration information, such as number of cells in series and parallel,
+    battery type, and lookup table for voltage to percentage mapping.
+    """
+
+    def __init__(
+            self,
+            num_parallel_cells: int = 1,
+            num_series_cells: int = 1,
+            cell_capacity: float = 0.0,
+            cell_voltage: float = 0.0,
+            voltage_lut: list[float] = [],
+            percentage_lut: list[float] = [],
+            ) -> None:
+        """Initialize the battery system.
+
+        :param num_parallel_cells: Number of cells wired in parallel.
+        :param num_series_cells: Number of cells wired in series.
+        :param cell_capacity: Per-cell capacity in Ah.
+        :param cell_voltage: Per-cell nominal voltage in V.
+        :param voltage_lut: Per-battery-unit voltage values for the voltage-to-percentage
+            lookup table. These are scaled by ``num_series_cells`` internally so that
+            interpolation operates on pack voltage.
+        :param percentage_lut: Percentage values paired with ``voltage_lut``.
+        """
+        self._num_parallel_cells = num_parallel_cells
+        self._num_series_cells = num_series_cells
+        self._cell_capacity = cell_capacity
+        self._cell_voltage = cell_voltage
+        # Cache the raw (per-unit) LUT so we can re-scale if num_series_cells changes.
+        self._voltage_lut_raw: list[float] = list(voltage_lut)
+        self._percentage_lut: list[float] = list(percentage_lut)
+        self._lut = BatteryLookupTable([])
+        self._rebuild_lut()
+
+    @property
+    def num_parallel_cells(self) -> int:
+        """Number of parallel cells in the battery."""
+        return self._num_parallel_cells
+
+    @num_parallel_cells.setter
+    def num_parallel_cells(self, value: int) -> None:
+        """Set the number of parallel cells."""
+        self._num_parallel_cells = value
+
+    @property
+    def num_series_cells(self) -> int:
+        """Number of series cells in the battery."""
+        return self._num_series_cells
+
+    @num_series_cells.setter
+    def num_series_cells(self, value: int) -> None:
+        """Set the number of series cells and rebuild the scaled lookup table."""
+        self._num_series_cells = value
+        self._rebuild_lut()
+
+    @property
+    def num_cells(self) -> int:
+        """Total number of cells in the battery."""
+        return self._num_parallel_cells * self._num_series_cells
+
+    @property
+    def cell_capacity(self) -> float:
+        """Capacity of each cell in the battery in Ah."""
+        return self._cell_capacity
+
+    @cell_capacity.setter
+    def cell_capacity(self, value: float) -> None:
+        """Set the per-cell capacity in Ah."""
+        self._cell_capacity = value
+
+    @property
+    def capacity(self) -> float:
+        """Total capacity of the battery in Ah."""
+        return self._num_parallel_cells * self._cell_capacity
+
+    @property
+    def cell_voltage(self) -> float:
+        """Voltage of each cell in the battery in V."""
+        return self._cell_voltage
+
+    @cell_voltage.setter
+    def cell_voltage(self, value: float) -> None:
+        """Set the per-cell voltage in V."""
+        self._cell_voltage = value
+
+    @property
+    def voltage(self) -> float:
+        """Total voltage of the battery in V."""
+        return self._num_series_cells * self._cell_voltage
+
+    @property
+    def lut(self) -> BatteryLookupTable:
+        """Lookup table for voltage to percentage mapping."""
+        return self._lut
+
+    def _rebuild_lut(self) -> None:
+        """Rebuild the lookup table, scaling per-unit voltages by ``num_series_cells``."""
+        scaled_voltages = [v * self._num_series_cells for v in self._voltage_lut_raw]
+        self._lut = BatteryLookupTable(list(zip(scaled_voltages, self._percentage_lut)))
+
+    def set_cell_configuration(self, num_parallel_cells: int, num_series_cells: int) -> None:
+        """Set both parallel and series cell counts at once."""
+        self._num_parallel_cells = num_parallel_cells
+        self._num_series_cells = num_series_cells
+        self._rebuild_lut()
+
+    def set_lut(self, voltage_lut: list[float], percentage_lut: list[float]) -> None:
+        """Set the lookup table from per-unit voltage and percentage lists.
+
+        Voltages are scaled by ``num_series_cells`` so interpolation runs on pack voltage.
+        """
+        self._voltage_lut_raw = list(voltage_lut)
+        self._percentage_lut = list(percentage_lut)
+        self._rebuild_lut()
+
+    def state_of_charge(self, voltage: float) -> float:
+        """Compute the state of charge as a fraction based on the voltage."""
+        return self._lut.linear_interpolation(voltage)
 
 
 class BatteryStateEstimator(Node):
-    def __init__(self, setup_path='/etc/clearpath'):
+    """
+    Battery State Estimator class.
+    Estimates the state of charge of the battery based on voltage.
+    """
+    PLATFORMS = [
+        'a200',
+        'j100',
+        'w200',
+        'dd100',
+        'do100',
+        'dd150',
+        'do150',
+        'r100',
+    ]
+
+    def __init__(self):
+        """Declare and validate parameters, then construct publishers and subscribers."""
         super().__init__('battery_state_estimator')
-        self.setup_path = setup_path
 
-        # Define paths
-        self.config_path = os.path.join(self.setup_path, 'robot.yaml')
+        # Declare parameters
+        self.declare_parameter(
+            'technology',
+            0,
+            descriptor=ParameterDescriptor(
+                description='Battery technology: sensor_msgs/BatteryState power_supply_technology enum index.',
+            )
+        )
 
-        # Parse YAML into config
-        self.clearpath_config = ClearpathConfig(self.config_path)
-        self.platform = self.clearpath_config.platform.get_platform_model()
-        self.battery_model = self.clearpath_config.platform.battery.model
-        self.battery_configuration = self.clearpath_config.platform.battery.configuration
+        self.declare_parameter(
+            'cell.voltage',
+            0.0,
+            descriptor=ParameterDescriptor(
+                description='Battery cell voltage in V.',
+            )
+        )
 
-        self.battery = Battery(
-            battery=self.battery_model,
-            configuration=self.battery_configuration,
-            platform=self.platform)
+        self.declare_parameter(
+            'cell.capacity',
+            0.0,
+            descriptor=ParameterDescriptor(
+                description='Battery cell capacity in Ah.',
+            )
+        )
 
+        self.declare_parameter(
+            'cell.num_series',
+            1,
+            descriptor=ParameterDescriptor(
+                description='Number of battery cells in series.',
+            )
+        )
+
+        self.declare_parameter(
+            'cell.num_parallel',
+            1,
+            descriptor=ParameterDescriptor(
+                description='Number of battery cells in parallel.',
+            )
+        )
+
+        self.declare_parameter(
+            'lookup_table.voltages',
+            rclpy.Parameter.Type.DOUBLE_ARRAY,
+            descriptor=ParameterDescriptor(
+                description='Lookup table of battery voltages in V. Must be same length as lookup_table.percentages.',
+            )
+        )
+
+        self.declare_parameter(
+            'lookup_table.percentages',
+            rclpy.Parameter.Type.DOUBLE_ARRAY,
+            descriptor=ParameterDescriptor(
+                description='Lookup table of battery percentages. Must be same length as lookup_table.voltages.',
+            )
+        )
+
+        self.declare_parameter(
+            'rolling_average_window',
+            30,
+            descriptor=ParameterDescriptor(
+                description='Window size for rolling average filter.',
+            )
+        )
+
+        self.declare_parameter(
+            'platform',
+            'a200',
+            descriptor=ParameterDescriptor(
+                description='Platform name, for platform-specific configurations.',
+                additional_constraints='|'.join(f'"{platform}"' for platform in self.PLATFORMS)
+            )
+        )
+
+        # Read parameters
+        self.technology = self._validate_technology(self.get_parameter('technology').value)
+        self.rolling_average_window = self._validate_rolling_average_window(
+            self.get_parameter('rolling_average_window').value)
+        self.platform = self._validate_platform(self.get_parameter('platform').value)
+
+        cell_voltage = self._validate_cell_voltage(self.get_parameter('cell.voltage').value)
+        cell_capacity = self._validate_cell_capacity(self.get_parameter('cell.capacity').value)
+        num_series_cells = self._validate_num_series_cells(
+            self.get_parameter('cell.num_series').value)
+        num_parallel_cells = self._validate_num_parallel_cells(
+            self.get_parameter('cell.num_parallel').value)
+        lookup_voltages, lookup_percentages = self._validate_lookup_table(
+            self.get_parameter('lookup_table.voltages').value,
+            self.get_parameter('lookup_table.percentages').value)
+
+        # Create Battery object
+        self.battery = BatterySystem(
+            num_parallel_cells=num_parallel_cells,
+            num_series_cells=num_series_cells,
+            cell_capacity=cell_capacity,
+            cell_voltage=cell_voltage,
+            voltage_lut=lookup_voltages,
+            percentage_lut=lookup_percentages,
+        )
+
+        # Initialize reading window
+        self.readings = []
+
+        # Initialize platform-specific enums
+        self.power_msg_voltage_index = None
+        self.power_msg_current_index = None
+        self.initialize_platform_enums()
+
+        # Initialize battery state message
+        self._msg = BatteryState()
+        self.initialize_battery_state_message()
+
+        # Create Publisher and Subscriber
         self.battery_state_pub = self.create_publisher(
             BatteryState,
             'platform/bms/state',
@@ -78,16 +353,154 @@ class BatteryStateEstimator(Node):
             self.power_status_callback,
             qos_profile_sensor_data)
 
+    def _validate_technology(self, tech: int):
+        """Validate ``technology`` as a ``sensor_msgs/BatteryState`` enum index."""
+        if not isinstance(tech, int) or tech < 0:
+            raise ValueError(f'Power supply technology {tech!r} must be a non-negative int')
+        return tech
+
+    def _validate_cell_voltage(self, voltage:float):
+        """Validate that the per-cell voltage is non-negative."""
+        if voltage < 0.0:
+            raise ValueError(f'Cell voltage {voltage} must be non-negative')
+        return voltage
+
+    def _validate_cell_capacity(self, capacity:float):
+        """Validate that the per-cell capacity is non-negative."""
+        if capacity < 0.0:
+            raise ValueError(f'Cell capacity {capacity} must be non-negative')
+        return capacity
+
+    def _validate_num_series_cells(self, num_series: int):
+        """Validate that the number of series cells is at least 1."""
+        if num_series < 1:
+            raise ValueError(f'Number of series cells {num_series} must be at least 1')
+        return num_series
+
+    def _validate_num_parallel_cells(self, num_parallel: int):
+        """Validate that the number of parallel cells is at least 1."""
+        if num_parallel < 1:
+            raise ValueError(f'Number of parallel cells {num_parallel} must be at least 1')
+        return num_parallel
+
+    def _validate_lookup_table(self, voltages:list, percentages:list):
+        """Validate the lookup table arrays and return them unchanged.
+
+        Ensures the arrays are the same length, voltages are non-negative,
+        percentages are within range, monotonic, and bookended by 0.0 and 1.0.
+        """
+        if len(voltages) != len(percentages):
+            raise ValueError(f'Lookup table voltages and percentages must be same length; got {len(voltages)} and {len(percentages)}')
+        for v in voltages:
+            if v < 0.0:
+                raise ValueError(f'Lookup table voltage {v} must be non-negative')
+        for p in percentages:
+            if not (0.0 <= p <= 1.0):
+                raise ValueError(f'Lookup table percentage {p} must be in range [0, 1]')
+        if percentages != sorted(percentages):
+            raise ValueError('Lookup table percentages must be in non-decreasing order')
+        if percentages[0] != 0.0 or percentages[-1] != 1.0:
+            raise ValueError('Lookup table percentages must start with 0.0 and end with 1.0')
+        return voltages, percentages
+
+    def _validate_rolling_average_window(self, window:int):
+        """Validate that the rolling-average window size is at least 1."""
+        if window < 1:
+            raise ValueError(f'Rolling average window {window} must be at least 1')
+        return window
+
+    def _validate_platform(self, platform:str):
+        """Validate that ``platform`` is one of the supported platform names."""
+        if platform not in self.PLATFORMS:
+            raise ValueError(f'Platform {platform!r} invalid; expected one of {self.PLATFORMS}')
+        return platform
+
+    def initialize_platform_enums(self):
+        """Select the Power message voltage and current indices for the active platform."""
+        match self.platform:
+            case 'j100':
+                self.power_msg_voltage_index = Power.J100_MEASURED_BATTERY
+                self.power_msg_current_index = [Power.J100_TOTAL_CURRENT]
+            case 'a200':
+                self.power_msg_voltage_index = Power.A200_BATTERY_VOLTAGE
+                self.power_msg_current_index = [
+                    Power.A200_MCU_AND_USER_PORT_CURRENT,
+                    Power.A200_LEFT_DRIVER_CURRENT,
+                    Power.A200_RIGHT_DRIVER_CURRENT,
+                ]
+            case 'w200':
+                self.power_msg_voltage_index = Power.W200_MEASURED_BATTERY
+                self.power_msg_current_index = [Power.W200_TOTAL_CURRENT]
+            case 'dd100' | 'do100':
+                self.power_msg_voltage_index = Power.D100_MEASURED_BATTERY
+                self.power_msg_current_index = [Power.D100_TOTAL_CURRENT]
+            case 'dd150' | 'do150':
+                self.power_msg_voltage_index = Power.D150_MEASURED_BATTERY
+                self.power_msg_current_index = [Power.D150_TOTAL_CURRENT]
+            case 'r100':
+                self.power_msg_voltage_index = Power.R100_MEASURED_BATTERY
+                self.power_msg_current_index = [Power.R100_TOTAL_CURRENT]
+
+    def initialize_battery_state_message(self) -> None:
+        """Populate the static fields of the published ``BatteryState`` message."""
+        self._msg.power_supply_technology = self.technology
+        self._msg.power_supply_health = BatteryState.POWER_SUPPLY_HEALTH_GOOD
+        self._msg.power_supply_status = BatteryState.POWER_SUPPLY_STATUS_DISCHARGING
+        self._msg.present = True
+        self._msg.temperature = nan
+        self._msg.capacity = self._msg.design_capacity = self.battery.capacity
+
+    def update_state_of_charge(self) -> None:
+        """Update percentage and charge fields from the rolling-average voltage."""
+        # Calculate state of charge
+        avg_voltage = 0
+        for reading in self.readings:
+            avg_voltage += reading.measured_voltages[self.power_msg_voltage_index]
+        avg_voltage /= len(self.readings)
+        self._msg.percentage = self.battery.state_of_charge(avg_voltage)
+        # If charging and 100%, set status to full
+        if self._msg.power_supply_status == BatteryState.POWER_SUPPLY_STATUS_CHARGING and self._msg.percentage == 1.0:
+            self._msg.power_supply_status = BatteryState.POWER_SUPPLY_STATUS_FULL
+        self._msg.charge = self._msg.capacity * self._msg.percentage
+
+    def update_battery_state_message(self, power_msg: Power) -> None:
+        """Update the cached ``BatteryState`` message from a new ``Power`` reading."""
+        # Update rolling average window
+        self.readings.append(power_msg)
+        if len(self.readings) > self.rolling_average_window:
+            self.readings.pop(0)
+
+        # Retrieve battery current
+        current = 0.0
+        for i in self.power_msg_current_index:
+            current += power_msg.measured_currents[i]
+
+        # Retrieve charging status
+        if power_msg.charger_connected == 1:
+            charging_status = BatteryState.POWER_SUPPLY_STATUS_CHARGING
+        else:
+            charging_status = BatteryState.POWER_SUPPLY_STATUS_DISCHARGING
+
+        self._msg.header = power_msg.header
+        self._msg.voltage = power_msg.measured_voltages[self.power_msg_voltage_index]
+        self._msg.current = current
+        self._msg.power_supply_status = charging_status
+        self._msg.cell_voltage = [self._msg.voltage / self.battery.num_series_cells] * self.battery.num_cells
+        self._msg.cell_temperature = [nan] * self.battery.num_cells
+        self.update_state_of_charge()
+
+
     def power_status_callback(self, msg: Power):
-        self.battery.update(msg)
-        self.battery_state_pub.publish(self.battery.msg)
+        """Handle an incoming Power message and publish the updated battery state."""
+        self.update_battery_state_message(msg)
+        self.battery_state_pub.publish(self._msg)
 
 
 def main():
-    setup_path = BaseGenerator.get_args()
+    """Entry point: spin a ``BatteryStateEstimator`` node until shutdown."""
     rclpy.init()
 
-    bsp = BatteryStateEstimator(setup_path)
+    bsp = BatteryStateEstimator()
 
     rclpy.spin(bsp)
 
