@@ -39,7 +39,9 @@ mutually exclusive (e.g. battery components). Whether to include a result in the
 file is the caller's decision.
 """
 import os
+import re
 
+from clearpath_config.common.utils.dictionary import flatten_dict
 from clearpath_config.platform.battery import BatteryConfig
 from clearpath_config.platform.wireless import PeplinkRouter
 from clearpath_generator_common.common import LaunchFile, Package
@@ -253,6 +255,34 @@ def make_foxglove_components(namespace: str, platform_params_path: str) -> list:
 # ---------------------------------------------------------------------------
 # Battery — single factory owning the BMS / estimator decision
 # ---------------------------------------------------------------------------
+# Map BatteryConfig.<model> string -> base parameter file stem under
+# clearpath_hardware_interfaces/share/config/battery_state_estimator/<stem>.yaml.
+# The mapping is explicit because not every model name lowercases cleanly
+# (e.g. '8A31DTM' -> 'dtm8a31').
+_BATTERY_PARAM_FILES = {
+    BatteryConfig.DTM8A31:  'dtm8a31',
+    BatteryConfig.ES20_12C: 'es20_12c',
+    BatteryConfig.HE2410:   'he2410',
+    BatteryConfig.HE2411:   'he2411',
+    BatteryConfig.HE2613:   'he2613',
+    BatteryConfig.RB20:     'rb20',
+    BatteryConfig.TLV1222:  'tlv1222',
+    BatteryConfig.U1_35:    'u1_35',
+}
+
+_BATTERY_CONFIGURATION_RE = re.compile(r'^S(\d+)P(\d+)$')
+
+
+def _parse_battery_configuration(configuration: str) -> tuple[int, int]:
+    """Parse a ``SxPy`` battery configuration string into ``(num_series, num_parallel)``."""
+    match = _BATTERY_CONFIGURATION_RE.match(configuration)
+    if not match:
+        raise ValueError(
+            f'Battery configuration {configuration!r} does not match expected SxPy format'
+        )
+    return int(match.group(1)), int(match.group(2))
+
+
 def _make_battery_state_control(namespace: str, setup_path: str) -> LaunchFile.Node:
     """Build the battery_state_control node (always required)."""
     return LaunchFile.Node(
@@ -264,14 +294,72 @@ def _make_battery_state_control(namespace: str, setup_path: str) -> LaunchFile.N
     )
 
 
-def _make_battery_state_estimator(namespace: str, setup_path: str) -> LaunchFile.Node:
-    """Build the battery_state_estimator node (used only when no BMS is present)."""
+def _resolve_battery_param_file(param_file: dict):
+    """
+    Resolve a battery ``param_file`` PackagePath dict to a parameters-list element.
+
+    When ``package`` is set, emit a launch-time ``PathJoinSubstitution`` that
+    resolves the share directory via ``FindPackageShare`` so the generated
+    launch file stays portable across environments. When only ``path`` is set
+    (absolute path), pass it through as a plain string.
+    """
+    package = param_file.get('package')
+    path = param_file.get('path')
+    if package:
+        return LaunchFile.Variable(
+            f"PathJoinSubstitution([FindPackageShare('{package}'), '{path}'])"
+        )
+    return path
+
+
+def _make_battery_state_estimator(
+        namespace: str,
+        clearpath_config) -> LaunchFile.Node:
+    """
+    Build the battery_state_estimator node, configured for the active battery.
+
+    Parameter layering (later entries override earlier ones at launch time):
+      1. Base parameter file for the selected built-in model, OR the user's
+         ``battery.param_file`` when ``battery.model == 'custom'``.
+      2. Inline ``battery.ros_parameters.battery_state_estimator`` overrides.
+      3. Generator-derived overrides: always ``platform``; additionally
+         ``cell.num_series`` and ``cell.num_parallel`` for built-in models.
+    """
+    battery = clearpath_config.platform.battery
+    platform_model = clearpath_config.platform.get_platform_model()
+
+    parameters: list = []
+
+    # 1) Base / user param file
+    if battery.model == BatteryConfig.CUSTOM:
+        parameters.append(_resolve_battery_param_file(battery.param_file))
+    else:
+        base_stem = _BATTERY_PARAM_FILES[battery.model]
+        parameters.append(LaunchFile.Variable(
+            'PathJoinSubstitution(['
+            "FindPackageShare('clearpath_hardware_interfaces'), "
+            f"'config', 'battery_state_estimator', '{base_stem}.yaml'])"
+        ))
+
+    # 2) Inline ros_parameters.battery_state_estimator overrides
+    inline = battery.ros_parameters.get(BatteryConfig.BATTERY_STATE_ESTIMATOR, {})
+    if inline:
+        parameters.append(flatten_dict(inline))
+
+    # 3) Generator-derived overrides (always last)
+    derived: dict = {'platform': platform_model}
+    if battery.model != BatteryConfig.CUSTOM:
+        num_series, num_parallel = _parse_battery_configuration(battery.configuration)
+        derived['cell.num_series'] = num_series
+        derived['cell.num_parallel'] = num_parallel
+    parameters.append(derived)
+
     return LaunchFile.Node(
         package='clearpath_hardware_interfaces',
         executable='battery_state_estimator',
         name='battery_state_estimator',
         namespace=namespace,
-        arguments=['-s', setup_path],
+        parameters=parameters,
     )
 
 
@@ -356,7 +444,7 @@ def make_battery_components(namespace: str, clearpath_config, setup_path: str) -
     elif battery_model in [BatteryConfig.S_24V20_U1]:
         components.append(_make_inventus_bms(namespace, battery))
     else:
-        components.append(_make_battery_state_estimator(namespace, setup_path))
+        components.append(_make_battery_state_estimator(namespace, clearpath_config))
 
     return components
 
