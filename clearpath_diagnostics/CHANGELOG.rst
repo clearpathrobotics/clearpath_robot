@@ -2,6 +2,9 @@
 Changelog for package clearpath_diagnostics
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.3.8 (2026-04-14)
 ------------------
 

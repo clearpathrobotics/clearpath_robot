@@ -2,6 +2,12 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* [Humble] [clearpath_sensors] Updated Stereolabs Zed pos_tracking_mode to GEN_3. (`#339 <https://github.com/clearpathrobotics/clearpath_robot/issues/339>`_)
+  Co-authored-by: Tony Baltovski <tbaltovski@clearpathrobotics.com>
+* Contributors: mergify[bot]
+
 1.3.8 (2026-04-14)
 ------------------
 * [Humble] Fix: added missing imu/mag remap for microstrain_imu. (`#320 <https://github.com/clearpathrobotics/clearpath_robot/issues/320>`_)
