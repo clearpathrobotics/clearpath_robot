@@ -2,8 +2,8 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.9.4 (2026-07-17)
+------------------
 * [clearpath_sensors] Updated Stereolabs Zed pos_tracking_mode to GEN_3. (`#338 <https://github.com/clearpathrobotics/clearpath_robot/issues/338>`_)
 * Contributors: Tony Baltovski
 
