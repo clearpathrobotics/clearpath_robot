@@ -124,7 +124,7 @@ Lighting::Lighting()
     {State::LowBattery, PulseSequence(
       Sequence::fillLightingState(COLOR_ORANGE, platform_),
       Sequence::fillLightingState(COLOR_ORANGE_DARK, platform_),
-      MS_TO_STEPS(4000))},
+      MS_TO_STEPS(2000))},
 
     {State::Driving, SolidSequence(
       Sequence::fillFrontRearLightingState(COLOR_WHITE, COLOR_RED, platform_))},
