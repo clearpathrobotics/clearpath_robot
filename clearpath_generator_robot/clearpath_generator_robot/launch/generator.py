@@ -642,8 +642,8 @@ class RobotLaunchGenerator(LaunchGenerator):
                             parameters=[{
                                 'robot_ip': arm.ip,
                                 'joint_names': [
-                                    f'{arm.gripper.name}_{arm.gripper.arm_id}_finger_joint1',
-                                    f'{arm.gripper.name}_{arm.gripper.arm_id}_finger_joint2'
+                                    f'{arm.gripper.name}_{arm.gripper.robot_type}_finger_joint1',
+                                    f'{arm.gripper.name}_{arm.gripper.robot_type}_finger_joint2'
                                 ],
                                 'state_publish_rate': 15,  # [Hz]
                                 'feedback_publish_rate': 30,  # [Hz]
