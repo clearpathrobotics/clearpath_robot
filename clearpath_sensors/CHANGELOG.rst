@@ -2,6 +2,11 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fixed missing dep for flir_ptu_driver. (`#341 <https://github.com/clearpathrobotics/clearpath_robot/issues/341>`_)
+* Contributors: Tony Baltovski
+
 2.9.4 (2026-07-17)
 ------------------
 * [clearpath_sensors] Updated Stereolabs Zed pos_tracking_mode to GEN_3. (`#338 <https://github.com/clearpathrobotics/clearpath_robot/issues/338>`_)

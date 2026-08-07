@@ -2,6 +2,19 @@
 Changelog for package clearpath_platform
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Adjust Steps in Low Battery Sequence (`#340 <https://github.com/clearpathrobotics/clearpath_robot/issues/340>`_)
+  RPSW-2621
+  Adjusted the lighting for the "State::LowBattery" by:
+  - changing pulse sequence steps to MS_TO_STEPS(2000)
+  - changed COLOR_ORANGE = hsv_t(10.0, 100.0, 25.0);
+  - changed COLOR_ORANGE_DARK = hsv_t(10.0, 100.0, 0.0);
+  In this way the colour is more orange and switches
+  more quickly to black to make the state more clear.
+  Co-authored-by: Mark Ibrahim <mibrahim@clearpathrobotics.com>
+* Contributors: mibrahim-cpr
+
 2.9.4 (2026-07-17)
 ------------------
 
