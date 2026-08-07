@@ -19,6 +19,7 @@
   <exec_depend>ffmpeg_image_transport</exec_depend>
   <exec_depend>flir_camera_description</exec_depend>
   <exec_depend>flir_camera_msgs</exec_depend>
+  <exec_depend>flir_ptu_driver</exec_depend>
   <exec_depend>image_proc</exec_depend>
   <exec_depend>image_transport_plugins</exec_depend>
   <exec_depend>lms1xx</exec_depend>
