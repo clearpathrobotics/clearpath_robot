@@ -2,8 +2,8 @@
 Changelog for package clearpath_platform
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.9.5 (2026-08-07)
+------------------
 * Adjust Steps in Low Battery Sequence (`#340 <https://github.com/clearpathrobotics/clearpath_robot/issues/340>`_)
   RPSW-2621
   Adjusted the lighting for the "State::LowBattery" by:
