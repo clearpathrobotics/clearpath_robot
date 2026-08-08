@@ -32,7 +32,7 @@ add_executable(multi_puma_node
 target_include_directories(multi_puma_node PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/${PROJECT_NAME}>)
-target_compile_features(multi_puma_node PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+target_compile_features(multi_puma_node PUBLIC c_std_99 cxx_std_20)  # Require C99 and C++20
 
 ament_target_dependencies(multi_puma_node ${DEPENDENCIES})
 target_link_libraries(multi_puma_node)

@@ -38,10 +38,10 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include "clearpath_motor_msgs/msg/puma_feedback.hpp"
 
 #include "can_hardware/common/types.hpp"
-#include "can_hardware/drivers/socketcan_driver.hpp"
 
 #include "diagnostic_updater/diagnostic_updater.hpp"
 
+#include "puma_motor_driver/can_interface.hpp"
 #include "puma_motor_driver/driver.hpp"
 // #include "puma_motor_driver/diagnostic_updater.hpp"
 
@@ -138,9 +138,8 @@ private:
   using DiagnosticStatusWrapper = diagnostic_updater::DiagnosticStatusWrapper;
   using PumaStatus = clearpath_motor_msgs::msg::PumaStatus;
 
-  // std::shared_ptr<clearpath_ros2_socketcan_interface::SocketCANInterface> interface_;
-  std::shared_ptr<can_hardware::drivers::SocketCanDriver> interface_;
-  std::vector<puma_motor_driver::Driver> drivers_;
+  std::unique_ptr<CanConnection> interface_;
+  std::vector<std::unique_ptr<puma_motor_driver::Driver>> drivers_;
 
   bool active_;
   double gear_ratio_;

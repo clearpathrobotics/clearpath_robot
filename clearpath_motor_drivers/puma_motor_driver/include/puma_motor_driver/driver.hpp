@@ -26,31 +26,34 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
 #include <stdint.h>
 #include <string>
+#include <queue>
+#include <mutex>
+#include <type_traits>
 
 #include <rclcpp/rclcpp.hpp>
 
 #include "can_hardware/common/types.hpp"
-#include "can_hardware/drivers/socketcan_driver.hpp"
+#include "can_hardware/adaptors/can/can_adaptor.hpp"
+
 
 #include "clearpath_motor_msgs/msg/puma_status.hpp"
 
 #include "diagnostic_updater/update_functions.hpp"
 
 #include "puma_motor_driver/can_proto.hpp"
+#include "puma_motor_driver/can_interface.hpp"
 
 namespace puma_motor_driver
 {
 
-class Driver
+class Driver : public can_hardware::adaptor::CanAdaptor
 {
 public:
   Driver(
-    const std::shared_ptr<can_hardware::drivers::SocketCanDriver> interface,
+    CanConnection* conn,
     std::shared_ptr<rclcpp::Node> nh,
     const uint8_t & device_number,
     const std::string & device_name);
-
-  void processMessage(const can_hardware::Frame & frame);
 
   double radPerSecToRpm() const;
 
@@ -97,11 +100,6 @@ public:
    */
   void requestFeedbackSetpoint();
   /**
-   * Clear the received flags from the status cache, in preparation for the next
-   * request batch to go out.
-   */
-  void clearMsgCache();
-  /**
    * Command the supplied value in open-loop voltage control.
    *
    * @param[in] cmd Value to command, ranging from -1.0 to 1.0, where zero is neutral.
@@ -113,9 +111,6 @@ public:
    * @param[in] cmd Value to command in rad/s.
    */
   void commandSpeed(const double cmd);
-  // void currentSet(float cmd);
-  // void positionSet(float cmd);
-  // void neutralSet();
 
   /**
    * Set the encoders resolution in counts per rev.
@@ -397,23 +392,23 @@ public:
    * Process the last received P gain
    * for the current control mode.
    *
-   * @return pointer to raw 4 bytes of the P gain response.
+   * @return Value of the P gain response.
    */
-  uint8_t * getRawP();
+  double getRawP();
   /**
    * Process the last received I gain
    * for the current control mode.
    *
-   * @return pointer to raw 4 bytes of the I gain response.
+   * @return Value of the I gain response.
    */
-  uint8_t * getRawI();
+  double getRawI();
   /**
    * Process the last received I gain
    * for the current control mode.
    *
-   * @return pointer to raw 4 bytes of the I gain response.
+   * @return Value of the I gain response.
    */
-  uint8_t * getRawD();
+  double getRawD();
   /**
    * Process the last received set-point response
    * in voltage open-loop control.
@@ -468,8 +463,18 @@ public:
   void runFreqStatus(diagnostic_updater::DiagnosticStatusWrapper & stat);
   void driverUpdateDiagnostics(diagnostic_updater::DiagnosticStatusWrapper & stat, bool updating);
 
+  can_hardware::Frame createRequestReadFrame(const can_hardware::CanId id) override
+  {
+    // Override the CAN adaptor's default read request frame creation that uses RTR frames.
+
+    can_hardware::Frame frame;
+    frame.id = id;
+    frame.is_extended = true;
+    frame.dlc = 0;
+    return frame;
+  }
+
 private:
-  std::shared_ptr<can_hardware::drivers::SocketCanDriver> interface_;
   std::shared_ptr<rclcpp::Node> nh_;
   uint8_t device_number_;
   std::string device_name_;
@@ -485,49 +490,153 @@ private:
   uint16_t encoder_cpr_;
   float gear_ratio_;
 
-  /**
-   * Helpers to generate data for CAN messages.
-   */
-  void sendId(const uint32_t id);
-  void sendUint8(const uint32_t id, const uint8_t value);
-  void sendUint16(const uint32_t id, const uint16_t value);
-  void sendFixed8x8(const uint32_t id, const float value);
-  void sendFixed16x16(const uint32_t id, const double value);
-  can_hardware::Frame getMsg(const uint32_t id);
-  uint32_t getApi(const can_hardware::Frame & msg);
-  uint32_t getDeviceNumber(const can_hardware::Frame & msg);
+  std::queue<can_hardware::Frame> message_queue_;
+  std::mutex message_queue_mutex_;
+  std::set<std::string> signals_;
 
-  /**
-   * Comparing the raw bytes of the 16x16 fixed-point numbers
-    * to avoid comparing the floating point values.
-   *
-   * @return boolean if received is equal to expected.
-   */
-  bool verifyRaw16x16(const uint8_t * received, const double expected);
+  template<typename T>
+  class Signal
+  {
+  public:
+    using Ptr = std::unique_ptr<Signal<T>>;
 
-  /**
-   * Comparing the raw bytes of the 8x8 fixed-point numbers
-    * to avoid comparing the floating point values.
-   *
-   * @return boolean if received is equal to expected.
-   */
-  bool verifyRaw8x8(const uint8_t * received, const float expected);
+    Signal() = default;
 
-  Field voltage_fields_[4];
-  Field spd_fields_[7];
-  Field vcomp_fields_[5];
-  Field pos_fields_[7];
-  Field ictrl_fields_[6];
-  Field status_fields_[15];
-  Field cfg_fields_[15];
+    Signal(const std::string& name, SignalAdaptor& adaptor)
+      : name(name), adaptor(adaptor)
+    {
+    }
+    ~Signal() = default;
 
-  Field * voltageFieldForMessage(uint32_t api);
-  Field * spdFieldForMessage(uint32_t api);
-  Field * vcompFieldForMessage(uint32_t api);
-  Field * posFieldForMessage(uint32_t api);
-  Field * ictrlFieldForMessage(uint32_t api);
-  Field * statusFieldForMessage(uint32_t api);
-  Field * cfgFieldForMessage(uint32_t api);
+    void requestRead()
+    {
+      adaptor.get().requestRead(name);
+    }
+
+    void requestWrite(const T& value)
+    {
+      adaptor.get().requestWrite(name, value);
+    }
+
+    T value() const
+    {
+      return adaptor.get().template getSignalAs<T>(name);
+    }
+
+    bool received() const
+    {
+      return !hal::is_none(adaptor.get().getSignal(name));
+    }
+
+    bool isNone() const
+    {
+      return hal::is_none(adaptor.get().getSignal(name));
+    }
+
+  public:
+    //! The name of the signal
+    std::string name;
+    
+  private:
+    //! Reference to the signal adaptor
+    std::reference_wrapper<SignalAdaptor> adaptor;
+  };
+
+  template<typename T>
+  Signal<T>::Ptr registerSignal(const std::string& name, const can_hardware::CanId id, uint8_t device_number)
+  {
+    constexpr uint32_t bit_offset = 0;
+    constexpr uint32_t byte_length = 4;
+    constexpr uint32_t bit_length = byte_length * 8;
+
+    if constexpr (std::is_integral<T>::value && std::is_unsigned<T>::value)
+    {
+      addSignal<T>(name, bit_offset, bit_length, false, 1.0, 0, std::endian::little);
+    }
+    else if constexpr (std::is_integral<T>::value && std::is_signed<T>::value)
+    {
+      addSignal<T>(name, bit_offset, bit_length, true, 1.0, 0, std::endian::little);
+    }
+    else if constexpr (std::is_same<T, double>::value)
+    {
+      // Fixed-point 16x16 representation
+      addSignal<T>(name, bit_offset, bit_length, true, 1.0 / static_cast<double>(1 << 16), 0, std::endian::little);
+    }
+    else if constexpr (std::is_same<T, float>::value)
+    {
+      // Fixed-point 8x8 representation
+      addSignal<T>(name, bit_offset, bit_length, true, 1.0 / static_cast<float>(1 << 8), 0, std::endian::little);
+    }
+    else
+    {
+      // Trigger a compile-time error for unsupported types
+      static_assert(sizeof(T) == 0, "Unsupported signal type");
+    }
+
+    const can_hardware::CanId full_id = id | (device_number & CAN_MSGID_DEVNO_M);
+    // Register the signal to a CAN frame with it associated CAN ID
+    addRxSignals(full_id, {name});
+    // Register the signal for on request transmission (rate=0.0)
+    addTxSignals(full_id, byte_length, true, false, {name}, 0.0);
+
+    signals_.insert(name);
+
+    return std::make_unique<Signal<T>>(name, *this);
+  }
+
+
+  bool verify(const double recv, const double expected) const
+  {
+    return std::abs(recv - expected) < 1e-4;  // Allow for fixed-point quantization
+  }
+
+  // Voltage control Signals
+  Signal<uint8_t>::Ptr voltage_enable_;
+  Signal<uint8_t>::Ptr voltage_disable_;
+  Signal<float>::Ptr voltage_set_;
+  Signal<float>::Ptr voltage_set_ramp_;
+
+  // Status Signals
+  Signal<float>::Ptr status_voltage_out_;
+  Signal<float>::Ptr status_voltage_bus_;
+  Signal<float>::Ptr status_current_;
+  Signal<double>::Ptr status_speed_;
+  Signal<uint32_t>::Ptr status_limit_;
+  Signal<float>::Ptr status_temperature_;
+  Signal<double>::Ptr status_position_;
+  Signal<uint8_t>::Ptr status_power_;
+  Signal<uint8_t>::Ptr status_control_mode_;
+  Signal<float>::Ptr status_vout_;
+  Signal<float>::Ptr status_analog_;
+  Signal<uint8_t>::Ptr status_fault_;
+  Signal<uint32_t>::Ptr status_sticky_fault_;
+  Signal<uint32_t>::Ptr status_fault_count_;
+
+  // Position Control Signals
+  Signal<uint32_t>::Ptr position_enable_;
+  Signal<uint32_t>::Ptr position_disable_;
+  Signal<double>::Ptr position_set_;
+  Signal<uint8_t>::Ptr position_ref_;
+  Signal<double>::Ptr position_pc_;
+  Signal<double>::Ptr position_ic_;
+  Signal<double>::Ptr position_dc_;
+  // Speed Control Signals
+  Signal<uint8_t>::Ptr speed_enable_;
+  Signal<uint8_t>::Ptr speed_disable_;
+  Signal<double>::Ptr speed_set_;
+  Signal<double>::Ptr speed_pc_;
+  Signal<double>::Ptr speed_ic_;
+  Signal<double>::Ptr speed_dc_;
+  Signal<uint8_t>::Ptr speed_ref_;
+  // Current Control Signals
+  Signal<uint32_t>::Ptr ictrl_enable_;
+  Signal<uint32_t>::Ptr ictrl_disable_;
+  Signal<float>::Ptr ictrl_set_;
+  Signal<double>::Ptr ictrl_pc_;
+  Signal<double>::Ptr ictrl_ic_;
+  Signal<double>::Ptr ictrl_dc_;
+  // Configuration Signals
+  Signal<uint16_t>::Ptr cfg_enc_lines_;
 
   // Frequency Status for diagnostics
   std::shared_ptr<double> can_feedback_rate_; // Shared ptr prevents copy errors of FrequencyStatus
