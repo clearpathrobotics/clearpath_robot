@@ -37,7 +37,7 @@ namespace lynx_motor_driver
 
 /**
  * @brief Wrap a can_msgs Frame to add Lynx API functions
- * 
+ *
  */
 struct Message
 {
@@ -54,8 +54,8 @@ struct Message
 
   /**
    * @brief Get the Frame object
-   * 
-   * @return can_msgs::msg::Frame 
+   *
+   * @return can_msgs::msg::Frame
    */
   can_msgs::msg::Frame getFrame() const
   {
@@ -64,7 +64,7 @@ struct Message
 
   /**
    * @brief Get the Lynx CAN ID from the frame
-   * 
+   *
    * @return uint32_t representing the CAN ID
    */
   uint32_t getID() const
@@ -74,7 +74,7 @@ struct Message
 
   /**
    * @brief Get the Lynx CAN API from the frame
-   * 
+   *
    * @return uint32_t representing the MSGID from the API
    */
   uint32_t getApi() const
@@ -84,7 +84,7 @@ struct Message
 
   /**
    * @brief Get the length of the frame data
-   * 
+   *
    * @return uint8_t representing the length
    */
   uint8_t getLength() const
@@ -94,18 +94,18 @@ struct Message
 
   /**
    * @brief Get the first byte of the frame data
-   * 
+   *
    * @return uint8_t byte
    */
   uint8_t getDataAsUint8() const
   {
     return frame_.data[0];
   }
-  
+
   /**
    * @brief Get the first two bytes of data as a uint16_t object
-   * 
-   * @return uint16_t 
+   *
+   * @return uint16_t
    */
   uint16_t getDataAsUint16() const
   {
@@ -114,9 +114,9 @@ struct Message
 
   /**
    * @brief Get a float from the frame data starting from start_byte
-   * 
+   *
    * @param start_byte index of first byte
-   * @return float 
+   * @return float
    */
   float getDataAsFloat(uint8_t start_byte) const
   {
@@ -132,8 +132,8 @@ struct Message
 
   /**
    * @brief Get a pair representing the data index and float value
-   * 
-   * @return std::pair<uint8_t, float> 
+   *
+   * @return std::pair<uint8_t, float>
    */
   std::pair<uint8_t, float> getDataAsIndexedFloat() const
   {
@@ -151,8 +151,8 @@ struct Message
 
   /**
    * @brief Get a pair representing the data index and uint32_t value
-   * 
-   * @return std::pair<uint8_t, uint32_t> 
+   *
+   * @return std::pair<uint8_t, uint32_t>
    */
   std::pair<uint8_t, uint32_t> getDataAsIndexedUint32() const
   {

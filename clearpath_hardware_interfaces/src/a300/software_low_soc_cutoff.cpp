@@ -23,13 +23,13 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include "clearpath_hardware_interfaces/a300/software_low_soc_cutoff.hpp"
 
 
-a300_sw_low_soc_cutoff::SoftwareLowSocCutoff::SoftwareLowSocCutoff() : 
+a300_sw_low_soc_cutoff::SoftwareLowSocCutoff::SoftwareLowSocCutoff() :
     Node("software_low_voltage_cutoff")
 {
   battery_subscriber_ = this->create_subscription<sensor_msgs::msg::BatteryState>(
       BATTERY_STATE_TOPIC, 10,
       std::bind(&SoftwareLowSocCutoff::battery_callback, this, std::placeholders::_1));
-  
+
   client_ = this->create_client<std_srvs::srv::Empty>(SW_LOW_SOC_CUTOFF_SERVICE_NAME);
 }
 
@@ -42,9 +42,9 @@ void a300_sw_low_soc_cutoff::SoftwareLowSocCutoff::battery_callback(
         "Battery not present. Ignoring message.");
     return;
   }
-  
+
   float charge_percentage = msg->percentage * 100.0;
-  
+
   if (charge_percentage <= WARNING_THRESHOLD && charge_percentage > CRITICAL_THRESHOLD)
   {
     RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000,
@@ -53,12 +53,12 @@ void a300_sw_low_soc_cutoff::SoftwareLowSocCutoff::battery_callback(
   else if (charge_percentage <= CRITICAL_THRESHOLD)
   {
     RCLCPP_ERROR_THROTTLE(
-      this->get_logger(), *this->get_clock(), 1000, 
+      this->get_logger(), *this->get_clock(), 1000,
       "Battery critically low: %.2f%%", charge_percentage);
     this->consecutive_low_readings_++;
-    
+
     // Gather many readings before calling the service
-    if (this->consecutive_low_readings_ >= CRITICAL_READINGS_REQUIRED) 
+    if (this->consecutive_low_readings_ >= CRITICAL_READINGS_REQUIRED)
     {
       RCLCPP_FATAL(this->get_logger(),
           "Battery critically low, calling cmd shutdown service on MCU to power off robot.");
@@ -71,14 +71,14 @@ void a300_sw_low_soc_cutoff::SoftwareLowSocCutoff::battery_callback(
   }
 }
 
-void a300_sw_low_soc_cutoff::SoftwareLowSocCutoff::call_low_battery_service() 
+void a300_sw_low_soc_cutoff::SoftwareLowSocCutoff::call_low_battery_service()
 {
   if (!client_->wait_for_service(std::chrono::seconds(1)))
   {
     RCLCPP_ERROR(this->get_logger(), "Low battery service unavailable");
     return;
   }
-    
+
   auto request = std::make_shared<std_srvs::srv::Empty::Request>();
   auto future = client_->async_send_request(request);
 }

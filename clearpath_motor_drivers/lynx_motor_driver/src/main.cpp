@@ -26,10 +26,10 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
 /**
  * @brief Main entry point for Lynx Motor Node
- * 
- * @param argc 
- * @param argv 
- * @return int 
+ *
+ * @param argc
+ * @param argv
+ * @return int
  */
 int main(int argc, char * argv[])
 {

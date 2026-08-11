@@ -68,7 +68,7 @@ private:
    * Warnings are issued at 12%, and a critical service call is made at 8%.
    */
   void battery_callback(const sensor_msgs::msg::BatteryState::SharedPtr msg);
-  
+
   /**
    * @brief Calls the low battery service when charge reaches the critical level.
    *
