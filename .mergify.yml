@@ -13,4 +13,3 @@ pull_request_rules:
         title: "[Humble] {{ title }}"
         body: |
           Backport of #{{ number }} to Humble.
-        draft: true
