@@ -1,7 +1,8 @@
 [Unit]
 Description="Clearpath robot sub-service, launch all platform nodes"
 PartOf=clearpath-robot.service
-After=clearpath-robot.service
+After=clearpath-robot.service clearpath-vcan.service
+Wants=clearpath-vcan.service
 
 [Service]
 User=robot
