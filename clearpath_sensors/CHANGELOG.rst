@@ -2,6 +2,9 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.9.5 (2026-08-07)
 ------------------
 * Fixed missing dep for flir_ptu_driver. (`#341 <https://github.com/clearpathrobotics/clearpath_robot/issues/341>`_)
