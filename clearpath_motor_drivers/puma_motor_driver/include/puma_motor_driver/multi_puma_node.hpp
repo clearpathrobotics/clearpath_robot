@@ -121,10 +121,10 @@ public:
 
   /**
    * @brief Callback function for processing incoming CAN frames.
-   * 
+   *
    * @param frame The received CAN frame.
    */
-  void frameCallback(const can_hardware::Frame& frame);
+  void frameCallback(const can_hardware::Frame & frame);
 
   /**
    * Main control loop that checks and maintains the socket gateway, resets

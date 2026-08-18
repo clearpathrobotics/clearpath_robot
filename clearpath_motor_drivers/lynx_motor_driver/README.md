@@ -16,11 +16,11 @@ This driver will be automatically launched when using the [Clearpath Config](htt
 
 ### Launch arguments
 
-- `can_bus`: CAN bus interface to use. 
+- `can_bus`: CAN bus interface to use.
   - Default: `can0`
-- `namespace`: Robot namespace. 
+- `namespace`: Robot namespace.
   - Default: `/`
-- `parameters`: Node parameters. 
+- `parameters`: Node parameters.
   - Default: `lynx_motor_driver/config/single_test.yaml`
 
 ## Node
@@ -35,6 +35,7 @@ Additionally, the Lynx motor node can be used to calibrate the motors, and updat
   - Type: `sensor_msgs/msg/JointState`
 
 ### Publishers
+
 - `platform/motors/system_protection`: System and individual motor controller protection states.
   - Type: `clearpath_motor_msgs/msg/LynxSystemProtection`
 
@@ -49,17 +50,14 @@ Additionally, the Lynx motor node can be used to calibrate the motors, and updat
 - `platform/motors/calibrate`: Run the calibration sequence on each motor controller.
   - Type: `clearpath_motor_msgs/action/LynxCalibrate`
 
-
   - Usage:
 `ros2 action send_goal /platform/motors/calibrate clearpath_motor_msgs/action/LynxCalibrate {} --feedback`
 
 :warning:
 The robot must be placed on a box and off the ground before running this action. The wheels will begin to turn when it is called.
 
-
 - `platform/motors/update`: Update each motor controller with a binary file.
   - Type: `clearpath_motor_msgs/action/LynxUpdate`
-
 
   - Usage:
 `ros2 action send_goal /platform/motors/update clearpath_motor_msgs/action/LynxUpdate "file: ''" --feedback`

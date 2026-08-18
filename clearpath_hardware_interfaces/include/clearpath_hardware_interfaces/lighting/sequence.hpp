@@ -100,7 +100,7 @@ public:
 
     ls = sequence_;
     other_ls = other.getSequence();
-    
+
     for (std::size_t i = 0; i < sequence_.size(); i++)
     {
       if (ls.at(i) != other_ls.at(i))

@@ -19,4 +19,3 @@ phidgets_spatial:
     ahrs_mag_time: 10.0
     ahrs_accel_time: 10.0
     ahrs_bias_time: 1.25
-

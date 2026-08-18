@@ -96,7 +96,7 @@ MultiPumaNode::MultiPumaNode(const std::string node_name)
   // SocketCAN Interface
   interface_ = std::make_shared<can_hardware::drivers::SocketCanDriver>(canbus_dev_);
   interface_->registerFrameCallback(
-    std::bind(&MultiPumaNode::frameCallback, this,  std::placeholders::_1));
+    std::bind(&MultiPumaNode::frameCallback, this, std::placeholders::_1));
 
   for (uint8_t i = 0; i < joint_names_.size(); i++) {
     drivers_.push_back(puma_motor_driver::Driver(
@@ -284,7 +284,7 @@ bool MultiPumaNode::areAllActive()
   return true;
 }
 
-void MultiPumaNode::frameCallback(const can_hardware::Frame& frame)
+void MultiPumaNode::frameCallback(const can_hardware::Frame & frame)
 {
   std::lock_guard<std::mutex> lock(recv_msg_mutex_);
   recv_msg_queue_.push(frame);

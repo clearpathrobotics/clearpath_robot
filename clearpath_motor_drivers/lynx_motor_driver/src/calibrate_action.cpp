@@ -26,10 +26,10 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
 /**
  * @brief Handle a Calibrate action goal request
- * 
+ *
  * @param uuid Goal UUID
  * @param goal Goal pointer
- * @return rclcpp_action::GoalResponse 
+ * @return rclcpp_action::GoalResponse
  */
 rclcpp_action::GoalResponse LynxMotorNode::handleCalibrateGoal(
   const rclcpp_action::GoalUUID & uuid,
@@ -51,9 +51,9 @@ rclcpp_action::GoalResponse LynxMotorNode::handleCalibrateGoal(
 
 /**
  * @brief Handle a Calibrate goal cancel request
- * 
+ *
  * @param goal_handle Pointer to goal handle
- * @return rclcpp_action::CancelResponse 
+ * @return rclcpp_action::CancelResponse
  */
 rclcpp_action::CancelResponse LynxMotorNode::handleCalibrateCancel(
   const std::shared_ptr<GoalHandleCalibrate> goal_handle)
@@ -72,7 +72,7 @@ rclcpp_action::CancelResponse LynxMotorNode::handleCalibrateCancel(
 
 /**
  * @brief Handle a Calibrate goal being accepted
- * 
+ *
  * @param goal_handle Pointer to goal handle
  */
 void LynxMotorNode::handleCalibrateAccepted(const std::shared_ptr<GoalHandleCalibrate> goal_handle)
@@ -89,7 +89,7 @@ void LynxMotorNode::handleCalibrateAccepted(const std::shared_ptr<GoalHandleCali
 
 /**
  * @brief Execute calibration action. Runs in a separate thread.
- * 
+ *
  * @param goal_handle Pointer to goal handle
  */
 void LynxMotorNode::executeCalibrateAction(const std::shared_ptr<GoalHandleCalibrate> goal_handle)
