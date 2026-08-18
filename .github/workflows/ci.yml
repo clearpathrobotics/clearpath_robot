@@ -13,7 +13,7 @@ jobs:
     container:
       image: rostooling/setup-ros-docker:ubuntu-noble-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
       - name: clearpath-package-server
         run: |
           sudo apt install wget
@@ -36,7 +36,7 @@ jobs:
     container:
       image: rostooling/setup-ros-docker:ubuntu-noble-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
       - name: clearpath-package-server
         run: |
           sudo apt install wget
@@ -60,9 +60,9 @@ jobs:
     container:
       image: rostooling/setup-ros-docker:ubuntu-noble-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
       - name: "[Repositories Updater] Checkout action"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
         with:
           repository: clearpathrobotics/repos-dep-update-action
           ref: 0.0.4
@@ -109,9 +109,9 @@ jobs:
     container:
       image: rostooling/setup-ros-docker:ubuntu-noble-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
       - name: "[Repositories Updater] Checkout action"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
         with:
           repository: clearpathrobotics/repos-dep-update-action
           ref: 0.0.3
@@ -153,9 +153,9 @@ jobs:
     container:
       image: rostooling/setup-ros-docker:ubuntu-noble-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
       - name: "[Repositories Updater] Checkout action"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
         with:
           repository: clearpathrobotics/repos-dep-update-action
           ref: 0.0.4
