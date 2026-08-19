@@ -130,6 +130,16 @@ public:
    */
   void setGearRatio(const float gear_ratio);
   /**
+   * Set the expected feedback rate for diagnostics.
+   *
+   * @param[in] rate Expected rate in Hz.
+   */
+  void setExpectedFeedbackRate(const double rate);
+  /**
+   * Initialize the status frequency diagnostic.
+   */
+  void initStatusDiagnostic();
+  /**
    * Set the control mode of the motor drivers.
    *
    * @param[in] mode Value to set.
@@ -531,7 +541,9 @@ private:
 
   // Frequency Status for diagnostics
   std::shared_ptr<double> can_feedback_rate_; // Shared ptr prevents copy errors of FrequencyStatus
-  std::shared_ptr<diagnostic_updater::FrequencyStatus> can_feedback_freq_status_;
+  std::shared_ptr<diagnostic_updater::FrequencyStatus> can_feedback_freq_diagnostic_;
+  std::shared_ptr<double> can_status_rate_;
+  std::shared_ptr<diagnostic_updater::FrequencyStatus> can_status_freq_diagnostic_;
 };
 
 }  // namespace puma_motor_driver
