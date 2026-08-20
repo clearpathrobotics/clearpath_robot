@@ -66,6 +66,7 @@ namespace
   const unsigned int SAFETY_CURRENT = 0x40;
   const unsigned int SAFETY_WARN = (SAFETY_TIMEOUT | SAFETY_CCI | SAFETY_PSU);
   const unsigned int SAFETY_ERROR = (SAFETY_LOCKOUT | SAFETY_ESTOP | SAFETY_CURRENT);
+  const double SUBSCRIBE_FREQ = 50.0;
 }  // namespace
 
 namespace clearpath_hardware_interfaces
@@ -140,7 +141,7 @@ namespace clearpath_hardware_interfaces
   {
 
     horizon_legacy::Channel<clearpath::DataEncoders>::Ptr enc =
-      horizon_legacy::Channel<clearpath::DataEncoders>::requestData(polling_timeout_);
+      horizon_legacy::Channel<clearpath::DataEncoders>::getLatest(polling_timeout_);
     if (enc)
     {
       RCLCPP_DEBUG(
@@ -174,7 +175,7 @@ namespace clearpath_hardware_interfaces
     }
 
     horizon_legacy::Channel<clearpath::DataDifferentialSpeed>::Ptr speed =
-      horizon_legacy::Channel<clearpath::DataDifferentialSpeed>::requestData(polling_timeout_);
+      horizon_legacy::Channel<clearpath::DataDifferentialSpeed>::getLatest(polling_timeout_);
     if (speed)
     {
       RCLCPP_DEBUG(
@@ -202,11 +203,10 @@ namespace clearpath_hardware_interfaces
   }
 
   /**
-  * Pull latest status date from MCU.
+  * Pull safety status from MCU (e-stop, PSU flags).
   */
-  void A200Hardware::readStatusFromHardware()
+  void A200Hardware::readSafetyStatusFromHardware()
   {
-
     auto safety_status =
       horizon_legacy::Channel<clearpath::DataSafetySystemStatus>::requestData(polling_timeout_);
     if (safety_status)
@@ -227,7 +227,14 @@ namespace clearpath_hardware_interfaces
         rclcpp::get_logger(HW_NAME), "Could not get safety_status");
     }
 
+    status_node_->publish_stop_state(stop_msg_);
+  }
 
+  /**
+  * Pull system status from MCU (voltages, currents, temps, uptime) and publish all status.
+  */
+  void A200Hardware::readSystemStatusFromHardware()
+  {
     auto system_status =
       horizon_legacy::Channel<clearpath::DataSystemStatus>::requestData(polling_timeout_);
     if (system_status)
@@ -268,7 +275,6 @@ namespace clearpath_hardware_interfaces
 
     status_node_->publish_status(status_msg_);
     status_node_->publish_power(power_msg_);
-    status_node_->publish_stop_state(stop_msg_);
     status_node_->publish_temps(driver_left_temp_msg_, driver_right_temp_msg_, motor_left_temp_msg_, motor_right_temp_msg_);
   }
 
@@ -427,6 +433,12 @@ hardware_interface::CallbackReturn A200Hardware::on_activate(const rclcpp_lifecy
     }
   }
 
+  // Subscribe to encoder and speed data from the MCU so it pushes updates
+  // proactively. This allows getLatest() to read from the queue instead of
+  // doing a blocking request-response round-trip on every control cycle.
+  horizon_legacy::Channel<clearpath::DataEncoders>::subscribe(SUBSCRIBE_FREQ);
+  horizon_legacy::Channel<clearpath::DataDifferentialSpeed>::subscribe(SUBSCRIBE_FREQ);
+
   RCLCPP_INFO(rclcpp::get_logger(HW_NAME), "System Successfully started!");
 
   return hardware_interface::CallbackReturn::SUCCESS;
@@ -435,6 +447,9 @@ hardware_interface::CallbackReturn A200Hardware::on_activate(const rclcpp_lifecy
 hardware_interface::CallbackReturn A200Hardware::on_deactivate(const rclcpp_lifecycle::State & /*previous_state*/)
 {
   RCLCPP_INFO(rclcpp::get_logger(HW_NAME), "Stopping ...please wait...");
+
+  horizon_legacy::Channel<clearpath::DataEncoders>::unsubscribe();
+  horizon_legacy::Channel<clearpath::DataDifferentialSpeed>::unsubscribe();
 
   RCLCPP_INFO(rclcpp::get_logger(HW_NAME), "System successfully stopped!");
 
@@ -449,16 +464,20 @@ hardware_interface::return_type A200Hardware::read(const rclcpp::Time & /*time*/
 
   RCLCPP_DEBUG(rclcpp::get_logger(HW_NAME), "Joints successfully read!");
 
-  // This will run at 10Hz but status data is only needed at 1Hz.
-  static int i = 0;
-  if (i <= 10)
+  // Stagger status reads across cycles to avoid overrunning the control period.
+  // Each status read adds one blocking serial round-trip (~11ms), so we never
+  // do more than one per cycle. Safety is read on odd status cycles,
+  // system status on even ones, yielding ~1Hz for each at 20Hz control rate.
+  static int status_counter = 0;
+  status_counter++;
+  if (status_counter >= 10)
   {
-    i++;
+    readSafetyStatusFromHardware();
+    status_counter = 0;
   }
-  else
+  else if (status_counter == 5)
   {
-    readStatusFromHardware();
-    i = 0;
+    readSystemStatusFromHardware();
   }
 
   return hardware_interface::return_type::OK;

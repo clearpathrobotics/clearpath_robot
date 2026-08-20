@@ -63,7 +63,8 @@ private:
   void writeCommandsToHardware();
   void limitDifferentialSpeed(double &diff_speed_left, double &diff_speed_right);
   void updateJointsFromHardware();
-  void readStatusFromHardware();
+  void readSafetyStatusFromHardware();
+  void readSystemStatusFromHardware();
   uint8_t isLeft(const std::string &str);
 
   // ROS Parameters
