@@ -1,0 +1,9 @@
+# Default parameters for the Hesai lidar bring-up.
+#
+# The upstream hesai_ros_driver_node only consumes a single ROS parameter,
+# `config_path`, which points at a YAML file the driver parses itself
+# (network, model, topic names, transforms, etc). Override this file to
+# point at a custom driver YAML if the shipped one is not appropriate.
+hesai_driver:
+  ros__parameters:
+    config_path: ./hesai_config.yaml
