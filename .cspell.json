@@ -11,7 +11,8 @@
     "**/meshes/**",
     "**/*.dae",
     "**/*.stl",
-    "**/*.STL"
+    "**/*.STL",
+    "**/config/hesai_config.yaml"
   ],
   "import": [
     "@cspell/dict-en-ca/cspell-ext.json"
