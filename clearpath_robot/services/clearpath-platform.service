@@ -8,6 +8,7 @@ Wants=clearpath-vcan.service
 User=administrator
 Type=simple
 ExecStart=/usr/sbin/clearpath-platform-start
+TimeoutStopSec=2
 
 [Install]
 WantedBy=clearpath-robot.service
