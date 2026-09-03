@@ -416,6 +416,7 @@ hardware_interface::CallbackReturn A200Hardware::on_activate(const rclcpp_lifecy
   RCLCPP_INFO(rclcpp::get_logger(HW_NAME), "Starting ...please wait...");
 
   // set some default values
+  bool first_activation = false;
   for (auto i = 0u; i < hw_states_position_.size(); i++)
   {
     if (std::isnan(hw_states_position_[i]))
@@ -424,7 +425,15 @@ hardware_interface::CallbackReturn A200Hardware::on_activate(const rclcpp_lifecy
       hw_states_position_offset_[i] = 0;
       hw_states_velocity_[i] = 0;
       hw_commands_[i] = 0;
+      first_activation = true;
     }
+  }
+
+  // hw_states_position_offset_ was just zeroed above, so re-calibrate it against the
+  // current encoder travel.
+  if (first_activation)
+  {
+    resetTravelOffset();
   }
 
   RCLCPP_INFO(rclcpp::get_logger(HW_NAME), "System Successfully started!");
