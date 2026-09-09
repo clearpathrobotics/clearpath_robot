@@ -2,8 +2,8 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.3.10 (2026-09-09)
+-------------------
 * Added the vcan service as a wants to ensure it is running prior to the platform service. (`#336 <https://github.com/clearpathrobotics/clearpath_robot/issues/336>`_) (`#344 <https://github.com/clearpathrobotics/clearpath_robot/issues/344>`_)
   (cherry picked from commit f93d89c2fa5cfc2d5936c11a4d03799632b34c14)
   Co-authored-by: Tony Baltovski <tbaltovski@clearpathrobotics.com>

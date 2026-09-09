@@ -8,8 +8,8 @@ Changelog for package clearpath_platform
 0.3.3 (2024-10-04)
 ------------------
 
-Forthcoming
------------
+1.3.10 (2026-09-09)
+-------------------
 * Fix: Re-calibrate A200 wheel travel offset on first activation to fix false startup odometry. (`#358 <https://github.com/clearpathrobotics/clearpath_robot/issues/358>`_) (`#361 <https://github.com/clearpathrobotics/clearpath_robot/issues/361>`_)
   (cherry picked from commit 81f5eed44070737b22ac5296497bce18594cf4a1)
   Co-authored-by: Tony Baltovski <tbaltovski@clearpathrobotics.com>
