@@ -2,8 +2,8 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.9.7 (2026-09-09)
+------------------
 * Feature: Add Support for Hesai Lidar (`#355 <https://github.com/clearpathrobotics/clearpath_robot/issues/355>`_)
   RPSW-2837
   Added hesai_lidar.yaml that points to the hesai_config.yaml

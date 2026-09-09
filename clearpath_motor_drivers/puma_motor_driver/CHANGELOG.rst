@@ -5,8 +5,8 @@ Changelog for package puma_motor_driver
 1.1.0 (2025-01-15)
 ------------------
 
-Forthcoming
------------
+2.9.7 (2026-09-09)
+------------------
 * Added Github PR templates, precommit and contributing notes.  Also, u… (`#343 <https://github.com/clearpathrobotics/clearpath_robot/issues/343>`_)
   * Added Github PR templates, precommit and contributing notes.  Also, updated CI, updated issue templates and README.
   * Added dependabot and fixed mergify.
