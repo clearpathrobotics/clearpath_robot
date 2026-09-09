@@ -2,6 +2,14 @@
 Changelog for package clearpath_tests
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Added Github PR templates, precommit and contributing notes.  Also, u… (`#343 <https://github.com/clearpathrobotics/clearpath_robot/issues/343>`_)
+  * Added Github PR templates, precommit and contributing notes.  Also, updated CI, updated issue templates and README.
+  * Added dependabot and fixed mergify.
+  * Fixed precommit.
+* Contributors: Tony Baltovski
+
 2.9.6 (2026-08-13)
 ------------------
 

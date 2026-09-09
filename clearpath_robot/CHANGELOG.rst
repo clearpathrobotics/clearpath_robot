@@ -2,6 +2,14 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Added Github PR templates, precommit and contributing notes.  Also, u… (`#343 <https://github.com/clearpathrobotics/clearpath_robot/issues/343>`_)
+  * Added Github PR templates, precommit and contributing notes.  Also, updated CI, updated issue templates and README.
+  * Added dependabot and fixed mergify.
+  * Fixed precommit.
+* Contributors: Tony Baltovski
+
 2.9.6 (2026-08-13)
 ------------------
 * Added the vcan service as a wants to ensure it is running prior to the platform service. (`#336 <https://github.com/clearpathrobotics/clearpath_robot/issues/336>`_)

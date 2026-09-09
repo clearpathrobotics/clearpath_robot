@@ -2,6 +2,22 @@
 Changelog for package clearpath_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Feature: Add Support for Hesai Lidar (`#355 <https://github.com/clearpathrobotics/clearpath_robot/issues/355>`_)
+  RPSW-2837
+  Added hesai_lidar.yaml that points to the hesai_config.yaml
+  taken from the HesaiLidar_ROS_2.0 repo.
+  Added hesai_lidar.launch.py.
+  Building and installing the HesaiLidar_ROS_2.0 repo from
+  source code is a dependency for these changes.
+  Co-authored-by: Mark Ibrahim <mibrahim@clearpathrobotics.com>
+* Added Github PR templates, precommit and contributing notes.  Also, u… (`#343 <https://github.com/clearpathrobotics/clearpath_robot/issues/343>`_)
+  * Added Github PR templates, precommit and contributing notes.  Also, updated CI, updated issue templates and README.
+  * Added dependabot and fixed mergify.
+  * Fixed precommit.
+* Contributors: Tony Baltovski, mibrahim-cpr
+
 2.9.6 (2026-08-13)
 ------------------
 
