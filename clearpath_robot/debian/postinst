@@ -23,7 +23,30 @@ fi
 if [ -f /lib/systemd/system/clearpath-robot.service ];
 then
     echo "Detected previous installation of clearpath-robot.service. Updating services..."
+
+    # Snapshot services the user had disabled (unit file present but no .wants
+    # symlink) so the reinstall below does not silently re-enable them.
+    disabled_services=()
+    for unit in /lib/systemd/system/clearpath-*.service;
+    do
+        [ -e "$unit" ] || continue
+        name=$(basename "$unit")
+        if [ ! -e "/etc/systemd/system/clearpath-robot.service.wants/$name" ] \
+           && [ ! -e "/etc/systemd/system/multi-user.target.wants/$name" ];
+        then
+            disabled_services+=("$name")
+        fi
+    done
+
     ros2 run clearpath_robot install
+
+    # Restore the disabled state that install just overwrote.
+    for name in "${disabled_services[@]}";
+    do
+        echo "Preserving disabled state for $name"
+        rm -f "/etc/systemd/system/clearpath-robot.service.wants/$name"
+        rm -f "/etc/systemd/system/multi-user.target.wants/$name"
+    done
 
 
     # Fix the user in all clearpath-*-start and clearpath-*-stop scripts
