@@ -2,6 +2,12 @@
 Changelog for package clearpath_generator_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Feature: Franka V2 (`#365 <https://github.com/clearpathrobotics/clearpath_robot/issues/365>`_)
+  Update generator with new Franka gripper parameters
+* Contributors: luis-camero
+
 2.9.7 (2026-09-09)
 ------------------
 

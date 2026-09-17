@@ -2,6 +2,12 @@
 Changelog for package clearpath_robot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix: Debian postinst (`#363 <https://github.com/clearpathrobotics/clearpath_robot/issues/363>`_)
+  Capture and restore state of pre-existing clearpath\_ prefixed services
+* Contributors: luis-camero
+
 2.9.7 (2026-09-09)
 ------------------
 * Added Github PR templates, precommit and contributing notes.  Also, u… (`#343 <https://github.com/clearpathrobotics/clearpath_robot/issues/343>`_)
