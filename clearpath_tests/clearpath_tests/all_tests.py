@@ -36,6 +36,7 @@ The output file is in markdown format. Markdown files are human-readable, but
 you can also install markdown renderers for Chrome, Firefox, VSCode, and other
 browsers & editors.
 """
+
 from datetime import datetime
 import os
 import subprocess
@@ -55,19 +56,21 @@ from clearpath_tests import (
     mcu_test,
     rotation_test,
     wifi_test,
+    zero_speed_command_hold_test,
 )
 from clearpath_tests.test_node import (
     ClearpathTestNode,
     ClearpathTestResult,
 )
-
 import rclpy
 from rclpy.node import Node
 
 
 class TestingNode(Node):
+    """Top-level node that dispatches per-platform test suites and writes the report."""
 
     def __init__(self, node_name='clearpath_production_test_node'):
+        """Load robot.yaml, build the platform-specific test list, and set up report paths."""
         super().__init__(node_name)
 
         self.setup_path = self.get_parameter_or('setup_path', '/etc/clearpath')
@@ -88,18 +91,32 @@ class TestingNode(Node):
                 default_speed_x=0.1,
                 direction='Forwards',
             ),
+            # Regression guard: after commanding non-zero cmd_vel, stopping,
+            # and then commanding zero, the robot must not move. Catches
+            # rate-limiter history / reference-timeout regressions in the
+            # platform velocity controller (mecanum_drive_controller,
+            # diff_drive_controller, ...) or the twist_mux/reference pipeline.
+            zero_speed_command_hold_test.ZeroSpeedCommandHoldTestNode(
+                setup_path=self.setup_path
+            ),
         ]
 
         # Add any platform-specific tests here
         self.tests_for_platform = []
         if self.platform == Platform.A200:
-            self.tests_for_platform.append(estop_test.EstopTestNode('Rear', self.setup_path))
+            self.tests_for_platform.append(
+                estop_test.EstopTestNode('Rear', self.setup_path)
+            )
         elif self.platform == Platform.A300:
             self.tests_for_platform.append(fan_test.FanTestNode(4, self.setup_path))
             self.tests_for_platform.append(light_test.LightTestNode(4, self.setup_path))
 
-            self.tests_for_platform.append(estop_test.EstopTestNode('Front', self.setup_path))
-            self.tests_for_platform.append(estop_test.EstopTestNode('Rear', self.setup_path))
+            self.tests_for_platform.append(
+                estop_test.EstopTestNode('Front', self.setup_path)
+            )
+            self.tests_for_platform.append(
+                estop_test.EstopTestNode('Rear', self.setup_path)
+            )
             self.tests_for_platform.append(
                 # rear access hatch should also act as an e-stop
                 estop_test.EstopTestNode('Access Panel', self.setup_path)
@@ -113,69 +130,88 @@ class TestingNode(Node):
 
             # vcan0 has the 4 motor drivers
             # check for status messages, which are length 5 and more numerous
-            self.tests_for_platform.append(canbus_test.CanbusTestNode('vcan0', 4, 5, self.setup_path))  # noqa: E501
+            self.tests_for_platform.append(
+                canbus_test.CanbusTestNode('vcan0', 4, 5, self.setup_path)
+            )  # noqa: E501
 
             # vcan1 has batteries, optional e-stop, optional wireless charger
             # so just allow anything here
-            self.tests_for_platform.append(canbus_test.CanbusTestNode('vcan1', 0, 0, self.setup_path))  # noqa: E501
+            self.tests_for_platform.append(
+                canbus_test.CanbusTestNode('vcan1', 0, 0, self.setup_path)
+            )  # noqa: E501
 
             # Dynamic IMU tests
-            self.driving_tests.insert(0, rotation_test.RotationTestNode(
-                setup_path=self.setup_path
-            ))
-            self.driving_tests.insert(0, linear_acceleration_test.LinearAccelerationTestNode(
-                setup_path=self.setup_path
-            ))
-        elif (
-            self.platform == Platform.DD100 or
-            self.platform == Platform.DD150
-        ):
+            self.driving_tests.insert(
+                0, rotation_test.RotationTestNode(setup_path=self.setup_path)
+            )
+            self.driving_tests.insert(
+                0,
+                linear_acceleration_test.LinearAccelerationTestNode(
+                    setup_path=self.setup_path
+                ),
+            )
+        elif self.platform == Platform.DD100 or self.platform == Platform.DD150:
             self.tests_for_platform.append(light_test.LightTestNode(4, self.setup_path))
 
             # Dingo doesn't use CANopen, so the ID counter won't work correctly
-            self.tests_for_platform.append(canbus_test.CanbusTestNode('vcan0', 0, 4, self.setup_path))  # noqa: E501
+            self.tests_for_platform.append(
+                canbus_test.CanbusTestNode('vcan0', 0, 4, self.setup_path)
+            )  # noqa: E501
 
-            self.tests_for_platform.append(estop_test.EstopTestNode(
-                'Rear',
-                setup_path=self.setup_path,
-                estop_type='Motor Cutoff',
-            ))
+            self.tests_for_platform.append(
+                estop_test.EstopTestNode(
+                    'Rear',
+                    setup_path=self.setup_path,
+                    estop_type='Motor Cutoff',
+                )
+            )
 
             # Dingo has an integral IMU
-            self.tests_for_platform.append(imu_test.ImuTestNode(setup_path=self.setup_path))
+            self.tests_for_platform.append(
+                imu_test.ImuTestNode(setup_path=self.setup_path)
+            )
 
             # Dynamic IMU tests
-            self.driving_tests.insert(0, rotation_test.RotationTestNode(
-                setup_path=self.setup_path
-            ))
-            self.driving_tests.insert(0, linear_acceleration_test.LinearAccelerationTestNode(
-                setup_path=self.setup_path
-            ))
-        elif (
-            self.platform == Platform.DO100 or
-            self.platform == Platform.DO150
-        ):
+            self.driving_tests.insert(
+                0, rotation_test.RotationTestNode(setup_path=self.setup_path)
+            )
+            self.driving_tests.insert(
+                0,
+                linear_acceleration_test.LinearAccelerationTestNode(
+                    setup_path=self.setup_path
+                ),
+            )
+        elif self.platform == Platform.DO100 or self.platform == Platform.DO150:
             self.tests_for_platform.append(light_test.LightTestNode(4, self.setup_path))
 
             # Dingo doesn't use CANopen, so the ID counter won't work correctly
-            self.tests_for_platform.append(canbus_test.CanbusTestNode('vcan0', 0, 4, self.setup_path))  # noqa: E501
+            self.tests_for_platform.append(
+                canbus_test.CanbusTestNode('vcan0', 0, 4, self.setup_path)
+            )  # noqa: E501
 
-            self.tests_for_platform.append(estop_test.EstopTestNode(
-                'Rear',
-                setup_path=self.setup_path,
-                estop_type='Motor Cutoff',
-            ))
+            self.tests_for_platform.append(
+                estop_test.EstopTestNode(
+                    'Rear',
+                    setup_path=self.setup_path,
+                    estop_type='Motor Cutoff',
+                )
+            )
 
             # Dingo has an integral IMU
-            self.tests_for_platform.append(imu_test.ImuTestNode(setup_path=self.setup_path))
+            self.tests_for_platform.append(
+                imu_test.ImuTestNode(setup_path=self.setup_path)
+            )
 
             # Dynamic IMU tests
-            self.driving_tests.insert(0, rotation_test.RotationTestNode(
-                setup_path=self.setup_path
-            ))
-            self.driving_tests.insert(0, linear_acceleration_test.LinearAccelerationTestNode(
-                setup_path=self.setup_path
-            ))
+            self.driving_tests.insert(
+                0, rotation_test.RotationTestNode(setup_path=self.setup_path)
+            )
+            self.driving_tests.insert(
+                0,
+                linear_acceleration_test.LinearAccelerationTestNode(
+                    setup_path=self.setup_path
+                ),
+            )
 
             self.driving_tests.append(
                 drive_test.DriveTestNode(
@@ -191,37 +227,55 @@ class TestingNode(Node):
         elif self.platform == Platform.J100:
             self.tests_for_platform.append(imu_test.ImuTestNode(0, self.setup_path))
 
-            self.tests_for_platform.append(estop_test.EstopTestNode(
-                'Rear',
-                setup_path=self.setup_path,
-                estop_type='Motor Cutoff',
-            ))
+            self.tests_for_platform.append(
+                estop_test.EstopTestNode(
+                    'Rear',
+                    setup_path=self.setup_path,
+                    estop_type='Motor Cutoff',
+                )
+            )
 
             # Dynamic IMU tests
-            self.driving_tests.insert(0, rotation_test.RotationTestNode(
-                setup_path=self.setup_path
-            ))
-            self.driving_tests.insert(0, linear_acceleration_test.LinearAccelerationTestNode(
-                setup_path=self.setup_path
-            ))
+            self.driving_tests.insert(
+                0, rotation_test.RotationTestNode(setup_path=self.setup_path)
+            )
+            self.driving_tests.insert(
+                0,
+                linear_acceleration_test.LinearAccelerationTestNode(
+                    setup_path=self.setup_path
+                ),
+            )
         elif self.platform == Platform.R100:
             self.tests_for_platform.append(light_test.LightTestNode(8))
 
             # Ridgeback doesn't use CANopen, so the ID counter won't work correctly
-            self.tests_for_platform.append(canbus_test.CanbusTestNode('vcan0', 0, 4, self.setup_path))  # noqa: E501
+            self.tests_for_platform.append(
+                canbus_test.CanbusTestNode('vcan0', 0, 4, self.setup_path)
+            )  # noqa: E501
 
-            self.tests_for_platform.append(estop_test.EstopTestNode('Front Left', self.setup_path))
-            self.tests_for_platform.append(estop_test.EstopTestNode('Front Right', self.setup_path))  # noqa: E501
-            self.tests_for_platform.append(estop_test.EstopTestNode('Rear Left', self.setup_path))
-            self.tests_for_platform.append(estop_test.EstopTestNode('Rear Right', self.setup_path))
+            self.tests_for_platform.append(
+                estop_test.EstopTestNode('Front Left', self.setup_path)
+            )
+            self.tests_for_platform.append(
+                estop_test.EstopTestNode('Front Right', self.setup_path)
+            )  # noqa: E501
+            self.tests_for_platform.append(
+                estop_test.EstopTestNode('Rear Left', self.setup_path)
+            )
+            self.tests_for_platform.append(
+                estop_test.EstopTestNode('Rear Right', self.setup_path)
+            )
 
             # Dynamic IMU tests
-            self.driving_tests.insert(0, rotation_test.RotationTestNode(
-                setup_path=self.setup_path
-            ))
-            self.driving_tests.insert(0, linear_acceleration_test.LinearAccelerationTestNode(
-                setup_path=self.setup_path
-            ))
+            self.driving_tests.insert(
+                0, rotation_test.RotationTestNode(setup_path=self.setup_path)
+            )
+            self.driving_tests.insert(
+                0,
+                linear_acceleration_test.LinearAccelerationTestNode(
+                    setup_path=self.setup_path
+                ),
+            )
 
             self.driving_tests.append(
                 drive_test.DriveTestNode(
@@ -234,40 +288,56 @@ class TestingNode(Node):
             )
         elif self.platform == Platform.W200:
             self.tests_for_platform.append(light_test.LightTestNode(4))
-            self.tests_for_platform.append(canbus_test.CanbusTestNode('can0', 6, 0, self.setup_path))  # noqa: E501
+            self.tests_for_platform.append(
+                canbus_test.CanbusTestNode('can0', 6, 0, self.setup_path)
+            )  # noqa: E501
 
-            self.tests_for_platform.append(estop_test.EstopTestNode('Front Left', self.setup_path))
-            self.tests_for_platform.append(estop_test.EstopTestNode('Front Right', self.setup_path))  # noqa: E501
-            self.tests_for_platform.append(estop_test.EstopTestNode('Rear Left', self.setup_path))
-            self.tests_for_platform.append(estop_test.EstopTestNode('Rear Right', self.setup_path))
-            self.tests_for_platform.append(estop_test.EstopTestNode('Wireless', self.setup_path))
+            self.tests_for_platform.append(
+                estop_test.EstopTestNode('Front Left', self.setup_path)
+            )
+            self.tests_for_platform.append(
+                estop_test.EstopTestNode('Front Right', self.setup_path)
+            )  # noqa: E501
+            self.tests_for_platform.append(
+                estop_test.EstopTestNode('Rear Left', self.setup_path)
+            )
+            self.tests_for_platform.append(
+                estop_test.EstopTestNode('Rear Right', self.setup_path)
+            )
+            self.tests_for_platform.append(
+                estop_test.EstopTestNode('Wireless', self.setup_path)
+            )
 
             # Dynamic IMU tests
-            self.driving_tests.insert(0, rotation_test.RotationTestNode(
-                setup_path=self.setup_path
-            ))
-            self.driving_tests.insert(0, linear_acceleration_test.LinearAccelerationTestNode(
-                setup_path=self.setup_path
-            ))
+            self.driving_tests.insert(
+                0, rotation_test.RotationTestNode(setup_path=self.setup_path)
+            )
+            self.driving_tests.insert(
+                0,
+                linear_acceleration_test.LinearAccelerationTestNode(
+                    setup_path=self.setup_path
+                ),
+            )
         else:
             raise NotImplementedError(f'{self.platform} tests are not implemented')
 
         if os.environ['HOME']:
             default_log_dir = os.environ['HOME']
         else:
-            self.get_logger().warning('$HOME is undefined; using /tmp as default report location')
+            self.get_logger().warning(
+                '$HOME is undefined; using /tmp as default report location'
+            )
             default_log_dir = '/tmp'
 
         timestamp = datetime.now().strftime('%Y%m%d%H%M')
         self.report_file = self.get_parameter_or(
             'report_file',
-            os.path.join(
-                default_log_dir,
-                f'clearpath_test_results.{timestamp}.md'
-            )
+            os.path.join(default_log_dir, f'clearpath_test_results.{timestamp}.md'),
         )
         output_directory = os.path.dirname(self.report_file)
-        self.bag_file = os.path.join(output_directory, f'clearpath_test_results.{timestamp}.mcap')
+        self.bag_file = os.path.join(
+            output_directory, f'clearpath_test_results.{timestamp}.mcap'
+        )
 
         self.test_results = []
 
@@ -298,7 +368,10 @@ class TestingNode(Node):
         message_column_width = len(longest_test_message)
 
         table_md = f'| {"Test".ljust(test_column_width)} | Result | {"Notes".ljust(message_column_width)} |\n'  # noqa: E501
-        table_md = table_md + f'|-{"-"*test_column_width}-|-{"-"*result_column_width}-|-{"-"*message_column_width}-|\n'  # noqa: E501
+        table_md = (
+            table_md
+            + f'|-{"-" * test_column_width}-|-{"-" * result_column_width}-|-{"-" * message_column_width}-|\n'  # noqa: E501
+        )
 
         n_passed = 0
         n_failed = 0
@@ -312,7 +385,10 @@ class TestingNode(Node):
                 pass_fail = 'fail'
                 n_failed += 1
 
-            table_md = table_md + f'| {result.name.ljust(test_column_width)} | {pass_fail.ljust(result_column_width)} | {(result.message if result.message else "").ljust(message_column_width)} |\n'   # noqa: E501
+            table_md = (
+                table_md
+                + f'| {result.name.ljust(test_column_width)} | {pass_fail.ljust(result_column_width)} | {(result.message if result.message else "").ljust(message_column_width)} |\n'  # noqa: E501
+            )
 
         with open(self.report_file, 'a') as report:
             report.write('\n## Summary\n')
@@ -424,9 +500,7 @@ Platform (serial): {self.clearpath_config.get_platform_model()} ({self.clearpath
         tests_in_order = [
             None  # placeholder for all tests
         ]
-        menu_items = [
-            'All tests'
-        ]
+        menu_items = ['All tests']
         for test in self.common_tests:
             menu_items.append(f'{test}')
             tests_in_order.append(test)
@@ -522,9 +596,11 @@ Platform (serial): {self.clearpath_config.get_platform_model()} ({self.clearpath
 
 
 def start_bag_recording(test_node: TestingNode):
+    """Spawn a `ros2 bag record` subprocess capturing the robot namespace to MCAP."""
     FOUR_GiB = 4 * 2**30
 
-    p = subprocess.Popen([
+    p = subprocess.Popen(
+        [
             'ros2',
             'bag',
             'record',
@@ -547,6 +623,7 @@ def start_bag_recording(test_node: TestingNode):
 
 
 def main(args=None):
+    """Entry point: run the production test suite and write the markdown report."""
     rclpy.init(args=args)
     test_node = TestingNode()
     bag_proc = None
