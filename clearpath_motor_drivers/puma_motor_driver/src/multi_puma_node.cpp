@@ -116,6 +116,8 @@ MultiPumaNode::MultiPumaNode(const std::string node_name)
     driver.setEncoderCPR(encoder_cpr_);
     driver.setGearRatio(gear_ratio_ * joint_directions_[i]);
     driver.setMode(desired_mode_, gain_p_, gain_i_, gain_d_);
+    driver.setExpectedFeedbackRate(freq_);
+    driver.initStatusDiagnostic();
     i++;
   }
 
@@ -234,6 +236,10 @@ void MultiPumaNode::driverDiagnostic(DiagnosticStatusWrapper & stat, int i)
   stat.summary(DiagnosticStatusWrapper::OK, "OK");
 
   drivers_[i].runFreqStatus(stat);
+
+  if (!drivers_[i].isConfigured()) {
+    return;
+  }
 
   // basic stats
   stat.add("CAN ID", (int)status_msg_.drivers[i].device_number);
