@@ -7,6 +7,7 @@ After=clearpath-robot.service
 User=administrator
 Type=simple
 ExecStart=/usr/sbin/clearpath-manipulators-start
+TimeoutStopSec=2
 
 [Install]
 WantedBy=clearpath-robot.service

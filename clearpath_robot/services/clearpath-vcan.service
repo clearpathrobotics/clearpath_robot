@@ -8,6 +8,7 @@ Restart=on-failure
 User=root
 Type=forking
 ExecStart=/bin/bash -e /etc/clearpath/vcan-start
+TimeoutStopSec=2
 
 [Install]
 WantedBy=clearpath-robot.service
