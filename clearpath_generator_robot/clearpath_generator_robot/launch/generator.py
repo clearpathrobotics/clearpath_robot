@@ -341,6 +341,27 @@ class RobotLaunchGenerator(LaunchGenerator):
 
         platform_service_launch_writer.generate_file()
 
+<<<<<<< HEAD
+=======
+        os.makedirs(os.path.dirname(self.platform_extras_launch_path), exist_ok=True)
+        platform_extras_service_launch_writer = LaunchWriter(
+            self.platform_extras_service_launch_file)
+        platform_extras_service_launch_writer.add(self.platform_extras_launch_file)
+
+        for launch in self.clearpath_config.platform.extras.launch:
+            extra_launch = LaunchFile(
+                name=(os.path.basename(launch.path)).split('.')[0],
+                path=os.path.dirname(launch.path),
+                package=Package(launch.package),
+                args=[
+                    (key, launch.args[key]) for key in launch.args
+                ]
+            )
+            platform_extras_service_launch_writer.add(extra_launch)
+
+        platform_extras_service_launch_writer.generate_file()
+
+>>>>>>> fa9d0ca (Feature: Generator Sample Tests (#315))
     def generate_manipulators(self) -> None:
         manipulator_service_launch_writer = LaunchWriter(self.manipulators_service_launch_file)
         for arm in self.clearpath_config.manipulators.get_all_arms():

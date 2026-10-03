@@ -14,4 +14,12 @@ repositories:
   clearpath_ros2_socketcan_interface:
     type: git
     url: https://github.com/clearpathrobotics/clearpath_ros2_socketcan_interface.git
+<<<<<<< HEAD
     version: humble
+=======
+    version: jazzy
+  clearpath_generator_tests:
+    type: git
+    url: https://github.com/clearpathrobotics/clearpath_generator_tests.git
+    version: jazzy
+>>>>>>> fa9d0ca (Feature: Generator Sample Tests (#315))
