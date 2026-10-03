@@ -1,0 +1,10 @@
+ptu_driver:
+  ros__parameters:
+    connection_type: tcp
+    ip_addr: 192.168.131.70
+    tcp_port: 4000
+    port: /dev/ptu
+    limits_enabled: false
+    hz: 10
+    default_velocity: 0.0
+    joint_name_prefix: "ptu_"
