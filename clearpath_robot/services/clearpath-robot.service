@@ -1,6 +1,8 @@
 [Unit]
 Description="Clearpath robot main generation and bringup service"
 After=network-online.target
+Wants=systemd-time-wait-sync.service
+After=systemd-time-wait-sync.service
 
 [Service]
 User=robot
