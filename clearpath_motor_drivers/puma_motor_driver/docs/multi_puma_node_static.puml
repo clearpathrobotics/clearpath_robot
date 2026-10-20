@@ -1,0 +1,141 @@
+@startuml multi_puma_node_static
+title multi_puma_node - Static view
+allowmixing
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "rclcpp" {
+  class Node
+  class MultiThreadedExecutor
+}
+
+package "diagnostic_updater" {
+  class Updater
+  class FrequencyStatus
+  class DiagnosticStatusWrapper
+}
+
+package "can_hardware" {
+  class SocketCanDriver {
+    +sendFrame(frame)
+    +registerFrameCallback(cb)
+  }
+  class Frame
+}
+
+package "puma_motor_driver" {
+  class MultiPumaNode {
+    -drivers_ : vector<Driver>
+    -interface_ : shared_ptr<SocketCanDriver>
+    -active_ : bool
+    -freq_ : int
+    -poll_index_ : size_t
+    -desired_mode_ : uint8_t
+    -canbus_dev_, gear_ratio_, encoder_cpr_
+    -gain_p_, gain_i_, gain_d_
+    -joint_names_, joint_can_ids_, joint_directions_
+    -recv_msg_queue_ : queue<Frame>
+    -recv_msg_mutex_ : mutex
+    -status_msg_ : PumaMultiStatus
+    -feedback_msg_ : PumaMultiFeedback
+    -run_timer_ : TimerBase
+    -poll_timer_ : TimerBase
+    -cmd_sub_, feedback_pub_, status_pub_
+    -updater_ : Updater
+    --
+    +MultiPumaNode(node_name)
+    +cmdCallback(JointState)
+    +frameCallback(Frame)
+    +poll()
+    +run()
+    +getFeedback() : bool
+    +getStatus() : bool
+    +publishFeedback()
+    +publishStatus()
+    +areAllActive() : bool
+    +driverDiagnostic(stat, i)
+  }
+
+  class Driver {
+    -interface_ : shared_ptr<SocketCanDriver>
+    -device_number_ : uint8_t
+    -device_name_ : string
+    -configured_ : bool
+    -state_ : ConfigurationState
+    -control_mode_, gain_p_, gain_i_, gain_d_
+    -encoder_cpr_, gear_ratio_
+    -voltage/spd/vcomp/pos/ictrl/status/cfg fields : Field[]
+    -can_feedback_freq_diagnostic_ : FrequencyStatus
+    -can_status_freq_diagnostic_ : FrequencyStatus
+    --
+    +processMessage(Frame)
+    +configureParams()
+    +verifyParams()
+    +isConfigured() : bool
+    +resetConfiguration()
+    +requestStatusMessages()
+    +requestFeedbackSetpoint()
+    +commandSpeed(cmd)
+    +commandDutyCycle(cmd)
+    +setMode(mode, p, i, d)
+    +setExpectedFeedbackRate(rate)
+    +initStatusDiagnostic()
+    +received*() : bool
+    +last*() : value
+    +runFreqStatus(stat)
+  }
+
+  class "Driver::Field" as Field {
+    +data[4] : uint8_t
+    +received : bool
+    +interpretFixed8x8() : float
+    +interpretFixed16x16() : double
+  }
+
+  enum ConfigurationState {
+    Unknown
+    Initializing
+    PowerFlag
+    EncoderPosRef
+    EncoderSpdRef
+    EncoderCounts
+    ClosedLoop
+    ControlMode
+    PGain
+    IGain
+    DGain
+    VerifiedParameters
+    Configured
+  }
+}
+
+package "clearpath_motor_msgs / sensor_msgs" {
+  class JointState <<msg>>
+  class PumaMultiFeedback <<msg>>
+  class PumaMultiStatus <<msg>>
+}
+
+Node <|-- MultiPumaNode
+MultiThreadedExecutor o-- MultiPumaNode : spins
+MultiPumaNode "1" *-- "N" Driver : drivers_
+MultiPumaNode "1" *-- "1" Updater : updater_
+MultiPumaNode --> SocketCanDriver : owns (shared)
+Driver --> SocketCanDriver : sends frames (shared)
+SocketCanDriver ..> MultiPumaNode : frameCallback(Frame)
+Driver "1" *-- "many" Field
+Driver --> ConfigurationState : state_
+Driver "1" *-- "2" FrequencyStatus
+Updater ..> MultiPumaNode : driverDiagnostic()
+MultiPumaNode ..> DiagnosticStatusWrapper
+MultiPumaNode ..> JointState : subscribes\nplatform/motors/cmd
+MultiPumaNode ..> PumaMultiFeedback : publishes\nplatform/motors/feedback
+MultiPumaNode ..> PumaMultiStatus : publishes\nplatform/motors/status
+
+node "External" {
+  component "puma ros2_control\nhardware interface" as hwi
+  component "vcan0 <-> MCU bridge\n<-> Puma CAN bus" as bus
+}
+hwi ..> JointState : publishes
+hwi ..> PumaMultiFeedback : subscribes
+SocketCanDriver -- bus
+@enduml

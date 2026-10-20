@@ -30,7 +30,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include <math.h>
 #include "rclcpp/rclcpp.hpp"
 
-constexpr double EXPECTED_CAN_STATUS_RATE = 1.0;
+// Puma firmware publishes LM_API_STATUS_FAULT unsolicited at 2 Hz
+constexpr double EXPECTED_CAN_STATUS_RATE = 2.0;
 
 namespace puma_motor_driver
 {
@@ -1090,7 +1091,7 @@ void Driver::runFreqStatus(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   stat.add("Configured", configured_);
   stat.add("Configuration State", configurationStateName(state_));
-  stat.add("Mode", lastMode());
+  stat.add("Mode", static_cast<unsigned int>(lastMode()));
 
   if (!configured_)
   {
@@ -1099,13 +1100,24 @@ void Driver::runFreqStatus(diagnostic_updater::DiagnosticStatusWrapper & stat)
     return;
   }
 
-  if (can_feedback_freq_diagnostic_) {
-    can_feedback_freq_diagnostic_->run(stat);
-  }
-
-  if (can_status_freq_diagnostic_) {
-    can_status_freq_diagnostic_->run(stat);
-  }
+  // FrequencyStatus::run() overwrites the summary, so run each into its own wrapper and merge.
+  auto merge_freq = [&stat](
+    const std::shared_ptr<diagnostic_updater::FrequencyStatus> & diag, const std::string & label)
+    {
+      if (!diag) {
+        return;
+      }
+      diagnostic_updater::DiagnosticStatusWrapper sub;
+      diag->run(sub);
+      if (sub.level != diagnostic_updater::DiagnosticStatusWrapper::OK) {
+        stat.mergeSummary(sub.level, label + ": " + sub.message);
+      }
+      for (const auto & kv : sub.values) {
+        stat.add(label + " " + kv.key, kv.value);
+      }
+    };
+  merge_freq(can_feedback_freq_diagnostic_, "CAN feedback");
+  merge_freq(can_status_freq_diagnostic_, "CAN status");
 
   stat.add("Duty cycle", lastDutyCycle());
   stat.add("Current (A)", lastCurrent());

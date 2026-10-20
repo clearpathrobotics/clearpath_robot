@@ -21,6 +21,7 @@ OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTE
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+#include <chrono>
 #include <string>
 
 #include "puma_motor_driver/multi_puma_node.hpp"
@@ -123,6 +124,14 @@ MultiPumaNode::MultiPumaNode(const std::string node_name)
 
   run_timer_ = this->create_wall_timer(
     std::chrono::milliseconds(1000 / freq_), std::bind(&MultiPumaNode::run, this));
+
+  // Create poll timer with with period of 1/(freq_ * N) where N is the number of drivers
+  // and use the MultiPumaNode::poll() as the callback.
+  if (!drivers_.empty()) {
+    poll_timer_ = this->create_wall_timer(
+      std::chrono::microseconds(1000000 / (freq_ * drivers_.size())),
+      std::bind(&MultiPumaNode::poll, this));
+  }
 
   // Setup diagnostics
   updater_.setHardwareID("Puma");
@@ -296,6 +305,20 @@ void MultiPumaNode::frameCallback(const can_hardware::Frame & frame)
   recv_msg_queue_.push(frame);
 }
 
+void MultiPumaNode::poll()
+{
+  // Spread the request frames out: round-robin one driver per call. Requests sent back to back
+  // can lose arbitration to the Pumas' streaming traffic and, on MCU firmware without CAN
+  // auto-retransmission, are then dropped.
+  if (!active_) {
+    return;
+  }
+  auto & driver = drivers_[poll_index_];
+  driver.requestStatusMessages();
+  driver.requestFeedbackSetpoint();
+  poll_index_ = (poll_index_ + 1) % drivers_.size();
+}
+
 void MultiPumaNode::run()
 {
   if (active_) {
@@ -310,11 +333,6 @@ void MultiPumaNode::run()
           driver.resetConfiguration();
         }
       }
-    }
-    // Queue data requests for the drivers in order to assemble an amalgamated status message.
-    for (auto & driver : drivers_) {
-      driver.requestStatusMessages();
-      driver.requestFeedbackSetpoint();
     }
   } else {
     // Set parameters for each driver.

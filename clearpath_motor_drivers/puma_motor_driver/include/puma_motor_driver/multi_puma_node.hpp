@@ -127,6 +127,11 @@ public:
   void frameCallback(const can_hardware::Frame & frame);
 
   /**
+   * Requests status and setpoint from the next driver in round-robin order.
+  */
+  void poll();
+
+  /**
    * Main control loop that checks and maintains the socket gateway, resets
    * and reconfigures drivers that have disconnected, verifies parameters
    * are set appropriately, receives motor data, and publishes the feedback
@@ -147,6 +152,7 @@ private:
   int encoder_cpr_;
   int freq_;
   uint8_t status_count_;
+  size_t poll_index_{0};
   uint8_t desired_mode_;
   std::string canbus_dev_;
   std::vector<std::string> joint_names_;
@@ -168,6 +174,7 @@ private:
   rclcpp::Publisher<clearpath_motor_msgs::msg::PumaMultiFeedback>::SharedPtr feedback_pub_;
   rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr cmd_sub_;
   rclcpp::TimerBase::SharedPtr run_timer_;
+  rclcpp::TimerBase::SharedPtr poll_timer_;
 
   // Diagnostic Updater
   diagnostic_updater::Updater updater_;
