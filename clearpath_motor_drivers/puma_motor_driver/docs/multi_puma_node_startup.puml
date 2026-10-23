@@ -1,0 +1,49 @@
+@startuml multi_puma_node_startup
+title multi_puma_node - Startup and configuration
+participant "main()" as main
+participant "MultiThreadedExecutor" as exec
+participant MultiPumaNode as node
+participant "Driver[i]" as drv
+participant SocketCanDriver as can
+participant "Puma[i]\n(CAN bus)" as puma
+
+main -> node : make_shared("multi_puma_node")
+node -> node : declare/get parameters\nvalidate joint list lengths
+node -> node : create cmd_sub_, feedback_pub_, status_pub_
+node -> can : SocketCanDriver(canbus_dev)\nregisterFrameCallback(frameCallback)
+loop for each joint
+  node -> drv : Driver(can, node, can_id, joint_name)
+  node -> drv : clearMsgCache, setEncoderCPR, setGearRatio,\nsetMode(mode, p, i, d)
+  node -> drv : setExpectedFeedbackRate(freq)\ninitStatusDiagnostic()
+end
+node -> exec : create run_timer_ @ freq
+node -> exec : create poll_timer_ @ freq x N
+node -> node : updater_.add(driverDiagnostic) x N
+main -> exec : add_node(node)\nspin()
+
+== Configuring (active_ == false) ==
+loop every 1/freq
+  exec -> node : poll_timer_ fires: poll()
+  node -> node : active_ is false -> return (no polling yet)
+  exec -> node : run_timer_ fires: run()
+  loop for each driver
+    node -> drv : configureParams()
+    drv -> can : send next config frame for state_
+    can -> puma
+  end
+  puma --> can : config reply
+  can --> node : frameCallback(frame)\npush recv_msg_queue_
+  node -> drv : processMessage(frame) (all drivers)
+  node -> drv : verifyParams()
+  drv -> drv : advance state_ ... Configured
+  alt areAllActive()
+    node -> node : active_ = true\n"All controllers active."
+  end
+end
+
+== Active (active_ == true) ==
+note over exec, puma
+  From here on, poll() and run() follow the active path.
+  See multi_puma_node_runtime.puml.
+end note
+@enduml

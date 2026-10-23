@@ -1,0 +1,37 @@
+@startuml multi_puma_node_diagnostics
+title multi_puma_node - Diagnostics (1 Hz)
+participant "MultiThreadedExecutor" as exec
+participant Updater as upd
+participant MultiPumaNode as node
+participant "Driver[i]" as drv
+participant "FrequencyStatus\n(feedback / status)" as fs
+
+exec -> upd : updater timer fires (1 Hz)
+loop for each driver i
+  upd -> node : driverDiagnostic(stat, i)
+  node -> node : stat.summary(OK, "OK")
+  node -> drv : runFreqStatus(stat)
+  drv -> drv : add Configured, Configuration State, Mode
+  alt not configured
+    drv -> drv : mergeSummary(WARN, "Driver not yet configured.")
+    drv --> node : return
+    node --> upd : return
+  else configured
+    loop feedback, status
+      drv -> fs : run(sub)
+      alt sub.level != OK
+        drv -> drv : mergeSummary(sub.level, "<label>: " + msg)
+      end
+      drv -> drv : add "<label> <key>" values
+    end
+    drv -> drv : add duty cycle, current, speed, position, setpoint
+    node -> node : add CAN ID, voltages, temperature, mode
+    loop each fault flag
+      alt flag set
+        node -> node : mergeSummary(WARN, fault label)
+      end
+    end
+  end
+end
+upd -> upd : publish diagnostics (hardware_id "Puma")
+@enduml

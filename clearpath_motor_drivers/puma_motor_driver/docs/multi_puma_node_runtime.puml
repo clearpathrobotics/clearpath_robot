@@ -1,0 +1,80 @@
+@startuml multi_puma_node_runtime
+title multi_puma_node - Runtime (active)
+participant "puma hardware\ninterface" as hwi
+participant "MultiThreadedExecutor" as exec
+participant MultiPumaNode as node
+participant "Driver[k]" as drv
+participant SocketCanDriver as can
+participant "Puma[k]\n(CAN bus)" as puma
+
+== Active (active_ == true) ==
+
+par poll_timer_ every 1/(freq x N)
+  exec -> node : poll()
+  node -> node : active_ is true -> continue
+  node -> drv : drivers_[poll_index_]\nrequestStatusMessages()
+  drv -> can : STATUS_POWER request
+  can -> puma : CAN frame (no data)
+  node -> drv : requestFeedbackSetpoint()
+  drv -> can : setpoint request (SPD_SET in speed mode)
+  can -> puma : CAN frame (no data)
+  node -> node : poll_index_ = (poll_index_ + 1) % N
+else Puma sends frames (SocketCanDriver callback, outside the executor)
+  puma --> can : unsolicited: VOLTOUT/CURRENT/POS/SPD (~25 Hz)\nFAULT/TEMP/CMODE/VOUT (2 Hz)
+  puma --> can : replies to polled requests
+  can --> node : frameCallback(frame)\n[lock] recv_msg_queue_.push
+else message on platform/motors/cmd
+  hwi -> exec : JointState
+  exec -> node : cmdCallback(JointState)
+  node -> node : active_ is true -> continue
+  alt speed mode (default)
+    node -> drv : commandSpeed(velocity) (matching name)
+    drv -> can : SPD_SET frame
+  else voltage mode
+    node -> drv : commandDutyCycle(velocity)
+    drv -> can : VOLT_SET frame
+  end
+  can -> puma
+end
+
+== run_timer_ every 1/freq ==
+exec -> node : run()
+loop for each driver
+  node -> drv : lastPower()
+  alt lastPower() != 0 (Puma was reset)
+    node -> node : active_ = false
+    node -> drv : resetConfiguration() (all drivers)
+  end
+end
+loop while recv_msg_queue_ not empty
+  node -> node : [lock] pop frame
+  node -> drv : processMessage(frame) (every driver)
+  alt frame is for this device and has data
+    drv -> drv : store field, mark received
+    opt configured and SPD-class (setpoint reply)
+      drv -> drv : tick CAN feedback FrequencyStatus
+    end
+    opt configured and STATUS_FAULT
+      drv -> drv : tick CAN status FrequencyStatus
+    end
+  else other device or request frame
+    drv -> drv : ignore
+  end
+end
+alt active_ == true
+  node -> node : getFeedback()
+  opt each feedback field received (by at least one driver)
+    node --> hwi : publish platform/motors/feedback\n(PumaMultiFeedback)
+  end
+  node -> node : getStatus()
+  opt all status fields received for every driver
+    node ->] : publish platform/motors/status\n(PumaMultiStatus)
+  end
+else active_ became false this cycle
+  node -> drv : verifyParams() (all drivers)
+  note right of node
+    Next cycles run the Configuring path
+    in multi_puma_node_startup.puml.
+  end note
+end
+@enduml
