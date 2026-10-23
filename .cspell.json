@@ -43,6 +43,7 @@
     "additon",
     "agressive",
     "ahrs",
+    "allowmixing",
     "Ambrosio",
     "Autec",
     "avaiable",
@@ -119,6 +120,7 @@
     "elif",
     "Emty",
     "enaled",
+    "enduml",
     "erros",
     "esac",
     "ESSID",
@@ -339,6 +341,7 @@
     "SRDF",
     "srvs",
     "ssids",
+    "startuml",
     "stddev",
     "stdev",
     "Stellaris",
@@ -399,6 +402,13 @@
     "YOLOLIKE",
     "Zenoh",
     "zenoh",
-    "zerolatency"
+    "zerolatency",
+    "skinparam",
+    "CMODE",
+    "VOUT",
+    "vcomp",
+    "DTYPE",
+    "DEVNO",
+    "MCU"
   ]
 }
