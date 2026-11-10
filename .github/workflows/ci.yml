@@ -30,6 +30,7 @@ jobs:
             clearpath_generator_robot
             clearpath_robot
             clearpath_sensors
+            clearpath_tests
   clearpath_robot_src_ci:
     name: Jazzy Clearpath Source
     runs-on: ubuntu-latest
@@ -53,6 +54,7 @@ jobs:
             clearpath_generator_robot
             clearpath_robot
             clearpath_sensors
+            clearpath_tests
           vcs-repo-file-url: dependencies.repos
   clearpath_robot_src_head_ci:
     name: Jazzy Clearpath Source with Head Branch
@@ -101,6 +103,7 @@ jobs:
             clearpath_generator_robot
             clearpath_robot
             clearpath_sensors
+            clearpath_tests
           vcs-repo-file-url: updated_dependencies.repos
   clearpath_robot_src_base_ci:
     if: github.event_name == 'pull_request'
@@ -146,6 +149,7 @@ jobs:
             clearpath_generator_robot
             clearpath_robot
             clearpath_sensors
+            clearpath_tests
           vcs-repo-file-url: updated_dependencies.repos
   clearpath_generator_tests_ci:
     name: Jazzy Clearpath Source with Head Branch Generator Tests
@@ -201,5 +205,6 @@ jobs:
             clearpath_generator_robot
             clearpath_robot
             clearpath_sensors
+            clearpath_tests
             clearpath_generator_robot_tests
           vcs-repo-file-url: updated_dependencies.repos
