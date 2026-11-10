@@ -121,7 +121,9 @@ void Driver::processMessage(const can_hardware::Frame & received_msg)
   } else if ((received_api & CAN_MSGID_API_M & CAN_API_MC_STATUS) == CAN_API_MC_STATUS) {
     field = statusFieldForMessage(received_api);
     // Tick the status diagnostic once per fault message
-    if (configured_ && can_status_freq_diagnostic_ && received_api == getApi(getMsg(LM_API_STATUS_FAULT))) {
+    if (configured_ && can_status_freq_diagnostic_ &&
+      received_api == getApi(getMsg(LM_API_STATUS_FAULT)))
+    {
       can_status_freq_diagnostic_->tick();
     }
   } else if ((received_api & CAN_MSGID_API_M & CAN_API_MC_ICTRL) == CAN_API_MC_ICTRL) {
@@ -1093,8 +1095,7 @@ void Driver::runFreqStatus(diagnostic_updater::DiagnosticStatusWrapper & stat)
   stat.add("Configuration State", configurationStateName(state_));
   stat.add("Mode", static_cast<unsigned int>(lastMode()));
 
-  if (!configured_)
-  {
+  if (!configured_) {
     stat.mergeSummary(
       diagnostic_updater::DiagnosticStatusWrapper::WARN, "Driver not yet configured.");
     return;
