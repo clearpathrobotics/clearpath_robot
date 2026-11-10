@@ -41,6 +41,7 @@ file is the caller's decision.
 import os
 import re
 
+from clearpath_config.common.types.platform import Platform
 from clearpath_config.common.utils.dictionary import flatten_dict
 from clearpath_config.platform.battery import BatteryConfig
 from clearpath_config.platform.wireless import PeplinkRouter
@@ -81,8 +82,8 @@ def make_configure_mcu(namespace: str, clearpath_config) -> LaunchFile.Process:
             [LaunchFile.Variable("FindExecutable(name='ros2')"),
              ' service call platform/mcu/configure',
              ' clearpath_platform_msgs/srv/ConfigureMcu',
-             ' \"{{domain_id: {0},'.format(clearpath_config.system.domain_id),
-             ' robot_namespace: \\\'{0}\\\'}}\"'.format(namespace)]
+             ' "{{domain_id: {0},'.format(clearpath_config.system.domain_id),
+             ' robot_namespace: \\\'{0}\\\'}}"'.format(namespace)]
         ]
     )
 
@@ -96,6 +97,32 @@ def make_proton_launch(namespace: str, platform: str) -> LaunchFile:
             ('namespace', namespace),
             ('platform', platform),
         ],
+    )
+
+
+def make_firmware_info_node(namespace: str, platform_model: str) -> LaunchFile.Node:
+    """Build the node that checks firmware info advertisements against the expected Proton."""
+    return LaunchFile.Node(
+        package='clearpath_hardware_interfaces',
+        executable='firmware_info.py',
+        name='firmware_info',
+        namespace=namespace,
+        parameters=[{
+            'expected_proton_major': 1,
+            'expected_proton_minor': 0,
+            'expected_proton_patch': 1,
+            'expected_platform_id': {
+                Platform.W200: 0,
+                Platform.DD100: 1,
+                Platform.DD150: 1,
+                Platform.DO100: 1,
+                Platform.DO150: 1,
+                Platform.R100: 2,
+                Platform.A300: 3,
+                Platform.J100: 4,
+            }.get(platform_model, -1),
+            'firmware_info_timeout_sec': 3.0,
+        }],
     )
 
 

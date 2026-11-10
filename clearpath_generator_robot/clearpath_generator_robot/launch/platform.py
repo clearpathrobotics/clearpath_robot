@@ -112,6 +112,8 @@ class BasePlatformLaunch:
                 components.append(nodes.make_configure_mcu(namespace, cfg))
         elif mcu.protocol == mcu.PROTON:
             if self.PROTON_PLATFORM is not None:
+                if self.PROTON_PLATFORM != 'j100':
+                    components.append(nodes.make_firmware_info_node(namespace, self.platform_model))
                 components.append(nodes.make_proton_launch(namespace, self.PROTON_PLATFORM))
         return components
 
