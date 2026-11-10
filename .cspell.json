@@ -409,6 +409,9 @@
     "vcomp",
     "DTYPE",
     "DEVNO",
-    "MCU"
+    "MCU",
+    "CPFI",
+    "BBHI",
+    "UDP"
   ]
 }

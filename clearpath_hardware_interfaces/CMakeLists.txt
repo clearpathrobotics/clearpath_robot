@@ -290,6 +290,11 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 
+install(PROGRAMS
+  ${PROJECT_NAME}/firmware_info/firmware_info.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 ## EXPORTS
 ament_export_include_directories(
   include
