@@ -205,7 +205,7 @@ Are all these conditions met?""")
             avg_accel = sum(accel.vector.x for accel in self.accel_samples) / len(self.accel_samples)  # noqa: E501
             # min_accuracy = 0.8
             #
-            # if self.clearpath_config.platform.get_platform_model() == Platform.J100:
+            # if self.clearpath_config.platform.get_platform_model() == J100PlatformConfig.NAME:
             #     # default Jackal IMU is terrible, so allow wider margins
             #     min_accuracy = 0.6
             #

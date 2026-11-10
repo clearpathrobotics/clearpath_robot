@@ -30,7 +30,17 @@ import os
 import re
 import subprocess
 
-from clearpath_config.common.types.platform import Platform
+from clearpath_config.platform.definitions import (
+    A200PlatformConfig,
+    A300PlatformConfig,
+    DD100PlatformConfig,
+    DD150PlatformConfig,
+    DO100PlatformConfig,
+    DO150PlatformConfig,
+    J100PlatformConfig,
+    R100PlatformConfig,
+    W200PlatformConfig,
+)
 from clearpath_platform_msgs.msg import Status
 from clearpath_tests.test_node import ClearpathTestNode, ClearpathTestResult
 from clearpath_tests.timer import Timeout
@@ -74,35 +84,35 @@ class McuTestNode(ClearpathTestNode):
         if mode is None:
             self.get_logger().info(f'Getting default MCU mode for platform {self.platform}')
             if (
-                self.platform == Platform.A200 or
-                self.platform == Platform.J100
+                self.platform == A200PlatformConfig.NAME or
+                self.platform == J100PlatformConfig.NAME
             ):
                 mode = MCU_SERIAL
             elif (
-                self.platform == Platform.A300 or
-                self.platform == Platform.DD100 or
-                self.platform == Platform.DD150 or
-                self.platform == Platform.DO100 or
-                self.platform == Platform.DO150 or
-                self.platform == Platform.R100 or
-                self.platform == Platform.W200
+                self.platform == A300PlatformConfig.NAME or
+                self.platform == DD100PlatformConfig.NAME or
+                self.platform == DD150PlatformConfig.NAME or
+                self.platform == DO100PlatformConfig.NAME or
+                self.platform == DO150PlatformConfig.NAME or
+                self.platform == R100PlatformConfig.NAME or
+                self.platform == W200PlatformConfig.NAME
             ):
                 mode = MCU_IP
 
         if address is None:
             self.get_logger().info(f'Getting default MCU address for platform {self.platform}')
-            if self.platform == Platform.A200:
+            if self.platform == A200PlatformConfig.NAME:
                 address = '/dev/clearpath/prolific'
-            elif self.platform == Platform.J100:
+            elif self.platform == J100PlatformConfig.NAME:
                 address = '/dev/clearpath/j100'
             elif (
-                self.platform == Platform.A300 or
-                self.platform == Platform.DD100 or
-                self.platform == Platform.DD150 or
-                self.platform == Platform.DO100 or
-                self.platform == Platform.DO150 or
-                self.platform == Platform.R100 or
-                self.platform == Platform.W200
+                self.platform == A300PlatformConfig.NAME or
+                self.platform == DD100PlatformConfig.NAME or
+                self.platform == DD150PlatformConfig.NAME or
+                self.platform == DO100PlatformConfig.NAME or
+                self.platform == DO150PlatformConfig.NAME or
+                self.platform == R100PlatformConfig.NAME or
+                self.platform == W200PlatformConfig.NAME
             ):
                 address = '192.168.131.2'
 
