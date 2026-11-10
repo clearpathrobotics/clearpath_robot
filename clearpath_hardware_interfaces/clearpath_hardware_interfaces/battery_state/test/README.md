@@ -51,9 +51,9 @@ parametrization for that battery.
 | Field | Type | Meaning |
 | ----- | ---- | ------- |
 | `voltage_sweep_per_unit` | `list[float]` | Per-battery-unit voltages walked through in order. Test scales each entry by `num_series` to produce pack voltage. The default sweep contains one sample below the LUT minimum (for the low-clamp branch), every LUT corner, the midpoint between consecutive corners, and one sample above the LUT maximum (for the high-clamp branch). |
-| `charger_on_steps`       | `int`         | Number of trailing samples published with `charger_connected = 1` at the highest sweep voltage. Used to exercise the `DISCHARGING -> CHARGING -> FULL` transition (FULL is asserted when charging AND `percentage == 1.0`). |
-| `step_period_ns`         | `int`         | Spacing between consecutive `Power.header.stamp` timestamps in nanoseconds. Determines the stamp on each emitted message; does not introduce real-time delay. |
-| `start_sec`              | `int`         | First `header.stamp.sec` value. Subsequent stamps advance by `step_period_ns`. |
+| `charger_on_steps` | `int` | Number of trailing samples published with `charger_connected = 1` at the highest sweep voltage. Used to exercise the `DISCHARGING -> CHARGING -> FULL` transition (FULL is asserted when charging AND `percentage == 1.0`). |
+| `step_period_ns` | `int` | Spacing between consecutive `Power.header.stamp` timestamps in nanoseconds. Determines the stamp on each emitted message; does not introduce real-time delay. |
+| `start_sec` | `int` | First `header.stamp.sec` value. Subsequent stamps advance by `step_period_ns`. |
 
 ## Adding a new battery
 
@@ -122,7 +122,7 @@ silently no-op on your new platform until both sides are wired up.
 
 ## Files
 
-```
+```text
 test/
 ├── README.md                              (this file)
 ├── test_node_parity.py                    parametrized 24-scenario parity test

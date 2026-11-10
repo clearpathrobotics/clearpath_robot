@@ -6,7 +6,7 @@ stream on `platform/bms/state` for every supported Clearpath platform.
 | Node | Purpose |
 | ---- | ------- |
 | `battery_state_estimator` | Estimates `BatteryState` for **non-smart batteries** that cannot report their own state. Subscribes to `platform/mcu/status/power` and derives voltage, current, percentage, status, etc. from the MCU's `Power` message. |
-| `battery_state_control`   | Higher-level controller (e.g. low-SoC actions, charger handoff). Not described in this README. |
+| `battery_state_control` | Higher-level controller (e.g. low-SoC actions, charger handoff). Not described in this README. |
 
 The remainder of this document covers only `battery_state_estimator`.
 
@@ -23,7 +23,7 @@ publisher (smart packs, CAN-BMS packs, etc.). Those publish a fully populated
 
 ## Data flow
 
-```
+```text
 Platform MCU ──Power──▶ /platform/mcu/status/power
                                   │
                                   ▼

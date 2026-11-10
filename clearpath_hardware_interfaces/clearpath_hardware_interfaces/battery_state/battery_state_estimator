@@ -396,7 +396,7 @@ class BatteryStateEstimator(Node):
         """Validate the lookup table arrays and return them unchanged.
 
         Ensures the arrays are the same length, voltages are non-negative,
-        percentages are within range, monotonic, and bookended by 0.0 and 1.0.
+        percentages are within range, monotonic, and start at 0.0 and end at 1.0.
         """
         if len(voltages) != len(percentages):
             raise ValueError(

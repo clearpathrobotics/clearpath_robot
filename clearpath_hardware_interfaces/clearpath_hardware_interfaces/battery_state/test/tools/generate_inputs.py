@@ -40,7 +40,7 @@ import yaml
 
 
 # --------------------------------------------------------------------------- #
-# Per-battery-unit LUT voltages (mirrors the shipped config yamls)
+# Per-battery-unit LUT voltages (mirrors the shipped config YAML files)
 # --------------------------------------------------------------------------- #
 
 SLA_LUT_VOLTAGES = [11.6, 11.7, 11.9, 12.0, 12.2, 12.3, 12.4, 12.5,

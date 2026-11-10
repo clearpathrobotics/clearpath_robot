@@ -36,7 +36,6 @@ import math
 import os
 import signal
 import subprocess
-import tempfile
 import time
 from math import nan
 from pathlib import Path

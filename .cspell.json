@@ -409,6 +409,15 @@
     "vcomp",
     "DTYPE",
     "DEVNO",
-    "MCU"
+    "MCU",
+    "Enersys",
+    "getpgid",
+    "goldens",
+    "isinstance",
+    "killpg",
+    "LIPO",
+    "LUTS",
+    "nanosec",
+    "VRLA"
   ]
 }
