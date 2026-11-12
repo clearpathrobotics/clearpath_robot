@@ -25,7 +25,9 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+import ast
 import os
+from pathlib import Path
 import shutil
 
 from ament_index_python.packages import get_package_share_directory
@@ -34,9 +36,47 @@ from clearpath_config.common.types.exception import (
     UnsupportedPlatformException,
 )
 from clearpath_generator_robot.launch.generator import RobotLaunchGenerator
+import pytest
+import yaml
 
 
 class TestRobotLaunchGenerator:
+
+    @pytest.mark.parametrize('sample,protocol,platform', [
+        ('a300_default.yaml', 'proton', 'core'),
+        ('dd150_default.yaml', 'proton', 'd1x0'),
+        ('j100_default.yaml', 'proton', 'j100'),
+        ('r100_default.yaml', 'proton', 'r100'),
+        ('w200_default.yaml', 'proton', 'w200'),
+        ('a200_default.yaml', 'proton', None),
+        ('a300_default.yaml', 'uros', None),
+    ])
+    def test_proton_launch_owner(self, tmp_path, sample, protocol, platform):
+        """Verify host ownership and unchanged Proton arguments."""
+        sample_dir = Path(get_package_share_directory('clearpath_config')) / 'sample'
+        sample_path = sample_dir / sample
+        config = yaml.safe_load(sample_path.read_text())
+        config.setdefault('platform', {}).setdefault('mcu', {})['protocol'] = protocol
+        (tmp_path / 'robot.yaml').write_text(yaml.safe_dump(config))
+
+        generator = RobotLaunchGenerator(str(tmp_path))
+        generator.generate_platform()
+        generated_path = Path(generator.platform_service_launch_file.get_full_path())
+        generated_launch = generated_path.read_text()
+        ast.parse(generated_launch)
+
+        assert generator.proton_launch.package.name == 'clearpath_robot'
+        assert "FindPackageShare('clearpath_firmware')" not in generated_launch
+        if platform is None:
+            assert 'proton.launch.py' not in generated_launch
+        else:
+            assert "FindPackageShare('clearpath_robot')" in generated_launch
+            expected_path = "pkg_clearpath_robot, 'launch', 'proton.launch.py'"
+            assert expected_path in generated_launch
+            assert generator.proton_launch.args == [
+                ('namespace', generator.namespace),
+                ('platform', platform),
+            ]
 
     def test_samples(self):
         errors = []

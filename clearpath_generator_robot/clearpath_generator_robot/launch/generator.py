@@ -35,12 +35,12 @@ import os
 
 from clearpath_config.common.types.platform import Platform
 from clearpath_config.manipulators.types.arms import (
-  BaseKinova,
-  Franka,
-  KinovaGen3Dof6,
-  KinovaGen3Dof7,
-  KinovaGen3Lite,
-  UniversalRobots
+    BaseKinova,
+    Franka,
+    KinovaGen3Dof6,
+    KinovaGen3Dof7,
+    KinovaGen3Lite,
+    UniversalRobots,
 )
 from clearpath_config.manipulators.types.grippers import FrankaGripper
 from clearpath_config.platform.battery import BatteryConfig
@@ -58,7 +58,7 @@ class RobotLaunchGenerator(LaunchGenerator):
 
         # Additional packages specific to physical robots
         self.pkg_clearpath_sensors = Package('clearpath_sensors')
-        self.pkg_clearpath_firmware = Package('clearpath_firmware')
+        self.pkg_clearpath_robot = Package('clearpath_robot')
         self.pkg_clearpath_hardware_interfaces = Package('clearpath_hardware_interfaces')
 
         # Filter for MCU IMU
@@ -89,8 +89,8 @@ class RobotLaunchGenerator(LaunchGenerator):
                 [LaunchFile.Variable("FindExecutable(name='ros2')"),
                  ' service call platform/mcu/configure',
                  ' clearpath_platform_msgs/srv/ConfigureMcu',
-                 ' \"{{domain_id: {0},'.format(self.clearpath_config.system.domain_id),
-                 ' robot_namespace: \\\'{0}\\\'}}\"'.format(self.namespace)]
+                 ' "{{domain_id: {0},'.format(self.clearpath_config.system.domain_id),
+                 ' robot_namespace: \\\'{0}\\\'}}"'.format(self.namespace)]
             ]
         )
 
@@ -130,7 +130,7 @@ class RobotLaunchGenerator(LaunchGenerator):
         # Proton Launch
         self.proton_launch = LaunchFile(
             'proton',
-            package=self.pkg_clearpath_firmware
+            package=self.pkg_clearpath_robot
         )
 
         # Wireless watcher

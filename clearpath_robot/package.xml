@@ -20,6 +20,7 @@
   <!-- Metapackage dependencies-->
   <exec_depend version_gte="2.9.0">clearpath_generator_robot</exec_depend>
   <exec_depend version_gte="2.9.0">clearpath_hardware_interfaces</exec_depend>
+  <exec_depend version_gte="2.9.0">clearpath_proton_adaptors</exec_depend>
   <exec_depend version_gte="2.9.0">clearpath_sensors</exec_depend>
   <exec_depend version_gte="2.9.0">lynx_motor_driver</exec_depend>
   <exec_depend version_gte="2.9.0">puma_motor_driver</exec_depend>
@@ -28,7 +29,10 @@
   <exec_depend version_gte="2.9.0">clearpath_config</exec_depend>
   <exec_depend version_gte="2.9.0">clearpath_common</exec_depend>
   <exec_depend version_gte="3.0.0">clearpath_firmware</exec_depend>
-  <exec_depend>proton_ros2</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <depend>proton_ros2</depend>
+  <exec_depend>proton_ros2_node</exec_depend>
   <exec_depend>clearpath_tests</exec_depend>
   <exec_depend>robot_upstart</exec_depend>
 

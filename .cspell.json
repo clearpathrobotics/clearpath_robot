@@ -161,6 +161,7 @@
     "hokuyo",
     "HWVER",
     "Iain",
+    "Iface",
     "Ibrahim",
     "ICTRL",
     "ictrl",
@@ -409,6 +410,10 @@
     "vcomp",
     "DTYPE",
     "DEVNO",
-    "MCU"
+    "MCU",
+    "pathlib",
+    "MAKEFLAGS",
+    "DEVHOST",
+    "endmacro"
   ]
 }
