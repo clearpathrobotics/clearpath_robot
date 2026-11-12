@@ -35,12 +35,12 @@ import os
 
 from clearpath_config.common.types.platform import Platform
 from clearpath_config.manipulators.types.arms import (
-  BaseKinova,
-  Franka,
-  KinovaGen3Dof6,
-  KinovaGen3Dof7,
-  KinovaGen3Lite,
-  UniversalRobots
+    BaseKinova,
+    Franka,
+    KinovaGen3Dof6,
+    KinovaGen3Dof7,
+    KinovaGen3Lite,
+    UniversalRobots,
 )
 from clearpath_config.manipulators.types.grippers import FrankaGripper
 from clearpath_config.platform.battery import BatteryConfig
@@ -89,8 +89,8 @@ class RobotLaunchGenerator(LaunchGenerator):
                 [LaunchFile.Variable("FindExecutable(name='ros2')"),
                  ' service call platform/mcu/configure',
                  ' clearpath_platform_msgs/srv/ConfigureMcu',
-                 ' \"{{domain_id: {0},'.format(self.clearpath_config.system.domain_id),
-                 ' robot_namespace: \\\'{0}\\\'}}\"'.format(self.namespace)]
+                 ' "{{domain_id: {0},'.format(self.clearpath_config.system.domain_id),
+                 ' robot_namespace: \\\'{0}\\\'}}"'.format(self.namespace)]
             ]
         )
 
@@ -131,6 +131,30 @@ class RobotLaunchGenerator(LaunchGenerator):
         self.proton_launch = LaunchFile(
             'proton',
             package=self.pkg_clearpath_firmware
+        )
+
+        # Firmware info node
+        self.firmware_info_node = LaunchFile.Node(
+            package='clearpath_hardware_interfaces',
+            executable='firmware_info.py',
+            name='firmware_info',
+            namespace=self.namespace,
+            parameters=[{
+                'expected_proton_major': 1,
+                'expected_proton_minor': 0,
+                'expected_proton_patch': 1,
+                'expected_platform_id': {
+                    Platform.W200: 0,
+                    Platform.DD100: 1,
+                    Platform.DD150: 1,
+                    Platform.DO100: 1,
+                    Platform.DO150: 1,
+                    Platform.R100: 2,
+                    Platform.A300: 3,
+                    Platform.J100: 4,
+                }.get(self.platform_model, -1),
+                'firmware_info_timeout_sec': 3.0,
+            }],
         )
 
         # Wireless watcher
@@ -578,6 +602,8 @@ class RobotLaunchGenerator(LaunchGenerator):
                     ('namespace', self.namespace),
                     ('platform', platform)
                 ]
+                if platform != 'j100':
+                    platform_service_launch_writer.add(self.firmware_info_node)
                 platform_service_launch_writer.add(self.proton_launch)
 
         for component in self.platform_components[self.platform_model]:
