@@ -27,7 +27,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from clearpath_config.common.types.platform import Platform
+from clearpath_config.platform.definitions import J100PlatformConfig
 from clearpath_tests.mobility_test import MobilityTestNode
 from clearpath_tests.test_node import ClearpathTestResult
 from clearpath_tests.tf import ConfigurableTransformListener
@@ -225,7 +225,7 @@ Are all these conditions met?""")
 
             min_accuracy = 0.75
 
-            if self.clearpath_config.platform.get_platform_model() == Platform.J100:
+            if self.clearpath_config.platform.get_platform_model() == J100PlatformConfig.NAME:
                 # default Jackal IMU is terrible, so allow wider margins
                 min_accuracy = 0.5
 

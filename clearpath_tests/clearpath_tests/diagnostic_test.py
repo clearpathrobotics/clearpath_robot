@@ -28,7 +28,18 @@
 # POSSIBILITY OF SUCH DAMAGE.
 import re
 
-from clearpath_config.common.types.platform import Platform
+from clearpath_config.platform.definitions import (
+    A200PlatformConfig,
+    A300PlatformConfig,
+    DD100PlatformConfig,
+    DD150PlatformConfig,
+    DO100PlatformConfig,
+    DO150PlatformConfig,
+    GenericPlatformConfig,
+    J100PlatformConfig,
+    R100PlatformConfig,
+    W200PlatformConfig,
+)
 from clearpath_tests.test_node import ClearpathTestNode, ClearpathTestResult
 from clearpath_tests.timer import Timeout
 
@@ -55,43 +66,43 @@ allowed_errors_by_platform = {
             'High execution jitter or mean error',
         ],
     },
-    Platform.A200: {
+    A200PlatformConfig.NAME: {
         # no A200-specific exceptions
     },
-    Platform.A300: {
+    A300PlatformConfig.NAME: {
         # no A300-specific exceptions
     },
-    Platform.DD100: {
+    DD100PlatformConfig.NAME: {
         # no DD100-specific exceptions
     },
-    Platform.DD150: {
+    DD150PlatformConfig.NAME: {
         # no DD150-specific exceptions
     },
-    Platform.DO100: {
+    DO100PlatformConfig.NAME: {
         # required until ros2_controllers PR 1772 is fully released
         'ekf_node: Filter diagnostic updater': [
             'Potentially erroneous data or settings detected for a robot_localization state',
         ]
     },
-    Platform.DO150: {
+    DO150PlatformConfig.NAME: {
         # required until ros2_controllers PR 1772 is fully released
         'ekf_node: Filter diagnostic updater': [
             'Potentially erroneous data or settings detected for a robot_localization state',
         ]
     },
-    Platform.GENERIC: {
+    GenericPlatformConfig.NAME: {
         # no generic-specific exceptions
     },
-    Platform.J100: {
+    J100PlatformConfig.NAME: {
         # no J100-specific exceptions
     },
-    Platform.R100: {
+    R100PlatformConfig.NAME: {
         # required until ros2_controllers PR 1772 is fully released
         'ekf_node: Filter diagnostic updater': [
             'Potentially erroneous data or settings detected for a robot_localization state',
         ]
     },
-    Platform.W200: {
+    W200PlatformConfig.NAME: {
         # no W200-specific exceptions
     },
 }

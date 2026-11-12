@@ -1,0 +1,14 @@
+# Enersys ES20-12C (12 V Sealed Lead-Acid)
+# Uses the generic 12 V SLA lookup table from
+# https://iopscience.iop.org/article/10.1088/1742-6596/1367/1/012077/pdf
+/**:
+  ros__parameters:
+    technology: 8  # vrla
+    cell:
+      voltage: 12.0    # Nominal voltage per battery unit in V
+      capacity: 20.0   # Capacity per battery unit in Ah
+      num_series: 1
+      num_parallel: 1
+    lookup_table:
+      voltages:    [11.60, 11.70, 11.90, 12.00, 12.20, 12.30, 12.40, 12.50, 12.55, 12.60, 12.65, 12.70]
+      percentages: [ 0.00,  0.10,  0.20,  0.30,  0.40,  0.50,  0.60,  0.70,  0.80,  0.90,  0.95,  1.00]

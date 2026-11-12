@@ -1,0 +1,12 @@
+# Clearpath HE2410 (24 V Lithium-Ion)
+/**:
+  ros__parameters:
+    technology: 2  # lion
+    cell:
+      voltage: 25.3    # Nominal voltage per battery unit in V
+      capacity: 9.8    # Capacity per battery unit in Ah
+      num_series: 1
+      num_parallel: 1
+    lookup_table:
+      voltages:    [21.00, 21.84, 22.68, 23.52, 24.36, 25.20, 26.04, 26.88, 27.72, 28.56, 29.40]
+      percentages: [ 0.00,  0.10,  0.20,  0.30,  0.40,  0.50,  0.60,  0.70,  0.80,  0.90,  1.00]

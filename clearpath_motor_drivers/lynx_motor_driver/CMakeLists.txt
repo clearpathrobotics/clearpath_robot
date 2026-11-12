@@ -16,9 +16,8 @@ endif ()
 ################################################################################
 find_package(ament_cmake REQUIRED)
 find_package(ament_index_cpp REQUIRED)
-find_package(can_msgs REQUIRED)
+find_package(can_hardware REQUIRED)
 find_package(clearpath_motor_msgs REQUIRED)
-find_package(clearpath_ros2_socketcan_interface REQUIRED)
 find_package(diagnostic_updater REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
@@ -39,9 +38,8 @@ ament_export_include_directories(include)
 set(DEPENDENCIES
   ament_cmake
   ament_index_cpp
-  can_msgs
+  can_hardware
   clearpath_motor_msgs
-  clearpath_ros2_socketcan_interface
   diagnostic_updater
   rclcpp
   rclcpp_action
