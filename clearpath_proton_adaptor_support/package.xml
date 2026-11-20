@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>clearpath_proton_adaptor_support</name>
+  <version>2.9.8</version>
+  <description>Shared build-time generation for Clearpath Proton platform adaptors</description>
+  <maintainer email="mark.ibrahim@rockwellautomation.com">Mark Ibrahim</maintainer>
+  <license>BSD</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <exec_depend>proton_ros2_adaptor_generator</exec_depend>
+  <exec_depend>python3-yaml</exec_depend>
+  <test_depend>ament_cmake_pytest</test_depend>
+  <test_depend>ament_index_python</test_depend>
+  <test_depend>clearpath_firmware</test_depend>
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

@@ -1,4 +1,8 @@
 repositories:
+  clearpath_firmware:
+    type: git
+    url: https://gitlab.clearpathrobotics.com/research/clearpath_firmware.git
+    version: feature/proton_v2_support
   clearpath_config:
     type: git
     url: https://github.com/clearpathrobotics/clearpath_config.git
@@ -19,3 +23,11 @@ repositories:
     type: git
     url: https://github.com/clearpathrobotics/clearpath_generator_tests.git
     version: jazzy
+  proton_ros2:
+    type: git
+    url: https://github.com/clearpathrobotics/proton_ros2.git
+    version: feature/indexed-fields-plus-proton-index
+  proton_vendor:
+    type: git
+    url: https://github.com/clearpathrobotics/proton_vendor.git
+    version: main

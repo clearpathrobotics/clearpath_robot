@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>clearpath_proton_adaptors</name>
+  <version>2.9.8</version>
+  <description>Aggregate metapackage for all Clearpath Proton platform adaptors</description>
+  <maintainer email="mark.ibrahim@rockwellautomation.com">Mark Ibrahim</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <exec_depend>clearpath_proton_core_adaptors</exec_depend>
+  <exec_depend>clearpath_proton_dingo_adaptors</exec_depend>
+  <exec_depend>clearpath_proton_jackal_adaptors</exec_depend>
+  <exec_depend>clearpath_proton_ridgeback_adaptors</exec_depend>
+  <exec_depend>clearpath_proton_warthog_adaptors</exec_depend>
+
+  <test_depend>ament_cmake_gtest</test_depend>
+  <test_depend>ament_index_cpp</test_depend>
+  <test_depend>clearpath_firmware</test_depend>
+  <test_depend>pluginlib</test_depend>
+  <test_depend>proton_ros2_interfaces</test_depend>
+  <test_depend>yaml_cpp_vendor</test_depend>
+  <test_depend>yaml-cpp</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

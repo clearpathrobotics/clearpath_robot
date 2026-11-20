@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>clearpath_proton_core_adaptors</name>
+  <version>2.9.8</version>
+  <description>Proton ROS 2 message adaptors for Core</description>
+  <maintainer email="mark.ibrahim@rockwellautomation.com">Mark Ibrahim</maintainer>
+  <license>BSD</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <build_depend>clearpath_proton_adaptor_support</build_depend>
+  <build_depend>clearpath_firmware</build_depend>
+  <depend>pluginlib</depend>
+  <depend>proton_vendor</depend>
+  <depend>proton_ros2_interfaces</depend>
+  <depend>rclcpp</depend>
+  <depend>clearpath_platform_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>nmea_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
