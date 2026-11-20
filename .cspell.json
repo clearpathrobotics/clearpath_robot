@@ -419,5 +419,8 @@
     "LUTS",
     "nanosec",
     "VRLA"
+    "CPFI",
+    "BBHI",
+    "UDP"
   ]
 }

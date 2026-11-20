@@ -81,8 +81,8 @@ def make_configure_mcu(namespace: str, clearpath_config) -> LaunchFile.Process:
             [LaunchFile.Variable("FindExecutable(name='ros2')"),
              ' service call platform/mcu/configure',
              ' clearpath_platform_msgs/srv/ConfigureMcu',
-             ' \"{{domain_id: {0},'.format(clearpath_config.system.domain_id),
-             ' robot_namespace: \\\'{0}\\\'}}\"'.format(namespace)]
+             ' "{{domain_id: {0},'.format(clearpath_config.system.domain_id),
+             ' robot_namespace: \\\'{0}\\\'}}"'.format(namespace)]
         ]
     )
 
@@ -96,6 +96,32 @@ def make_proton_launch(namespace: str, platform: str) -> LaunchFile:
             ('namespace', namespace),
             ('platform', platform),
         ],
+    )
+
+
+def make_firmware_info_node(namespace: str, platform_model: str) -> LaunchFile.Node:
+    """Build the node that checks firmware info advertisements against the expected Proton."""
+    return LaunchFile.Node(
+        package='clearpath_hardware_interfaces',
+        executable='firmware_info.py',
+        name='firmware_info',
+        namespace=namespace,
+        parameters=[{
+            'expected_proton_major': 1,
+            'expected_proton_minor': 0,
+            'expected_proton_patch': 1,
+            'expected_platform_id': {
+                'w200': 0,
+                'dd100': 1,
+                'dd150': 1,
+                'do100': 1,
+                'do150': 1,
+                'r100': 2,
+                'a300': 3,
+                'j100': 4,
+            }.get(platform_model, -1),
+            'firmware_info_timeout_sec': 3.0,
+        }],
     )
 
 
