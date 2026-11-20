@@ -41,7 +41,6 @@ file is the caller's decision.
 import os
 import re
 
-from clearpath_config.common.types.platform import Platform
 from clearpath_config.common.utils.dictionary import flatten_dict
 from clearpath_config.platform.battery import BatteryConfig
 from clearpath_config.platform.wireless import PeplinkRouter
@@ -112,14 +111,14 @@ def make_firmware_info_node(namespace: str, platform_model: str) -> LaunchFile.N
             'expected_proton_minor': 0,
             'expected_proton_patch': 1,
             'expected_platform_id': {
-                Platform.W200: 0,
-                Platform.DD100: 1,
-                Platform.DD150: 1,
-                Platform.DO100: 1,
-                Platform.DO150: 1,
-                Platform.R100: 2,
-                Platform.A300: 3,
-                Platform.J100: 4,
+                'w200': 0,
+                'dd100': 1,
+                'dd150': 1,
+                'do100': 1,
+                'do150': 1,
+                'r100': 2,
+                'a300': 3,
+                'j100': 4,
             }.get(platform_model, -1),
             'firmware_info_timeout_sec': 3.0,
         }],
