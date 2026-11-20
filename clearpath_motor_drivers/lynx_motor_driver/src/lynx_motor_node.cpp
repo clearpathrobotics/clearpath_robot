@@ -89,11 +89,9 @@ LynxMotorNode::LynxMotorNode(const std::string node_name) :
   node_handle_ = std::shared_ptr<rclcpp::Node>(this, [](rclcpp::Node *){});
 
   // CAN interface
-  can_interface_ = std::shared_ptr<clearpath_ros2_socketcan_interface::SocketCANInterface>(
-    new clearpath_ros2_socketcan_interface::SocketCANInterface(
-      can_bus_,
-      node_handle_,
-      std::bind(&LynxMotorNode::canRxCallback, this, std::placeholders::_1)));
+  can_interface_ = std::make_shared<can_hardware::drivers::SocketCanDriver>(can_bus_);
+  can_interface_->registerFrameCallback(
+    std::bind(&LynxMotorNode::canRxCallback, this, std::placeholders::_1));
 
   // Setup diagnostics
   updater_.setHardwareID("Lynx");
@@ -300,9 +298,9 @@ void LynxMotorNode::cmdCallback(const sensor_msgs::msg::JointState::SharedPtr ms
  *
  * @param msg
  */
-void LynxMotorNode::canRxCallback(const can_msgs::msg::Frame::SharedPtr msg)
+void LynxMotorNode::canRxCallback(const can_hardware::Frame & frame)
 {
-  lynx_motor_driver::Message recv_msg(msg);
+  lynx_motor_driver::Message recv_msg(frame);
 
   for (auto & driver : drivers_)
   {

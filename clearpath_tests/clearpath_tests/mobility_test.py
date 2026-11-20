@@ -26,7 +26,7 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-from clearpath_config.common.types.platform import Platform
+from clearpath_config.platform.definitions import A300PlatformConfig
 from clearpath_motor_msgs.msg import (
     LynxMotorProtection,
     LynxMultiFeedback,
@@ -85,7 +85,7 @@ class MobilityTestNode(ClearpathTestNode):
             self.drive_topic = f'/{self.namespace}/{self.drive_topic}'
 
     def start(self):
-        if self.platform == Platform.A300:
+        if self.platform == A300PlatformConfig.NAME:
             self.motor_fb_sub = self.create_subscription(
                 LynxMultiFeedback,
                 f'/{self.namespace}/platform/motors/feedback',
@@ -119,7 +119,7 @@ class MobilityTestNode(ClearpathTestNode):
         )
         self.publish_timer = self.create_timer(1 / self.publish_rate, self.publish_callback)
 
-        if self.clearpath_config.get_platform_model() == Platform.A300:
+        if self.clearpath_config.get_platform_model() == A300PlatformConfig.NAME:
             self.lynx_feedback_sub = self.create_subscription(
                 LynxSystemProtection,
                 f'/{self.namespace}/platform/motors/system_protection',

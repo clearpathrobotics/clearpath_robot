@@ -119,6 +119,7 @@ class ClearpathTestNode(Node):
 
 
 class ClearpathTestResult:
+
     def __init__(self, success: bool, name: str, message: str):
         """
         Create a test result we can log.

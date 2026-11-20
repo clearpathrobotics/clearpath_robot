@@ -28,7 +28,15 @@
 # POSSIBILITY OF SUCH DAMAGE.
 import threading
 
-from clearpath_config.common.types.platform import Platform
+from clearpath_config.platform.definitions import (
+    A300PlatformConfig,
+    DD100PlatformConfig,
+    DD150PlatformConfig,
+    DO100PlatformConfig,
+    DO150PlatformConfig,
+    R100PlatformConfig,
+    W200PlatformConfig,
+)
 from clearpath_platform_msgs.msg import Lights, RGB
 from clearpath_tests.test_node import ClearpathTestNode, ClearpathTestResult
 
@@ -43,7 +51,7 @@ class LightTestNode(ClearpathTestNode):
 
         self.light_zones = self.get_parameter_or('n_lights', light_zones)
 
-        if self.platform == Platform.A300:
+        if self.platform == A300PlatformConfig.NAME:
             self.front_left = [Lights.A300_LIGHTS_FRONT_LEFT]
             self.front_right = [Lights.A300_LIGHTS_FRONT_RIGHT]
             self.back_left = [Lights.A300_LIGHTS_REAR_LEFT]
@@ -56,7 +64,7 @@ class LightTestNode(ClearpathTestNode):
                 Lights.A300_LIGHTS_REAR_RIGHT,
             ]
             self.bottom_row = []
-        elif self.platform == Platform.W200:
+        elif self.platform == W200PlatformConfig.NAME:
             self.front_left = [Lights.W200_LIGHTS_FRONT_LEFT]
             self.front_right = [Lights.W200_LIGHTS_FRONT_RIGHT]
             self.back_left = [Lights.W200_LIGHTS_REAR_LEFT]
@@ -69,7 +77,7 @@ class LightTestNode(ClearpathTestNode):
                 Lights.W200_LIGHTS_REAR_RIGHT,
             ]
             self.bottom_row = []
-        elif self.platform == Platform.R100:
+        elif self.platform == R100PlatformConfig.NAME:
             self.front_left = [
                 Lights.R100_LIGHTS_FRONT_PORT_UPPER,
                 Lights.R100_LIGHTS_FRONT_PORT_LOWER
@@ -100,8 +108,8 @@ class LightTestNode(ClearpathTestNode):
                 Lights.R100_LIGHTS_REAR_STARBOARD_LOWER,
             ]
         elif (
-            self.platform == Platform.DD100 or
-            self.platform == Platform.DO100
+            self.platform == DD100PlatformConfig.NAME or
+            self.platform == DO100PlatformConfig.NAME
         ):
             self.front_left = [Lights.D100_LIGHTS_FRONT_LEFT]
             self.front_right = [Lights.D100_LIGHTS_FRONT_RIGHT]
@@ -116,8 +124,8 @@ class LightTestNode(ClearpathTestNode):
             ]
             self.bottom_row = []
         elif (
-            self.platform == Platform.DD150 or
-            self.platform == Platform.DO150
+            self.platform == DD150PlatformConfig.NAME or
+            self.platform == DO150PlatformConfig.NAME
         ):
             self.front_left = [Lights.D150_LIGHTS_FRONT_LEFT]
             self.front_right = [Lights.D150_LIGHTS_FRONT_RIGHT]

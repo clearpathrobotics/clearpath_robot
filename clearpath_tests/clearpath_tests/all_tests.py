@@ -42,8 +42,19 @@ import os
 import subprocess
 
 from clearpath_config.clearpath_config import ClearpathConfig
-from clearpath_config.common.types.platform import Platform
 from clearpath_config.common.utils.yaml import read_yaml
+from clearpath_config.platform.definitions import (
+    A200PlatformConfig,
+    A300PlatformConfig,
+    DD100PlatformConfig,
+    DD150PlatformConfig,
+    DO100PlatformConfig,
+    DO150PlatformConfig,
+    GenericPlatformConfig,
+    J100PlatformConfig,
+    R100PlatformConfig,
+    W200PlatformConfig,
+)
 from clearpath_tests import (
     canbus_test,
     diagnostic_test,
@@ -103,11 +114,11 @@ class TestingNode(Node):
 
         # Add any platform-specific tests here
         self.tests_for_platform = []
-        if self.platform == Platform.A200:
+        if self.platform == A200PlatformConfig.NAME:
             self.tests_for_platform.append(
                 estop_test.EstopTestNode('Rear', self.setup_path)
             )
-        elif self.platform == Platform.A300:
+        elif self.platform == A300PlatformConfig.NAME:
             self.tests_for_platform.append(fan_test.FanTestNode(4, self.setup_path))
             self.tests_for_platform.append(light_test.LightTestNode(4, self.setup_path))
 
@@ -150,7 +161,10 @@ class TestingNode(Node):
                     setup_path=self.setup_path
                 ),
             )
-        elif self.platform == Platform.DD100 or self.platform == Platform.DD150:
+        elif (
+            self.platform == DD100PlatformConfig.NAME or
+            self.platform == DD150PlatformConfig.NAME
+        ):
             self.tests_for_platform.append(light_test.LightTestNode(4, self.setup_path))
 
             # Dingo doesn't use CANopen, so the ID counter won't work correctly
@@ -181,7 +195,10 @@ class TestingNode(Node):
                     setup_path=self.setup_path
                 ),
             )
-        elif self.platform == Platform.DO100 or self.platform == Platform.DO150:
+        elif (
+            self.platform == DO100PlatformConfig.NAME or
+            self.platform == DO150PlatformConfig.NAME
+        ):
             self.tests_for_platform.append(light_test.LightTestNode(4, self.setup_path))
 
             # Dingo doesn't use CANopen, so the ID counter won't work correctly
@@ -222,9 +239,9 @@ class TestingNode(Node):
                     default_distance=2.0,
                 )
             )
-        elif self.platform == Platform.GENERIC:
+        elif self.platform == GenericPlatformConfig.NAME:
             pass
-        elif self.platform == Platform.J100:
+        elif self.platform == J100PlatformConfig.NAME:
             self.tests_for_platform.append(imu_test.ImuTestNode(0, self.setup_path))
 
             self.tests_for_platform.append(
@@ -245,7 +262,7 @@ class TestingNode(Node):
                     setup_path=self.setup_path
                 ),
             )
-        elif self.platform == Platform.R100:
+        elif self.platform == R100PlatformConfig.NAME:
             self.tests_for_platform.append(light_test.LightTestNode(8))
 
             # Ridgeback doesn't use CANopen, so the ID counter won't work correctly
@@ -286,7 +303,7 @@ class TestingNode(Node):
                     default_distance=2.0,
                 )
             )
-        elif self.platform == Platform.W200:
+        elif self.platform == W200PlatformConfig.NAME:
             self.tests_for_platform.append(light_test.LightTestNode(4))
             self.tests_for_platform.append(
                 canbus_test.CanbusTestNode('can0', 6, 0, self.setup_path)
