@@ -8,6 +8,8 @@ Wants=clearpath-vcan.service
 User=robot
 Type=simple
 ExecStart=/usr/sbin/clearpath-platform-start
+LimitRTPRIO=infinity
+LimitMEMLOCK=infinity
 
 [Install]
 WantedBy=clearpath-robot.service
