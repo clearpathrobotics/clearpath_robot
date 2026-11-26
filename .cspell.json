@@ -406,6 +406,7 @@
     "skinparam",
     "CMODE",
     "VOUT",
+    "VRLA",
     "vcomp",
     "DTYPE",
     "DEVNO",

@@ -236,6 +236,7 @@ class Battery:
                      configuration: str,
                      rolling_average_period=30) -> None:
             super().__init__(platform, configuration, rolling_average_period)
+            self._msg.power_supply_technology = BatteryState.POWER_SUPPLY_TECHNOLOGY_VRLA
             # Multiply LUT voltage by number of batteries in series
             self.LUT = [(i * self.series, j) for (i, j) in self.LUT]
 

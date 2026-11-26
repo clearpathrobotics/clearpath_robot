@@ -131,6 +131,25 @@ target_include_directories(
 target_link_libraries(${SW_LOW_SOC_EXECUTABLE})
 ament_target_dependencies(${SW_LOW_SOC_EXECUTABLE} ${SW_LOW_SOC_DEPENDENCIES})
 
+# R100 Low Voltage Cutoff
+set(R100_LOW_VOLTAGE_CUTOFF_EXECUTABLE r100_sw_low_voltage_cutoff_node)
+add_executable(
+  ${R100_LOW_VOLTAGE_CUTOFF_EXECUTABLE}
+  src/r100/software_low_voltage_cutoff.cpp
+  src/r100/battery_voltage_monitor.cpp
+)
+target_include_directories(
+  ${R100_LOW_VOLTAGE_CUTOFF_EXECUTABLE}
+  PRIVATE
+  include
+)
+ament_target_dependencies(
+  ${R100_LOW_VOLTAGE_CUTOFF_EXECUTABLE}
+  rclcpp
+  sensor_msgs
+  std_srvs
+)
+
 # A200 Hardware
 add_library(
   a200_hardware
@@ -274,6 +293,7 @@ install(
           ${LIGHTING_EXECUTABLE}
           ${LIGHTING_LIB}
           ${SW_LOW_SOC_EXECUTABLE}
+          ${R100_LOW_VOLTAGE_CUTOFF_EXECUTABLE}
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
@@ -289,6 +309,30 @@ install(PROGRAMS
   ${PROJECT_NAME}/battery_state/battery_state_control
   DESTINATION lib/${PROJECT_NAME}
 )
+
+if(BUILD_TESTING)
+  find_package(ament_cmake_gtest REQUIRED)
+  ament_add_gtest(
+    test_r100_software_low_voltage_cutoff
+    test/test_r100_software_low_voltage_cutoff.cpp
+  )
+  target_sources(
+    test_r100_software_low_voltage_cutoff
+    PRIVATE
+    src/r100/battery_voltage_monitor.cpp
+  )
+  target_include_directories(
+    test_r100_software_low_voltage_cutoff
+    PRIVATE
+    include
+  )
+  ament_target_dependencies(
+    test_r100_software_low_voltage_cutoff
+    rclcpp
+    sensor_msgs
+    std_srvs
+  )
+endif()
 
 ## EXPORTS
 ament_export_include_directories(

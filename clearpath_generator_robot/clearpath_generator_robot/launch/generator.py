@@ -435,6 +435,13 @@ class RobotLaunchGenerator(LaunchGenerator):
           namespace=self.namespace,
         )
 
+        self.r100_sw_low_voltage_cutoff = LaunchFile.Node(
+          package='clearpath_hardware_interfaces',
+          executable='r100_sw_low_voltage_cutoff_node',
+          name='r100_sw_low_voltage_cutoff',
+          namespace=self.namespace,
+        )
+
         # Components required for each platform
         common_platform_components = [
             self.diag_updater_params,
@@ -523,6 +530,7 @@ class RobotLaunchGenerator(LaunchGenerator):
                 self.imu_0_filter_config,
                 self.lighting_node,
                 self.puma_node,
+                self.r100_sw_low_voltage_cutoff,
             ],
         }
 
