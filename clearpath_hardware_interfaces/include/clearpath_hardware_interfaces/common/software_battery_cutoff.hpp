@@ -1,6 +1,6 @@
 /**
 Software License Agreement (BSD)
-\file      software_low_voltage_cutoff.hpp
+\file      software_battery_cutoff.hpp
 \copyright Copyright (c) 2025, Clearpath Robotics, Inc., All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that
 the following conditions are met:
@@ -19,8 +19,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCL
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef CLEARPATH_HARDWARE_INTERFACES_R100_SOFTWARE_LOW_VOLTAGE_CUTOFF_HPP_
-#define CLEARPATH_HARDWARE_INTERFACES_R100_SOFTWARE_LOW_VOLTAGE_CUTOFF_HPP_
+#ifndef CLEARPATH_HARDWARE_INTERFACES_COMMON_SOFTWARE_BATTERY_CUTOFF_HPP_
+#define CLEARPATH_HARDWARE_INTERFACES_COMMON_SOFTWARE_BATTERY_CUTOFF_HPP_
 
 #include <chrono>
 #include <cstdint>
@@ -30,7 +30,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 #include "sensor_msgs/msg/battery_state.hpp"
 #include "std_srvs/srv/trigger.hpp"
 
-namespace r100_sw_low_voltage_cutoff
+namespace software_battery_cutoff
 {
 
 struct VoltageThresholds
@@ -41,7 +41,7 @@ struct VoltageThresholds
 
 bool get_voltage_thresholds(uint8_t technology, VoltageThresholds & thresholds);
 
-class BatteryVoltageMonitor
+class BatteryCutoffMonitor
 {
 public:
   enum class Decision
@@ -56,19 +56,20 @@ public:
   Decision update(
     const sensor_msgs::msg::BatteryState & battery_state,
     std::chrono::steady_clock::time_point now,
+    bool use_voltage_cutoff,
     VoltageThresholds * thresholds = nullptr);
 
 private:
-  bool warning_voltage_timing_ = false;
-  std::chrono::steady_clock::time_point warning_voltage_since_;
-  bool cutoff_voltage_timing_ = false;
-  std::chrono::steady_clock::time_point cutoff_voltage_since_;
+  bool warning_timing_ = false;
+  std::chrono::steady_clock::time_point warning_since_;
+  bool cutoff_timing_ = false;
+  std::chrono::steady_clock::time_point cutoff_since_;
 };
 
-class SoftwareLowVoltageCutoff : public rclcpp::Node
+class SoftwareBatteryCutoff : public rclcpp::Node
 {
 public:
-  SoftwareLowVoltageCutoff();
+  SoftwareBatteryCutoff();
 
 private:
   void battery_callback(const sensor_msgs::msg::BatteryState::SharedPtr msg);
@@ -76,11 +77,12 @@ private:
 
   rclcpp::Subscription<sensor_msgs::msg::BatteryState>::SharedPtr battery_subscriber_;
   rclcpp::Client<std_srvs::srv::Trigger>::SharedPtr shutdown_client_;
-  BatteryVoltageMonitor battery_monitor_;
+  BatteryCutoffMonitor battery_monitor_;
+  bool use_voltage_cutoff_;
   bool shutdown_request_pending_ = false;
   bool shutdown_requested_ = false;
 };
 
-}  // namespace r100_sw_low_voltage_cutoff
+}  // namespace software_battery_cutoff
 
-#endif  // CLEARPATH_HARDWARE_INTERFACES_R100_SOFTWARE_LOW_VOLTAGE_CUTOFF_HPP_
+#endif  // CLEARPATH_HARDWARE_INTERFACES_COMMON_SOFTWARE_BATTERY_CUTOFF_HPP_

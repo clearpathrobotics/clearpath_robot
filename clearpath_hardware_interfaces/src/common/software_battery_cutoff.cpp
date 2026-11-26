@@ -1,6 +1,6 @@
 /**
 Software License Agreement (BSD)
-\file      software_low_voltage_cutoff.cpp
+\file      software_battery_cutoff.cpp
 \copyright Copyright (c) 2025, Clearpath Robotics, Inc., All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that
 the following conditions are met:
@@ -19,41 +19,51 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCL
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "clearpath_hardware_interfaces/r100/software_low_voltage_cutoff.hpp"
+#include "clearpath_hardware_interfaces/common/software_battery_cutoff.hpp"
 
-namespace r100_sw_low_voltage_cutoff
+namespace software_battery_cutoff
 {
 
-SoftwareLowVoltageCutoff::SoftwareLowVoltageCutoff() :
-  Node("r100_software_low_voltage_cutoff")
+SoftwareBatteryCutoff::SoftwareBatteryCutoff() :
+  Node("software_battery_cutoff")
 {
+  use_voltage_cutoff_ = declare_parameter<bool>("use_voltage_cutoff", false);
   battery_subscriber_ = create_subscription<sensor_msgs::msg::BatteryState>(
     "platform/bms/state", rclcpp::SensorDataQoS(),
-    std::bind(&SoftwareLowVoltageCutoff::battery_callback, this, std::placeholders::_1));
+    std::bind(&SoftwareBatteryCutoff::battery_callback, this, std::placeholders::_1));
   shutdown_client_ = create_client<std_srvs::srv::Trigger>("platform/mcu/cmd_shutdown");
 }
 
-void SoftwareLowVoltageCutoff::battery_callback(const sensor_msgs::msg::BatteryState::SharedPtr msg)
+void SoftwareBatteryCutoff::battery_callback(const sensor_msgs::msg::BatteryState::SharedPtr msg)
 {
   VoltageThresholds thresholds{};
-  const auto decision = battery_monitor_.update(*msg, std::chrono::steady_clock::now(), &thresholds);
+  const auto decision = battery_monitor_.update(
+    *msg, std::chrono::steady_clock::now(), use_voltage_cutoff_, &thresholds);
 
   switch (decision) {
-    case BatteryVoltageMonitor::Decision::IGNORE:
+    case BatteryCutoffMonitor::Decision::IGNORE:
       RCLCPP_WARN_THROTTLE(
         get_logger(), *get_clock(), 1000,
-        "Battery state missing, invalid, or has unsupported chemistry; low-voltage cutoff is inactive.");
+        "Battery state missing, invalid, or unsupported; battery cutoff is inactive.");
       break;
-    case BatteryVoltageMonitor::Decision::NORMAL:
+    case BatteryCutoffMonitor::Decision::NORMAL:
       break;
-    case BatteryVoltageMonitor::Decision::WARNING:
-      RCLCPP_WARN_THROTTLE(
-        get_logger(), *get_clock(), 1000,
-        "Battery voltage low: %.2f V (warning threshold %.1f V).", msg->voltage, thresholds.warning);
+    case BatteryCutoffMonitor::Decision::WARNING:
+      if (use_voltage_cutoff_) {
+        RCLCPP_WARN_THROTTLE(
+          get_logger(), *get_clock(), 1000,
+          "Battery voltage low: %.2f V (warning threshold %.1f V).",
+          msg->voltage, thresholds.warning);
+      } else {
+        RCLCPP_WARN_THROTTLE(
+          get_logger(), *get_clock(), 1000,
+          "Battery charge low: %.2f%% (warning threshold %.1f%%).",
+          msg->percentage * 100.0F, thresholds.warning);
+      }
       break;
-    case BatteryVoltageMonitor::Decision::LOW:
+    case BatteryCutoffMonitor::Decision::LOW:
       break;
-    case BatteryVoltageMonitor::Decision::SHUTDOWN:
+    case BatteryCutoffMonitor::Decision::SHUTDOWN:
       if (!shutdown_requested_ && !shutdown_request_pending_) {
         request_shutdown();
       }
@@ -61,7 +71,7 @@ void SoftwareLowVoltageCutoff::battery_callback(const sensor_msgs::msg::BatteryS
   }
 }
 
-void SoftwareLowVoltageCutoff::request_shutdown()
+void SoftwareBatteryCutoff::request_shutdown()
 {
   if (!shutdown_client_->service_is_ready()) {
     RCLCPP_ERROR_THROTTLE(
@@ -87,12 +97,12 @@ void SoftwareLowVoltageCutoff::request_shutdown()
     });
 }
 
-}  // namespace r100_sw_low_voltage_cutoff
+}  // namespace software_battery_cutoff
 
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<r100_sw_low_voltage_cutoff::SoftwareLowVoltageCutoff>());
+  rclcpp::spin(std::make_shared<software_battery_cutoff::SoftwareBatteryCutoff>());
   rclcpp::shutdown();
   return 0;
 }

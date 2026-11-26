@@ -427,19 +427,13 @@ class RobotLaunchGenerator(LaunchGenerator):
           remappings=[('/diagnostics', 'diagnostics')],
         )
 
-        # A300 SW Low SOC cutoff Node
-        self.a300_sw_low_soc_cutoff = LaunchFile.Node(
+        # Software Battery Cutoff Node
+        self.software_battery_cutoff = LaunchFile.Node(
           package='clearpath_hardware_interfaces',
-          executable='sw_low_soc_cutoff_node',
-          name='a300_sw_low_soc_cutoff',
+          executable='software_battery_cutoff_node',
+          name='software_battery_cutoff',
           namespace=self.namespace,
-        )
-
-        self.r100_sw_low_voltage_cutoff = LaunchFile.Node(
-          package='clearpath_hardware_interfaces',
-          executable='r100_sw_low_voltage_cutoff_node',
-          name='r100_sw_low_voltage_cutoff',
-          namespace=self.namespace,
+          parameters=[{'use_voltage_cutoff': self.platform_model == Platform.R100}],
         )
 
         # Components required for each platform
@@ -448,6 +442,7 @@ class RobotLaunchGenerator(LaunchGenerator):
             self.diag_aggregator_params,
             self.diagnostics_launch,
             self.battery_state_control,
+            self.software_battery_cutoff,
         ]
 
         if self.clearpath_config.platform.enable_foxglove_bridge:
@@ -488,7 +483,6 @@ class RobotLaunchGenerator(LaunchGenerator):
                 self.lighting_node,
                 self.lynx_node,
                 self.a300_fan_control,
-                self.a300_sw_low_soc_cutoff,
                 self.pinout_node,
             ],
             Platform.W200: common_platform_components + [
@@ -530,7 +524,6 @@ class RobotLaunchGenerator(LaunchGenerator):
                 self.imu_0_filter_config,
                 self.lighting_node,
                 self.puma_node,
-                self.r100_sw_low_voltage_cutoff,
             ],
         }
 
