@@ -131,6 +131,25 @@ target_include_directories(
 target_link_libraries(${SW_LOW_SOC_EXECUTABLE})
 ament_target_dependencies(${SW_LOW_SOC_EXECUTABLE} ${SW_LOW_SOC_DEPENDENCIES})
 
+# Software Battery Cutoff
+set(SOFTWARE_BATTERY_CUTOFF_EXECUTABLE software_battery_cutoff_node)
+add_executable(
+  ${SOFTWARE_BATTERY_CUTOFF_EXECUTABLE}
+  src/common/software_battery_cutoff.cpp
+  src/common/battery_cutoff_monitor.cpp
+)
+target_include_directories(
+  ${SOFTWARE_BATTERY_CUTOFF_EXECUTABLE}
+  PRIVATE
+  include
+)
+ament_target_dependencies(
+  ${SOFTWARE_BATTERY_CUTOFF_EXECUTABLE}
+  rclcpp
+  sensor_msgs
+  std_srvs
+)
+
 # A200 Hardware
 add_library(
   a200_hardware
@@ -274,6 +293,7 @@ install(
           ${LIGHTING_EXECUTABLE}
           ${LIGHTING_LIB}
           ${SW_LOW_SOC_EXECUTABLE}
+          ${SOFTWARE_BATTERY_CUTOFF_EXECUTABLE}
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
@@ -289,6 +309,30 @@ install(PROGRAMS
   ${PROJECT_NAME}/battery_state/battery_state_control
   DESTINATION lib/${PROJECT_NAME}
 )
+
+if(BUILD_TESTING)
+  find_package(ament_cmake_gtest REQUIRED)
+  ament_add_gtest(
+    test_software_battery_cutoff
+    test/test_software_battery_cutoff.cpp
+  )
+  target_sources(
+    test_software_battery_cutoff
+    PRIVATE
+    src/common/battery_cutoff_monitor.cpp
+  )
+  target_include_directories(
+    test_software_battery_cutoff
+    PRIVATE
+    include
+  )
+  ament_target_dependencies(
+    test_software_battery_cutoff
+    rclcpp
+    sensor_msgs
+    std_srvs
+  )
+endif()
 
 ## EXPORTS
 ament_export_include_directories(
