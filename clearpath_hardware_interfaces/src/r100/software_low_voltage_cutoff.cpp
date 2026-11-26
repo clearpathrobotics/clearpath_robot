@@ -52,10 +52,6 @@ void SoftwareLowVoltageCutoff::battery_callback(const sensor_msgs::msg::BatteryS
         "Battery voltage low: %.2f V (warning threshold %.1f V).", msg->voltage, thresholds.warning);
       break;
     case BatteryVoltageMonitor::Decision::LOW:
-      RCLCPP_ERROR_THROTTLE(
-        get_logger(), *get_clock(), 1000,
-        "Battery voltage %.2f V is at or below cutoff %.1f V; waiting 10 seconds before shutdown.",
-        msg->voltage, thresholds.cutoff);
       break;
     case BatteryVoltageMonitor::Decision::SHUTDOWN:
       if (!shutdown_requested_ && !shutdown_request_pending_) {

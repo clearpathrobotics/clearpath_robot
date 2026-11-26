@@ -59,8 +59,10 @@ public:
     VoltageThresholds * thresholds = nullptr);
 
 private:
-  bool low_voltage_timing_ = false;
-  std::chrono::steady_clock::time_point low_voltage_since_;
+  bool warning_voltage_timing_ = false;
+  std::chrono::steady_clock::time_point warning_voltage_since_;
+  bool cutoff_voltage_timing_ = false;
+  std::chrono::steady_clock::time_point cutoff_voltage_since_;
 };
 
 class SoftwareLowVoltageCutoff : public rclcpp::Node

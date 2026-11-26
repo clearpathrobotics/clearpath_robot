@@ -25,7 +25,41 @@ TEST(R100SoftwareLowVoltageCutoff, SelectsThresholdsByBatteryTechnology)
     BatteryState::POWER_SUPPLY_TECHNOLOGY_UNKNOWN, thresholds));
 }
 
-TEST(R100SoftwareLowVoltageCutoff, RequiresContinuousLowVoltageForTenSeconds)
+TEST(R100SoftwareLowVoltageCutoff, WarnsAfterThirtySecondsBelowWarningThreshold)
+{
+  BatteryVoltageMonitor monitor;
+  BatteryState state;
+  state.present = true;
+  state.power_supply_technology = BatteryState::POWER_SUPPLY_TECHNOLOGY_VRLA;
+  state.voltage = 22.5F;
+  const auto start = std::chrono::steady_clock::time_point{};
+
+  EXPECT_EQ(BatteryVoltageMonitor::Decision::NORMAL, monitor.update(state, start));
+  EXPECT_EQ(
+    BatteryVoltageMonitor::Decision::NORMAL,
+    monitor.update(state, start + std::chrono::seconds(29)));
+  EXPECT_EQ(
+    BatteryVoltageMonitor::Decision::WARNING,
+    monitor.update(state, start + std::chrono::seconds(30)));
+
+  state.voltage = 23.5F;
+  EXPECT_EQ(
+    BatteryVoltageMonitor::Decision::NORMAL,
+    monitor.update(state, start + std::chrono::seconds(31)));
+
+  state.voltage = 22.5F;
+  EXPECT_EQ(
+    BatteryVoltageMonitor::Decision::NORMAL,
+    monitor.update(state, start + std::chrono::seconds(32)));
+  EXPECT_EQ(
+    BatteryVoltageMonitor::Decision::NORMAL,
+    monitor.update(state, start + std::chrono::seconds(61)));
+  EXPECT_EQ(
+    BatteryVoltageMonitor::Decision::WARNING,
+    monitor.update(state, start + std::chrono::seconds(62)));
+}
+
+TEST(R100SoftwareLowVoltageCutoff, RequiresThirtyContinuousSecondsBelowCutoff)
 {
   BatteryVoltageMonitor monitor;
   BatteryState state;
@@ -34,29 +68,31 @@ TEST(R100SoftwareLowVoltageCutoff, RequiresContinuousLowVoltageForTenSeconds)
   state.voltage = 21.5F;
   const auto start = std::chrono::steady_clock::time_point{};
 
-  EXPECT_EQ(BatteryVoltageMonitor::Decision::LOW, monitor.update(state, start));
   EXPECT_EQ(
     BatteryVoltageMonitor::Decision::LOW,
-    monitor.update(state, start + std::chrono::seconds(9)));
+    monitor.update(state, start));
+  EXPECT_EQ(
+    BatteryVoltageMonitor::Decision::LOW,
+    monitor.update(state, start + std::chrono::seconds(29)));
   EXPECT_EQ(
     BatteryVoltageMonitor::Decision::SHUTDOWN,
-    monitor.update(state, start + std::chrono::seconds(10)));
+    monitor.update(state, start + std::chrono::seconds(30)));
 
   state.voltage = 22.5F;
   EXPECT_EQ(
     BatteryVoltageMonitor::Decision::WARNING,
-    monitor.update(state, start + std::chrono::seconds(11)));
+    monitor.update(state, start + std::chrono::seconds(31)));
 
   state.voltage = 21.5F;
   EXPECT_EQ(
-    BatteryVoltageMonitor::Decision::LOW,
-    monitor.update(state, start + std::chrono::seconds(12)));
+    BatteryVoltageMonitor::Decision::WARNING,
+    monitor.update(state, start + std::chrono::seconds(32)));
   EXPECT_EQ(
-    BatteryVoltageMonitor::Decision::LOW,
-    monitor.update(state, start + std::chrono::seconds(21)));
+    BatteryVoltageMonitor::Decision::WARNING,
+    monitor.update(state, start + std::chrono::seconds(61)));
   EXPECT_EQ(
     BatteryVoltageMonitor::Decision::SHUTDOWN,
-    monitor.update(state, start + std::chrono::seconds(22)));
+    monitor.update(state, start + std::chrono::seconds(62)));
 }
 
 TEST(R100SoftwareLowVoltageCutoff, IgnoresMissingOrUnsupportedBattery)

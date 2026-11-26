@@ -29,7 +29,7 @@ namespace r100_sw_low_voltage_cutoff
 namespace
 {
 
-constexpr std::chrono::seconds CUTOFF_CONFIRMATION_TIME(10);
+constexpr std::chrono::seconds VOLTAGE_CONFIRMATION_TIME(30);
 
 }  // namespace
 
@@ -58,7 +58,8 @@ BatteryVoltageMonitor::Decision BatteryVoltageMonitor::update(
     battery_state.voltage <= 0.0F ||
     !get_voltage_thresholds(battery_state.power_supply_technology, thresholds))
   {
-    low_voltage_timing_ = false;
+    warning_voltage_timing_ = false;
+    cutoff_voltage_timing_ = false;
     return Decision::IGNORE;
   }
 
@@ -66,18 +67,35 @@ BatteryVoltageMonitor::Decision BatteryVoltageMonitor::update(
     *output_thresholds = thresholds;
   }
 
-  if (battery_state.voltage <= thresholds.cutoff) {
-    if (!low_voltage_timing_) {
-      low_voltage_timing_ = true;
-      low_voltage_since_ = now;
+  if (battery_state.voltage <= thresholds.warning) {
+    if (!warning_voltage_timing_) {
+      warning_voltage_timing_ = true;
+      warning_voltage_since_ = now;
     }
 
-    return now - low_voltage_since_ >= CUTOFF_CONFIRMATION_TIME ?
-           Decision::SHUTDOWN : Decision::LOW;
+    if (battery_state.voltage <= thresholds.cutoff) {
+      if (!cutoff_voltage_timing_) {
+        cutoff_voltage_timing_ = true;
+        cutoff_voltage_since_ = now;
+      }
+    } else {
+      cutoff_voltage_timing_ = false;
+    }
+
+    if (cutoff_voltage_timing_ && now - cutoff_voltage_since_ >= VOLTAGE_CONFIRMATION_TIME) {
+      return Decision::SHUTDOWN;
+    }
+
+    if (now - warning_voltage_since_ >= VOLTAGE_CONFIRMATION_TIME) {
+      return Decision::WARNING;
+    }
+
+    return battery_state.voltage <= thresholds.cutoff ? Decision::LOW : Decision::NORMAL;
   }
 
-  low_voltage_timing_ = false;
-  return battery_state.voltage <= thresholds.warning ? Decision::WARNING : Decision::NORMAL;
+  warning_voltage_timing_ = false;
+  cutoff_voltage_timing_ = false;
+  return Decision::NORMAL;
 }
 
 }  // namespace r100_sw_low_voltage_cutoff
